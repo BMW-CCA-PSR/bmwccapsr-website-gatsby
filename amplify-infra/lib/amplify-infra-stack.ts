@@ -16,5 +16,8 @@ export class AmplifyInfraStack extends cdk.Stack {
     });
     const masterBranch = amplifyApp.addBranch("master");
     const devBranch = amplifyApp.addBranch("dev");
+
+    masterBranch.addEnvironment("STAGE", "prod");
+    devBranch.addEnvironment("STAGE", "dev");
   }
 }
