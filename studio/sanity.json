@@ -1,11 +1,22 @@
 {
   "root": true,
   "project": {
-    "name": "bmw-cca-psr-website"
+    "name": "bmw-cca-psr-website",
+    "basePath": "/studio"
   },
   "api": {
     "projectId": "clgsgxc0",
     "dataset": "production"
+  },
+  "env": {
+    "development": {
+      "api": {
+        "dataset": "beta"
+      },
+      "plugins": [
+        "@sanity/vision"
+      ]
+    }
   },
   "plugins": [
     "@sanity/base",
@@ -16,13 +27,6 @@
     "@sanity/dashboard",
     "dashboard-widget-amplify"
   ],
-  "env": {
-    "development": {
-      "plugins": [
-        "@sanity/vision"
-      ]
-    }
-  },
   "parts": [
     {
       "name": "part:@sanity/base/schema",
