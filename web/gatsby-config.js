@@ -8,10 +8,15 @@ module.exports = {
       resolve: "gatsby-source-sanity",
       options: {
         projectId: "clgsgxc0",
-        dataset: "beta",
+        dataset: "production",
       },
     },
-    "gatsby-plugin-theme-ui",
+    {
+      resolve: "gatsby-plugin-theme-ui",
+      options: {
+        preset: require("./src/theme"),
+      },
+    },
     "gatsby-plugin-image",
     "gatsby-plugin-react-helmet",
     "gatsby-plugin-mdx",
