@@ -1,14 +1,26 @@
+// Load variables from `.env` as soon as possible
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV || "development"}`
+});
+
+const path = require("path");
+const clientConfig = require("./client-config");
+
+const isProd = process.env.NODE_ENV === "production";
+
 module.exports = {
   siteMetadata: {
-    siteUrl: "https://www.yourdomain.tld",
+    siteUrl: "https://bmw-club-psr.org",
     title: "BMW CCA PSR Website",
   },
   plugins: [
     {
       resolve: "gatsby-source-sanity",
       options: {
-        projectId: "clgsgxc0",
-        dataset: "production",
+        ...clientConfig.sanity,
+        token: process.env.GATSBY_SANITY_TOKEN,
+        watchMode: true,
+        overlayDrafts: true
       },
     },
     {

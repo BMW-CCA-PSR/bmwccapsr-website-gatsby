@@ -1,8 +1,7 @@
 {
   "root": true,
   "project": {
-    "name": "bmw-cca-psr-website",
-    "basePath": "/studio"
+    "name": "BMW CCA PSR Website"
   },
   "api": {
     "projectId": "clgsgxc0",
@@ -25,12 +24,39 @@
     "@sanity/default-login",
     "@sanity/desk-tool",
     "@sanity/dashboard",
-    "dashboard-widget-amplify"
+    "dashboard-widget-amplifydeploybutton"
   ],
   "parts": [
     {
       "name": "part:@sanity/base/schema",
       "path": "./schemas/schema"
+    },
+    {
+      "implements": "part:@sanity/dashboard/config",
+      "path": "./dashboardConfig"
+    },
+    {
+      "name": "part:@sanity/desk-tool/structure",
+      "path": "./deskStructure.js"
+    }
+  ],
+  "__experimental_spaces": [
+    {
+      "name": "production",
+      "title": "Production",
+      "default": true,
+      "api": {
+        "projectId": "clgsgxc0",
+        "dataset": "production"
+      }
+    },
+    {
+      "name": "beta",
+      "title": "Beta",
+      "api": {
+        "projectId": "clgsgxc0",
+        "dataset": "beta"
+      }
     }
   ]
 }

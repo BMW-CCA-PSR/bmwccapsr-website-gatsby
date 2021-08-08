@@ -18,7 +18,7 @@ export default function Layout({ children }: LayoutProps) {
         sx={{
           p: 3
         }}>
-        <Header siteTitle="BMW CCA PSR"/>
+        <Header/>
       </div>
       <div
         sx={{

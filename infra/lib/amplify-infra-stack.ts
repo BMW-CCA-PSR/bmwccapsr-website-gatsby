@@ -17,7 +17,17 @@ export class AmplifyInfraStack extends cdk.Stack {
     const masterBranch = amplifyApp.addBranch("master");
     const devBranch = amplifyApp.addBranch("dev");
 
+    // app env vars
+
+    amplifyApp.addEnvironment("GATSBY_SANITY_PROJECT_ID", "clgsgxc0")
+    amplifyApp.addEnvironment("GATSBY_SANITY_TOKEN", "replace_me")
+
+    // prod env vars
     masterBranch.addEnvironment("STAGE", "prod");
+    masterBranch.addEnvironment("GATSBY_SANITY_DATASET", "production");
+
+    // dev env vars
     devBranch.addEnvironment("STAGE", "dev");
+    devBranch.addEnvironment("GATSBY_SANITY_DATASET", "beta");
   }
 }
