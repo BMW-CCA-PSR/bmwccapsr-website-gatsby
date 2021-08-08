@@ -11,21 +11,15 @@ updates:
       interval: "weekly"
       day: "sunday"
     target-branch: "dev"
-    labels:
-      - "gatsby dependencies"
   - package-ecosystem: "npm"
     directory: "/infra" 
     schedule:
       interval: "weekly"
       day: "sunday"
     target-branch: "dev"
-    labels:
-      - "aws cdk dependencies"
   - package-ecosystem: "npm"
     directory: "/studio" 
     schedule:
       interval: "weekly"
       day: "sunday"
     target-branch: "dev"
-    labels:
-      - "sanity studio dependencies"
