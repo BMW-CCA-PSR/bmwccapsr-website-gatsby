@@ -1186,7 +1186,7 @@
 
 "@sanity/components@^2.13.0":
   version "2.13.0"
-  resolved "https://registry.npmjs.org/@sanity/components/-/components-2.13.0.tgz#2e530cadea1965b2938c366704e73e089352d13c"
+  resolved "https://registry.yarnpkg.com/@sanity/components/-/components-2.13.0.tgz#2e530cadea1965b2938c366704e73e089352d13c"
   integrity sha512-g0fUibEb7KDLtw4jDlT9ecNxzx4ClFkiJHwcVk6wD+hLQLvRLJ9lwt2T66x2pW9BlQcl+yZ4qbrTD8wQJC1Qtg==
 
 "@sanity/core@^2.13.1":
