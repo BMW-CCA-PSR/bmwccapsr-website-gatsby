@@ -1,5 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as amplify from "@aws-cdk/aws-amplify";
+import { App } from '@aws-cdk/core';
 
 export class AmplifyInfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -14,8 +15,25 @@ export class AmplifyInfraStack extends cdk.Stack {
         }),
       }),
     });
+
     const masterBranch = amplifyApp.addBranch("master");
     const devBranch = amplifyApp.addBranch("dev");
+
+    // domain setup
+
+    amplifyApp.addDomain("domain",{
+      domainName: "bmw-club-psr.org",
+      subDomains: [
+        {
+          branch: devBranch,
+          prefix: "beta"
+        },
+        {
+          branch: masterBranch,
+          prefix: ""
+        }
+      ]
+    })
 
     // app env vars
 
