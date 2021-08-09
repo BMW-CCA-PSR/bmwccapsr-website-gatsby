@@ -1,0 +1,8 @@
+node_modules
+web/node_modules
+.DS_Store
+web/.cache
+web/public
+dist
+
+.env.*
