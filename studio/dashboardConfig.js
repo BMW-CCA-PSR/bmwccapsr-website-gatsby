@@ -1,5 +1,6 @@
 export default {
 widgets: [
+{name: 'structure-menu'},
 {
     name: "AmplifyDeployButton",
     options: {
@@ -11,5 +12,6 @@ widgets: [
     buttonText: "Deploy",
     },
 },
+{name: 'project-users', layout: {height: 'auto'}},
 ]
 }

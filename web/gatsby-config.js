@@ -34,6 +34,8 @@ module.exports = {
     "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
+    "gatsby-plugin-graphql-codegen",
+    "gatsby-plugin-typegen",
     {
       resolve: "gatsby-source-filesystem",
       options: {

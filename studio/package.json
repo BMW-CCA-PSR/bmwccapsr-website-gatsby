@@ -30,7 +30,10 @@
     "react-player": "^2.9.0",
     "sanity-plugin-dashboard-widget-amplifydeploybutton": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "prettier": "^2.3.2",
+    "sanity-codegen": "^0.9.5"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ebox86/bmwccapsr-website-gatsby.git"
