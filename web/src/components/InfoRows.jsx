@@ -1,7 +1,7 @@
 import React from "react";
 import PortableText from "./portableText";
 
-import { getFluidGatsbyImage } from "gatsby-source-sanity";
+import {getGatsbyImageData} from 'gatsby-source-sanity'
 import clientConfig from "../../client-config";
 
 const maybeImage = illustration => {
@@ -12,7 +12,7 @@ const maybeImage = illustration => {
     illustration.image &&
     illustration.image.asset
   ) {
-    const fluidProps = getFluidGatsbyImage(
+    const fluidProps = getGatsbyImageData(
       illustration.image.asset._id,
       { maxWidth: 960 },
       clientConfig.sanity

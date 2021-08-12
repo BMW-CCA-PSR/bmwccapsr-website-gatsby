@@ -2,12 +2,13 @@ import React from "react";
 import PortableText from "./portableText";
 import clientConfig from "../../client-config";
 import CTALink from "./CTALink";
+import {GatsbyImage} from 'gatsby-plugin-image'
+import {getGatsbyImageData} from 'gatsby-source-sanity'
 
-import { getFluidGatsbyImage } from "gatsby-source-sanity";
 const maybeImage = illustration => {
   let img = null;
   if (illustration && illustration.image && illustration.image.asset && !illustration.disabled) {
-    const fluidProps = getFluidGatsbyImage(
+    const fluidProps = getGatsbyImageData(
       illustration.image.asset._id,
       { maxWidth: 960 },
       clientConfig.sanity

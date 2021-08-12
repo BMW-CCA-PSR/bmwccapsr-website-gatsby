@@ -7,7 +7,7 @@ import { buildImageObj } from "../lib/helpers";
 
 // https://ogp.me
 
-function SEO({ description, lang, meta, keywords, title, image, bodyAttr }) {
+function SEO({ description, lang, meta, keywords, title, image }) {
   return (
     <StaticQuery
       query={detailsQuery}
@@ -26,7 +26,6 @@ function SEO({ description, lang, meta, keywords, title, image, bodyAttr }) {
 
         return (
           <Helmet
-            bodyAttributes={bodyAttr}
             htmlAttributes={{ lang }}
             title={pageTitle}
             titleTemplate={pageTitle === siteTitle ? siteTitle : `%s | ${siteTitle}`}
