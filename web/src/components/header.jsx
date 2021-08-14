@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { Heading, Container, Flex } from "theme-ui"
-import { Link } from "gatsby";
+import { Link } from 'gatsby'
 import React from "react";
 import CTALink from "./CTALink";
 import { StaticImage } from "gatsby-plugin-image"
@@ -12,7 +12,7 @@ export function Logo() {
       src="../images/PSR-logo.jpeg"
       placeholder="blurred"
       layout="constrained"
-      width={200}
+      width={150}
     />
   )
 }
@@ -34,9 +34,9 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 <header
   sx={{
     variant: 'styles.header',
-    zIndex: 30,
+    zIndex: 0,
     top: 0,
-    
+    position: 'sticky'
   }}>
   <Container>
     <Flex
@@ -46,18 +46,19 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
         px: 3,
         py: 2,
         display: 'flex',
-        alignItems: 'baseline',
+        alignItems: 'center',
+        backgroundColor: 'background'
       }}>
-      {Logo()}
       <Link
+        activeClassName="active"
         id="siteTitle"
         to="/"
         sx={{
-          variant: 'styles.navlink',
-          fontSize: 5,
-          py: 2,
+          color: 'text',
+          textDecoration: 'none'
         }}>
-        <h2>{siteTitle}</h2>
+        {Logo()}
+        {/* <Heading>{siteTitle}</Heading> */}
       </Link>
       <div sx={{ mx: 'auto' }} />
       {showNav && navMenuItems && (
@@ -81,8 +82,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
     sx={{
       my: 0,
       py: 0,
-      borderColor: "gray",
-      opacity: .25
+      borderColor: "highlight",
+      //opacity: .25
     }} />
 </header>
 

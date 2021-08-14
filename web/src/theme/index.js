@@ -5,7 +5,7 @@ module.exports = {
     primary: "#3cf",
     secondary: "#e0f",
     muted: "#191919",
-    highlight: "#29112c",
+    highlight: "#228dd8",
     gray: "#999",
     purple: "#c0f"
   },
