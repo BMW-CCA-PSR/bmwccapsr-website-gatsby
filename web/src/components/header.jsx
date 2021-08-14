@@ -7,7 +7,7 @@ import { StaticImage } from "gatsby-plugin-image"
 
 export function Logo() {
   return (
-    <StaticImage 
+    <StaticImage
       alt="BMW CCA PSR"
       src="../images/PSR-logo.jpeg"
       placeholder="blurred"
@@ -31,75 +31,62 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   let titleClass = "toggleColour no-underline hover:no-underline font-bold text-2xl lg:text-4xl";
   return (
 
-<header
-  sx={{
-    variant: 'styles.header',
-    zIndex: 0,
-    top: 0,
-    position: 'sticky'
-  }}>
-  <Container>
-    <Flex
+    <header
       sx={{
-        maxWidth: 768,
-        mx: 'auto',
-        px: 3,
-        py: 2,
-        display: 'flex',
-        alignItems: 'center',
+        variant: 'styles.header',
+        zIndex: 0,
+        top: 0,
+        position: 'sticky',
         backgroundColor: 'background'
       }}>
-      <Link
-        activeClassName="active"
-        id="siteTitle"
-        to="/"
-        sx={{
-          color: 'text',
-          textDecoration: 'none'
-        }}>
-        {Logo()}
-        {/* <Heading>{siteTitle}</Heading> */}
-      </Link>
-      <div sx={{ mx: 'auto' }} />
-      {showNav && navMenuItems && (
-        <div>
-          <ul
+      <Container>
+        <Flex
+          sx={{
+            maxWidth: 768,
+            mx: 'auto',
+            px: 3,
+            py: 2,
+            display: 'flex',
+            alignItems: 'center',
+          }}>
+          <Link
+            activeClassName="active"
+            id="siteTitle"
+            to="/"
             sx={{
-              justifyContent: "end",
-              alignItems: "center",
-              display: "flex"
-            }}
-          >
-            {navMenuItems.map((i) => (
-              <CTALink {...i} />
-            ))}
-          </ul>
-        </div>
-      )}
-    </Flex>
-  </Container>
-  <hr
-    sx={{
-      my: 0,
-      py: 0,
-      borderColor: "highlight",
-      //opacity: .25
-    }} />
-</header>
-
-    // <nav>
-    //   <div className="w-full container mx-auto flex flex-wrap items-center justify-between mt-0 py-2">
-    //     <div className="pl-4 flex items-center">
-    //       <Link id="siteTitle" className={titleClass} to="/">
-    //         {siteTitle}
-    //       </Link>
-    //     </div>
-
-
-    //   </div>
-
-    //   <hr className="border-b border-gray-100 opacity-25 my-0 py-0" />
-    // </nav>
+              color: 'text',
+              textDecoration: 'none'
+            }}>
+            {Logo()}
+            {/* <Heading>{siteTitle}</Heading> */}
+          </Link>
+          <div sx={{ mx: 'auto' }} />
+          {showNav && navMenuItems && (
+            <div>
+              <ul
+                sx={{
+                  justifyContent: "end",
+                  alignItems: "center",
+                  display: "flex"
+                }}
+              >
+                {navMenuItems.map((i) => (
+                  <CTALink {...i} />
+                ))}
+              </ul>
+            </div>
+          )}
+        </Flex>
+      </Container>
+      <hr
+        sx={{
+          my: 0,
+          py: 0,
+          borderColor: "highlight",
+          borderBottomWidth: 3
+          //opacity: .25
+        }} />
+    </header>
   );
 };
 
