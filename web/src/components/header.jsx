@@ -84,7 +84,6 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
           py: 0,
           borderColor: "highlight",
           borderBottomWidth: 3
-          //opacity: .25
         }} />
     </header>
   );
