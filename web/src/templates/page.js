@@ -36,7 +36,6 @@ export const query = graphql`
 
 const Page = (props) => {
     const { data, errors } = props;
-  
     if (errors) {
       return (
         <Layout>
@@ -46,15 +45,15 @@ const Page = (props) => {
     }
   
     const site = (data || {}).site;
-  
+
     if (!site) {
       throw new Error(
         'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
       );
     }
-  
+
     const page = data.page || data.route.page;
-  
+
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c, i) => {
@@ -77,18 +76,18 @@ const Page = (props) => {
         }
         return el;
       });
-  
+
     const menuItems = page.navMenu && (page.navMenu.items || []);
     const pageTitle = data.route && !data.route.useSiteTitle && page.title;
-  
+
     return (
-      <Layout navMenuItems={menuItems} textWhite={true}>
+      <Layout navMenuItems={menuItems}>
         <SEO
           title={pageTitle}
           description={site.description}
           keywords={site.keywords}
         />
-        <div className="pt-24">{content}</div>
+        <div>{content}</div>
       </Layout>
     );
   };

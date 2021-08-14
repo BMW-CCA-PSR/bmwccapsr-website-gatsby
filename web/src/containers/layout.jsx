@@ -18,8 +18,6 @@ function LayoutContainer(props) {
     setShowNav(false);
   }
 
-  const { textWhite = false } = props;
-
   return (
     <StaticQuery
       query={query}
@@ -36,7 +34,6 @@ function LayoutContainer(props) {
             siteTitle={data.site.title}
             onHideNav={handleHideNav}
             onShowNav={handleShowNav}
-            textWhite={textWhite}
           />
         );
       }}
