@@ -26,6 +26,7 @@ import authorReference from './objects/authorReference'
 import link from './objects/link'
 import variation from './objects/variation'
 import openGraph from './objects/openGraph'
+import navItem from './objects/navItem'
 
 const allPlugs = Object.values(plugs).map((plug) => {
   return { ...plug, fields: plugDefaultFields.concat(plug.fields) }
@@ -52,6 +53,7 @@ export default createSchema({
     videoEmbed,
     bodyPortableText,
     excerptPortableText,
+    navItem,
   ])
   .concat(allPlugs),
 })
