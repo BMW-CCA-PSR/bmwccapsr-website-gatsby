@@ -57,7 +57,6 @@ const IndexPage = (props) => {
   if (errors) {
     return <Errors errors={errors} />;
   }
-
   return <Page data={data} />;
 };
 

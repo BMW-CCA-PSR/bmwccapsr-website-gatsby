@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { Heading, Container, Flex } from "theme-ui"
+import { Heading, Container, Flex, Divider, Button } from "theme-ui"
 import { Link } from 'gatsby'
 import React from "react";
 import CTALink from "./CTALink";
@@ -18,7 +18,6 @@ export function Logo() {
 }
 
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
-
 
   return (
 
@@ -61,21 +60,23 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                   display: "flex"
                 }}
               >
-                {navMenuItems.map((i) => (
-                  <CTALink {...i} />
-                ))}
+                {navMenuItems.map((i) => {
+                  if (i.navigationItemUrl) {
+                    return <Button>{i.text}</Button>
+                  }
+                  return <CTALink {...i} />;
+                })}
               </ul>
             </div>
           )}
         </Flex>
       </Container>
-      <hr
-        sx={{
+      <Divider sx={{
           my: 0,
           py: 0,
           borderColor: "highlight",
           borderBottomWidth: 3
-        }} />
+        }}/>
     </header>
   );
 };
