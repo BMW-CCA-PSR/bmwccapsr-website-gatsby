@@ -78,6 +78,7 @@ const Page = (props) => {
       });
 
     const menuItems = page.navMenu && (page.navMenu.items || []);
+    console.log(menuItems)
     const pageTitle = data.route && !data.route.useSiteTitle && page.title;
 
     return (
