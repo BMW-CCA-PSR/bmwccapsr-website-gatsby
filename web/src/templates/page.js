@@ -4,10 +4,10 @@ import { graphql } from "gatsby";
 import Hero from "../components/hero";
 import InfoRows from "../components/InfoRows";
 import CTAColumns from "../components/cta-columns";
-import CTA from "../components/cta";
+import Cta from "../components/cta";
 
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 
 export const query = graphql`
@@ -69,7 +69,7 @@ const Page = (props) => {
             el = <CTAColumns key={c._key} {...c} />;
             break;
           case "ctaPlug":
-            el = <CTA key={c._key} {...c} />;
+            el = <Cta key={c._key} {...c} />;
             break;
           default:
             el = null;
@@ -82,7 +82,7 @@ const Page = (props) => {
 
     return (
       <Layout navMenuItems={menuItems}>
-        <SEO
+        <Seo
           title={pageTitle}
           description={site.description}
           keywords={site.keywords}

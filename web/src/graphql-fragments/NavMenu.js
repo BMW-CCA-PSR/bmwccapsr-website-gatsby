@@ -8,6 +8,7 @@ fragment NavMenu on SanityNavigationMenu {
       kind
       link
       route
+      _type
       landingPageRoute {
         ... on SanityRoute {
           id
@@ -20,6 +21,8 @@ fragment NavMenu on SanityNavigationMenu {
     }
     ... on SanityNavigationItem {
       navigationItemUrl {
+        title
+        _type
         items {
           ... on SanityCta {
             _key
@@ -34,13 +37,36 @@ fragment NavMenu on SanityNavigationMenu {
               }
             }
           }
+          ... on SanityLink {
+            _key
+            _type
+            landingPageRoute {
+              ... on SanityRoute {
+                id
+                _type
+                slug {
+                  current
+                }
+              }
+            }
+            title
+          }
         }
-        internal {
-          content
-        }
-        title
       }
-      text
+    }
+    ... on SanityLink {
+      _key
+      _type
+      landingPageRoute {
+        ... on SanityRoute {
+          id
+          _type
+          slug {
+            current
+          }
+        }
+      }
+      title
     }
   }
 }

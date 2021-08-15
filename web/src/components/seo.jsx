@@ -7,7 +7,7 @@ import { buildImageObj } from "../lib/helpers";
 
 // https://ogp.me
 
-function SEO({ description, lang, meta, keywords, title, image }) {
+function Seo({ description, lang, meta, keywords, title, image }) {
   return (
     <StaticQuery
       query={detailsQuery}
@@ -88,13 +88,13 @@ function SEO({ description, lang, meta, keywords, title, image }) {
   );
 }
 
-SEO.defaultProps = {
+Seo.defaultProps = {
   lang: "en",
   meta: [],
   keywords: []
 };
 
-SEO.propTypes = {
+Seo.propTypes = {
   description: PropTypes.string,
   lang: PropTypes.string,
   meta: PropTypes.array,
@@ -102,7 +102,7 @@ SEO.propTypes = {
   title: PropTypes.string.isRequired
 };
 
-export default SEO;
+export default Seo;
 
 const detailsQuery = graphql`
   query DefaultSEOQuery {

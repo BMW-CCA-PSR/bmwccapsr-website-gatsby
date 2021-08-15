@@ -5,7 +5,7 @@ import React from "react";
 import CTALink from "./CTALink";
 import { StaticImage } from "gatsby-plugin-image"
 
-export function Logo() {
+function Logo() {
   return (
     <StaticImage
       alt="BMW CCA PSR"
@@ -14,6 +14,12 @@ export function Logo() {
       layout="constrained"
       width={150}
     />
+  )
+}
+
+function SubMenu (menus) {
+  return (
+    <Button>{menus.title}</Button>
   )
 }
 
@@ -62,9 +68,12 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
               >
                 {navMenuItems.map((i) => {
                   if (i.navigationItemUrl) {
-                    return <Button>{i.text}</Button>
+                    return SubMenu(i.navigationItemUrl)
+                  } else if (i._type == "link") {
+                    return <CTALink {...i} />;
+                  } else if (i._type == "cta") {
+                    return <CTALink {...i} />;
                   }
-                  return <CTALink {...i} />;
                 })}
               </ul>
             </div>

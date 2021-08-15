@@ -2,7 +2,7 @@ import React from "react";
 import PortableText from "../components/portableText";
 import CTALink from "./CTALink";
 
-const CTA = ({ label, title, body, ctas }) => (
+const Cta = ({ label, title, body, ctas }) => (
   <section className="container mx-auto text-center py-6 mb-12">
     <h1 className="w-full my-2 text-5xl font-bold leading-tight text-center text-white">{title}</h1>
     <div className="w-full mb-4">
@@ -27,4 +27,4 @@ const CTA = ({ label, title, body, ctas }) => (
   </section>
 );
 
-export default CTA;
+export default Cta;

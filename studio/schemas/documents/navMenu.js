@@ -12,6 +12,7 @@ export default {
         of: [
           { type: 'cta' },
           { type: 'navigationItem' },
+          { type: 'link'},
         ]
       }
     ]
