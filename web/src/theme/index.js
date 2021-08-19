@@ -2,10 +2,10 @@ module.exports = {
   colors: {
     text: "#060606",
     background: "#fff",
-    primary: "#3cf",
+    primary: "#228dd8",
     secondary: "#e0f",
     muted: "#191919",
-    highlight: "#228dd8",
+    highlight: "#3cf",
     gray: "#999",
     purple: "#c0f"
   },

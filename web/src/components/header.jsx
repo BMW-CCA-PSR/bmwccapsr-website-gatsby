@@ -3,6 +3,8 @@ import { Heading, Container, Flex, Divider, Button } from "theme-ui"
 import { Link } from 'gatsby'
 import React from "react";
 import CTALink from "./CTALink";
+import Dropdown  from "./dropdown";
+import NavLink from "./navLink";
 import { StaticImage } from "gatsby-plugin-image"
 
 function Logo() {
@@ -14,12 +16,6 @@ function Logo() {
       layout="constrained"
       width={150}
     />
-  )
-}
-
-function SubMenu (menus) {
-  return (
-    <Button>{menus.title}</Button>
   )
 }
 
@@ -40,8 +36,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
           sx={{
             maxWidth: 768,
             mx: 'auto',
-            px: 3,
-            py: 2,
+            px: 0,
+            py: 0,
             display: 'flex',
             alignItems: 'center',
           }}>
@@ -68,9 +64,9 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
               >
                 {navMenuItems.map((i) => {
                   if (i.navigationItemUrl) {
-                    return SubMenu(i.navigationItemUrl)
+                    return <Dropdown {...i} />;
                   } else if (i._type == "link") {
-                    return <CTALink {...i} />;
+                    return <NavLink {...i} />;
                   } else if (i._type == "cta") {
                     return <CTALink {...i} />;
                   }

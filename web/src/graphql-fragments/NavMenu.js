@@ -50,6 +50,7 @@ fragment NavMenu on SanityNavigationMenu {
               }
             }
             title
+            href
           }
         }
       }
@@ -67,6 +68,7 @@ fragment NavMenu on SanityNavigationMenu {
         }
       }
       title
+      href
     }
   }
 }
