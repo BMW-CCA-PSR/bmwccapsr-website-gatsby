@@ -1,121 +1,46 @@
 /** @jsxImportSource theme-ui */
 import { Link } from "gatsby";
 import React from "react";
+import { Container } from "@theme-ui/components";
 
 const Footer = ({ siteTitle }) => (
-  <footer sx={{
-    backgroundColor: "grey"
-  }}>
-    <div sx={{
-      mx: "auto",
-      px: 8
+  <footer
+    sx={{
+      fontSize: 1,
+      color: 'text',
+      bg: 'gray',
+      variant: 'styles.footer',
+      textDecoration: "none",
+      position: "fixed",
+      width: "100%",
+      left: 0,
+      bottom: 0,
     }}>
-      <div sx={{
-        width:"full",
-        display:"flex",
-        py:6
+    <Container
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        maxWidth: 768,
+        mx: 'auto',
+        px: 2,
+        py: 4,
       }}>
-        <div sx={{
-          display:"flex-1",
-          mb:6
-        }}>
-          <a
-            sx={{color: "orange"}}
-            className="text-orange-600 no-underline hover:no-underline font-bold text-2xl lg:text-4xl"
-            href="#"
-          >
-            {siteTitle}
-          </a>
-        </div>
-
-        <div 
-          sx={{display:"flex-1"}}>
-          <p sx={{color: "gray"}}>Links</p>
-          <ul sx={{listStyle:"reset", mb:6}}>
-            <li sx={{mt:2, display:"inline-block", mr:2}}>
-              <a href="https://www.tailwindtoolbox.com/templates/landing-page">
-                <span className="hover:underline text-gray-800 hover:text-orange-500">
-                  Page theme
-                </span>
-              </a>
-            </li>
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <a
-                href="https://sanity.io/docs"
-                className="no-underline hover:underline text-gray-800 hover:text-orange-500"
-              >
-                Sanity Help
-              </a>
-            </li>
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <a
-                href="https://slack.sanity.io"
-                className="no-underline hover:underline text-gray-800 hover:text-orange-500"
-              >
-                Slack Community
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div sx={{display:"flex-1"}}>
-          <p className="uppercase text-gray-500 md:mb-6">Legal</p>
-          <ul className="list-reset mb-6">
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <span className="no-underline hover:underline text-gray-800 hover:text-orange-500">
-                Terms
-              </span>
-            </li>
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <span className="no-underline hover:underline text-gray-800 hover:text-orange-500">
-                Privacy
-              </span>
-            </li>
-          </ul>
-        </div>
-        <div sx={{display:"flex-1"}}>
-          <p className="uppercase text-gray-500 md:mb-6">Social</p>
-          <ul className="list-reset mb-6">
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <a
-                href="https://twitter.com/sanity_io"
-                className="no-underline hover:underline text-gray-800 hover:text-orange-500"
-              >
-                Twitter
-              </a>
-            </li>
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <a
-                href="https://www.linkedin.com/company/sanity-io/"
-                className="no-underline hover:underline text-gray-800 hover:text-orange-500"
-              >
-                Linkedin
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div sx={{display:"flex-1"}}>
-          <p className="uppercase text-gray-500 md:mb-6">Company</p>
-          <ul className="list-reset mb-6">
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <Link
-                to="/blog"
-                className="no-underline hover:underline text-gray-800 hover:text-orange-500"
-              >
-                Blog
-              </Link>
-            </li>
-            <li className="mt-2 inline-block mr-2 md:block md:mr-0">
-              <a
-                href="https://www.sanity.io/contact"
-                className="no-underline hover:underline text-gray-800 hover:text-orange-500"
-              >
-                Contact
-              </a>
-            </li>
-          </ul>
-        </div>
+      <Link to="/" sx={{ variant: 'styles.navlink', p: 2, textDecoration: "none", color: "text" }}>
+        Home
+      </Link>
+      {/* <Link to="/" sx={{ variant: 'styles.navlink', p: 2, textDecoration: "none", color:"text"}}>
+      Blog
+    </Link>
+    <Link to="/" sx={{ variant: 'styles.navlink', p: 2,textDecoration: "none", color: "text"}}>
+      About
+    </Link> */}
+      <div sx={{ mx: 'auto' }} />
+      <div sx={{ p: 2 }}>© {new Date().getFullYear()} BMW Car Club of America</div>
+      <div>
+        <p sx={{ fontSize: 12, p: 2 }}>This site is not in any way connected with Bayerische Motoren Werke AG or BMW of North America, Inc. The club assumes no liability for any of the information, opinion, or suggestions contained herein. It is provided by and for the club membership only.</p>
       </div>
-    </div>
+    </Container>
   </footer>
 );
 
