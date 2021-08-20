@@ -1,6 +1,6 @@
 # Use the official lightweight Node.js 10 image.
 # https://hub.docker.com/_/node
-FROM node:16
+FROM node:16.7-bullseye
 EXPOSE 80
 
 # Create and change to the app directory.
@@ -12,6 +12,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install production dependencies.
+RUN npm install -g npm
 RUN npm install
 
 # Copy local code to the container image.

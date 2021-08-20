@@ -10081,6 +10081,11 @@
     "prelude-ls" "^1.2.1"
     "type-check" "~0.4.0"
 
+"libvips@^0.0.2":
+  "integrity" "sha1-nHyHkW9bMkNY63If74CXy8JkTlQ="
+  "resolved" "https://registry.npmjs.org/libvips/-/libvips-0.0.2.tgz"
+  "version" "0.0.2"
+
 "lilconfig@^2.0.3":
   "integrity" "sha512-EHKqr/+ZvdKCifpNrJCKxBTgk5XupZA3y/aCPY9mxfgBzmgh93Mt/WqjjQ38oMxXuvDokaKiM3lAgvSH2sjtHg=="
   "resolved" "https://registry.npmjs.org/lilconfig/-/lilconfig-2.0.3.tgz"
