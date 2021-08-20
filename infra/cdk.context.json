@@ -1,0 +1,12 @@
+{
+  "availability-zones:account=992166107237:region=us-west-2": [
+    "us-west-2a",
+    "us-west-2b",
+    "us-west-2c",
+    "us-west-2d"
+  ],
+  "hosted-zone:account=992166107237:domainName=bmw-club-psr.org:region=us-west-2": {
+    "Id": "/hostedzone/Z02446311PUQYZEXUBK5W",
+    "Name": "bmw-club-psr.org."
+  }
+}

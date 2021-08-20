@@ -15,15 +15,6 @@ module.exports = {
   },
   plugins: [
     {
-      resolve: "gatsby-source-sanity",
-      options: {
-        ...clientConfig.sanity,
-        token: process.env.GATSBY_SANITY_TOKEN,
-        watchMode: true,
-        overlayDrafts: true
-      },
-    },
-    {
       resolve: "gatsby-plugin-theme-ui",
       options: {
         preset: require("./src/theme"),
@@ -34,6 +25,21 @@ module.exports = {
     "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
+    {
+      resolve: "gatsby-source-sanity",
+      options: {
+        ...clientConfig.sanity,
+        token: process.env.GATSBY_SANITY_TOKEN,
+        watchMode: true,
+        overlayDrafts: true
+      },
+    },
+    {
+      resolve: "gatsby-plugin-sanity-image",
+      options: {
+        ...clientConfig.sanity,
+      },
+    },
     {
       resolve: "gatsby-source-filesystem",
       options: {

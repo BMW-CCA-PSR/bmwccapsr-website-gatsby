@@ -19,19 +19,19 @@ export const icons = {
 }
 
 const blog = S.listItem()
-  .title('Blog')
+  .title('Zundfolge')
   .icon(BlogIcon)
   .child(
     S.list()
-      .title('/blog')
+      .title('Zundfolge')
       .items([
         S.listItem()
-          .title('Published posts')
+          .title('Published articles')
           .schemaType('post')
           .icon(BlogIcon)
           .child(
             S.documentList('post')
-              .title('Published posts')
+              .title('Published articles')
               .menuItems(S.documentTypeList('post').getMenuItems())
               // Only show posts with publish date earlier than now and that is not drafts
               .filter('_type == "post" && publishedAt < now() && !(_id in path("drafts.**"))')
@@ -42,19 +42,19 @@ const blog = S.listItem()
                   .views([S.view.form(), PreviewIFrame()])
               )
           ),
-        S.documentTypeListItem('post').title('All posts').icon(AllIcon),
+        S.documentTypeListItem('post').title('All articles').icon(AllIcon),
         S.listItem()
-          .title('Posts by category')
+          .title('Articles by category')
           .child(
             // List out all categories
             S.documentTypeList('category')
-              .title('Posts by category')
+              .title('Articles by category')
               .child(catId =>
                 // List out project documents where the _id for the selected
                 // category appear as a _ref in the project’s categories array
                 S.documentList()
                   .schemaType('post')
-                  .title('Posts')
+                  .title('Articles')
                   .filter(
                     '_type == "post" && $catId in categories[]._ref'
                   )

@@ -24,7 +24,8 @@
     "@sanity/default-login",
     "@sanity/desk-tool",
     "@sanity/dashboard",
-    "dashboard-widget-amplifydeploybutton"
+    "dashboard-widget-amplifydeploybutton",
+    "dashboard-widget-structure-menu"
   ],
   "parts": [
     {

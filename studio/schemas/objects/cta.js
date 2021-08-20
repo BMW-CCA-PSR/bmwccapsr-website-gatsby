@@ -1,7 +1,10 @@
+import { MdAnnouncement } from 'react-icons/md'
+
 export default {
     title: 'Call to action',
     name: 'cta',
     type: 'object',
+    icon: MdAnnouncement,
     fieldsets: [
       {
         title: 'Link',

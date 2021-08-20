@@ -2,11 +2,11 @@ module.exports = {
   colors: {
     text: "#060606",
     background: "#fff",
-    primary: "#3cf",
+    primary: "#228dd8",
     secondary: "#e0f",
     muted: "#191919",
-    highlight: "#29112c",
-    gray: "#999",
+    highlight: "#3cf",
+    gray: "#f6f5f5",
     purple: "#c0f"
   },
   fonts: {
@@ -14,8 +14,18 @@ module.exports = {
     heading: "inherit",
     monospace: "Menlo, monospace"
   },
-  fontSizes: [12,14,16,20,24,32,48,64,72],
-  fontWeights: {
+  fontSizes: [
+    12,
+    14,
+    16,
+    20,
+    24,
+    32,
+    48,
+    64,
+    72
+  ],
+fontWeights: {
     body: 400,
     heading: 700,
     display: 900
@@ -32,7 +42,10 @@ module.exports = {
     },
     display: {
       variant: "textStyles.heading",
-      fontSize: [5,6],
+      fontSize: [
+        5,
+        6
+      ],
       fontWeight: "display",
       letterSpacing: "-0.03em",
       mt: 3
