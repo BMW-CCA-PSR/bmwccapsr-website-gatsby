@@ -1,10 +1,15 @@
 import * as cdk from '@aws-cdk/core';
 import * as amplify from "@aws-cdk/aws-amplify";
-import { App } from '@aws-cdk/core';
+import path = require('path');
+import ec2 = require('@aws-cdk/aws-ec2');
+import ecs = require('@aws-cdk/aws-ecs');
+import ecs_patterns = require('@aws-cdk/aws-ecs-patterns');
 
 export class AmplifyInfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    // setup amplify app to github
 
     const amplifyApp = new amplify.App(this, "bmwccapsr-website", {
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
@@ -15,6 +20,8 @@ export class AmplifyInfraStack extends cdk.Stack {
         }),
       }),
     });
+
+    // branch setup
 
     const masterBranch = amplifyApp.addBranch("master");
     const devBranch = amplifyApp.addBranch("dev");
@@ -47,5 +54,6 @@ export class AmplifyInfraStack extends cdk.Stack {
     // dev env vars
     devBranch.addEnvironment("STAGE", "dev");
     devBranch.addEnvironment("GATSBY_SANITY_DATASET", "beta");
+
   }
 }
