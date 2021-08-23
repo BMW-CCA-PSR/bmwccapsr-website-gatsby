@@ -1,7 +1,7 @@
 const env = process.env.NODE_ENV || 'development'
 
 export default function resolvePreviewUrl(document) {
-  const baseUrl = env === 'development' ? 'http://localhost:8000' : 'https://bmw-cca-psr.org'
+  const baseUrl = env === 'development' ? 'http://localhost:8000' : 'http://gatsb-ecsin-1smv6esvqrsnj-583859014.us-west-2.elb.amazonaws.com/'
   switch (document._type) {
     case 'route':
       if (!document.slug || !document.slug.current) {

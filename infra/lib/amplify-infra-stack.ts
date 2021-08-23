@@ -1,9 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as amplify from "@aws-cdk/aws-amplify";
-import path = require('path');
-import ec2 = require('@aws-cdk/aws-ec2');
-import ecs = require('@aws-cdk/aws-ecs');
-import ecs_patterns = require('@aws-cdk/aws-ecs-patterns');
+import ssm = require("@aws-cdk/aws-ssm");
+
 
 export class AmplifyInfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -11,10 +9,15 @@ export class AmplifyInfraStack extends cdk.Stack {
 
     // setup amplify app to github
 
+    const secret = cdk.SecretValue.secretsManager("GitHubToken-Amplify", {
+      jsonField: "Token"
+    });
+    const repo = ssm.StringParameter.valueForStringParameter(this, 'GITHUB_REPO');
+    const owner = ssm.StringParameter.valueForStringParameter(this, 'GITHUB_OWNER');
     const amplifyApp = new amplify.App(this, "bmwccapsr-website", {
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
-        owner: "ebox86",
-        repository: "bmwccapsr-website-gatsby",
+        owner: owner,
+        repository: repo,
         oauthToken: cdk.SecretValue.secretsManager("GitHubToken-Amplify", {
           jsonField: "Token"
         }),
