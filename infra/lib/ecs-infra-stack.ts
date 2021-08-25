@@ -3,6 +3,8 @@ import ecs = require("@aws-cdk/aws-ecs");
 import ecsPatterns = require("@aws-cdk/aws-ecs-patterns");
 import route53 = require("@aws-cdk/aws-route53");
 import ecr = require('@aws-cdk/aws-ecr');
+import cm = require('@aws-cdk/aws-certificatemanager');
+import elb = require('@aws-cdk/aws-elasticloadbalancingv2');
 import { ClusterInfraStack } from './cluster-infra-stack';
 
 import { 
@@ -14,7 +16,7 @@ import {
     GATSBY_SANITY_DATASET,
     GATSBY_SANITY_TOKEN
 } from '../config';
-
+import { Http2ServerRequest } from 'http2';
 
 interface EcsInfraStackProps {
     readonly cluster: ClusterInfraStack;
@@ -44,21 +46,28 @@ class EcsInfraStack extends cdk.Construct {
             zone: rootZone,
             ttl: cdk.Duration.minutes(1)
         });
-        this.fargateService = this.createService(props.cluster.ecsCluster, hostedZone);
+        const cert = new cm.DnsValidatedCertificate(this, "Certificate",
+            {
+                hostedZone: hostedZone,
+                domainName: `${PREVIEW}.${DOMAIN}`
+            }
+        )
+        this.fargateService = this.createService(props.cluster.ecsCluster, hostedZone, cert);
         this.ecrRepo = new ecr.Repository(this, ECR_REPO_NAME);
         this.ecrRepo.grantPull(this.fargateService.taskDefinition.executionRole!);
         this.service = this.fargateService.service;
         this.fargateService.targetGroup.configureHealthCheck({
-            interval: cdk.Duration.seconds(300),
-            timeout: cdk.Duration.seconds(120),
-            healthyHttpCodes: "200,304"
+            protocol: elb.Protocol.HTTP,
+            interval: cdk.Duration.seconds(90),
+            timeout: cdk.Duration.seconds(60),
+            healthyHttpCodes: "200,300-308"
         })
         this.containerName = this.fargateService.taskDefinition.defaultContainer!.containerName;
 
         this.output();
     }
 
-    private createService(cluster: ecs.Cluster, zone: route53.HostedZone) {
+    private createService(cluster: ecs.Cluster, zone: route53.HostedZone, cert: cm.Certificate) {
         const token = cdk.SecretValue.secretsManager(GATSBY_SANITY_TOKEN);
         return new ecsPatterns.ApplicationLoadBalancedFargateService(this, FARGATE_SERVICE_NAME, {
             cluster: cluster,
@@ -66,6 +75,10 @@ class EcsInfraStack extends cdk.Construct {
             memoryLimitMiB: 2048,
             domainName: this.previewSubdomain,
             domainZone: zone,
+            certificate: cert,
+            protocol: elb.ApplicationProtocol.HTTPS,
+            redirectHTTP: true,
+            healthCheckGracePeriod: cdk.Duration.seconds(120),
             taskImageOptions: {
                 image: ecs.ContainerImage.fromAsset('../web'),
                 environment: {
