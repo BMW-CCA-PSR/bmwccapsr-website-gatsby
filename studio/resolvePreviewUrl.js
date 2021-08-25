@@ -1,8 +1,8 @@
 const env = process.env.NODE_ENV || 'development'
-import { PREVIEW, DOMAIN } from "../config"
+import { PREVIEW, DOMAIN } from "../infra/config"
 
 export default function resolvePreviewUrl(document) {
-  const baseUrl = env === 'development' ? 'http://localhost:8000' : `http://${PREVIEW}.${DOMAIN}`
+  const baseUrl = env === 'development' ? 'http://localhost:8000' : `https://${PREVIEW}.${DOMAIN}`
   switch (document._type) {
     case 'route':
       if (!document.slug || !document.slug.current) {
