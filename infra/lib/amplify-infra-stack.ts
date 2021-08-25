@@ -8,7 +8,7 @@ import {
   GITHUB_TOKEN,
   GITHUB_OWNER,
   GITHUB_REPO
-} from '../../config';
+} from '../config';
 
 export class AmplifyInfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {

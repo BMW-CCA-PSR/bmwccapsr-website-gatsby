@@ -13,7 +13,7 @@ import {
     GATSBY_SANITY_PROJECT_ID,
     GATSBY_SANITY_DATASET,
     GATSBY_SANITY_TOKEN
-} from '../../config';
+} from '../config';
 
 
 interface EcsInfraStackProps {

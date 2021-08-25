@@ -14,8 +14,7 @@ import {
   PIPELINE_NAME,
   SECRET_MANAGER_DOCKER_USER,
   SECRET_MANAGER_DOCKER_PWD,
-
-} from "../../config"
+} from "../config"
 
 interface PipelineProps {
   readonly ecs: EcsInfraStack;

@@ -1,7 +1,7 @@
 import cdk = require("@aws-cdk/core");
 import ecs = require("@aws-cdk/aws-ecs");
 
-import { CLUSTER_NAME } from "../../config";
+import { CLUSTER_NAME } from "../config";
 
 class ClusterInfraStack extends cdk.Construct {
   readonly ecsCluster: ecs.Cluster;
