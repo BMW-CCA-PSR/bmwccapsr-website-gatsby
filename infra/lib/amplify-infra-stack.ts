@@ -1,9 +1,14 @@
 import * as cdk from '@aws-cdk/core';
 import * as amplify from "@aws-cdk/aws-amplify";
-import path = require('path');
-import ec2 = require('@aws-cdk/aws-ec2');
-import ecs = require('@aws-cdk/aws-ecs');
-import ecs_patterns = require('@aws-cdk/aws-ecs-patterns');
+import ssm = require("@aws-cdk/aws-ssm");
+
+import { 
+  AMPLIFY_PROJECT_NAME,
+  DOMAIN,
+  GITHUB_TOKEN,
+  GITHUB_OWNER,
+  GITHUB_REPO
+} from '../config';
 
 export class AmplifyInfraStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -11,13 +16,16 @@ export class AmplifyInfraStack extends cdk.Stack {
 
     // setup amplify app to github
 
-    const amplifyApp = new amplify.App(this, "bmwccapsr-website", {
+    const secret = cdk.SecretValue.secretsManager(GITHUB_TOKEN, {
+      jsonField: "Token"
+    });
+    const repo = ssm.StringParameter.valueForStringParameter(this, GITHUB_REPO);
+    const owner = ssm.StringParameter.valueForStringParameter(this, GITHUB_OWNER);
+    const amplifyApp = new amplify.App(this, AMPLIFY_PROJECT_NAME, {
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
-        owner: "ebox86",
-        repository: "bmwccapsr-website-gatsby",
-        oauthToken: cdk.SecretValue.secretsManager("GitHubToken-Amplify", {
-          jsonField: "Token"
-        }),
+        owner: owner,
+        repository: repo,
+        oauthToken: secret,
       }),
     });
 
@@ -29,7 +37,7 @@ export class AmplifyInfraStack extends cdk.Stack {
     // domain setup
 
     amplifyApp.addDomain("domain",{
-      domainName: "bmw-club-psr.org",
+      domainName: DOMAIN,
       subDomains: [
         {
           branch: devBranch,
