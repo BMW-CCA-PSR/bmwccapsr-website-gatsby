@@ -1,20 +1,20 @@
-import cdk = require('@aws-cdk/core');
+import cdk = require("@aws-cdk/core");
 import ecs = require("@aws-cdk/aws-ecs");
-import ecr = require('@aws-cdk/aws-ecr');
-import { CfnOutput } from '@aws-cdk/core';
+
+import { CLUSTER_NAME } from "../../config";
 
 class ClusterInfraStack extends cdk.Construct {
- readonly ecsCluster: ecs.Cluster;
+  readonly ecsCluster: ecs.Cluster;
 
- constructor(scope: cdk.Construct, id: string) {
- super(scope, id);
- this.ecsCluster = new ecs.Cluster(this, 'GatsbyPreviewCluster');
- this.output();
- }
+  constructor(scope: cdk.Construct, id: string) {
+    super(scope, id);
+    this.ecsCluster = new ecs.Cluster(this, CLUSTER_NAME);
+    this.output();
+  }
 
- output() {
- new CfnOutput(this, 'GatsbyPreviewCluster_ARN', {value: this.ecsCluster.clusterArn});
- }
+  output() {
+    new cdk.CfnOutput(this, "Cluster_ARN", { value: this.ecsCluster.clusterArn });
+  }
 }
 
-export {ClusterInfraStack};
+export { ClusterInfraStack };

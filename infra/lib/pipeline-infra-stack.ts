@@ -7,6 +7,16 @@ import ecr = require('@aws-cdk/aws-ecr');
 import ecs = require('@aws-cdk/aws-ecs');
 import { EcsInfraStack } from './ecs-infra-stack';
 
+import {
+  GITHUB_TOKEN,
+  GITHUB_REPO,
+  GITHUB_OWNER,
+  PIPELINE_NAME,
+  SECRET_MANAGER_DOCKER_USER,
+  SECRET_MANAGER_DOCKER_PWD,
+
+} from "../../config"
+
 interface PipelineProps {
   readonly ecs: EcsInfraStack;
 }
@@ -44,11 +54,11 @@ class PipelineInfraStack extends cdk.Construct {
   }
 
   private createSourceStage(stageName: string, output: codepipeline.Artifact): codepipeline.StageProps {
-    const secret = cdk.SecretValue.secretsManager("GitHubToken-Amplify", {
+    const secret = cdk.SecretValue.secretsManager(GITHUB_TOKEN, {
       jsonField: "Token"
     });
-    const repo = ssm.StringParameter.valueForStringParameter(this, 'GITHUB_REPO');
-    const owner = ssm.StringParameter.valueForStringParameter(this, 'GITHUB_OWNER');
+    const repo = ssm.StringParameter.valueForStringParameter(this, GITHUB_REPO);
+    const owner = ssm.StringParameter.valueForStringParameter(this, GITHUB_OWNER);
     const githubAction = new codepipeline_actions.GitHubSourceAction({
       actionName: 'Github_Source',
       owner: owner,
@@ -70,7 +80,7 @@ class PipelineInfraStack extends cdk.Construct {
   ): codepipeline.StageProps {
     const project = new codebuild.PipelineProject(
       this,
-      'GatsbyPreviewProject',
+      PIPELINE_NAME,
       {
         buildSpec: this.createBuildSpec(),
         environment: {
@@ -111,6 +121,8 @@ class PipelineInfraStack extends cdk.Construct {
   }
 
   createBuildSpec(): codebuild.BuildSpec {
+    const dockerUser = cdk.SecretValue.secretsManager(SECRET_MANAGER_DOCKER_USER);
+    const dockerPwd = cdk.SecretValue.secretsManager(SECRET_MANAGER_DOCKER_PWD);
     return codebuild.BuildSpec.fromObject({
       version: '0.2',
       phases: {
@@ -125,7 +137,10 @@ class PipelineInfraStack extends cdk.Construct {
         pre_build: {
           commands: [
             'cd web',
+            'echo Logging in to Amazon ECR...',
             '$(aws ecr get-login --no-include-email | sed \'s|https://||\')',
+            'echo Logging in to DockerHub...',
+            `echo ${dockerPwd} | docker login --username ${dockerUser} --password-stdin`,
             'COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)',
             'IMAGE_TAG=${COMMIT_HASH:=latest}'
           ]

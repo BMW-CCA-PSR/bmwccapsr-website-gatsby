@@ -5,6 +5,7 @@
     "lib": [
       "es2018"
     ],
+    "allowJs": true,
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -25,6 +26,9 @@
   },
   "exclude": [
     "node_modules",
-    "cdk.out"
+    "cdk.out",
+    "../config.js",
+    "../config.d.ts",
+    "jest.config.js"
   ]
 }
