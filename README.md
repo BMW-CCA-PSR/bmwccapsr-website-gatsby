@@ -10,3 +10,51 @@ This repo tracks the project source for the club website including AWS CDK infra
 * gatsbyJS
 * ThemeUI
 * Sanity CMS
+
+## Setup
+### Getting started
+Setup requires an AWS account created with a corresponding iam credential and access key.
+
+* Install the AWS CLI and authenticate with the account and your iam access key using `aws configure`
+* Login to [github and create a personal access token here](https://github.com/settings/tokens)
+* Retrieve credentials to [docker](https://www.docker.com/) or create a pro account. This is required to authenticate to docker hub and overcome the `rateExceeded` error message when pulling against docker hub.
+* Create secret keys and parameters:
+```
+aws ssm put-parameter \
+    --name GITHUB_OWNER \
+    --type String \
+    --value BMW-CCA-PSR
+
+aws ssm put-parameter \
+    --name GITHUB_REPO \
+    --type String \
+    --value bmwccapsr-website-gatsby
+
+aws secretsmanager create-secret \
+    --name GITHUB_TOKEN \
+    --secret-string <your_personal_access_token_from_github_here>
+
+aws secretsmanager create-secret \
+    --name DOCKER_USER \
+    --secret-string
+    <your_docker_username_here>
+
+aws secretsmanager create-secret \
+    --name DOCKER_PWD \
+    --secret-string
+    <your_docker_password_here>
+
+aws ssm put-parameter \                                                                             
+    --name GATSBY_SANITY_PROJECT_ID \
+    --type String \
+    --value <your_sanity_project_id_here>
+```
+
+### Deploy Infrastructure
+#### Amplify resources
+
+`cd infra && npm install && npm run build && cdk deploy AmplifyInfraStack`
+
+#### Gatsby Preview Server resources
+
+`cdk deploy GatsbyPreviewInfraStack`
