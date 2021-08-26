@@ -1,5 +1,5 @@
-import * as cdk from '@aws-cdk/core';
-import * as amplify from "@aws-cdk/aws-amplify";
+import cdk = require('@aws-cdk/core');
+import amplify = require("@aws-cdk/aws-amplify");
 import ssm = require("@aws-cdk/aws-ssm");
 
 import { 
@@ -7,7 +7,9 @@ import {
   DOMAIN,
   GITHUB_TOKEN,
   GITHUB_OWNER,
-  GITHUB_REPO
+  GITHUB_REPO,
+  GATSBY_SANITY_TOKEN,
+  GATSBY_SANITY_PROJECT_ID
 } from '../config';
 
 export class AmplifyInfraStack extends cdk.Stack {
@@ -51,9 +53,10 @@ export class AmplifyInfraStack extends cdk.Stack {
     })
 
     // app env vars
-
-    amplifyApp.addEnvironment("GATSBY_SANITY_PROJECT_ID", "clgsgxc0")
-    amplifyApp.addEnvironment("GATSBY_SANITY_TOKEN", "replace_me")
+    const token = cdk.SecretValue.secretsManager(GATSBY_SANITY_TOKEN);
+    const project = ssm.StringParameter.valueForStringParameter(this, GATSBY_SANITY_PROJECT_ID);
+    amplifyApp.addEnvironment("GATSBY_SANITY_PROJECT_ID", project)
+    amplifyApp.addEnvironment("GATSBY_SANITY_TOKEN", token.toString())
 
     // prod env vars
     masterBranch.addEnvironment("STAGE", "prod");

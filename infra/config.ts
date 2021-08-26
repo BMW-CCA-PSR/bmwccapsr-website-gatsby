@@ -10,7 +10,7 @@ const CLUSTER_NAME = "GatsbyPreviewCluster"
 const AMPLIFY_PROJECT_NAME = "bmwccapsr-website"
 const DOMAIN = "bmw-club-psr.org"
 const PREVIEW = "preview"
-const GATSBY_SANITY_PROJECT_ID = "clgsgxc0"
+const GATSBY_SANITY_PROJECT_ID = "GATSBY_SANITY_PROJECT_ID"
 const GATSBY_SANITY_DATASET = "production"
 const GATSBY_SANITY_TOKEN = "GATSBY_SANITY_TOKEN"
 

@@ -16,7 +16,6 @@ import {
     GATSBY_SANITY_DATASET,
     GATSBY_SANITY_TOKEN
 } from '../config';
-import { Http2ServerRequest } from 'http2';
 
 interface EcsInfraStackProps {
     readonly cluster: ClusterInfraStack;

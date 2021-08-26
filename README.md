@@ -43,13 +43,18 @@ aws secretsmanager create-secret \
     --name DOCKER_PWD \
     --secret-string
     <your_docker_password_here>
+
+aws ssm put-parameter \                                                                             
+    --name GATSBY_SANITY_PROJECT_ID \
+    --type String \
+    --value <your_sanity_project_id_here>
 ```
 
 ### Deploy Infrastructure
 #### Amplify resources
 
-`cd infra && npm install && npm run build && cdk deploy AmplifyStack`
+`cd infra && npm install && npm run build && cdk deploy AmplifyInfraStack`
 
 #### Gatsby Preview Server resources
 
-`cdk deploy `
+`cdk deploy GatsbyPreviewInfraStack`
