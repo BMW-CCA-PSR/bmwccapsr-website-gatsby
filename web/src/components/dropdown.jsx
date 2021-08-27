@@ -17,7 +17,7 @@ const Dropdown = props => {
                     display: "block",
                     padding: "1rem",
                     height: "100%",
-                    mx: 2,
+                    mx: "0.5rem",
                     position: "relative",
                     transitionDuration: "0.5s",
                     ":hover": {

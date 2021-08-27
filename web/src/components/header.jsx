@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { Heading, Container, Flex, Divider, Button } from "theme-ui"
+import { Heading, Container, Flex, Divider, Button, Box } from "theme-ui"
 import { Link } from 'gatsby'
 import React from "react";
 import CTALink from "./CTALink";
@@ -22,24 +22,28 @@ function Logo() {
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 
   return (
-
-    <header
+    <nav
       sx={{
-        variant: 'styles.header',
-        zIndex: 0,
-        top: 0,
-        position: 'sticky',
-        backgroundColor: 'background'
+        zIndex: 30,
+        top: "0px",
+        minWidth: "100%",
+        position: 'fixed',
+        backgroundColor: "white"
       }}>
-      <Container>
+      <Container sx={{
+        mx: "auto",
+        flexWrap: "wrap",
+        mt: "0px",
+        py: "0.4rem",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}>
         <Flex
           sx={{
-            maxWidth: 768,
             mx: 'auto',
-            px: 0,
-            py: 0,
             display: 'flex',
             alignItems: 'center',
+            pl: "1rem",
           }}>
           <Link
             activeClassName="active"
@@ -52,7 +56,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
             {Logo()}
             {/* <Heading>{siteTitle}</Heading> */}
           </Link>
-          <div sx={{ mx: 'auto' }} />
+          <div sx={{ mx: 'auto'}} />
           {showNav && navMenuItems && (
             <div>
               <ul
@@ -82,7 +86,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
           borderColor: "highlight",
           borderBottomWidth: 3
         }}/>
-    </header>
+    </nav>
   );
 };
 

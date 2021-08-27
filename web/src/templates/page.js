@@ -1,3 +1,4 @@
+/** @jsxImportSource theme-ui */
 import React, { useState } from "react";
 import { graphql } from "gatsby";
 
@@ -87,7 +88,9 @@ const Page = (props) => {
           description={site.description}
           keywords={site.keywords}
         />
-        <div>{content}</div>
+        <div sx={{
+          pt: "6rem"
+        }}>{content}</div>
       </Layout>
     );
   };
