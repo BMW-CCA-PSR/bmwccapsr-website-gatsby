@@ -1214,10 +1214,10 @@
   resolved "https://registry.npmjs.org/@sanity/components/-/components-2.14.0.tgz#840d8e98fd55f35e2db2b211310c983b9f78cac4"
   integrity sha512-D8t7l+exvw1cg80m8yDZDRboAI6L827FeCacGjTOdElvgrR2shtsbepYui7ODfRgx9ynAceNDsQ1VSNnUgIHug==
 
-"@sanity/core@^2.17.1":
-  version "2.17.1"
-  resolved "https://registry.npmjs.org/@sanity/core/-/core-2.17.1.tgz#f593d0058a5e12db916d07c44c1d7d6ada858dd0"
-  integrity sha512-9L7eOZHYzCRWth/Ka0vgV/hu9zb/RRm7GAy9m3CcWTSxiV2wOt+MiazSL/HANE9UiVALndd2XHU9QkuJkrNE4A==
+"@sanity/core@^2.17.2":
+  version "2.17.2"
+  resolved "https://registry.yarnpkg.com/@sanity/core/-/core-2.17.2.tgz#5da4f654a4e9e5908795f8d56c51bfceb1f09c86"
+  integrity sha512-qQcPqc0Nb80A8dhQHPM9ToRQUVydMiqS7ub0zo4QqL+nQEQr19GN8wsc1D4p3cyxwVV642IDPYF/C04q8gxDHQ==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.10.4"
     "@babel/preset-env" "^7.11.5"
@@ -1230,7 +1230,7 @@
     "@sanity/import" "2.16.0"
     "@sanity/plugin-loader" "2.17.1"
     "@sanity/resolver" "2.17.1"
-    "@sanity/schema" "2.16.0"
+    "@sanity/schema" "2.17.2"
     "@sanity/server" "2.17.1"
     "@sanity/util" "2.17.1"
     "@sanity/uuid" "^3.0.1"
@@ -1601,6 +1601,18 @@
   version "2.16.0"
   resolved "https://registry.npmjs.org/@sanity/schema/-/schema-2.16.0.tgz#f622a33b7288bea838c71528268b4f182f41cd27"
   integrity sha512-yEGxffDyxz9MGjRvcoPfa5vIcQP0cAU1UIz2oT8BYt7Rq1t/gg1kL47y1plMFilakTXSekruSK1YBnpkmW1Unw==
+  dependencies:
+    "@sanity/generate-help-url" "2.15.0"
+    arrify "^1.0.1"
+    humanize-list "^1.0.1"
+    leven "^2.1.0"
+    lodash "^4.17.15"
+    object-inspect "^1.6.0"
+
+"@sanity/schema@2.17.2":
+  version "2.17.2"
+  resolved "https://registry.yarnpkg.com/@sanity/schema/-/schema-2.17.2.tgz#f650f476d5010bb8b9c8aaf64f3ebd105d443b44"
+  integrity sha512-dqOwMZXWewkohBEiV3slMMvQXpLsA49VzTvUlyUF0FlM3mXi2TIOz9yK+80bch5zdhldotqWDkXVCkflhGkARw==
   dependencies:
     "@sanity/generate-help-url" "2.15.0"
     arrify "^1.0.1"
