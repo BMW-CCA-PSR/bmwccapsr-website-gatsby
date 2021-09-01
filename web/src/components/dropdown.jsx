@@ -19,10 +19,8 @@ const Dropdown = props => {
                     height: "100%",
                     mx: "0.5rem",
                     position: "relative",
-                    transitionDuration: "0.5s",
                     ":hover": {
                         backgroundColor: "primary",
-                        borderRadius: "10px",
                         cursor: "pointer",
                         color: "background"
                     },
@@ -53,9 +51,7 @@ const Dropdown = props => {
                             opacity: "0",
                             display: "none",
                             position: "absolute",
-                            transition: "all 0.5s ease",
                             marginTop: "1rem",
-                            borderRadius: "10px",
                             cursor: "pointer",
                             left: "0",
                             ":hover": {
@@ -73,7 +69,6 @@ const Dropdown = props => {
                             <li
                                 sx={{
                                     clear: "both",
-                                    borderRadius: "10px",
                                     padding: "1rem",
                                     ":hover": {
                                         backgroundColor: "highlight",

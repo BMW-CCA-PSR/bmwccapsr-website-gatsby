@@ -17,7 +17,7 @@ const maybeImage = illustration => {
     );
 
     img = (
-      <img className="w-full md:w-4/5 z-50" src={fluidProps.src} alt={illustration.image.alt} />
+      <GatsbyImage image={fluidProps} sx={{width: "100%", z: 50}} alt={illustration.image.alt} />
     );
   }
   return img;
@@ -28,6 +28,7 @@ function Hero(props) {
   return (
     <div sx={{
       width: "100%",
+      backgroundColor: "green"
     }}>
       <Flex sx={{
         bg: "yellow",
@@ -50,9 +51,11 @@ function Hero(props) {
           <Text variant="text.label">{props.label}</Text>
           <Heading variant="text.heading" sx={{
             my: "1rem",
+            letterSpacing: "tight"
           }}>{props.heading}</Heading>
           <div sx={{
-            fontSize: "1.5rem",
+            fontSize: "md",
+            pr: "0.5rem",
           }}>
             <PortableText blocks={props.tagline} />
           </div>

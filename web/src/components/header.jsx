@@ -68,11 +68,11 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
               >
                 {navMenuItems.map((i) => {
                   if (i.navigationItemUrl) {
-                    return <Dropdown {...i} />;
+                    return <Dropdown key={i._key} {...i} />;
                   } else if (i._type == "link") {
-                    return <NavLink {...i} />;
+                    return <NavLink key={i._key} {...i} />;
                   } else if (i._type == "cta") {
-                    return <CTALink {...i} />;
+                    return <CTALink key={i._key} {...i} />;
                   }
                 })}
               </ul>

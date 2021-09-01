@@ -57,7 +57,7 @@ const Page = (props) => {
 
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
-      .map((c, i) => {
+      .map((c) => {
         let el = null;
         switch (c._type) {
           case "infoRows":

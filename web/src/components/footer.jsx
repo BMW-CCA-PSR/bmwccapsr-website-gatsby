@@ -11,7 +11,6 @@ const Footer = ({ siteTitle }) => (
       bg: 'gray',
       variant: 'styles.footer',
       textDecoration: "none",
-      position: "fixed",
       width: "100%",
       left: 0,
       bottom: 0,

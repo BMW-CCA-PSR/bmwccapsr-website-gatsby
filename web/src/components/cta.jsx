@@ -1,30 +1,47 @@
+/** @jsxImportSource theme-ui */
 import React from "react";
 import PortableText from "../components/portableText";
 import CTALink from "./CTALink";
+import { Container, Flex, Heading } from "@theme-ui/components";
+
 
 const Cta = ({ label, title, body, ctas }) => (
-  <section className="container mx-auto text-center py-6 mb-12">
-    <h1 className="w-full my-2 text-5xl font-bold leading-tight text-center text-white">{title}</h1>
-    <div className="w-full mb-4">
-      <div className="h-1 mx-auto bg-white w-1/6 opacity-25 my-0 py-0 rounded-t"></div>
+  <Container sx={{
+    mx: "auto",
+    textAlign: "center",
+    py: "1.5rem",
+    mb: "3rem"
+  }}>
+    <Heading variant="text.heading" sx={{
+      width: "100%",
+      my: "0.5rem",
+      fontSize: "lg",
+      fontWeight: "bold",
+      letterSpacing: "tight",
+      textAlign: "center",
+    }}>{title}</Heading>
+    <div sx={{
+      my: "1rem",
+      letterSpacing: "tight",
+      fontSize: "md"
+    }}>
+      <PortableText blocks={body} />
     </div>
 
-    <p className="my-4 text-3xl leading-tight">
-      <PortableText blocks={body} />
-    </p>
-
-    <div className="flex">
-      {(ctas || []).map((c, i) => (
-        <div className="flex-1 text-gray-700 text-center py-2">
+    <Flex>
+      {(ctas || []).map((c) => (
+        <div sx={{
+          flex: "1 1 0%",
+          py: "0.5rem",
+          textAlign: "center"
+        }}>
           <CTALink
-            key={`cta_${i}`}
+            key={c._key}
             {...c}
-            buttonActionClass="mx-auto ml-4 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"
           />
         </div>
       ))}
-    </div>
-  </section>
+    </Flex>
+  </Container>
 );
-
 export default Cta;

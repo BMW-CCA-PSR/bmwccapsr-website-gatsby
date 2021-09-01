@@ -3,59 +3,60 @@ module.exports = {
     text: "#060606",
     background: "#fff",
     primary: "#228dd8",
-    secondary: "#e0f",
+    heading: "#e0f",
     muted: "#191919",
     highlight: "#3cf",
     gray: "#f6f5f5",
-    purple: "#c0f"
   },
   breakpoints: ["768px", "1025px", "1290px"],
   fonts: {
-    base: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif",
-    secondary: "Menlo, monospace"
+    body: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif",
+    heading: "inherit",
+    monospace: 'Menlo, monospace',
   },
   fontSizes: {
     xs: 12,
     sm: 16,
-    md: 32,
+    md: 28,
     lg: 48,
     xl: 64,
   },
   fontWeights: {
-    normal: 400,
-    medium: 500,
+    body: 400,
+    heading: 500,
     bold: 700,
   },
   lineHeights: {
-    normal: 1.5,
-    medium: 1.4,
+    body: 1.5,
+    heading: 1.4,
   },
   letterSpacings: {
     normal: "0",
     wide: "0.25em",
+    tight: "-.025em"
   },
   text: {
     heading: {
-      fontSize: "3rem",
-      fontFamily: "base",
+      fontSize: "lg",
+      fontFamily: "heading",
       fontWeight: "bold",
     },
     title: {
-      fontFamily: "base",
-      fontWeight: "medium",
-      lineHeight: "medium",
+      fontFamily: "body",
+      fontWeight: "heading",
+      lineHeight: "heading",
       fontSize: ["md", "lg"],
     },
     body: {
-      fontFamily: "base",
-      fontWeight: "normal",
-      lineHeight: "normal",
+      fontFamily: "body",
+      fontWeight: "body",
+      lineHeight: "body",
       fontSize: "sm",
     },
     label: {
-      fontFamily: "secondary",
-      fontWeight: "normal",
-      lineHeight: "normal",
+      fontFamily: "heading",
+      fontWeight: "body",
+      lineHeight: "body",
       fontSize: "xs",
       letterSpacing: "wide",
       textTransform: "uppercase",
@@ -70,18 +71,18 @@ module.exports = {
         bg: "white",
       },
     },
-    secondary: {
+    heading: {
       color: "text",
-      bg: "secondary",
+      bg: "heading",
       "&:hover": {
-        color: "secondary",
+        color: "heading",
         bg: "text",
       },
     },
   },
   styles: {
     root: {
-      fontFamily: "base",
+      fontFamily: "body",
     },
     table: {
       width: "100%",
