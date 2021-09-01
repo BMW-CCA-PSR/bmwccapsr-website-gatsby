@@ -48,7 +48,7 @@ class EcsInfraStack extends cdk.Construct {
         const cert = new cm.DnsValidatedCertificate(this, "Certificate",
             {
                 hostedZone: hostedZone,
-                domainName: `${PREVIEW}.${DOMAIN}`
+                domainName: this.previewSubdomain
             }
         )
         this.fargateService = this.createService(props.cluster.ecsCluster, hostedZone, cert);

@@ -25,7 +25,8 @@
     "@sanity/desk-tool",
     "@sanity/dashboard",
     "dashboard-widget-amplifydeploybutton",
-    "dashboard-widget-structure-menu"
+    "dashboard-widget-structure-menu",
+    "asset-source-unsplash"
   ],
   "parts": [
     {
