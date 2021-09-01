@@ -17,8 +17,8 @@ export function filterOutDocsPublishedInTheFuture({ publishedAt }) {
   return !isFuture(publishedAt);
 }
 
-export function getBlogUrl(slug) {
-  return `/blog/${slug.current || slug}/`;
+export function getZundfolgeUrl(slug) {
+  return `/zundfolge/${slug.current || slug}/`;
 }
 
 export function buildImageObj(source = { asset: {} }) {

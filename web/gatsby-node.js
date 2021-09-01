@@ -1,4 +1,4 @@
-const { isFuture } = require("date-fns");
+const { isFuture, parseISO } = require("date-fns");
 /**
  * Implement Gatsby's Node APIs in this file.
  *
@@ -19,6 +19,8 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
     }),
   ]);
 };
+
+// HOME PAGE
 
 async function createLandingPages(pathPrefix = "/", graphql, actions, reporter) {
   const { createPage } = actions;
@@ -52,6 +54,8 @@ async function createLandingPages(pathPrefix = "/", graphql, actions, reporter) 
   });
 }
 
+// ZUNDFOLGE PAGE
+
 async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions, reporter) {
   const { createPage } = actions;
   const result = await graphql(`
@@ -74,14 +78,14 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
 
   const postEdges = (result.data.allSanityPost || {}).edges || [];
   postEdges
-    .filter((edge) => !isFuture(edge.node.publishedAt))
+    .filter((edge) => !isFuture(parseISO(edge.node.publishedAt)))
     .forEach((edge) => {
       const { id, slug = {} } = edge.node;
       const path = `${pathPrefix}/${slug.current}/`;
-      reporter.info(`Creating blog post page: ${path}`);
+      reporter.info(`Creating zundfolge page: ${path}`);
       createPage({
         path,
-        component: require.resolve("./src/templates/blog-post.js"),
+        component: require.resolve("./src/templates/zundfolge-article.js"),
         context: { id },
       });
     });
