@@ -49,6 +49,7 @@ fragment NavMenu on SanityNavigationMenu {
                 }
               }
             }
+            route
             title
             href
           }
@@ -67,6 +68,7 @@ fragment NavMenu on SanityNavigationMenu {
           }
         }
       }
+      route
       title
       href
     }

@@ -1,5 +1,7 @@
 /** @jsxImportSource theme-ui */
+import { NavLink } from "@theme-ui/components";
 import React from "react";
+import CTALink from "./CTALink";
 
 const Dropdown = props => {
     const link = props.navigationItemUrl
@@ -77,7 +79,7 @@ const Dropdown = props => {
                                 }}
                                 key={subLink.title}
                             >
-                                <a
+                                {/* <a
                                     sx={{
                                         color: "white",
                                         textDecoration: "none",
@@ -86,7 +88,9 @@ const Dropdown = props => {
                                     href={subLink.landingPageRoute ? subLink.landingPageRoute.slug.current : subLink.href}
                                 >
                                     {subLink.title}
-                                </a>
+                                </a> */}
+                                <NavLink {...subLink} />
+                                <CTALink {...subLink} />
                             </li>
                         ))}
                     </ul>

@@ -66,7 +66,6 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                   display: "flex"
                 }}
               >
-                <Link to="/zundfolge">Zundfolge</Link>
                 {navMenuItems.map((i) => {
                   if (i.navigationItemUrl) {
                     return <Dropdown key={i._key} {...i} />;

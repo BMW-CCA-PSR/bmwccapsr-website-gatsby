@@ -24,6 +24,9 @@ export const query = graphql`
     }
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
+      navMenu {
+        ...NavMenu
+      }
       openGraph {
         title
         description
@@ -78,7 +81,7 @@ const Page = (props) => {
         return el;
       });
 
-    const menuItems = page.navMenu && (page.navMenu.items || []);
+    const menuItems = site.navMenu && (site.navMenu.items || []);
     const pageTitle = data.route && !data.route.useSiteTitle && page.title;
 
     return (

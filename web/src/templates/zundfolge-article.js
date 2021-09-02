@@ -9,6 +9,12 @@ import { toPlainText } from "../lib/helpers";
 
 export const query = graphql`
   query BlogPostTemplateQuery($id: String!) {
+    site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
+      title
+      navMenu {
+        ...NavMenu
+      }
+    }
     post: sanityPost(id: { eq: $id }) {
       id
       publishedAt
@@ -60,8 +66,10 @@ export const query = graphql`
 const ZundfolgePostTemplate = props => {
   const { data, errors } = props;
   const post = data && data.post;
+  const site = data && data.site;
+  const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
-    <Layout textWhite={true}>
+    <Layout textWhite={true} navMenuItems={menuItems}>
       {errors && <SEO title="GraphQL Error" />}
       {post && (
         <SEO

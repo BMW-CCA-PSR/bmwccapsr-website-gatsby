@@ -15,6 +15,9 @@ export const query = graphql`
   query IndexPageQuery {
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
+      navMenu {
+        ...NavMenu
+      }
     }
     posts: allSanityPost(
       limit: 6
@@ -63,9 +66,9 @@ const IndexPage = props => {
       'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
     );
   }
-
+  const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
-    <Layout textWhite={false}>
+    <Layout textWhite={false} navMenuItems={menuItems}>
       <SEO
         title={site.title || "Missing title"}
         description={site.description || "Missing description"}
