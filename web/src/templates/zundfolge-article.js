@@ -69,7 +69,7 @@ const ZundfolgePostTemplate = props => {
   const site = data && data.site;
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
-    <Layout textWhite={true} navMenuItems={menuItems}>
+    <Layout textWhite={true} navMenuItems={menuItems} >
       {errors && <SEO title="GraphQL Error" />}
       {post && (
         <SEO

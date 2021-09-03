@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "gatsby";
 
 const NavLink = props => {
+  let subMenu = props.subMenu;
   let link = props.route || props.link || props.href || "#";
   if (
     props.landingPageRoute &&
@@ -23,7 +24,10 @@ const NavLink = props => {
   return (
     <Link
       to={link}
-      sx={{
+      sx={subMenu ? {
+        textDecoration: "none",
+        color: "background"
+      } : {
         textDecoration: "none",
         mx: 2,
         paddingBottom: 1,
@@ -33,7 +37,6 @@ const NavLink = props => {
         height: "100%",
         ":hover": {
           backgroundColor: "primary",
-          borderRadius: "10px",
           cursor: "pointer",
           color: "background"
         },

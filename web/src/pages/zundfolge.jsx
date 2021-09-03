@@ -76,7 +76,7 @@ const IndexPage = props => {
       />
       <Container>
         <h1 hidden>Welcome to {site.title}</h1>
-        <div className="py-6">{postNodes && <ZundfolgeArticlePreviewList nodes={postNodes} />}</div>
+        <div sx={{py: "1.5rem"}}>{postNodes && <ZundfolgeArticlePreviewList nodes={postNodes} />}</div>
       </Container>
     </Layout>
   );

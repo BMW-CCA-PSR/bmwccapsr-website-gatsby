@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { NavLink } from "@theme-ui/components";
+import NavLink from "./navLink";
 import React from "react";
 import CTALink from "./CTALink";
 
@@ -79,18 +79,7 @@ const Dropdown = props => {
                                 }}
                                 key={subLink.title}
                             >
-                                {/* <a
-                                    sx={{
-                                        color: "white",
-                                        textDecoration: "none",
-                                        display: "block"
-                                    }}
-                                    href={subLink.landingPageRoute ? subLink.landingPageRoute.slug.current : subLink.href}
-                                >
-                                    {subLink.title}
-                                </a> */}
-                                <NavLink {...subLink} />
-                                <CTALink {...subLink} />
+                                <NavLink {...subLink} subMenu={true} />
                             </li>
                         ))}
                     </ul>
