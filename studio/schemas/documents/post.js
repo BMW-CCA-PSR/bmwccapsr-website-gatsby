@@ -41,6 +41,10 @@ export default {
         name: 'authors',
         title: 'Authors',
         type: 'array',
+        validation: Rule => Rule.error('You have to select an author.').required().min(1),
+        options: {
+          isHighlighted: true
+        },
         of: [
           {
             type: 'authorReference',
@@ -104,7 +108,7 @@ export default {
         media: 'mainImage',
       },
       prepare({ title = 'No title', publishedAt, slug = {}, media }) {
-        const path = `/blog/${slug.current}`
+        const path = `/zundfolge/${slug.current}`
         return {
           title,
           media,
