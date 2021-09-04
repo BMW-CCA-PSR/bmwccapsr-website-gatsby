@@ -1705,7 +1705,7 @@
     react "17.0.1"
     rxjs "^6.5.3"
 
-"@sanity/ui@^0.36.0":
+"@sanity/ui@^0.36.0", "@sanity/ui@^0.36.3":
   version "0.36.3"
   resolved "https://registry.npmjs.org/@sanity/ui/-/ui-0.36.3.tgz#af640ffbe974c4d97215bdb0b6103ee0f947f70e"
   integrity sha512-tpJst4sxmldq/ub0y6XY3LUnpoGG8IU2yYB1yOm8FeYLCZGJbHKldgbMYtItZzj6eUyxNZVFMGe7dsqD7pn7jQ==
@@ -1751,13 +1751,13 @@
     date-fns "^2.16.1"
     lodash "^4.17.15"
 
-"@sanity/vision@^2.15.0":
-  version "2.15.0"
-  resolved "https://registry.npmjs.org/@sanity/vision/-/vision-2.15.0.tgz#05eb75373ba5ca17fb1ee44849d9e574adf9660b"
-  integrity sha512-9VKrns7b3YT77Ial4iJJWA4P4+H/vdmtEgOaFBgwxvPOvaOzXXPzvWBNNtBJjdveyzEw3JOOdWuu0FjxCbAAVQ==
+"@sanity/vision@^2.17.2":
+  version "2.17.2"
+  resolved "https://registry.yarnpkg.com/@sanity/vision/-/vision-2.17.2.tgz#37a5f3c700e96f0af1da0ac0016a79365326630a"
+  integrity sha512-ckifcW+7TZuebnj35qRcuxNtUFvBJF/WzDxgauGcK3usCalEmBVGIeQ9tz6CJX/cLS2SK+AFheGXEmq5rJnCoQ==
   dependencies:
     "@sanity/icons" "^1.1.4"
-    "@sanity/ui" "^0.36.0"
+    "@sanity/ui" "^0.36.3"
     classnames "^2.2.5"
     codemirror "^5.47.0"
     moment "^2.19.1"
