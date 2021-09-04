@@ -26,7 +26,7 @@
     "gatsby-plugin-react-helmet": "^4.11.0",
     "gatsby-plugin-sanity-image": "^0.8.0",
     "gatsby-plugin-sharp": "^3.11.0",
-    "gatsby-plugin-theme-ui": "^0.10.1",
+    "gatsby-plugin-theme-ui": "^0.11.1",
     "gatsby-source-filesystem": "^3.11.0",
     "gatsby-source-sanity": "^7.0.7",
     "gatsby-transformer-sharp": "^3.11.0",
