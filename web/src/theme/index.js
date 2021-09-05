@@ -89,42 +89,42 @@ module.exports = {
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
-      fontSize: "lg"
+      fontSize: "xl"
     },
     h2: {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
-      fontSize: "md"
+      fontSize: "lg"
     },
     h3: {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
-      fontSize: "sm"
+      fontSize: "md"
     },
     h4: {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
-      fontSize: "xs"
+      fontSize: "sm"
     },
     h5: {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
-      fontSize: 10
+      fontSize: "xs"
     },
     h6: {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       fontWeight: 'heading',
-      fontSize: 8
+      fontSize: 10
     },
     p: {
       color: 'text',
@@ -157,5 +157,9 @@ module.exports = {
     img: {
       maxWidth: "100%"
     },
+    li: {
+      margin: "0px",
+      padding: "0px"
+    }
   },
 }

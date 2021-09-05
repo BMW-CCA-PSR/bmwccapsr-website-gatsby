@@ -1,15 +1,29 @@
+/** @jsxImportSource theme-ui */
 import { Link } from "gatsby";
 import React from "react";
+import { Heading } from "theme-ui"
 import ZundfolgeArticlePreview from "./zundfolge-article-preview";
 
 function ZundfolgeArticlePreviewGrid(props) {
+  console.log(props)
   return (
-    <div>
-      {props.title && <h2>{props.title}</h2>}
-      <ul>
+    <div sx={{
+      px: 3,
+      py: 4,
+    }}>
+      <Heading >Zundfolge</Heading>
+      <ul sx={{
+        listStyle: 'none',
+        display: 'grid',
+        gridGap: 3,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))',
+        m: 0,
+        p: 0
+      }}>
         {props.nodes &&
           props.nodes.map(node => (
-            <li key={node.id}>
+            <li
+              key={node.id}>
               <ZundfolgeArticlePreview {...node} isInList />
             </li>
           ))}

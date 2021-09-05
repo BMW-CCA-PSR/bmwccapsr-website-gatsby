@@ -74,9 +74,11 @@ const IndexPage = props => {
         description={site.description || "Missing description"}
         keywords={site.keywords || []}
       />
-      <Container>
+      <Container sx ={{
+        pt: "5rem"
+      }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <div sx={{py: "1.5rem"}}>{postNodes && <ZundfolgeArticlePreviewList nodes={postNodes} />}</div>
+        <div>{postNodes && <ZundfolgeArticlePreviewList nodes={postNodes} />}</div>
       </Container>
     </Layout>
   );
