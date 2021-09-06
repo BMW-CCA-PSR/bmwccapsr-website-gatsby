@@ -26,7 +26,8 @@
     "@sanity/dashboard",
     "dashboard-widget-amplifydeploybutton",
     "dashboard-widget-structure-menu",
-    "asset-source-unsplash"
+    "asset-source-unsplash",
+    "leaflet-input"
   ],
   "parts": [
     {

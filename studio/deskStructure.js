@@ -1,11 +1,12 @@
 import S from '@sanity/desk-tool/structure-builder'
 import { GoBrowser as PageIcon, GoFile, GoHome, GoSettings } from 'react-icons/go'
 import blog from './src/structure/blog'
+import events from './src/structure/events'
 import landingPages from './src/structure/landingPages'
 import PreviewIFrame from './src/components/previewIFrame'
 
 const hiddenDocTypes = (listItem) =>
-  !['route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category'].includes(
+  !['route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory'].includes(
     listItem.getId()
   )
 
@@ -34,6 +35,7 @@ export default () =>
             .views([S.view.form(), PreviewIFrame()])
         ),
         blog,
+        events,
         landingPages,
       // This returns an array of all the document types
       // defined in schema.js. We filter out those that we have

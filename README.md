@@ -44,10 +44,15 @@ aws secretsmanager create-secret \
     --secret-string
     <your_docker_password_here>
 
-aws ssm put-parameter \                                                                             
+aws ssm put-parameter \
     --name GATSBY_SANITY_PROJECT_ID \
     --type String \
     --value <your_sanity_project_id_here>
+
+aws secretsmanager create-secret \
+    --name GATSBY_SANITY_MAPBOX_TOKEN \
+    --secret-string
+    <your_mapbox_token_here>
 ```
 
 ### Deploy Infrastructure

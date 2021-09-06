@@ -13,7 +13,7 @@ export default {
         name: 'slug',
         type: 'slug',
         title: 'Slug',
-        description: 'Some frontends will require a slug to be set to be able to show the post',
+        description: 'The unique address that the article will live at. (e.g. "/zundfolge/your-article")',
         options: {
           source: 'title',
           maxLength: 96,
@@ -35,7 +35,7 @@ export default {
         type: 'excerptPortableText',
         title: 'Excerpt',
         description:
-          'This ends up on summary pages, on Google, when people share your post in social media.',
+          'This ends up on summary pages, on Google, when people share the article in social media.',
       },
       {
         name: 'authors',

@@ -9,7 +9,8 @@ import {
   GITHUB_OWNER,
   GITHUB_REPO,
   GATSBY_SANITY_TOKEN,
-  GATSBY_SANITY_PROJECT_ID
+  GATSBY_SANITY_PROJECT_ID,
+  GATSBY_SANITY_MAPBOX_TOKEN
 } from '../config';
 
 export class AmplifyInfraStack extends cdk.Stack {
@@ -53,10 +54,18 @@ export class AmplifyInfraStack extends cdk.Stack {
     })
 
     // app env vars
-    const token = cdk.SecretValue.secretsManager(GATSBY_SANITY_TOKEN);
-    const project = ssm.StringParameter.valueForStringParameter(this, GATSBY_SANITY_PROJECT_ID);
-    amplifyApp.addEnvironment("GATSBY_SANITY_PROJECT_ID", project)
-    amplifyApp.addEnvironment("GATSBY_SANITY_TOKEN", token.toString())
+    amplifyApp.addEnvironment(
+      GATSBY_SANITY_PROJECT_ID, 
+      ssm.StringParameter.valueForStringParameter(this, GATSBY_SANITY_PROJECT_ID)
+      )
+    amplifyApp.addEnvironment(
+      GATSBY_SANITY_TOKEN, 
+      cdk.SecretValue.secretsManager(GATSBY_SANITY_TOKEN).toString()
+      )
+    amplifyApp.addEnvironment(
+      GATSBY_SANITY_MAPBOX_TOKEN, 
+      cdk.SecretValue.secretsManager(GATSBY_SANITY_MAPBOX_TOKEN).toString()
+      )
 
     // prod env vars
     masterBranch.addEnvironment("STAGE", "prod");

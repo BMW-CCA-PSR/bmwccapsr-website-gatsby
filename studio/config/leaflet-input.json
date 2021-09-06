@@ -1,0 +1,9 @@
+{
+  "tileLayer": {
+    "attribution": "© <a href=\"https://www.mapbox.com/about/maps/\">Mapbox</a> © <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> <strong><a href=\"https://www.mapbox.com/map-feedback/\" target=\"_blank\">Improve this map</a></strong>",
+    "url": "https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}"
+  },
+  "accessToken": "TOKEN_HERE",
+  "id": "mapbox.streets",
+  "maxZoom": 18
+}
