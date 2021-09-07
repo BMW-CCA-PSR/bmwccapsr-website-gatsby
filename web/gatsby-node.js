@@ -60,7 +60,10 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
   const { createPage } = actions;
   const result = await graphql(`
     {
-      allSanityPost(filter: { slug: { current: { ne: null } }, isPublished: { eq: true } }) {
+      allSanityPost(
+        filter: { slug: { current: { ne: null } }, isPublished: { eq: true } }
+        sort: { fields: [publishedAt], order: ASC }
+        ) {
         edges {
           node {
             id
@@ -68,6 +71,14 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
             slug {
               current
             }
+          }
+          next {
+            id
+            publishedAt
+          }
+          previous {
+            id
+            publishedAt
           }
         }
       }
@@ -81,12 +92,17 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
     .filter((edge) => !isFuture(parseISO(edge.node.publishedAt)))
     .forEach((edge) => {
       const { id, slug = {} } = edge.node;
+      const { next, previous } = edge;
       const path = `${pathPrefix}/${slug.current}/`;
       reporter.info(`Creating zundfolge page: ${path}`);
       createPage({
         path,
         component: require.resolve("./src/templates/zundfolge-article.js"),
-        context: { id },
+        context: { 
+          id,
+          next: next ? next.id : null, 
+          prev: previous ? previous.id : null
+        },
       });
     });
 }

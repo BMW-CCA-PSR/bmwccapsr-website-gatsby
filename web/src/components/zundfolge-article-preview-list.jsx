@@ -5,7 +5,6 @@ import { Heading } from "theme-ui"
 import ZundfolgeArticlePreview from "./zundfolge-article-preview";
 
 function ZundfolgeArticlePreviewGrid(props) {
-  console.log(props)
   return (
     <div sx={{
       px: 3,

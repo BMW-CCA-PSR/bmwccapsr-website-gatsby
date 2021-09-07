@@ -2,13 +2,14 @@ import React from "react";
 import { graphql } from "gatsby";
 import GraphQLErrorList from "../components/graphql-error-list";
 import ZundfolgeArticle from "../components/zundfolge-article";
+import RelatedContent from "../components/related-content";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
 import { Container } from "@theme-ui/components";
 import { toPlainText } from "../lib/helpers";
 
 export const query = graphql`
-  query BlogPostTemplateQuery($id: String!) {
+  query BlogPostTemplateQuery($id: String!, $next: String, $prev: String) {
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
       navMenu {
@@ -60,37 +61,36 @@ export const query = graphql`
         }
       }
     }
-    posts: allSanityPost(
-      limit: 3
-      filter: {id: {ne: $id }}
-    ) {
-      edges {
-        next {
-          id
-          publishedAt
-          mainImage {
-            ...SanityImage
-            alt
-          }
-          title
-          _rawExcerpt
-          slug {
-            current
-          }
-        }
-        previous {
-          id
-          publishedAt
-          mainImage {
-            ...SanityImage
-            alt
-          }
-          title
-          _rawExcerpt
-          slug {
-            current
-          }
-        }
+    next: sanityPost(id: { eq: $next }) {
+      id
+      publishedAt
+      categories {
+        _id
+        title
+      }
+      mainImage {
+        ...SanityImage
+        alt
+      }
+      title
+      slug {
+        current
+      }
+    }
+    prev: sanityPost(id: { eq: $prev }) {
+      id
+      publishedAt
+      categories {
+        _id
+        title
+      }
+      mainImage {
+        ...SanityImage
+        alt
+      }
+      title
+      slug {
+        current
       }
     }
   }
@@ -98,10 +98,10 @@ export const query = graphql`
 
 const ZundfolgePostTemplate = props => {
   const { data, errors } = props;
-  const posts = data && data.posts;
-  console.log(posts)
   const post = data && data.post;
   const site = data && data.site;
+  const next = data && data.next;
+  const prev = data && data.prev;
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems} >
@@ -120,7 +120,9 @@ const ZundfolgePostTemplate = props => {
         </Container>
       )}
 
-      {post && <ZundfolgeArticle {...post} {...posts} />}
+      {post && <ZundfolgeArticle {...post} />}
+      {next && <RelatedContent {...next} /> }
+      {prev && <RelatedContent {...prev} /> }
     </Layout>
   );
 };
