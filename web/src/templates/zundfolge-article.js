@@ -62,8 +62,22 @@ export const query = graphql`
     }
     posts: allSanityPost(
       limit: 3
+      filter: {id: {ne: $id }}
     ) {
       edges {
+        next {
+          id
+          publishedAt
+          mainImage {
+            ...SanityImage
+            alt
+          }
+          title
+          _rawExcerpt
+          slug {
+            current
+          }
+        }
         previous {
           id
           publishedAt
@@ -84,7 +98,7 @@ export const query = graphql`
 
 const ZundfolgePostTemplate = props => {
   const { data, errors } = props;
-  const posts = data;
+  const posts = data && data.posts;
   console.log(posts)
   const post = data && data.post;
   const site = data && data.site;
@@ -106,7 +120,7 @@ const ZundfolgePostTemplate = props => {
         </Container>
       )}
 
-      {post && <ZundfolgeArticle {...post} />}
+      {post && <ZundfolgeArticle {...post} {...posts} />}
     </Layout>
   );
 };

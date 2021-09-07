@@ -8,7 +8,7 @@ import AuthorList from "./author-list";
 import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
 
 function ZundfolgeArticle(props) {
-  const { _rawBody, authors, categories, title, mainImage, publishedAt } = props;
+  const { _rawBody, authors, categories, title, mainImage, publishedAt, edges } = props;
   var pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
