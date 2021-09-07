@@ -3,10 +3,12 @@ module.exports = {
     text: "#060606",
     background: "#fff",
     primary: "#228dd8",
+    secondary: "",
     heading: "#e0f",
     muted: "#191919",
     highlight: "#3cf",
     gray: "#f6f5f5",
+    darkgray: "#444444"
   },
   breakpoints: ["768px", "1025px", "1290px"],
   fonts: {

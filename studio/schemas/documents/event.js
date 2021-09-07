@@ -36,6 +36,12 @@ export default {
             description: 'The end date/time of the event.',
         },
         {
+            name: 'location',
+            type: 'geopoint',
+            validation: Rule => Rule.required(),
+            title: 'Event Location',
+        },
+        {
             name: 'mainImage',
             type: 'mainImage',
             title: 'Main image',
