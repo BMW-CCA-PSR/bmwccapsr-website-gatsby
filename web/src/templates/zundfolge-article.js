@@ -60,11 +60,32 @@ export const query = graphql`
         }
       }
     }
+    posts: allSanityPost(
+      limit: 3
+    ) {
+      edges {
+        previous {
+          id
+          publishedAt
+          mainImage {
+            ...SanityImage
+            alt
+          }
+          title
+          _rawExcerpt
+          slug {
+            current
+          }
+        }
+      }
+    }
   }
 `;
 
 const ZundfolgePostTemplate = props => {
   const { data, errors } = props;
+  const posts = data;
+  console.log(posts)
   const post = data && data.post;
   const site = data && data.site;
   const menuItems = site.navMenu && (site.navMenu.items || []);
