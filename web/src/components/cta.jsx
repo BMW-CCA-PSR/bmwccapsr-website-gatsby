@@ -15,15 +15,12 @@ const Cta = ({ label, title, body, ctas }) => (
     <Heading variant="text.heading" sx={{
       width: "100%",
       my: "0.5rem",
-      fontSize: "lg",
-      fontWeight: "bold",
-      letterSpacing: "tight",
+      variant: "styles.h2",
       textAlign: "center",
     }}>{title}</Heading>
     <div sx={{
       my: "1rem",
-      letterSpacing: "tight",
-      fontSize: "md"
+      variant: "styles.h3"
     }}>
       <PortableText blocks={body} />
     </div>

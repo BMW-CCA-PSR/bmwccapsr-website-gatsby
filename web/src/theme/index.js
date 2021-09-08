@@ -17,20 +17,20 @@ module.exports = {
     monospace: 'Menlo, monospace',
   },
   fontSizes: {
-    xs: 12,
-    sm: 16,
-    md: 28,
-    lg: 48,
+    xxs: 12,
+    xs: 16,
+    sm: 20,
+    md: 30,
+    lg: 40,
     xl: 64,
   },
   fontWeights: {
     body: 400,
-    heading: 500,
-    bold: 700,
+    heading: 700,
   },
   lineHeights: {
     body: 1.5,
-    heading: 1.4,
+    heading: 0.9,
   },
   letterSpacings: {
     normal: "0",
@@ -41,7 +41,7 @@ module.exports = {
     heading: {
       fontSize: "lg",
       fontFamily: "heading",
-      fontWeight: "bold",
+      fontWeight: "heading",
     },
     title: {
       fontFamily: "body",
@@ -90,6 +90,7 @@ module.exports = {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
+      letterSpacing: "tight",
       fontWeight: 'heading',
       fontSize: "xl"
     },
@@ -97,6 +98,7 @@ module.exports = {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
+      letterSpacing: "tight",
       fontWeight: 'heading',
       fontSize: "lg"
     },
@@ -104,6 +106,7 @@ module.exports = {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
+      letterSpacing: "tight",
       fontWeight: 'heading',
       fontSize: "md"
     },
@@ -111,6 +114,7 @@ module.exports = {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
+      letterSpacing: "tight",
       fontWeight: 'heading',
       fontSize: "sm"
     },
@@ -118,6 +122,7 @@ module.exports = {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
+      letterSpacing: "tight",
       fontWeight: 'heading',
       fontSize: "xs"
     },
@@ -125,8 +130,9 @@ module.exports = {
       color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
+      letterSpacing: "tight",
       fontWeight: 'heading',
-      fontSize: 10
+      fontSize: "xxs"
     },
     p: {
       color: 'text',
@@ -160,6 +166,11 @@ module.exports = {
       maxWidth: "100%"
     },
     li: {
+      margin: "0px",
+      padding: "0px"
+    },
+    ul: {
+      listStyle: 'none',
       margin: "0px",
       padding: "0px"
     }

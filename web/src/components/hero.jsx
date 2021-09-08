@@ -49,12 +49,11 @@ function Hero(props) {
           mx: "auto",
         }}>
           <Text variant="text.label">{props.label}</Text>
-          <Heading variant="text.heading" sx={{
+          <Heading variant="styles.h1" sx={{
             my: "1rem",
-            letterSpacing: "tight"
           }}>{props.heading}</Heading>
           <div sx={{
-            fontSize: "md",
+            variant: "styles.h3",
             pr: "0.5rem",
           }}>
             <PortableText blocks={props.tagline} />

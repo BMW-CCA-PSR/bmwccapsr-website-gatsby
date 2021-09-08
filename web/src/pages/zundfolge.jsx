@@ -74,10 +74,12 @@ const IndexPage = props => {
         keywords={site.keywords || []}
       />
       <Container sx ={{
-        pt: "5rem"
+        mt: "6rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <div>{postNodes && <ZundfolgeArticlePreviewList nodes={postNodes} />}</div>
+        <div>
+          {postNodes && <ZundfolgeArticlePreviewList nodes={postNodes} />}
+        </div>
       </Container>
     </Layout>
   );

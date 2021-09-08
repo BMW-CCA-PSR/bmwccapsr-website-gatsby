@@ -23,7 +23,6 @@ function ZundfolgeArticlePreview(props) {
           mx: "auto",
           borderRadius: "8px"
         }}
-        to={getZundfolgeUrl(props.slug.current)}
       >
         <div>
           {props.mainImage && props.mainImage.asset && (
@@ -45,7 +44,7 @@ function ZundfolgeArticlePreview(props) {
           )}
         </div>
         <Box p={3}>
-          <Heading sx={{ textDecoration: "none" }} variant="styles.h3">{props.title}</Heading>
+          <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
           {props._rawExcerpt && (
             <div>
               <PortableText blocks={props._rawExcerpt} />

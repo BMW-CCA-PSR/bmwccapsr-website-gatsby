@@ -2,7 +2,6 @@ import React from "react";
 import { graphql } from "gatsby";
 import GraphQLErrorList from "../components/graphql-error-list";
 import ZundfolgeArticle from "../components/zundfolge-article";
-import RelatedContent from "../components/related-content";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
 import { Container } from "@theme-ui/components";
@@ -102,6 +101,7 @@ const ZundfolgePostTemplate = props => {
   const site = data && data.site;
   const next = data && data.next;
   const prev = data && data.prev;
+  const pageData = {...post, next: next ? {...next} : null, prev: prev ? {...prev} : null}
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems} >
@@ -120,9 +120,7 @@ const ZundfolgePostTemplate = props => {
         </Container>
       )}
 
-      {post && <ZundfolgeArticle {...post} />}
-      {next && <RelatedContent {...next} /> }
-      {prev && <RelatedContent {...prev} /> }
+      {post && <ZundfolgeArticle {...pageData} />}
     </Layout>
   );
 };

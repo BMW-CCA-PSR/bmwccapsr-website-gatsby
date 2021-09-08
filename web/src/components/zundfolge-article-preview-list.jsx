@@ -7,10 +7,13 @@ import ZundfolgeArticlePreview from "./zundfolge-article-preview";
 function ZundfolgeArticlePreviewGrid(props) {
   return (
     <div sx={{
-      px: 3,
-      py: 4,
+      px: "1rem",
+      pt: "3rem",
     }}>
-      <Heading >Zundfolge</Heading>
+      <Heading sx={{
+        variant: "styles.h1",
+        pb: "1rem"
+        }}>Zundfolge</Heading>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
