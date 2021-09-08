@@ -3,23 +3,25 @@ import React from "react";
 import PortableText from "../components/portableText";
 import CTALink from "./CTALink";
 import { Container, Flex, Heading } from "@theme-ui/components";
-
+import HorizontalLine from "./horizontal-line";
+import { displayPartsToString } from "typescript";
 
 const Cta = ({ label, title, body, ctas }) => (
   <Container sx={{
     mx: "auto",
-    textAlign: "center",
+    textAlign:"center",
     py: "1.5rem",
-    mb: "3rem"
+    mb: "3rem",
   }}>
-    <Heading variant="text.heading" sx={{
+    <Heading sx={{
       width: "100%",
       my: "0.5rem",
       variant: "styles.h2",
       textAlign: "center",
     }}>{title}</Heading>
+    <HorizontalLine width="300"/>
     <div sx={{
-      my: "1rem",
+      //my: "0.5rem",
       variant: "styles.h3"
     }}>
       <PortableText blocks={body} />
