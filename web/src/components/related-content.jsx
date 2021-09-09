@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { buildImageObj, getZundfolgeUrl } from "../lib/helpers";
+import { buildImageObj, getEventsUrl } from "../lib/helpers";
 import { Link } from "gatsby";
 import { imageUrlFor } from "../lib/image-url";
 import { Heading, Text, Box, Card } from "@theme-ui/components";
@@ -10,7 +10,7 @@ function RelatedContent(props) {
     const { categories, title, mainImage, publishedAt, slug } = props;
     return (
         <Link
-        to={getZundfolgeUrl(slug.current)}
+        to={getEventsUrl(slug.current)}
         sx={{textDecoration: "none"}}
         >
             <Card

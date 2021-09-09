@@ -4,23 +4,19 @@ import React from "react";
 import { buildImageObj } from "../lib/helpers";
 import { imageUrlFor } from "../lib/image-url";
 import PortableText from "./portableText";
-import AuthorList from "./author-list";
 import VerticalLine from "./vertical-line";
 import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
 import RelatedContent from "./related-content";
+import EventDetails from "./event-detail";
 
-function ZundfolgeArticle(props) {
-  console.log(props)
-  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev } = props;
-  console.log(next)
-  console.log(prev)
-  var pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
-    ? formatDistance(new Date(publishedAt), new Date())
-    : format(new Date(publishedAt), "MMMM do, yyyy"))
-  var authorString = String(authors.map((author) => (` ${author.author.name}`)))
+function EventPage(props) {
+  const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev } = props;
+  var startInDays = startTime && (formatDistance(new Date(startTime), new Date()))
+  var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
+  var updated = _updatedAt && (format(new Date(_updatedAt), "MMMM do, yyyy"))
 
   return (
-    <article>
+    <event>
       <Flex sx={{
         mt: "6rem",
         pt: "3rem",
@@ -33,7 +29,8 @@ function ZundfolgeArticle(props) {
           flexDirection: "column",
         }}>
           <Heading variant="styles.h1">{title}</Heading>
-          <Text sx={{variant: "stypes.p", py: "1rem"}}>By <b>{authorString}</b> | {pubDate}</Text>
+          <Text sx={{variant: "styles.h4", py: "1rem"}}>{start} | {startInDays}</Text>
+          <Text sx={{variant: "styles.p"}}>Last updated: {updated}</Text>
           {mainImage && mainImage.asset && (
             <div sx={{
               position: "relative",
@@ -54,8 +51,8 @@ function ZundfolgeArticle(props) {
             </div>
           )}
           {_rawBody && <PortableText blocks={_rawBody} />}
+          <EventDetails {...props}/>
           <aside>
-            {authors && <AuthorList items={authors} title="Authors" />}
             {categories && (
               <div>
                 <h3>Categories</h3>
@@ -77,14 +74,14 @@ function ZundfolgeArticle(props) {
             mx: "auto",
             px: "1rem"
           }}>
-            <Heading variant="styles.h3">Related Content</Heading>
+            <Heading variant="styles.h3">More Events</Heading>
             {next && <RelatedContent {...next} />}
             {prev && <RelatedContent {...prev} />}
           </div>
         </div>  
       </Flex>
-    </article>
+    </event>
   );
 }
 
-export default ZundfolgeArticle;
+export default EventPage;

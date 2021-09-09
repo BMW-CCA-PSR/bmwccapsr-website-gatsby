@@ -17,6 +17,16 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         },
       },
     }),
+    schema.buildObjectType({
+      name: "SanityEvent",
+      interfaces: ["Node"],
+      fields: {
+        isActive: {
+          type: "Boolean!",
+          resolve: (source) => new Date(source.startTime) >= new Date(),
+        },
+      },
+    }),
   ]);
 };
 
@@ -107,7 +117,61 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
     });
 }
 
+// EVENT PAGE
+
+async function createEventPages(pathPrefix = "/events", graphql, actions, reporter) {
+  const { createPage } = actions;
+  const result = await graphql(`
+    {
+      allSanityEvent(
+        filter: { slug: { current: { ne: null } }, isActive: { eq: true } }
+        sort: { fields: [startTime], order: ASC }
+        ) {
+        edges {
+          node {
+            id
+            startTime
+            slug {
+              current
+            }
+          }
+          next {
+            id
+            startTime
+          }
+          previous {
+            id
+            startTime
+          }
+        }
+      }
+    }
+  `);
+
+  if (result.errors) throw result.errors;
+
+  const eventEdges = (result.data.allSanityEvent || {}).edges || [];
+  eventEdges
+    .filter((edge) => isFuture(parseISO(edge.node.startTime)))
+    .forEach((edge) => {
+      const { id, slug = {} } = edge.node;
+      const { next, previous } = edge;
+      const path = `${pathPrefix}/${slug.current}/`;
+      reporter.info(`Creating events page: ${path}`);
+      createPage({
+        path,
+        component: require.resolve("./src/templates/event-page.js"),
+        context: { 
+          id,
+          next: next ? next.id : null, 
+          prev: previous ? previous.id : null
+        },
+      });
+    });
+}
+
 exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
   await createZundfolgePages("/zundfolge", graphql, actions, reporter);
+  await createEventPages("/events", graphql, actions, reporter);
 };

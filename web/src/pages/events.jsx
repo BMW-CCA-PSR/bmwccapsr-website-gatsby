@@ -6,42 +6,56 @@ import {
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import ZundfolgeArticlePreviewGrid from "../components/zundfolge-article-preview-list";
+import EventPagePreviewGrid from "../components/event-page-preview-list";
 import { Container } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
 
 export const query = graphql`
-  query ZundfolgePageQuery {
-    site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
+query EventPageQuery {
+    site: sanitySiteSettings(_id: {regex: "/(drafts.|)siteSettings/"}) {
       title
       navMenu {
         ...NavMenu
       }
     }
-    posts: allSanityPost(
+    events: allSanityEvent(
       limit: 6
-      sort: { fields: [publishedAt], order: DESC }
-      filter: { slug: { current: { ne: null } }, publishedAt: { ne: null } }
+      sort: {fields: [startTime], order: DESC}
+      filter: {slug: {current: {ne: null}}, isActive: {eq: true}}
     ) {
       edges {
         node {
           id
-          publishedAt
+          startTime
           mainImage {
             ...SanityImage
             alt
+            asset {
+              metadata {
+                lqip
+              }
+            }
           }
           title
           _rawExcerpt
           slug {
             current
           }
+          categories {
+            title
+          }
+          endTime
+          location {
+            lat
+            lng
+          }
         }
       }
     }
   }
+  
 `;
 
 const IndexPage = props => {
@@ -56,8 +70,8 @@ const IndexPage = props => {
   }
 
   const site = (data || {}).site;
-  const postNodes = (data || {}).posts
-    ? mapEdgesToNodes(data.posts)
+  const eventNodes = (data || {}).events
+    ? mapEdgesToNodes(data.events)
         .filter(filterOutDocsWithoutSlugs)
         .filter(filterOutDocsPublishedInTheFuture)
     : [];
@@ -79,7 +93,7 @@ const IndexPage = props => {
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
         <div>
-          {postNodes && <ZundfolgeArticlePreviewGrid nodes={postNodes} />}
+          {eventNodes && <EventPagePreviewGrid nodes={eventNodes} />}
         </div>
       </Container>
     </Layout>

@@ -2,9 +2,9 @@
 import { Link } from "gatsby";
 import React from "react";
 import { Heading } from "theme-ui"
-import ZundfolgeArticlePreview from "./zundfolge-article-preview";
+import EventPagePreview from "./event-page-preview";
 
-function ZundfolgeArticlePreviewGrid(props) {
+function EventPagePreviewGrid(props) {
   return (
     <div sx={{
       px: "1rem",
@@ -13,7 +13,7 @@ function ZundfolgeArticlePreviewGrid(props) {
       <Heading sx={{
         variant: "styles.h1",
         pb: "1rem"
-        }}>Zündfolge</Heading>
+        }}>Events</Heading>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
@@ -26,7 +26,7 @@ function ZundfolgeArticlePreviewGrid(props) {
           props.nodes.map(node => (
             <li
               key={node.id}>
-              <ZundfolgeArticlePreview {...node} isInList />
+              <EventPagePreview {...node} isInList />
             </li>
           ))}
       </ul>
@@ -39,10 +39,10 @@ function ZundfolgeArticlePreviewGrid(props) {
   );
 }
 
-ZundfolgeArticlePreviewGrid.defaultProps = {
+EventPagePreviewGrid.defaultProps = {
   title: "",
   nodes: [],
   browseMoreHref: ""
 };
 
-export default ZundfolgeArticlePreviewGrid;
+export default EventPagePreviewGrid;

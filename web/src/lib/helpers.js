@@ -21,6 +21,10 @@ export function getZundfolgeUrl(slug) {
   return `/zundfolge/${slug.current || slug}/`;
 }
 
+export function getEventsUrl(slug) {
+  return `/events/${slug.current || slug}/`;
+}
+
 export function buildImageObj(source = { asset: {} }) {
   const imageObj = {
     asset: { _ref: source.asset._ref || source.asset._id }
