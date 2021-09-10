@@ -1088,7 +1088,7 @@
     "core-js-pure" "^3.16.0"
     "regenerator-runtime" "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.13.10", "@babel/runtime@^7.14.6", "@babel/runtime@^7.14.8", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.13.10", "@babel/runtime@^7.14.6", "@babel/runtime@^7.14.8", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   "integrity" "sha512-twj3L8Og5SaCRCErB4x4ajbvBIVV77CGeFglHpeg5WC5FF8TZzBWXtTJ4MqaD9QszLYTtr+IsaAL2rEUevb+eg=="
   "resolved" "https://registry.npmjs.org/@babel/runtime/-/runtime-7.14.8.tgz"
   "version" "7.14.8"
@@ -2406,6 +2406,14 @@
   "resolved" "https://registry.npmjs.org/@mapbox/whoots-js/-/whoots-js-3.1.0.tgz"
   "version" "3.1.0"
 
+"@math.gl/web-mercator@^3.5.5":
+  "integrity" "sha512-b46KEiAuwEv34OXj5YFExS4SJLHWWxxAxaxHPzfVo7wMI0gcmDtjwa163i2eIt4vKAiKyNq1uuWako4Y2HXigw=="
+  "resolved" "https://registry.npmjs.org/@math.gl/web-mercator/-/web-mercator-3.5.5.tgz"
+  "version" "3.5.5"
+  dependencies:
+    "@babel/runtime" "^7.12.0"
+    "gl-matrix" "^3.0.0"
+
 "@mdx-js/mdx@^1.0.0", "@mdx-js/mdx@^1.6.22":
   "integrity" "sha512-AMxuLxPz2j5/6TpF/XSdKpQP1NlG0z11dFOlq+2IP/lSgl11GY8ji6S/rgsViN/L0BDvHvUMruRb7ub+24LUYA=="
   "resolved" "https://registry.npmjs.org/@mdx-js/mdx/-/mdx-1.6.22.tgz"
@@ -2903,6 +2911,11 @@
   "resolved" "https://registry.npmjs.org/@types/estree/-/estree-0.0.50.tgz"
   "version" "0.0.50"
 
+"@types/geojson@*", "@types/geojson@^7946.0.7":
+  "integrity" "sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA=="
+  "resolved" "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.8.tgz"
+  "version" "7946.0.8"
+
 "@types/get-port@^3.2.0":
   "integrity" "sha512-TiNg8R1kjDde5Pub9F9vCwZA/BNW9HeXP5b9j7Qucqncy/McfPZ6xze/EyBdXS5FhMIGN6Fx3vg75l5KHy3V1Q=="
   "resolved" "https://registry.npmjs.org/@types/get-port/-/get-port-3.2.0.tgz"
@@ -3001,6 +3014,13 @@
   "integrity" "sha512-/BHF5HAx3em7/KkzVKm3LrsD6HZAXuXO1AJZQ3cRRBZj4oHZDviWPYu0aEplAqDFNHZPW6d3G7KN+ONcCCC7pw=="
   "resolved" "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.172.tgz"
   "version" "4.14.172"
+
+"@types/mapbox-gl@^2.0.3":
+  "integrity" "sha512-PlzankZjkQIO8ZRMdAAQVW0Nniye3aS1JbnT2KtpJAGRRQLMRz6dxieAgcZqUF4xxfS1DFnVvzWoGODEeqM3DQ=="
+  "resolved" "https://registry.npmjs.org/@types/mapbox-gl/-/mapbox-gl-2.4.1.tgz"
+  "version" "2.4.1"
+  dependencies:
+    "@types/geojson" "*"
 
 "@types/mdast@^3.0.0":
   "integrity" "sha512-YwR7OK8aPmaBvMMUi+pZXBNoW2unbVbfok4YRqGMJBe1dpDlzpRkJrYEYmvjxgs5JhuQmKfDexrN98u941Zasg=="
@@ -8199,7 +8219,7 @@
   dependencies:
     "emoji-regex" ">=6.0.0 <=6.1.1"
 
-"gl-matrix@^3.3.0":
+"gl-matrix@^3.0.0", "gl-matrix@^3.3.0":
   "integrity" "sha512-COb7LDz+SXaHtl/h4LeaFcNdJdAQSDeVqjiIihSXNrkWObZLhDI4hIkZC11Aeqp7bcE72clzB0BnDXr2SmslRA=="
   "resolved" "https://registry.npmjs.org/gl-matrix/-/gl-matrix-3.3.0.tgz"
   "version" "3.3.0"
@@ -8573,6 +8593,11 @@
   dependencies:
     "duplexer" "^0.1.1"
     "pify" "^4.0.1"
+
+"hammerjs@^2.0.8":
+  "integrity" "sha1-BO93hiz/K7edMPdpIJWTAiK/YPE="
+  "resolved" "https://registry.npmjs.org/hammerjs/-/hammerjs-2.0.8.tgz"
+  "version" "2.0.8"
 
 "handle-thing@^2.0.0":
   "integrity" "sha512-9Qn4yBxelxoh2Ow62nP+Ka/kMnOXRi8BXnRaUwezLNhqelnN49xKz4F/dPP8OYLxLxq6JDtZb2i9XznUQbNPTg=="
@@ -10686,7 +10711,7 @@
   dependencies:
     "object-visit" "^1.0.0"
 
-"mapbox-gl@^2.4.1":
+"mapbox-gl@^2.3.0", "mapbox-gl@^2.4.1":
   "integrity" "sha512-iTF5UPm63ojEi91A2lSpM5wDfnttuPXJmJRwD65R4n2mAYoQjjRwXvXIgcxKDnZDpdczF1jIFeS1R+H8jp1NCQ=="
   "resolved" "https://registry.npmjs.org/mapbox-gl/-/mapbox-gl-2.4.1.tgz"
   "version" "2.4.1"
@@ -11165,6 +11190,14 @@
   dependencies:
     "for-in" "^1.0.2"
     "is-extendable" "^1.0.1"
+
+"mjolnir.js@^2.5.0":
+  "integrity" "sha512-rGA7+BJKvXI0ypxQD/+rQE/sW26kmc8UIZWhmQrjhwCf/zvhbcBlsu2vPB6w0Kv/rVnVFEONTSQqC0vFEpQvIA=="
+  "resolved" "https://registry.npmjs.org/mjolnir.js/-/mjolnir.js-2.6.0.tgz"
+  "version" "2.6.0"
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    "hammerjs" "^2.0.8"
 
 "mkdirp-classic@^0.5.2", "mkdirp-classic@^0.5.3":
   "integrity" "sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A=="
@@ -13103,6 +13136,20 @@
   "resolved" "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
   "version" "3.0.4"
 
+"react-map-gl@^6.1.17":
+  "integrity" "sha512-SKuMtvs7aQpHMJehf/GzUQnEhPWRIypTX7X2wVXGME2RBKdY0PnC1YTiy8W3aA4uwcolPvCCYB+ki3xal51ZXQ=="
+  "resolved" "https://registry.npmjs.org/react-map-gl/-/react-map-gl-6.1.17.tgz"
+  "version" "6.1.17"
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    "@types/geojson" "^7946.0.7"
+    "@types/mapbox-gl" "^2.0.3"
+    "mapbox-gl" "^2.3.0"
+    "mjolnir.js" "^2.5.0"
+    "prop-types" "^15.7.2"
+    "resize-observer-polyfill" "^1.5.1"
+    "viewport-mercator-project" "^7.0.4"
+
 "react-player@^2.9.0":
   "integrity" "sha512-jNUkTfMmUhwPPAktAdIqiBcVUKsFKrVGH6Ocutj6535CNfM91yrvWxHg6fvIX8Y/fjYUPoejddwh7qboNV9vGA=="
   "resolved" "https://registry.npmjs.org/react-player/-/react-player-2.9.0.tgz"
@@ -13664,6 +13711,11 @@
   "integrity" "sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8="
   "resolved" "https://registry.npmjs.org/requires-port/-/requires-port-1.0.0.tgz"
   "version" "1.0.0"
+
+"resize-observer-polyfill@^1.5.1":
+  "integrity" "sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg=="
+  "resolved" "https://registry.npmjs.org/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz"
+  "version" "1.5.1"
 
 "resolve-cwd@^2.0.0":
   "integrity" "sha1-AKn3OHVW4nA46uIyyqNypqWbZlo="
@@ -16117,6 +16169,13 @@
     "is-buffer" "^2.0.0"
     "unist-util-stringify-position" "^2.0.0"
     "vfile-message" "^2.0.0"
+
+"viewport-mercator-project@^7.0.4":
+  "integrity" "sha512-0jzpL6pIMocCKWg1C3mqi/N4UPgZC3FzwghEm1H+XsUo8hNZAyJc3QR7YqC816ibOR8aWT5pCsV+gCu8/BMJgg=="
+  "resolved" "https://registry.npmjs.org/viewport-mercator-project/-/viewport-mercator-project-7.0.4.tgz"
+  "version" "7.0.4"
+  dependencies:
+    "@math.gl/web-mercator" "^3.5.5"
 
 "vt-pbf@^3.1.1":
   "integrity" "sha512-2LzDFzt0mZKZ9IpVF2r69G9bXaP2Q2sArJCmcCgvfTdCCZzSyz4aCLoQyUilu37Ll56tCblIZrXFIjNUpGIlmA=="

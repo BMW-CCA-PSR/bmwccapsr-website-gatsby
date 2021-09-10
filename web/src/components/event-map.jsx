@@ -1,36 +1,37 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import mapboxgl from "mapbox-gl";
+import { useState } from 'react';
+import ReactMapGL, { Marker } from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css'
+import  Pin  from "./event-map-marker"
 
-mapboxgl.accessToken = process.env.GATSBY_SANITY_MAPBOX_TOKEN;
+function EventMap(props) {
+  const [viewport, setViewport] = useState({
+    mapboxApiAccessToken: process.env.GATSBY_SANITY_MAPBOX_TOKEN,
+    height: "100%",
+    latitude: props.location.lat,
+    longitude: props.location.lng,
+    zoom: 14,
+    // disable all map interactions
+    scrollZoom: false,
+    boxZoom: false,
+    dragPan: false,
+    keyboard: false,
+    dragRotate: false,
+    doubleClickZoom: false,
+    touchZoomRotate: false,
+  });
 
-class EventMap extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        lng: props.location.lng,
-        lat: props.location.lat,
-        zoom: 14
-     };
-   }
+  return (
+    <ReactMapGL
+      {...viewport}
+      width="100%"
+      mapStyle="mapbox://styles/mapbox/streets-v11"
+      onViewportChange={nextViewport => setViewport(nextViewport)}
+    >
+      <Pin {...props} />
+    </ReactMapGL>
+  );
+}
 
-   componentDidMount() {
-    const map = new mapboxgl.Map({
-      container: this.mapContainer,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [this.state.lng, this.state.lat],
-      zoom: this.state.zoom,
-      interactive: false,
-    });
-  }
-  
-  render() {
-    return (
-      <div>
-        <div ref={el => this.mapContainer = el} />
-      </div>
-    )
-  }
- }
- export default EventMap;
- 
+export default EventMap;

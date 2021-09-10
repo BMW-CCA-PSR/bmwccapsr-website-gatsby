@@ -7,7 +7,7 @@ import { Heading, Text, Box, Card } from "@theme-ui/components";
 
 
 function RelatedContent(props) {
-    const { categories, title, mainImage, publishedAt, slug } = props;
+    const { categories, title, mainImage, slug } = props;
     return (
         <Link
         to={getEventsUrl(slug.current)}

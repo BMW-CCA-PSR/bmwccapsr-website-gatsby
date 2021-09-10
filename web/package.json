@@ -36,6 +36,7 @@
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
     "react-instagram-embed": "^3.0.0",
+    "react-map-gl": "^6.1.17",
     "react-player": "^2.9.0",
     "react-toggle": "^4.1.2",
     "theme-ui": "^0.10.0",

@@ -10,7 +10,7 @@ module.exports = {
     gray: "#f6f5f5",
     darkgray: "#444444"
   },
-  breakpoints: ["768px", "1025px", "1290px"],
+  breakpoints: ["480px", "768px", "1025px", "1200px"],
   fonts: {
     body: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif",
     heading: "inherit",

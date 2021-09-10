@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { format, formatDistance, differenceInDays } from "date-fns";
+import { format, formatDistance } from "date-fns";
 import React from "react";
 import { buildImageObj } from "../lib/helpers";
 import { imageUrlFor } from "../lib/image-url";
@@ -66,7 +66,7 @@ function EventPage(props) {
           </aside>
         </Flex>
         <div sx={next || prev ? {
-          display: ["none", "flex"],
+          display: ["none", "none", "flex"],
           mx: "auto",
           } : {display: "none"}}>
           <VerticalLine height="600"/>

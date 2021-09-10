@@ -69,7 +69,7 @@ function ZundfolgeArticle(props) {
           </aside>
         </Flex>
         <div sx={next || prev ? {
-          display: ["none", "flex"],
+          display: ["none", "none", "flex"],
           mx: "auto",
           } : {display: "none"}}>
           <VerticalLine height="600"/>

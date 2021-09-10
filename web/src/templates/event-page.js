@@ -18,6 +18,10 @@ export const query = graphql`
     event: sanityEvent(id: { eq: $id }) {
       id
       startTime
+      endTime
+      cost
+      website
+      venueName
       categories {
         _id
         title
@@ -40,7 +44,6 @@ export const query = graphql`
     }
     next: sanityEvent(id: { eq: $next }) {
       id
-      startTime
       categories {
         _id
         title
@@ -52,15 +55,10 @@ export const query = graphql`
       title
       slug {
         current
-      }
-      location {
-        lat
-        lng
       }
     }
     prev: sanityEvent(id: { eq: $prev }) {
       id
-      startTime
       categories {
         _id
         title
@@ -72,10 +70,6 @@ export const query = graphql`
       title
       slug {
         current
-      }
-      location {
-        lat
-        lng
       }
     }
   }
