@@ -10,14 +10,11 @@ import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 
 function ZundfolgeArticle(props) {
-  console.log(props)
   const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev } = props;
-  console.log(next)
-  console.log(prev)
-  var pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
+  const pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
-  var authorString = String(authors.map((author) => (` ${author.author.name}`)))
+  const authorString = String(authors.map((author) => (` ${author.author.name}`)))
 
   return (
     <article>
@@ -77,7 +74,7 @@ function ZundfolgeArticle(props) {
             mx: "auto",
             px: "1rem"
           }}>
-            <Heading variant="styles.h3">Related Content</Heading>
+            <Heading variant="styles.h3" sx={{mb: "1rem"}}>Related Content</Heading>
             {next && <RelatedContent {...next} />}
             {prev && <RelatedContent {...prev} />}
           </div>

@@ -74,7 +74,7 @@ function EventPage(props) {
             mx: "auto",
             px: "1rem"
           }}>
-            <Heading variant="styles.h3">More Events</Heading>
+            <Heading variant="styles.h3" sx={{mb: "1rem"}}>More Events</Heading>
             {next && <RelatedContent {...next} />}
             {prev && <RelatedContent {...prev} />}
           </div>

@@ -6,8 +6,9 @@ import {
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import ZundfolgeArticlePreviewGrid from "../components/zundfolge-article-preview-list";
-import { Container } from "@theme-ui/components";
+import ZundfolgeArticlePreviewGrid from "../components/zundfolge-article-preview-grid";
+import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
+import { Container, Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
@@ -67,6 +68,10 @@ const IndexPage = props => {
     );
   }
   const menuItems = site.navMenu && (site.navMenu.items || []);
+  const indexToRemove = 0;
+  const numberToRemove = 3;
+
+  const galleryNodes = postNodes.splice(indexToRemove, numberToRemove);
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
       <SEO
@@ -76,9 +81,13 @@ const IndexPage = props => {
       />
       <Container sx ={{
         mt: "6rem",
+        pt: "3rem",
       }}>
-        <h1 hidden>Welcome to {site.title}</h1>
-        <div>
+        <div sx={{
+          px: "1rem",
+        }}>
+          <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
+          {postNodes && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
           {postNodes && <ZundfolgeArticlePreviewGrid nodes={postNodes} />}
         </div>
       </Container>

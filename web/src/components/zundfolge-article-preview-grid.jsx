@@ -1,19 +1,11 @@
 /** @jsxImportSource theme-ui */
 import { Link } from "gatsby";
 import React from "react";
-import { Heading } from "theme-ui"
 import ZundfolgeArticlePreview from "./zundfolge-article-preview";
 
 function ZundfolgeArticlePreviewGrid(props) {
   return (
-    <div sx={{
-      px: "1rem",
-      pt: "3rem",
-    }}>
-      <Heading sx={{
-        variant: "styles.h1",
-        pb: "1rem"
-        }}>Zündfolge</Heading>
+    <div>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',

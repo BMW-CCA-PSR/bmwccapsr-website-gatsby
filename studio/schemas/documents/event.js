@@ -40,6 +40,7 @@ export default {
             type: 'datetime',
             title: 'End Time',
             description: 'The end date/time of the event.',
+            validation: Rule => Rule.required().min(Rule.valueOfField('startTime'))
         },
         {
             name: 'cost',

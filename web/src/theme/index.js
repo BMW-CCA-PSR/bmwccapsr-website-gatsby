@@ -163,7 +163,7 @@ module.exports = {
       borderBottomWidth: "1px"
     },
     img: {
-      maxWidth: "100%"
+      //maxWidth: "100%"
     },
     li: {
       margin: "0px",

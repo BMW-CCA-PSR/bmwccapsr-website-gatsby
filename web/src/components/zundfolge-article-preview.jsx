@@ -8,6 +8,7 @@ import { imageUrlFor } from "../lib/image-url";
 import PortableText from "./portableText";
 
 function ZundfolgeArticlePreview(props) {
+  const max = props.max ? props.max : '600'
   return (
     <Link
       to={getZundfolgeUrl(props.slug.current)}
@@ -18,8 +19,9 @@ function ZundfolgeArticlePreview(props) {
           textDecoration: "none",
           color: "text",
           backgroundColor: "lightgrey",
-          width: "100%",
-          maxWidth: "600px",
+          //width: "100%",
+          height: "100%",
+          maxWidth: `${max}px`,
           mx: "auto",
           borderRadius: "8px"
         }}

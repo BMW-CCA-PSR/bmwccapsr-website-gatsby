@@ -1,16 +1,17 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { buildImageObj, getEventsUrl } from "../lib/helpers";
+import { buildImageObj, getEventsUrl, getZundfolgeUrl } from "../lib/helpers";
 import { Link } from "gatsby";
 import { imageUrlFor } from "../lib/image-url";
 import { Heading, Text, Box, Card } from "@theme-ui/components";
 
 
 function RelatedContent(props) {
-    const { categories, title, mainImage, slug } = props;
+    const { categories, title, mainImage, slug, publishedAt } = props;
+    const isArticle = publishedAt ? true : false;
     return (
         <Link
-        to={getEventsUrl(slug.current)}
+        to={isArticle ? getZundfolgeUrl(slug.current) : getEventsUrl(slug.current)}
         sx={{textDecoration: "none"}}
         >
             <Card
@@ -18,10 +19,10 @@ function RelatedContent(props) {
                 textDecoration: "none",
                 color: "text",
                 backgroundColor: "lightgrey",
-                width: "100%",
                 maxWidth: "300px",
+                minWidth: "200px",
                 mx: "auto",
-                my: "1rem",
+                mb: "1rem",
                 borderRadius: "8px"
                 }}>
                     <div>
