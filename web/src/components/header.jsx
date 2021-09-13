@@ -1,26 +1,17 @@
 /** @jsxImportSource theme-ui */
-import { Heading, Container, Flex, Divider, Button, Box } from "theme-ui"
+import { Heading, Container, Flex, Divider, Button, Box, MenuButton } from "theme-ui"
 import { Link } from 'gatsby'
-import React from "react";
+import React, { useState }  from "react";
 import CTALink from "./CTALink";
 import Dropdown  from "./dropdown";
 import NavLink from "./navLink";
 import { StaticImage } from "gatsby-plugin-image"
-
-function Logo() {
-  return (
-    <StaticImage
-      alt="BMW CCA PSR"
-      src="../images/PSR-logo.jpeg"
-      placeholder="blurred"
-      layout="constrained"
-      width={150}
-    />
-  )
-}
+import Logo from "./logo";
 
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
-
+  const [isToggledOn, setToggle] = useState(false)
+  const toggle = () => setToggle(!isToggledOn)
+  console.log(isToggledOn)
   return (
     <nav
       sx={{
@@ -53,7 +44,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
               color: 'text',
               textDecoration: 'none'
             }}>
-            {Logo()}
+            <Logo />
             {/* <Heading>{siteTitle}</Heading> */}
           </Link>
           <div sx={{ mx: 'auto'}} />
@@ -63,7 +54,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                 sx={{
                   justifyContent: "end",
                   alignItems: "center",
-                  display: "flex"
+                  display: "flex",
+                  display: ["none", "none", "inline-flex"]
                 }}
               >
                 {navMenuItems.map((i) => {
@@ -76,6 +68,10 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                   }
                 })}
               </ul>
+              <MenuButton 
+              aria-label={`${isToggledOn ? 'close menu' : 'open menu'}`}
+              sx={{display: ["block", "block","none"]}}
+              onClick={toggle}/>
             </div>
           )}
         </Flex>

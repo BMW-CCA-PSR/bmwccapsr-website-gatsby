@@ -2,7 +2,7 @@
 import { format, parseISO } from "date-fns";
 import { Link } from "gatsby";
 import React from "react";
-import { Card, Box, Text, Heading, Flex } from "theme-ui"
+import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
 import { buildImageObj, cn, getZundfolgeUrl } from "../lib/helpers";
 import { imageUrlFor } from "../lib/image-url";
 import PortableText from "./portableText";
@@ -54,7 +54,13 @@ function ZundfolgeArticlePreview(props) {
           )}
           <Text sx={{
             color: "grey"
-          }}>{format(parseISO(props.publishedAt), "MMMM do, yyyy")}</Text>
+          }}>{format(parseISO(props.publishedAt), "MMMM do, yyyy")}
+          </Text>
+          <Flex>
+            {props.categories && props.categories.map(cat => (
+              <Badge mr={3}>{cat.title}</Badge>
+            ))}
+          </Flex>
         </Box>
       </Card>
     </Link>
