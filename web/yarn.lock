@@ -2770,7 +2770,7 @@
     "@theme-ui/css" "0.10.0"
     "@types/styled-system" "^5.1.10"
 
-"@theme-ui/core@0.10.0":
+"@theme-ui/core@>=0.6.0", "@theme-ui/core@0.10.0":
   "integrity" "sha512-3DeTHGqyqIi05JCsJ+G+fqW6YsX/oGJiaAvMgLfd86tGdJOnDseEBQG41oDFHSWtQSJDpBcoFgAWMGITmYdH+g=="
   "resolved" "https://registry.npmjs.org/@theme-ui/core/-/core-0.10.0.tgz"
   "version" "0.10.0"
@@ -2780,13 +2780,18 @@
     "@theme-ui/parse-props" "0.10.0"
     "deepmerge" "^4.2.2"
 
-"@theme-ui/css@0.10.0":
+"@theme-ui/css@>=0.6.0", "@theme-ui/css@0.10.0":
   "integrity" "sha512-Up3HqXoy2ERn/9gVxApCSl2n9vwtHBwPrYlMyEjX0YPs/rxmo+Aqe3kAxO+SG9idMw08mtdaDfMIFaPsBE5ovA=="
   "resolved" "https://registry.npmjs.org/@theme-ui/css/-/css-0.10.0.tgz"
   "version" "0.10.0"
   dependencies:
     "@emotion/react" "^11.1.1"
     "csstype" "^3.0.5"
+
+"@theme-ui/match-media@^0.11.2":
+  "integrity" "sha512-/3ccaHaZBsJZ/jXEqUy8bc9Sr65b280aWhMEY01DbUT0g8k2qnBEi6Nhd6bRWs/TipcTT+090PuJuReo7AcBCw=="
+  "resolved" "https://registry.npmjs.org/@theme-ui/match-media/-/match-media-0.11.2.tgz"
+  "version" "0.11.2"
 
 "@theme-ui/mdx@0.10.0":
   "integrity" "sha512-IcDrQONVrOFQFCFdyrlNoTTKmhw7ELtrLktRYmmWtCEz+KHpBiEVdxNo2yvz/05zF2BPGKOqu4wkMpUR13wNSQ=="
@@ -13178,7 +13183,7 @@
   dependencies:
     "classnames" "^2.2.5"
 
-"react@^16.13.1 || ^17.0.0", "react@^16.14.0 || ^17.0.0", "react@^16.3.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0", "react@^16.9.0 || ^17.0.0", "react@^17.0.0 || ^16.0.0 || ^15.0.0 || ~0.14.0", "react@^17.0.1", "react@>= 15.3.0 < 18", "react@>=15.0.0", "react@>=16.3.0", "react@>=16.6.0", "react@>=16.8.0", "react@15.x || 16.x || 17.x", "react@17.0.2":
+"react@^16 || ^17", "react@^16.13.1 || ^17.0.0", "react@^16.14.0 || ^17.0.0", "react@^16.3.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0", "react@^16.9.0 || ^17.0.0", "react@^17.0.0 || ^16.0.0 || ^15.0.0 || ~0.14.0", "react@^17.0.1", "react@>= 15.3.0 < 18", "react@>=15.0.0", "react@>=16.3.0", "react@>=16.6.0", "react@>=16.8.0", "react@15.x || 16.x || 17.x", "react@17.0.2":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"

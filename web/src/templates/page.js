@@ -91,9 +91,7 @@ const Page = (props) => {
           description={site.description}
           keywords={site.keywords}
         />
-        <div sx={{
-          pt: "6rem"
-        }}>{content}</div>
+        <div>{content}</div>
       </Layout>
     );
   };

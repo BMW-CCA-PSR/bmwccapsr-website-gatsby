@@ -18,7 +18,6 @@ function EventPage(props) {
   return (
     <event>
       <Flex sx={{
-        mt: "6rem",
         pt: "3rem",
         width: "100%",
         flexDirection: "row",

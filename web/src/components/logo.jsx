@@ -14,13 +14,13 @@ function Logo() {
         placeholder="blurred"
         layout="constrained"
         sx={{
-          objectFit: "cover"
+          objectFit: "cover",
         }}
       />
     </div>
     <Flex sx={{flexDirection: "column", pl: 3}}>
-      <Heading sx={{fontSize: [14, 16, 20], letterSpacing: "-.025em", lineHeight: "0.9", color: "black"}} >BMW Car Club of America</Heading>
-      <Heading sx={{fontSize: [14, 16, 20], letterSpacing: "-.025em", lineHeight: "0.9", color: "grey"}} >Puget Sound Region</Heading>
+      <Heading sx={{fontSize: [16, 20], letterSpacing: "-.025em", lineHeight: "0.9", color: "black"}} >BMW Car Club of America</Heading>
+      <Heading sx={{fontSize: [16, 20], letterSpacing: "-.025em", lineHeight: "0.9", color: "grey"}} >Puget Sound Region</Heading>
       </Flex>
   </Flex>
   )

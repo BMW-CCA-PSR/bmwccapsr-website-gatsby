@@ -1,5 +1,6 @@
 /** @jsxImportSource theme-ui */
-import { Heading, Container, Flex, Divider, Button, Box, MenuButton } from "theme-ui"
+import { useResponsiveValue, useBreakpointIndex } from '@theme-ui/match-media'
+import { Heading, Container, Flex, Divider, Button, Box, MenuButton, Close } from "theme-ui"
 import { Link } from 'gatsby'
 import React, { useState }  from "react";
 import CTALink from "./CTALink";
@@ -11,23 +12,26 @@ import Logo from "./logo";
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   const [isToggledOn, setToggle] = useState(false)
   const toggle = () => setToggle(!isToggledOn)
-  console.log(isToggledOn)
+  const index = useBreakpointIndex()
   return (
     <nav
       sx={{
-        zIndex: 30,
-        top: "0px",
+        //top: 0,
         minWidth: "100%",
-        position: 'fixed',
-        backgroundColor: "white"
+        position: 'relative',
+        backgroundColor: "white",
       }}>
       <Container sx={{
+        zIndex: 30,
         mx: "auto",
+        //height: "82px",
+        maxHeight: "6rem",
         flexWrap: "wrap",
-        mt: "0px",
-        py: "0.4rem",
+        mt: 0,
+        //py: "0.4rem",
         alignItems: "center",
         justifyContent: "space-between",
+
       }}>
         <Flex
           sx={{
@@ -42,20 +46,20 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
             to="/"
             sx={{
               color: 'text',
-              textDecoration: 'none'
+              textDecoration: 'none',
+              my: "2rem"
             }}>
             <Logo />
-            {/* <Heading>{siteTitle}</Heading> */}
           </Link>
           <div sx={{ mx: 'auto'}} />
           {showNav && navMenuItems && (
             <div>
+              {index > 2 ?
               <ul
                 sx={{
                   justifyContent: "end",
                   alignItems: "center",
-                  display: "flex",
-                  display: ["none", "none", "inline-flex"]
+                  display: "inline-flex"
                 }}
               >
                 {navMenuItems.map((i) => {
@@ -67,13 +71,52 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                     return <CTALink key={i._key} {...i} />;
                   }
                 })}
-              </ul>
-              <MenuButton 
-              aria-label={`${isToggledOn ? 'close menu' : 'open menu'}`}
-              sx={{display: ["block", "block","none"]}}
-              onClick={toggle}/>
+              </ul> 
+              :
+                <div sx={{display: "inline-flex", alignItems: "center"}}>
+                  {!isToggledOn ? 
+                  <MenuButton
+                    aria-label='open menu'
+                    sx={{ display: "block" }}
+                    onClick={toggle} />
+                    :
+                  <Close                     
+                    aria-label='close menu'
+                    sx={{ display: "block" }}
+                    onClick={toggle} />
+                  }
+                </div>
+              }
             </div>
           )}
+        </Flex>
+        <Flex>
+          {isToggledOn ?
+            <ul
+              sx={{
+                listStyle: "none",
+                m: 0,
+                p: 0,
+                backgroundColor: "primary",
+                position: "absolute",
+                width: "100%",
+                zIndex: 30,
+                alignItems: "center",
+                display: "inline-flex",
+              }}
+              aria-label="submenu"
+            >
+              {navMenuItems.map((i) => {
+                if (i.navigationItemUrl) {
+                  return <Dropdown key={i._key} {...i} />;
+                } else if (i._type == "link") {
+                  return <NavLink key={i._key} {...i} />;
+                } else if (i._type == "cta") {
+                  return <CTALink key={i._key} {...i} />;
+                }
+              })}
+            </ul>
+            : null}
         </Flex>
       </Container>
       <Divider sx={{

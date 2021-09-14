@@ -83,7 +83,6 @@ const IndexPage = props => {
         keywords={site.keywords || []}
       />
       <Container sx ={{
-        mt: "6rem",
         pt: "3rem",
       }}>
         <div sx={{

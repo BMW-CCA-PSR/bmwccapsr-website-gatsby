@@ -17,7 +17,7 @@ const maybeImage = illustration => {
     );
 
     img = (
-      <GatsbyImage image={fluidProps} sx={{width: "100%", z: 50}} alt={illustration.image.alt} />
+      <GatsbyImage image={fluidProps} sx={{width: "100%"}} alt={illustration.image.alt} />
     );
   }
   return img;
