@@ -1392,7 +1392,7 @@
 
 "@sanity/dashboard@^2.18.0":
   version "2.18.0"
-  resolved "https://registry.npmjs.org/@sanity/dashboard/-/dashboard-2.18.0.tgz#a7bc87b1654b2dee853b7e415a97c9de10eec4c2"
+  resolved "https://registry.yarnpkg.com/@sanity/dashboard/-/dashboard-2.18.0.tgz#a7bc87b1654b2dee853b7e415a97c9de10eec4c2"
   integrity sha512-W8TB6zexNy2zxoeshxH2fOjyDFBJfjfxEmqxm/5fXNUHnlp+SFwyjhMpYi7s8I/vlvCWGBFpNfM1pDuNGPYPsw==
   dependencies:
     "@sanity/icons" "^1.1.4"
