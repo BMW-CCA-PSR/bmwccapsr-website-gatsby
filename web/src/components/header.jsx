@@ -8,11 +8,13 @@ import Dropdown  from "./dropdown";
 import NavLink from "./navLink";
 import { StaticImage } from "gatsby-plugin-image"
 import Logo from "./logo";
+import MobileMenu from './mobile-menu';
 
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   const [isToggledOn, setToggle] = useState(false)
   const toggle = () => setToggle(!isToggledOn)
   const index = useBreakpointIndex()
+  
   return (
     <nav
       sx={{
@@ -92,30 +94,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
         </Flex>
         <Flex>
           {isToggledOn ?
-            <ul
-              sx={{
-                listStyle: "none",
-                m: 0,
-                p: 0,
-                backgroundColor: "primary",
-                position: "absolute",
-                width: "100%",
-                zIndex: 30,
-                alignItems: "center",
-                display: "inline-flex",
-              }}
-              aria-label="submenu"
-            >
-              {navMenuItems.map((i) => {
-                if (i.navigationItemUrl) {
-                  return <Dropdown key={i._key} {...i} />;
-                } else if (i._type == "link") {
-                  return <NavLink key={i._key} {...i} />;
-                } else if (i._type == "cta") {
-                  return <CTALink key={i._key} {...i} />;
-                }
-              })}
-            </ul>
+            <MobileMenu navItems={navMenuItems} />
             : null}
         </Flex>
       </Container>
