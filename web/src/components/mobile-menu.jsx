@@ -41,7 +41,7 @@ sx={{
         }}
     >
         <Divider />
-        <Text variant="text.label">{link.title}</Text>
+        <Text variant="text.label">{i.title}</Text>
         {link.items && link.items.length > 0 ? (
             <div
                 sx={{

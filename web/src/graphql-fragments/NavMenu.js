@@ -20,6 +20,7 @@ fragment NavMenu on SanityNavigationMenu {
       }
     }
     ... on SanityNavigationItem {
+      title
       navigationItemUrl {
         title
         _type

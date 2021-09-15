@@ -80,7 +80,6 @@ const Page = (props) => {
         }
         return el;
       });
-
     const menuItems = site.navMenu && (site.navMenu.items || []);
     const pageTitle = data.route && !data.route.useSiteTitle && page.title;
 

@@ -4,6 +4,7 @@ import React from "react";
 import CTALink from "./CTALink";
 
 const Dropdown = props => {
+    console.log(props)
     const link = props.navigationItemUrl
     return (
         <ul
@@ -40,7 +41,7 @@ const Dropdown = props => {
                     }}
                     aria-haspopup={link.items && link.items.length > 0 ? true : false}
                 >
-                    {link.title}
+                    {props.title}
                 </a>
                 {link.items && link.items.length > 0 ? (
                     <ul
