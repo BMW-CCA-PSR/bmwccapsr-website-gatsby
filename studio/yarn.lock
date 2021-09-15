@@ -1432,7 +1432,7 @@
 
 "@sanity/default-login@^2.18.0":
   version "2.18.0"
-  resolved "https://registry.npmjs.org/@sanity/default-login/-/default-login-2.18.0.tgz#9c521701d1c67626e6154c76efe03856bfcc46dc"
+  resolved "https://registry.yarnpkg.com/@sanity/default-login/-/default-login-2.18.0.tgz#9c521701d1c67626e6154c76efe03856bfcc46dc"
   integrity sha512-hNBcMiiagReyEC0YxkudyX/VAyqWl2sMuTo1R2pES/Sg3WLJVsUlhkLFlXIx7TgnkDztGi5uBfSbLVm4L2FHsA==
   dependencies:
     "@sanity/generate-help-url" "2.18.0"
