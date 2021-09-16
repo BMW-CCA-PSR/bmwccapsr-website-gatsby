@@ -10,6 +10,7 @@ import Cta from "../components/cta";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
+import HeroSlider from "../components/slider";
 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -74,6 +75,9 @@ const Page = (props) => {
             break;
           case "ctaPlug":
             el = <Cta key={c._key} {...c} />;
+            break;
+          case "heroCarousel":
+            el = <HeroSlider key={c._key} {...c} />;
             break;
           default:
             el = null;

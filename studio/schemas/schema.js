@@ -57,7 +57,7 @@ export default createSchema({
     excerptPortableText,
     navItem,
     event,
-    eventCategory
+    eventCategory,
   ])
   .concat(allPlugs),
 })

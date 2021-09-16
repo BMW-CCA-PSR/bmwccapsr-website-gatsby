@@ -16,6 +16,7 @@ export default {
         of: [
           { type: 'uiComponentRef' },
           { type: 'hero' },
+          { type: 'heroCarousel' },
           { type: 'infoRows' },
           { type: 'ctaColumns' },
           { type: 'ctaPlug' },
