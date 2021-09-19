@@ -4,6 +4,7 @@ import PortableText from "./portableText";
 import clientConfig from "../../client-config";
 import CTALink from "./CTALink";
 import { GatsbyImage } from 'gatsby-plugin-image'
+import SanityImage from "gatsby-plugin-sanity-image"
 import { Heading, Container, Flex, Box, Text } from "theme-ui"
 import { getGatsbyImageData } from 'gatsby-source-sanity'
 
@@ -24,10 +25,12 @@ const maybeImage = illustration => {
 };
 
 function Hero(props) {
+  console.log(props)
   const img = maybeImage(props.illustration);
   return (
     <div sx={{
       width: "100%",
+      height: 500,
       backgroundColor: "green"
     }}>
       <Flex sx={{
@@ -35,8 +38,9 @@ function Hero(props) {
         px: "0.75rem",
         pt: "0.4rem",
         mx: "auto",
-        maxWidth: 768,
+        maxWidth: 800,
         width: "100%",
+        height: "100%",
         flexDirection: ["column", "row"],
       }}>
         {/* Left col */}
@@ -74,7 +78,17 @@ function Hero(props) {
           bg: "red",
           py: "1.5rem",
           textAlign: "center",
-        }}>{img}</Box>
+        }}>
+          <SanityImage 
+            {...props.illustration.image} 
+            width={500}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+              />
+        </Box>
       </Flex>
     </div>
   );

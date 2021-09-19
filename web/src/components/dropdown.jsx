@@ -4,7 +4,6 @@ import React from "react";
 import CTALink from "./CTALink";
 
 const Dropdown = props => {
-    console.log(props)
     const link = props.navigationItemUrl
     return (
         <ul
