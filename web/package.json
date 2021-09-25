@@ -21,6 +21,7 @@
     "date-fns": "^2.23.0",
     "embla-carousel": "^4.5.3",
     "gatsby": "^3.11.0",
+    "gatsby-background-image": "^1.5.3",
     "gatsby-image": "^3.11.0",
     "gatsby-plugin-graphql-codegen": "^3.0.0",
     "gatsby-plugin-image": "^1.11.0",
@@ -32,6 +33,7 @@
     "gatsby-source-filesystem": "^3.11.0",
     "gatsby-source-sanity": "^7.0.7",
     "gatsby-transformer-sharp": "^3.11.0",
+    "gbimage-bridge": "^0.1.4",
     "mapbox-gl": "^2.4.1",
     "prettier": "^2.3.2",
     "react": "^17.0.1",
@@ -43,6 +45,7 @@
     "react-slick": "^0.28.1",
     "react-toggle": "^4.1.2",
     "slick-carousel": "^1.8.1",
+    "swiper": "^7.0.6",
     "theme-ui": "^0.10.0",
     "typography": "^0.16.21"
   },

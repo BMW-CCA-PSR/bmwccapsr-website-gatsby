@@ -29,12 +29,17 @@ export default {
       select: {
         title: 'heading',
         subtitle: 'label',
-        disabled: 'disabled'
+        disabled: 'disabled',
+        image: 'illustration'
       },
-      prepare({ title, disabled }) {
-        return {
-          title: `Hero: ${disabled ? 'DISABLED' : title}`
-        }
+      prepare({ title, disabled, image }) {
+        return !image ? 
+          { 
+            title: `Hero: ${disabled ? 'DISABLED' : title}` 
+          } : {
+            title: `Hero: ${disabled ? 'DISABLED' : title}`,
+            media: image.image
+          }
       }
     }
   }

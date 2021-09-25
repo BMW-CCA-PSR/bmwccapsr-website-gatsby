@@ -31,6 +31,12 @@ export const query = graphql`
           width
           height
         }
+        palette {
+          dominant {
+            background
+            foreground
+          }
+        }
       }
     }
   }

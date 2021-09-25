@@ -14,7 +14,6 @@ export default {
         name: 'slides',
         of: [
           { type: 'hero' },
-          { type: 'illustration' }
         ]
       }
     ]

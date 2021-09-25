@@ -6,7 +6,10 @@ export default {
       {
         title: 'Image',
         name: 'image',
-        type: 'mainImage'
+        type: 'mainImage',
+          options: {
+            metadata: ['palette']
+          }
       }
     ],
     preview: {

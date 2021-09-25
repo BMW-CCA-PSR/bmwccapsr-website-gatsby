@@ -3,93 +3,45 @@ import React from "react";
 import PortableText from "./portableText";
 import clientConfig from "../../client-config";
 import CTALink from "./CTALink";
-import { GatsbyImage } from 'gatsby-plugin-image'
 import SanityImage from "gatsby-plugin-sanity-image"
 import { Heading, Container, Flex, Box, Text } from "theme-ui"
-import { getGatsbyImageData } from 'gatsby-source-sanity'
-
-const maybeImage = illustration => {
-  let img = null;
-  if (illustration && illustration.image && illustration.image.asset && !illustration.disabled) {
-    const fluidProps = getGatsbyImageData(
-      illustration.image.asset._id,
-      { maxWidth: 960 },
-      clientConfig.sanity
-    );
-
-    img = (
-      <GatsbyImage image={fluidProps} sx={{width: "100%"}} alt={illustration.image.alt} />
-    );
-  }
-  return img;
-};
 
 function Hero(props) {
-  console.log(props)
-  const img = maybeImage(props.illustration);
+  const image = props.illustration.image
+  console.log(image)
   return (
-    <div sx={{
-      width: "100%",
-      height: 500,
-      backgroundColor: "green"
-    }}>
-      <Flex sx={{
-        bg: "yellow",
-        px: "0.75rem",
-        pt: "0.4rem",
-        mx: "auto",
-        maxWidth: 800,
+    // outer container div
+    <div
+      sx={{
         width: "100%",
-        height: "100%",
-        flexDirection: ["column", "row"],
+        height: 500,
+        position: "relative",
       }}>
-        {/* Left col */}
-        <Flex sx={{
-          width: "100%",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          textAlign: ["center", "left"],
-          mx: "auto",
+      {/* background image component */}
+      <SanityImage {...image} width={1440}
+        sx={{ 
+          position: "absolute", 
+          width: "100%", 
+          height: "100%", 
+          objectFit: "cover",
+          zIndex: "-1",
+        }} />
+        {/* inner text component / content div */}
+        <div sx={{
+          p: ["20px", "50px", "100px"],
+          paddingRight: ["20px", "50px", "100px", "400px"],
         }}>
           <Text variant="text.label">{props.label}</Text>
-          <Heading variant="styles.h1" sx={{
-            my: "1rem",
-          }}>{props.heading}</Heading>
+          <Heading variant="styles.h1">{props.heading}</Heading>
           <div sx={{
             variant: "styles.h3",
-            pr: "0.5rem",
           }}>
             <PortableText blocks={props.tagline} />
           </div>
           {props.cta && props.cta.title && (
-            <div sx={{
-              m:"1rem"
-            }}>
-            <CTALink
-              {...props.cta}
-            />
-            </div>
+            <CTALink {...props.cta} />
           )}
-        </Flex>
-        {/* Right col */}
-        <Box sx={{
-          width: "100%",
-          bg: "red",
-          py: "1.5rem",
-          textAlign: "center",
-        }}>
-          <SanityImage 
-            {...props.illustration.image} 
-            width={500}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-              />
-        </Box>
-      </Flex>
+          </div>
     </div>
   );
 }
