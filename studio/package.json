@@ -36,7 +36,7 @@
     "sanity-secrets": "^0.0.5"
   },
   "devDependencies": {
-    "prettier": "^2.3.2",
+    "prettier": "^2.4.1",
     "sanity-codegen": "^0.9.5"
   },
   "repository": {
