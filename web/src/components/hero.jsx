@@ -7,10 +7,19 @@ import SanityImage from "gatsby-plugin-sanity-image"
 import { Heading, Container, Flex, Box, Text } from "theme-ui"
 
 function Hero(props) {
-  const image = props.illustration.image
-  console.log(image)
+  console.log(props)
+  const image = props.image
+  let fontColor = "#fff"
+  if (
+    props.image &&
+    props.image.asset &&
+    props.image.asset.metadata &&
+    props.image.asset.metadata.palette
+  ) {
+    fontColor = props.image.asset.metadata.palette.dominant.foreground
+  }
+  console.log(fontColor)
   return (
-    // outer container div
     <div
       sx={{
         width: "100%",
@@ -19,7 +28,7 @@ function Hero(props) {
       }}>
       {/* background image component */}
       <SanityImage {...image} width={1440}
-        sx={{ 
+        sx={{
           position: "absolute", 
           width: "100%", 
           height: "100%", 
@@ -31,12 +40,10 @@ function Hero(props) {
           p: ["20px", "50px", "100px"],
           paddingRight: ["20px", "50px", "100px", "400px"],
         }}>
-          <Text variant="text.label">{props.label}</Text>
-          <Heading variant="styles.h1">{props.heading}</Heading>
-          <div sx={{
-            variant: "styles.h3",
-          }}>
-            <PortableText blocks={props.tagline} />
+          <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
+          <Heading variant="styles.h1" sx={{color: `${fontColor}`}}>{props.heading}</Heading>
+          <div sx={{py: "20px"}}>
+            <Text variant="styles.h3" sx={{color: `${fontColor}`}}>{props.tagline}</Text>
           </div>
           {props.cta && props.cta.title && (
             <CTALink {...props.cta} />

@@ -14,11 +14,14 @@ export default {
       },
       {
         name: 'tagline',
-        type: 'simpleBlockContent'
+        type: 'string',
+        title: 'Tagline'
       },
       {
-        name: 'illustration',
-        type: 'illustration'
+        name: 'image',
+        type: 'mainImage',
+        validation: Rule => Rule.required(),
+
       },
       {
         name: 'cta',
@@ -30,7 +33,7 @@ export default {
         title: 'heading',
         subtitle: 'label',
         disabled: 'disabled',
-        image: 'illustration'
+        image: 'image'
       },
       prepare({ title, disabled, image }) {
         return !image ? 

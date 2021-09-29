@@ -2,14 +2,15 @@ export default {
     type: 'object',
     name: 'illustration',
     title: 'Illustration',
+    options: {
+      hotspot: true,
+      metadata: ['lqip', 'palette']
+    },
     fields: [
       {
         title: 'Image',
         name: 'image',
         type: 'mainImage',
-          options: {
-            metadata: ['palette']
-          }
       }
     ],
     preview: {

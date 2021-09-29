@@ -32,6 +32,7 @@
     "sanity-plugin-asset-source-unsplash": "^0.1.3",
     "sanity-plugin-dashboard-widget-amplifydeploybutton": "^1.0.0",
     "sanity-plugin-leaflet-input": "^1.0.1",
+    "sanity-plugin-media": "^1.4.0",
     "sanity-secrets": "^0.0.5"
   },
   "devDependencies": {
