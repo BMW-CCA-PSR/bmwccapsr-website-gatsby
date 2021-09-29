@@ -1741,12 +1741,12 @@
   resolved "https://registry.npmjs.org/@sanity/generate-help-url/-/generate-help-url-2.18.0.tgz#9130301579ff38b6bcc2ea0ce6105a7979272a66"
   integrity sha512-If8Qkw32LWPes16UzqwUsTLgfxF5d4ACdUvCLMl6grJc/5G8LKPAGCQUuA/d1F4W16yCJVV7Zv31HDRDXJSJkg==
 
-"@sanity/icons@1.1.7", "@sanity/icons@^1.1.4", "@sanity/icons@^1.1.7":
+"@sanity/icons@1.1.7":
   version "1.1.7"
   resolved "https://registry.npmjs.org/@sanity/icons/-/icons-1.1.7.tgz#f2b6f2d9b68965b6f26975c0d5528ae75e1472d8"
   integrity sha512-5KbAhNowjO94UjIrsaaKCGNLdHs+ek+RF5Bc+XRELOi1TFR0GBG3Wo7LK30df2ajA7TW6HwERLbPQB3sJyMRMQ==
 
-"@sanity/icons@^1.2.1":
+"@sanity/icons@^1.1.4", "@sanity/icons@^1.1.7", "@sanity/icons@^1.2.1":
   version "1.2.1"
   resolved "https://registry.npmjs.org/@sanity/icons/-/icons-1.2.1.tgz#0dcef7d0c0ea965acffbccb825d9da6ccaa53330"
   integrity sha512-dDXvyRIppU6OD8dNPBdd8LVBaIw5n5TrVOZ6AvT5pCoDswXlFQinoea5Fe4Huk26C+IZfe8d++P4tctnQPG8Vw==
@@ -1988,7 +1988,7 @@
     react "17.0.1"
     rxjs "^6.5.3"
 
-"@sanity/ui@>=0.36.6":
+"@sanity/ui@>=0.36.6", "@sanity/ui@^0.36.3", "@sanity/ui@^0.36.8":
   version "0.36.12"
   resolved "https://registry.npmjs.org/@sanity/ui/-/ui-0.36.12.tgz#cdc0fde42869dfe2a8fc9c7afdbcbc1cac020e6c"
   integrity sha512-BTkuBWGIf03lVUrlgLRyUwixI9uWJjsOzJx0MJeZBO7fLsbaiI+4sMZZYqWpMZrw1mh2p0+jsaoDbKlbiHwrPA==
@@ -2003,22 +2003,6 @@
     react-is "^17.0.2"
     react-popper "^2.2.5"
     react-refractor "^2.1.5"
-
-"@sanity/ui@^0.36.3":
-  version "0.36.8"
-  resolved "https://registry.npmjs.org/@sanity/ui/-/ui-0.36.8.tgz#094ed7dbda7e198d37d2a028ab4beaecc3b60c3d"
-  integrity sha512-JI0Kf4vPI0qV0yLs6d+C4L7n86mCz29p88jsRxHGWAPF+PUmL9aTtHldHBE7ff3368OjBWWOBEXpTmSapvVQRg==
-  dependencies:
-    "@juggle/resize-observer" "^3.3.1"
-    "@popperjs/core" "^2.10.1"
-    "@reach/auto-id" "^0.16.0"
-    "@sanity/color" "^2.1.5"
-    "@sanity/icons" "^1.1.7"
-    framer-motion "^4.1.17"
-    popper-max-size-modifier "^0.2.0"
-    react-is "^17.0.2"
-    react-popper "^2.2.5"
-    react-refractor "^2.1.4"
 
 "@sanity/util@2.18.0":
   version "2.18.0"
@@ -2063,13 +2047,13 @@
     date-fns "^2.16.1"
     lodash "^4.17.15"
 
-"@sanity/vision@^2.15.0":
-  version "2.17.2"
-  resolved "https://registry.npmjs.org/@sanity/vision/-/vision-2.17.2.tgz#37a5f3c700e96f0af1da0ac0016a79365326630a"
-  integrity sha512-ckifcW+7TZuebnj35qRcuxNtUFvBJF/WzDxgauGcK3usCalEmBVGIeQ9tz6CJX/cLS2SK+AFheGXEmq5rJnCoQ==
+"@sanity/vision@^2.19.0":
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/@sanity/vision/-/vision-2.19.0.tgz#c849ef16c6e1cdfe59c4482825444fa91ced1fbd"
+  integrity sha512-QN+bDlHHJqApg1+BQoyjYWlOhxuVb4PEwYVKiiZl1wr62s/U/b+qhvGjZN+mxqyN4F/jAsD3ITSg0YyLxkMN3w==
   dependencies:
-    "@sanity/icons" "^1.1.4"
-    "@sanity/ui" "^0.36.3"
+    "@sanity/icons" "^1.1.7"
+    "@sanity/ui" "^0.36.8"
     classnames "^2.2.5"
     codemirror "^5.47.0"
     moment "^2.19.1"
@@ -8891,7 +8875,7 @@ react-redux@7.2.2:
     prop-types "^15.7.2"
     react-is "^16.13.1"
 
-react-refractor@^2.1.2, react-refractor@^2.1.4:
+react-refractor@^2.1.2:
   version "2.1.4"
   resolved "https://registry.npmjs.org/react-refractor/-/react-refractor-2.1.4.tgz#27bc2ed11e6622e2281db6e817c2861eb56af84c"
   integrity sha512-bjFJ6IxBai2FDIdmypvVUQ74OD37YkF9tYBYMrVKOUvd3eyUosVab6PtwqmnYj5MvUjBd956NHzHyYb1jlZ/hA==
