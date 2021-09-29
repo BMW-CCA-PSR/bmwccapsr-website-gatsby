@@ -9,7 +9,7 @@ import { Heading, Container, Flex, Box, Text } from "theme-ui"
 function Hero(props) {
   console.log(props)
   const image = props.image
-  let fontColor = "#fff"
+  let fontColor = "#000"
   if (
     props.image &&
     props.image.asset &&
@@ -35,6 +35,7 @@ function Hero(props) {
           objectFit: "cover",
           zIndex: "-1",
         }} />
+        <div sx={{background: "rgba(0,0,0,0.3)", height: "100%",}}>
         {/* inner text component / content div */}
         <div sx={{
           p: ["20px", "50px", "100px"],
@@ -49,6 +50,7 @@ function Hero(props) {
             <CTALink {...props.cta} />
           )}
           </div>
+        </div>
     </div>
   );
 }

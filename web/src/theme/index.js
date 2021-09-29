@@ -30,7 +30,7 @@ module.exports = {
   },
   lineHeights: {
     body: 1.5,
-    heading: 0.9,
+    heading: 1.1,
   },
   letterSpacings: {
     normal: "0",
