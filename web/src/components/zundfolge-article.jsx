@@ -2,7 +2,7 @@
 import { format, formatDistance, differenceInDays } from "date-fns";
 import React from "react";
 import { buildImageObj } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
 import AuthorList from "./author-list";
 import VerticalLine from "./vertical-line";
@@ -32,20 +32,14 @@ function ZundfolgeArticle(props) {
           <Text sx={{variant: "stypes.p", py: "1rem"}}>By <b>{authorString}</b> | {pubDate}</Text>
           {mainImage && mainImage.asset && (
             <div sx={{
-              position: "relative",
+              maxHeight: "500px",
             }}>
-              <img
-                src={imageUrlFor(buildImageObj(mainImage))
-                  .width(1200)
-                  .height(Math.floor((9 / 16) * 1200))
-                  .fit("crop")
-                  .auto("format")
-                  .url()}
-                alt={mainImage.alt}
+              <SanityImage {...mainImage} width={1440}
                 sx={{
-                  width: "100%",
-                  height: "100%"
-                }}
+                  width: "100%", 
+                  height: "100%", 
+                  objectFit: "cover",
+                }} 
               />
             </div>
           )}
