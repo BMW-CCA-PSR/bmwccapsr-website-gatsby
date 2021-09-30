@@ -72,7 +72,7 @@ const IndexPage = props => {
   }
   const menuItems = site.navMenu && (site.navMenu.items || []);
   const indexToRemove = 0;
-  const numberToRemove = 3;
+  const numberToRemove = 4;
 
   const galleryNodes = postNodes.splice(indexToRemove, numberToRemove);
   return (

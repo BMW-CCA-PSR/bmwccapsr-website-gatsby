@@ -10,13 +10,13 @@ import RelatedContent from "./related-content";
 import CTALink from "./CTALink";
 
 function ZundfolgeArticleGallery(props) {
-    const [main, left, right] = props.nodes;
+    const [main, left, right, bottom] = props.nodes;
     return (
 <div
   sx={{
     flexDirection: 'column',
     height: '100%',
-    display: 'flex'
+    display: 'flex',
   }}>
   <div
     sx={{
@@ -33,28 +33,26 @@ function ZundfolgeArticleGallery(props) {
         'repeat(2, 1fr)',
         'repeat(4, 1fr)'
       ],
-      gridTemplateRows: [
-        '2fr 1fr 1fr',
-        '2fr 1fr 1fr',
-        'none'
-      ],
+      // gridTemplateRows: [
+      //   '2fr 1fr 1fr',
+      //   '2fr 1fr 1fr',
+      //   '1fr 1fr 1fr',
+      // ],
+      gridAutoRows: "minmax(50px, 250px);",
       gridGap: 15,
       py: 3,
-      //backgroundColor: "yellow"
     }}>
     <div
       sx={{
         flex: 1,
         gridArea: 'long-box',
-        //backgroundColor: "pink"
       }}>
-      <ZundfolgeArticlePreview {...main} max="1200" />
+      <ZundfolgeArticlePreview {...main} />
     </div>
     <div
       sx={{
         flex: 1,
         gridArea: 'left-box',
-        //backgroundColor: "red"
       }}>
       <ZundfolgeArticlePreview {...left} />
     </div>
@@ -62,7 +60,6 @@ function ZundfolgeArticleGallery(props) {
       sx={{
         flex: 1,
         gridArea: 'right-box',
-        //backgroundColor: "blue"
       }}>
       <ZundfolgeArticlePreview {...right} />
     </div>
@@ -70,24 +67,8 @@ function ZundfolgeArticleGallery(props) {
       sx={{
         flex: 1,
         gridArea: 'wide-box',
-        //backgroundColor: "purple",
       }}>
-      <Box sx={{
-          backgroundColor: "highlight",
-          height: "100%",
-          width: "100%",
-          p: 3,
-          display: "flex",
-          justifyContent: "center",
-          flexDirection: "column",
-          borderRadius: 8
-          }}>
-        <Text variant="styles.h3" sx={{pb: "6px"}}>Sign up for our newsletter</Text>
-        <Flex sx={{flexDirection: "row"}}>
-            <Input defaultValue="email" sx={{px: 2}}/>
-            <CTALink title="submit"/>
-            </Flex>
-      </Box>
+      <ZundfolgeArticlePreview {...bottom} />
     </div>
   </div>
 </div>

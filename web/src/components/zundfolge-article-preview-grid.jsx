@@ -11,6 +11,7 @@ function ZundfolgeArticlePreviewGrid(props) {
         display: 'grid',
         gridGap: 3,
         gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))',
+        gridAutoRows: "minmax(50px, 250px)",
         m: 0,
         p: 0
       }}>
@@ -18,7 +19,7 @@ function ZundfolgeArticlePreviewGrid(props) {
           props.nodes.map(node => (
             <li
               key={node.id}>
-              <ZundfolgeArticlePreview {...node} isInList />
+              <ZundfolgeArticlePreview {...node} />
             </li>
           ))}
       </ul>

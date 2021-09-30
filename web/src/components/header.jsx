@@ -22,9 +22,10 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
         minWidth: "100%",
         position: 'relative',
         backgroundColor: "white",
+        position: "relative",
+        zIndex: "2",
       }}>
       <Container sx={{
-        zIndex: 30,
         mx: "auto",
         //height: "82px",
         maxHeight: "6rem",
@@ -61,7 +62,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                 sx={{
                   justifyContent: "end",
                   alignItems: "center",
-                  display: "inline-flex"
+                  display: "inline-flex",
+                  height: "100%"
                 }}
               >
                 {navMenuItems.map((i) => {

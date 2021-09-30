@@ -6,9 +6,12 @@ import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
 import { buildImageObj, cn, getZundfolgeUrl } from "../lib/helpers";
 import { imageUrlFor } from "../lib/image-url";
 import PortableText from "./portableText";
+import SanityImage from "gatsby-plugin-sanity-image"
 
 function ZundfolgeArticlePreview(props) {
-  const max = props.max ? props.max : '600'
+  console.log(props)
+  const bg = props.mainImage.asset.metadata.palette.dominant.background ? props.mainImage.asset.metadata.palette.dominant.background : "lightgrey"
+  const fg = props.mainImage.asset.metadata.palette.dominant.foreground ? props.mainImage.asset.metadata.palette.dominant.foreground : "black"
   return (
     <Link
       to={getZundfolgeUrl(props.slug.current)}
@@ -17,43 +20,35 @@ function ZundfolgeArticlePreview(props) {
       <Card
         sx={{
           textDecoration: "none",
-          color: "text",
-          backgroundColor: "lightgrey",
-          //width: "100%",
+          background: `linear-gradient(to top, transparent 0%, ${bg} 100%)`,
+          width: "100%",
           height: "100%",
-          maxWidth: `${max}px`,
           mx: "auto",
-          borderRadius: "8px"
+          borderRadius: "8px",
+          position: "relative"
         }}
       >
-        <div>
           {props.mainImage && props.mainImage.asset && (
-            <img
-              src={imageUrlFor(buildImageObj(props.mainImage))
-                .width(600)
-                .height(Math.floor((9 / 16) * 600))
-                .fit("crop")
-                .auto("format")
-                .url()}
-              alt={props.mainImage.alt}
+            <SanityImage {...props.mainImage} width={1440}
               sx={{
-                borderTopRightRadius: "8px",
-                borderTopLeftRadius: "8px",
-                width: "100%",
-                height: "100%"
-              }}
+                position: "absolute", 
+                width: "100%", 
+                height: "100%", 
+                objectFit: "cover",
+                borderRadius: "8px",
+                zIndex: "-1",
+              }} 
             />
           )}
-        </div>
-        <Box p={3}>
-          <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
+        <Box p={3} sx={{}}>
+          <Heading sx={{ textDecoration: "none", variant: "styles.h3", color: `${fg}`,}} >{props.title}</Heading>
           {props._rawExcerpt && (
             <div>
               <PortableText blocks={props._rawExcerpt} />
             </div>
           )}
           <Text sx={{
-            color: "grey"
+            color: `${fg}`
           }}>{format(parseISO(props.publishedAt), "MMMM do, yyyy")}
           </Text>
           <Flex>

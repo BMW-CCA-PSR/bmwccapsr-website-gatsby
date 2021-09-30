@@ -14,6 +14,7 @@ const doNavigate = target => {
   }
 };
 var style = {
+  textTransform: "uppercase",
   fontSize: 15,
   backgroundColor: "primary",
   border: "none",
