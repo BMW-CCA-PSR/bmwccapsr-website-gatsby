@@ -13,7 +13,7 @@ return (
 sx={{
   listStyle: "none",
   m: 0,
-  mt: "-152px",
+  mt: ["-102px","-102px","-156px"],
   p: 0,
   backgroundColor: "grey",
   position: "absolute",
@@ -38,7 +38,7 @@ sx={{
         sx={{
             display: "block",
             height: "100%",
-            mx: "0.5rem",
+            //mx: "0.5rem",
         }}
     >
         <Divider sx={{color: "darkgray"}}/>
@@ -52,7 +52,6 @@ sx={{
                     display: "flex",
                     flexDirection: "column",
                     cursor: "pointer",
-                    left: "0",
                 }}
             >
                 {link.items.map((subLink) => (

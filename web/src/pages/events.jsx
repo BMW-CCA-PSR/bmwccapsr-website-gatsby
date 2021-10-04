@@ -89,9 +89,9 @@ const IndexPage = props => {
         keywords={site.keywords || []}
       />
       <Container sx ={{
-        pl: ["50px", "50px", "50px", "100px"],
-        pr: "1rem",
-        pt: "10rem",
+        pl: ["16px", "16px", "50px", "100px"],
+        pr: "16px",
+        pt: ["6.5rem","6.5rem","10rem","10rem"],
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
         <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Events</Heading>

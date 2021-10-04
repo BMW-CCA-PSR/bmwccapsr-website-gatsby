@@ -32,7 +32,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
             mx: 'auto',
             display: 'flex',
             alignItems: 'start',
-            pl: ["50px","50px","50px","100px"],
+            pl: ["16px","16px","50px","100px"],
           }}>
           <Link
             activeClassName="active"
