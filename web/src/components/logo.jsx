@@ -12,12 +12,12 @@ function Logo() {
         <StaticImage
           alt="BMW CCA PSR"
           //src="../images/psr_sig.png"
-          src="../images/psr-temp-logo.png"
+          src="../images/new-logo.png"
           placeholder="blurred"
           layout="constrained"
           sx={{
             objectFit: "cover",
-            width: ["75%", "75%", "100%", "100%"],
+            width: ["141px", "141px", "175px", "175px"],
             boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 4px 5px 0 rgba(0, 0, 0, 0.14)",
           }}
         />
