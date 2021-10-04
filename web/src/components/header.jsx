@@ -75,12 +75,12 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                   {!isToggledOn ? 
                   <MenuButton
                     aria-label='open menu'
-                    sx={{ display: "block" }}
+                    sx={{ display: "block", py: "20px" }}
                     onClick={toggle} />
                     :
                   <Close                     
                     aria-label='close menu'
-                    sx={{ display: "block" }}
+                    sx={{ display: "block", py: "20px" }}
                     onClick={toggle} />
                   }
                 </div>

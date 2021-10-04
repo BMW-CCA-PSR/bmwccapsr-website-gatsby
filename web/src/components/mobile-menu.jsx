@@ -13,6 +13,7 @@ return (
 sx={{
   listStyle: "none",
   m: 0,
+  mt: "-152px",
   p: 0,
   backgroundColor: "grey",
   position: "absolute",
@@ -40,7 +41,7 @@ sx={{
             mx: "0.5rem",
         }}
     >
-        <Divider />
+        <Divider sx={{color: "darkgray"}}/>
         <Text variant="text.label">{i.title}</Text>
         {link.items && link.items.length > 0 ? (
             <div
