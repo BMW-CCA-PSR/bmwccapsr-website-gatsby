@@ -8,7 +8,7 @@ const Footer = ({ siteTitle }) => (
     sx={{
       fontSize: "sm",
       color: 'text',
-      bg: 'gray',
+      bg: 'darkgray',
       variant: 'styles.footer',
       textDecoration: "none",
       width: "100%",
@@ -25,7 +25,7 @@ const Footer = ({ siteTitle }) => (
         px: 2,
         py: 1,
       }}>
-      <Link to="/" sx={{ variant: 'styles.p', p: 2, textDecoration: "none", color: "text" }}>
+      <Link to="/" sx={{ variant: 'styles.p', p: 2, textDecoration: "none", color: "gray" }}>
         Home
       </Link>
       {/* <Link to="/" sx={{ variant: 'styles.navlink', p: 2, textDecoration: "none", color:"text"}}>
@@ -35,9 +35,9 @@ const Footer = ({ siteTitle }) => (
         About
       </Link> */}
       <div sx={{ mx: 'auto' }} />
-      <div sx={{ variant: 'styles.p', p: 2 }}>© {new Date().getFullYear()} BMW Car Club of America</div>
+      <div sx={{ variant: 'styles.p', p: 2, color: "gray"}}>© {new Date().getFullYear()} BMW Car Club of America</div>
       <div>
-        <p sx={{ fontSize: "xs", p: 2 }}>This site is not in any way connected with Bayerische Motoren Werke AG or BMW of North America, Inc. The club assumes no liability for any of the information, opinion, or suggestions contained herein. It is provided by and for the club membership only.</p>
+        <p sx={{ fontSize: "xs", p: 2, color: "gray"}}>This site is not in any way connected with Bayerische Motoren Werke AG or BMW of North America, Inc. The club assumes no liability for any of the information, opinion, or suggestions contained herein. It is provided by and for the club membership only.</p>
       </div>
     </Container>
   </div>

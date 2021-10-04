@@ -7,7 +7,7 @@ module.exports = {
     heading: "#e0f",
     muted: "#191919",
     highlight: "#3cf",
-    gray: "#f6f5f5",
+    gray: "#777",
     darkgray: "#444444"
   },
   breakpoints: ["480px", "768px", "1025px", "1200px"],
