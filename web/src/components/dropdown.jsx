@@ -11,15 +11,16 @@ const Dropdown = props => {
                 listStyle: "none",
                 margin: 0,
                 padding: 0,
-                color: "text",
+                color: "darkgray",
             }}
         >
             <li
                 sx={{
+                    textTransform: "uppercase",
                     display: "block",
-                    padding: "1rem",
                     height: "100%",
-                    mx: "0.5rem",
+                    py: "22px",
+                    px: "8px",
                     position: "relative",
                     ":hover": {
                         backgroundColor: "primary",
@@ -45,15 +46,19 @@ const Dropdown = props => {
                 {link.items && link.items.length > 0 ? (
                     <ul
                         sx={{
+                            textTransform: "uppercase",
                             listStyle: "none",
-                            m: 0,
+                            m: "-25px",
                             p: 0,
-                            backgroundColor: "primary",
+                            backgroundColor: "secondary",
                             visibility: "hidden",
                             opacity: "0",
                             display: "none",
                             position: "absolute",
-                            marginTop: "1rem",
+                            width: "250px",
+                            marginTop: "23px",
+                            borderBottomRightRadius: "6px",
+                            borderBottomLeftRadius: "6px",
                             cursor: "pointer",
                             left: "0",
                             ":hover": {
@@ -73,7 +78,7 @@ const Dropdown = props => {
                                     clear: "both",
                                     padding: "1rem",
                                     ":hover": {
-                                        backgroundColor: "highlight",
+                                        backgroundColor: "primary",
                                     },
                                     width: "100%"
                                 }}

@@ -19,13 +19,14 @@ function ZundfolgeArticle(props) {
   return (
     <article>
       <Flex sx={{
-        pt: "3rem",
+        pl: ["50px", "50px", "50px", "100px"],
+        pt: "10rem",
         width: "100%",
         flexDirection: "row",
         mx: "auto",
       }}>
         <Flex sx={{
-          px: "1rem",
+          pr: "1rem",
           flexDirection: "column",
         }}>
           <Heading variant="styles.h1">{title}</Heading>

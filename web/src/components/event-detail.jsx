@@ -11,7 +11,7 @@ function EventDetails(props) {
     var numHours = startTime && endTime && (differenceInHours(new Date(startTime), new Date(endTime)))
     return (
     <Box sx={{
-        backgroundColor: "gray",
+        backgroundColor: "lightgray",
         width: "100%",
         mx: "auto",
     }}>

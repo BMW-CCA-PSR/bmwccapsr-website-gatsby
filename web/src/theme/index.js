@@ -2,11 +2,12 @@ module.exports = {
   colors: {
     text: "#060606",
     background: "#fff",
-    primary: "#228dd8",
-    secondary: "",
+    primary: "#1e94ff",
+    secondary: "#0653b6",
     heading: "#e0f",
     muted: "#191919",
     highlight: "#3cf",
+    lightgray: "#f2f2f2",
     gray: "#777",
     darkgray: "#444444"
   },

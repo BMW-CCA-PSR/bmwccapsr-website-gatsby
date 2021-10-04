@@ -6,14 +6,7 @@ import EventPagePreview from "./event-page-preview";
 
 function EventPagePreviewGrid(props) {
   return (
-    <div sx={{
-      px: "1rem",
-      pt: "3rem",
-    }}>
-      <Heading sx={{
-        variant: "styles.h1",
-        pb: "1rem"
-        }}>Events</Heading>
+    <div>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',

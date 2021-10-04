@@ -7,7 +7,7 @@ import {
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
 import EventPagePreviewGrid from "../components/event-page-preview-list";
-import { Container } from "@theme-ui/components";
+import { Container, Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
@@ -89,11 +89,13 @@ const IndexPage = props => {
         keywords={site.keywords || []}
       />
       <Container sx ={{
+        pl: ["50px", "50px", "50px", "100px"],
+        pr: "1rem",
+        pt: "10rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <div>
-          {eventNodes && <EventPagePreviewGrid nodes={eventNodes} />}
-        </div>
+        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Events</Heading>
+        {eventNodes && <EventPagePreviewGrid nodes={eventNodes} />}
       </Container>
     </Layout>
   );

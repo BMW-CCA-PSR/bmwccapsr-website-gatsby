@@ -23,7 +23,7 @@ function Hero(props) {
     <div
       sx={{
         width: "100%",
-        height: 500,
+        height: 550,
         position: "relative",
       }}>
       {/* background image component */}
@@ -38,8 +38,9 @@ function Hero(props) {
         <div sx={{background: "rgba(0,0,0,0.3)", height: "100%", zIndex: "0"}}>
         {/* inner text component / content div */}
         <div sx={{
-          p: ["20px", "50px", "100px"],
-          paddingRight: ["20px", "50px", "100px", "400px"],
+          p: ["50px","50px","50px","100px"],
+          //paddingRight: ["20px", "50px", "100px", "400px"],
+          paddingTop: ["120px", "120px","160px", "160px"]
         }}>
           <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
           <Heading variant="styles.h1" sx={{color: `${fontColor}`}}>{props.heading}</Heading>

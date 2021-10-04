@@ -18,30 +18,21 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   return (
     <nav
       sx={{
-        //top: 0,
-        minWidth: "100%",
-        position: 'relative',
-        backgroundColor: "white",
+        backgroundColor: "lightgray",
         position: "relative",
         zIndex: "2",
       }}>
       <Container sx={{
-        mx: "auto",
-        //height: "82px",
-        maxHeight: "6rem",
+        height: "60px",
         flexWrap: "wrap",
-        mt: 0,
-        //py: "0.4rem",
-        alignItems: "center",
-        justifyContent: "space-between",
-
+        mt: "0px",
       }}>
         <Flex
           sx={{
             mx: 'auto',
             display: 'flex',
-            alignItems: 'center',
-            pl: "1rem",
+            alignItems: 'start',
+            pl: ["50px","50px","50px","100px"],
           }}>
           <Link
             activeClassName="active"
@@ -50,11 +41,11 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
             sx={{
               color: 'text',
               textDecoration: 'none',
-              my: "2rem"
+              display: "flex",
             }}>
             <Logo />
           </Link>
-          <div sx={{ mx: 'auto'}} />
+          <div sx={{ mx: 'auto' }} />
           {showNav && navMenuItems && (
             <div>
               {index > 2 ?
@@ -63,7 +54,9 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                   justifyContent: "end",
                   alignItems: "center",
                   display: "inline-flex",
-                  height: "100%"
+                  height: "100%",
+                  p: "0px",
+                  m: "0px"
                 }}
               >
                 {navMenuItems.map((i) => {
@@ -71,9 +64,10 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                     return <Dropdown key={i._key} {...i} />;
                   } else if (i._type == "link") {
                     return <NavLink key={i._key} {...i} />;
-                  } else if (i._type == "cta") {
-                    return <CTALink key={i._key} {...i} />;
-                  }
+                  } 
+                  // } else if (i._type == "cta") {
+                  //   return <CTALink key={i._key} {...i} />;
+                  // }
                 })}
               </ul> 
               :
@@ -103,8 +97,9 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
       <Divider sx={{
           my: 0,
           py: 0,
-          borderColor: "highlight",
-          borderBottomWidth: 3
+          borderColor: "primary",
+          borderBottomWidth: 4,
+          boxShadow: "0 3px 5px -1px rgba(0, 0, 0, 0.3), 0 1px 18px 0 rgba(0, 0, 0, 0.32), 0 6px 10px 0 rgba(0, 0, 0, 0.24)"
         }}/>
     </nav>
   );

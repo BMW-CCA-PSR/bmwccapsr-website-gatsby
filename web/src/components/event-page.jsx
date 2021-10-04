@@ -1,8 +1,7 @@
 /** @jsxImportSource theme-ui */
 import { format, formatDistance } from "date-fns";
 import React from "react";
-import { buildImageObj } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
 import VerticalLine from "./vertical-line";
 import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
@@ -18,13 +17,14 @@ function EventPage(props) {
   return (
     <event>
       <Flex sx={{
-        pt: "3rem",
+        pl: ["50px", "50px", "50px", "100px"],
+        pt: "10rem",
         width: "100%",
         flexDirection: "row",
         mx: "auto",
       }}>
         <Flex sx={{
-          px: "1rem",
+          pr: "1rem",
           flexDirection: "column",
         }}>
           <Heading variant="styles.h1">{title}</Heading>
@@ -32,21 +32,14 @@ function EventPage(props) {
           <Text sx={{variant: "styles.p"}}>Last updated: {updated}</Text>
           {mainImage && mainImage.asset && (
             <div sx={{
-              position: "relative",
+              maxHeight: "500px",
             }}>
-              <img
-                src={imageUrlFor(buildImageObj(mainImage))
-                  .width(1200)
-                  .height(Math.floor((9 / 16) * 1200))
-                  .fit("crop")
-                  .auto("format")
-                  .url()}
-                alt={mainImage.alt}
+              <SanityImage {...mainImage} width={1440}
                 sx={{
-                  width: "100%",
-                  height: "100%"
-                }}
-              />
+                  width: "100%", 
+                  height: "100%", 
+                  objectFit: "cover",
+                }} />
             </div>
           )}
           {_rawBody && <PortableText blocks={_rawBody} />}

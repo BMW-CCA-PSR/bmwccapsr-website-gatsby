@@ -83,15 +83,14 @@ const IndexPage = props => {
         keywords={site.keywords || []}
       />
       <Container sx ={{
-        pt: "3rem",
+        pl: ["50px", "50px", "50px", "100px"],
+        pr: "1rem",
+        pt: "10rem",
       }}>
-        <div sx={{
-          px: "1rem",
-        }}>
-          <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
-          {postNodes && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
-          {postNodes && <ZundfolgeArticlePreviewGrid nodes={postNodes} />}
-        </div>
+        <h1 hidden>Welcome to {site.title}</h1>
+        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
+        {postNodes && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
+        {postNodes && <ZundfolgeArticlePreviewGrid nodes={postNodes} />}
       </Container>
     </Layout>
   );
