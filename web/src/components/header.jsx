@@ -19,6 +19,9 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 				backgroundColor: 'lightgray',
 				position: 'relative',
 				zIndex: '2',
+        borderBottom: "4px solid",
+        borderBottomColor: "primary",
+        boxShadow: '0 3px 5px -1px rgba(0, 0, 0, 0.3), 0 1px 18px 0 rgba(0, 0, 0, 0.32), 0 6px 10px 0 rgba(0, 0, 0, 0.24)'
 			}}
 		>
 			<Container
@@ -96,7 +99,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 				</Flex>
 				<Flex>{isToggledOn ? <MobileMenu navItems={navMenuItems} /> : null}</Flex>
 			</Container>
-			<Divider
+			{/* <Divider
 				sx={{
 					my: 0,
 					py: 0,
@@ -105,7 +108,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 					boxShadow:
 						'0 3px 5px -1px rgba(0, 0, 0, 0.3), 0 1px 18px 0 rgba(0, 0, 0, 0.32), 0 6px 10px 0 rgba(0, 0, 0, 0.24)'
 				}}
-			/>
+			/> */}
 		</nav>
 	);
 };
