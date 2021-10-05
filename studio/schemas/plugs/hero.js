@@ -21,7 +21,6 @@ export default {
         name: 'image',
         type: 'mainImage',
         validation: Rule => Rule.required(),
-
       },
       {
         name: 'cta',

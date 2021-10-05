@@ -11,6 +11,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import HeroSlider from "../components/slider";
+import TopStories from "../components/topStories";
 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -58,7 +59,6 @@ const Page = (props) => {
     }
 
     const page = data.page || data.route.page;
-
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -78,6 +78,9 @@ const Page = (props) => {
             break;
           case "heroCarousel":
             el = <HeroSlider key={c._key} {...c} />;
+            break;
+          case "topStories":
+            el = <TopStories key={c._key} {...c} />;
             break;
           default:
             el = null;
