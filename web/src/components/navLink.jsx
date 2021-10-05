@@ -32,8 +32,8 @@ const NavLink = props => {
         textDecoration: "none",
         textTransform: "uppercase",
         color: "darkgray",
-        display: "block",
-        py: "22px",
+        display: "flex",
+        alignItems: "center",
         px: "8px",
         height: "100%",
         ":hover": {

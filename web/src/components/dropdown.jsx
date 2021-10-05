@@ -12,20 +12,20 @@ const Dropdown = props => {
                 margin: 0,
                 padding: 0,
                 color: "darkgray",
+                height: "100%",
             }}
         >
             <li
                 sx={{
                     textTransform: "uppercase",
-                    display: "block",
-                    height: "100%",
-                    py: "22px",
                     px: "8px",
                     position: "relative",
+                    height: "100%",
                     ":hover": {
                         backgroundColor: "primary",
                         cursor: "pointer",
-                        color: "background"
+                        color: "background",
+                        display: "block",
                     },
                     ":hover > ul, :focus-within > ul ": {
                         visibility: "visible",
@@ -38,6 +38,9 @@ const Dropdown = props => {
                     sx={{
                         textDecoration: "none",
                         cursor: "pointer",
+                        display: "flex",
+                        height: "100%",
+                        alignItems: "center",
                     }}
                     aria-haspopup={link.items && link.items.length > 0 ? true : false}
                 >
@@ -56,9 +59,10 @@ const Dropdown = props => {
                             display: "none",
                             position: "absolute",
                             width: "250px",
-                            marginTop: "23px",
-                            borderBottomRightRadius: "6px",
-                            borderBottomLeftRadius: "6px",
+                            marginTop: "0px",
+                            borderRadius: "6px",
+                            //borderBottomRightRadius: "6px",
+                            //borderBottomLeftRadius: "6px",
                             cursor: "pointer",
                             left: "0",
                             ":hover": {
