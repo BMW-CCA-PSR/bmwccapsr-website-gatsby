@@ -57,12 +57,47 @@ export const query = graphql`
         }
       }
     }
+    post: allSanityPost(
+      filter: {slug: {current: {ne: null}}, isPublished: {eq: true}}
+      sort: {fields: [publishedAt], order: DESC}
+    ) {
+      edges {
+        node {
+          id
+          publishedAt
+          title
+          _rawBody(resolveReferences: {maxDepth: 1})
+          _rawExcerpt(resolveReferences: {maxDepth: 1})
+          slug {
+            current
+          }
+          _rawMainImage(resolveReferences: {maxDepth: 1})
+          categories {
+            title
+          }
+          authors {
+            author {
+              name
+            }
+          }
+        }
+      }
+    }
+    event: allSanityEvent(
+      filter: {isActive: {eq: true}}
+      sort: {order: DESC, fields: startTime}
+    ) {
+      edges {
+        node {
+          title
+        }
+      }
+    }
   }
 `;
 
 const IndexPage = (props) => {
   const { data, errors } = props;
-
   if (errors) {
     return <Errors errors={errors} />;
   }

@@ -59,6 +59,7 @@ const Page = (props) => {
     }
 
     const page = data.page || data.route.page;
+    const post = data.post
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -80,7 +81,7 @@ const Page = (props) => {
             el = <HeroSlider key={c._key} {...c} />;
             break;
           case "topStories":
-            el = <TopStories key={c._key} {...c} />;
+            el = <TopStories key={c._key} {...c} {...post} />;
             break;
           default:
             el = null;

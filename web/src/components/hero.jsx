@@ -7,7 +7,6 @@ import SanityImage from "gatsby-plugin-sanity-image"
 import { Heading, Container, Flex, Box, Text } from "theme-ui"
 
 function Hero(props) {
-  console.log(props)
   const image = props.image
   let fontColor = "#000"
   if (
@@ -18,7 +17,6 @@ function Hero(props) {
   ) {
     fontColor = props.image.asset.metadata.palette.dominant.foreground
   }
-  console.log(fontColor)
   return (
     <div
       sx={{
