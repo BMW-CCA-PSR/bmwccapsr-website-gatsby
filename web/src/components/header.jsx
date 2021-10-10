@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { useResponsiveValue, useBreakpointIndex } from '@theme-ui/match-media';
+import { useBreakpointIndex } from '@theme-ui/match-media';
 import { Heading, Container, Flex, Divider, Button, Box, MenuButton, Close } from 'theme-ui';
 import { Link } from 'gatsby';
 import React, { useState } from 'react';
@@ -72,9 +72,6 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 										} else if (i._type == 'link') {
 											return <NavLink key={i._key} {...i} />;
 										}
-										// } else if (i._type == "cta") {
-										//   return <CTALink key={i._key} {...i} />;
-										// }
 									})}
 								</ul>
 							) : (
@@ -99,16 +96,6 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 				</Flex>
 				<Flex>{isToggledOn ? <MobileMenu navItems={navMenuItems} /> : null}</Flex>
 			</Container>
-			{/* <Divider
-				sx={{
-					my: 0,
-					py: 0,
-					borderColor: 'primary',
-					borderBottomWidth: 4,
-					boxShadow:
-						'0 3px 5px -1px rgba(0, 0, 0, 0.3), 0 1px 18px 0 rgba(0, 0, 0, 0.32), 0 6px 10px 0 rgba(0, 0, 0, 0.24)'
-				}}
-			/> */}
 		</nav>
 	);
 };
