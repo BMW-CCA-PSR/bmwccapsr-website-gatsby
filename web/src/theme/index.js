@@ -99,7 +99,6 @@ module.exports = {
       fontFamily: "body",
     },
     h1: {
-      color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       letterSpacing: "tight",
@@ -107,7 +106,6 @@ module.exports = {
       fontSize: "xl"
     },
     h2: {
-      color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       letterSpacing: "tight",
@@ -115,7 +113,6 @@ module.exports = {
       fontSize: "lg"
     },
     h3: {
-      color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       letterSpacing: "tight",
@@ -123,7 +120,6 @@ module.exports = {
       fontSize: "md"
     },
     h4: {
-      color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       letterSpacing: "tight",
@@ -131,7 +127,6 @@ module.exports = {
       fontSize: "sm"
     },
     h5: {
-      color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       letterSpacing: "tight",
@@ -139,7 +134,6 @@ module.exports = {
       fontSize: "xs"
     },
     h6: {
-      color: 'text',
       fontFamily: 'heading',
       lineHeight: 'heading',
       letterSpacing: "tight",
@@ -147,7 +141,6 @@ module.exports = {
       fontSize: "xxs"
     },
     p: {
-      color: 'text',
       fontFamily: 'body',
       fontWeight: 'body',
       lineHeight: 'body'

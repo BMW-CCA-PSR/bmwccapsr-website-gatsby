@@ -12,6 +12,7 @@ import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import HeroSlider from "../components/slider";
 import TopStories from "../components/topStories";
+import EventSlider from "../components/event-slider";
 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -82,6 +83,15 @@ const Page = (props) => {
             break;
           case "topStories":
             el = <TopStories key={c._key} {...c} {...post} />;
+            break;
+          case "uiComponentRef":
+            switch (c.name) {
+              case "event-slider":
+                el = <EventSlider />;
+                break;
+              default:
+                break;
+            }
             break;
           default:
             el = null;

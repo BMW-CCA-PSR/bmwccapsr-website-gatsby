@@ -1,11 +1,9 @@
 /** @jsxImportSource theme-ui */
 import React from 'react';
-import { useBreakpointIndex } from '@theme-ui/match-media';
 import { getZundfolgeUrl } from "../lib/helpers";
 import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
 import { Card, Container, Heading, Text, Flex } from '@theme-ui/components';
-import Badge from './Badge';
 import { Link } from "gatsby";
 
 var style = {
