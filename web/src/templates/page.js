@@ -61,6 +61,7 @@ const Page = (props) => {
 
     const page = data.page || data.route.page;
     const post = data.post
+    const event = data.event
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -87,7 +88,7 @@ const Page = (props) => {
           case "uiComponentRef":
             switch (c.name) {
               case "event-slider":
-                el = <EventSlider />;
+                el = <EventSlider key={c._key} {...c} {...event} />;
                 break;
               default:
                 break;

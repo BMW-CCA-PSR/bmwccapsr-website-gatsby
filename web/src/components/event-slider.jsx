@@ -1,6 +1,21 @@
 /** @jsxImportSource theme-ui */
-import { Container, Text, Flex } from '@theme-ui/components';
+import { Container, Text, Flex, Box } from '@theme-ui/components';
 import React from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import EventSliderButton from './event-slider-button'
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination"
+
+// import Swiper core and required modules
+import SwiperCore, {
+    Autoplay,Pagination
+  } from 'swiper';
+  
+// install Swiper modules
+SwiperCore.use([Autoplay,Pagination]);
+
 
 const EventSlider = (props) => {
     return (
@@ -10,7 +25,7 @@ const EventSlider = (props) => {
             height: "100%",
             py: "20px"
         }}>
-            <Flex sx={{
+            <Box sx={{
                 flexDirection: "row",
                 justifyContent: "center",
                 height: "100%",
@@ -20,7 +35,27 @@ const EventSlider = (props) => {
                     variant: "styles.h3",
                     fontWeight: "300"
                 }}>Next Event: </Text>
-            </Flex>
+                <Swiper 
+                    //spaceBetween={30} 
+                    //centeredSlides={true} 
+                    // autoplay={{
+                    //     delay: 5000,
+                    // }} 
+                    sx={{
+                        height: "100%",
+                        width: "100%"
+                    }}
+                >
+                {props.edges.map((i) => {
+                    <SwiperSlide>
+                        <p>{i.node.title}</p>
+                        {/* <EventSliderButton {...i} /> */}
+                    </SwiperSlide>
+                    })
+                }
+
+                </Swiper>
+            </Box>
         </Container>
     )
 }
