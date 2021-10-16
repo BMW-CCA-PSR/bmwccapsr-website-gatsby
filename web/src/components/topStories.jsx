@@ -5,6 +5,7 @@ import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
 import { Card, Container, Heading, Text, Flex } from '@theme-ui/components';
 import { Link } from "gatsby";
+import {BoxIcon, BoxIconFlipped} from './box-icons';
 
 var style = {
     textDecoration: "none",
@@ -137,19 +138,27 @@ const TopStories = (props) => {
 			sx={{
 				my: '0.5rem',
 				py: '1.5rem',
-				mb: '3rem'
+				mb: '3rem',
 			}}
 		>
-			<Heading
-				sx={{
-					width: '100%',
-					my: '0.5rem',
-					variant: 'styles.h2',
-					textAlign: 'center'
-				}}
-			>
-				Top Stories
-			</Heading>
+			<Flex sx={{
+				flexDirection: "row", 
+				mx: "auto",
+				my: "20px",
+				justifyContent: "center"
+				}}>
+				<BoxIcon />
+					<Heading
+					sx={{
+						mx: "15px",
+						variant: 'styles.h2',
+						lineHeight: "0.7"
+					}}>
+					Top Stories
+					</Heading>
+				<BoxIconFlipped />
+			</Flex>
+
 			{props.edges.slice(0, limit).map((c, i) => (
 				<Card
 					sx={{

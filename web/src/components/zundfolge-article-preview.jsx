@@ -42,11 +42,6 @@ function ZundfolgeArticlePreview(props) {
           )}
         <Box p={3} sx={{}}>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3", color: `${fg}`,}} >{props.title}</Heading>
-          {props._rawExcerpt && (
-            <div>
-              <PortableText blocks={props._rawExcerpt} />
-            </div>
-          )}
           <Text sx={{
             color: `${fg}`
           }}>{format(parseISO(props.publishedAt), "MMMM do, yyyy")}

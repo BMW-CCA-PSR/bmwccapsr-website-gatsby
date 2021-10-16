@@ -90,7 +90,8 @@ const IndexPage = props => {
       />
       <Container sx ={{
         pl: ["16px", "16px", "50px", "100px"],
-        pr: "16px",
+        pr: ["16px", "16px", "50px", "100px"],
+        //pr: "16px",
         pt: ["6.5rem","6.5rem","10rem","10rem"],
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
