@@ -12,6 +12,9 @@ import siteSettings from './documents/siteSettings'
 import route from './documents/route'
 import event from './documents/event'
 import eventCategory from './documents/eventCategory'
+import tier from './documents/tier'
+import advertiser from './documents/advertiser'
+import advertiserCategory from './documents/advertiserCategory'
 
 import simpleBlockContent from './objects/simpleBlockContent'
 
@@ -58,6 +61,9 @@ export default createSchema({
     navItem,
     event,
     eventCategory,
+    tier,
+    advertiser,
+    advertiserCategory
   ])
   .concat(allPlugs),
 })
