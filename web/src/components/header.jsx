@@ -14,8 +14,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 	const toggle = () => setToggle(!isToggledOn);
 	const index = useBreakpointIndex();
 
-	const html = document.querySelector('html')
 	useEffect(() => {
+		const html = document.querySelector('html')
 		isToggledOn ? (html.style.overflow = 'hidden') : (html.style.overflow = 'visible')
 	  }, [isToggledOn])
 
