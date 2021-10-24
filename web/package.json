@@ -20,7 +20,7 @@
     "@theme-ui/match-media": "^0.11.2",
     "date-fns": "^2.23.0",
     "embla-carousel": "^4.5.3",
-    "gatsby": "^3.11.0",
+    "gatsby": "^3.14.4",
     "gatsby-background-image": "^1.5.3",
     "gatsby-image": "^3.11.0",
     "gatsby-plugin-graphql-codegen": "^3.0.0",
