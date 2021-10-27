@@ -68,7 +68,6 @@ function EventPage(props) {
           <VerticalLine height="600"/>
           <div sx={{
             mx: "auto",
-            px: "1rem"
           }}>
             <BoxAd {...randomizedAd} />
             <Heading variant="styles.h3" sx={{my: "1rem"}}>More Events</Heading>

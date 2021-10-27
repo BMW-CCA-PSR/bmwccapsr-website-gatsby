@@ -10,6 +10,7 @@ const VerticalLine = props => {
             height: `${height}px`,
             width: "1px",
             backgroundColor: "lightgray",
+            mx: "1rem"
         }} />
 
     )

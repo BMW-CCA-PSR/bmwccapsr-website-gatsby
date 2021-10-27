@@ -64,13 +64,12 @@ function ZundfolgeArticle(props) {
           </aside>
         </Flex>
         <div sx={next || prev ? {
-          display: ["none", "none", "flex"],
+          display: ["none", "none", "flex", "flex"],
           mx: "auto",
           } : {display: "none"}}>
           <VerticalLine height="600"/>
           <div sx={{
             mx: "auto",
-            px: "1rem"
           }}>
             <BoxAd {...randomizedAd} />
             <Heading variant="styles.h3" sx={{my: "1rem"}}>Related Content</Heading>

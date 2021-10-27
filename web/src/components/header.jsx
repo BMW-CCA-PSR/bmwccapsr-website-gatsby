@@ -117,7 +117,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 						sx={{
 							listStyle: 'none',
 							textAlign: 'center',
-							m: 0,
+							mt: "3rem",
 							p: 0,
 							backgroundColor: 'lightgray',
 
