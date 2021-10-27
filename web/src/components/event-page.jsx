@@ -7,13 +7,16 @@ import VerticalLine from "./vertical-line";
 import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import EventDetails from "./event-detail";
+import { randomGenerator } from "../lib/helpers"
+import BoxAd from "./box-ad";
 
 function EventPage(props) {
-  const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev } = props;
+  const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev, ads } = props;
   var startInDays = startTime && (formatDistance(new Date(startTime), new Date()))
   var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
   var updated = _updatedAt && (format(new Date(_updatedAt), "MMMM do, yyyy"))
-
+  const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
+  const randomizedAd = ads.edges[randomAdPosition].node
   return (
     <event>
       <Flex sx={{
@@ -67,7 +70,8 @@ function EventPage(props) {
             mx: "auto",
             px: "1rem"
           }}>
-            <Heading variant="styles.h3" sx={{mb: "1rem"}}>More Events</Heading>
+            <BoxAd {...randomizedAd} />
+            <Heading variant="styles.h3" sx={{my: "1rem"}}>More Events</Heading>
             {next && <RelatedContent {...next} />}
             {prev && <RelatedContent {...prev} />}
           </div>

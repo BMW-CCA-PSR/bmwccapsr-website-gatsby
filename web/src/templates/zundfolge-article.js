@@ -92,6 +92,23 @@ export const query = graphql`
         current
       }
     }
+    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
+      edges {
+        node {
+          _rawBanner(resolveReferences: {maxDepth: 10})
+          _rawBWlogo(resolveReferences: {maxDepth: 10})
+          _rawBox(resolveReferences: {maxDepth: 10})
+          category {
+            title
+          }
+          tier {
+            title
+          }
+          _rawLogo(resolveReferences: {maxDepth: 10})
+          name
+        }
+      }
+    }
   }
 `;
 
@@ -101,7 +118,8 @@ const ZundfolgePostTemplate = props => {
   const site = data && data.site;
   const next = data && data.next;
   const prev = data && data.prev;
-  const pageData = {...post, next: next ? {...next} : null, prev: prev ? {...prev} : null}
+  const ads = data && data.ads;
+  const pageData = {...post, next: next ? {...next} : null, prev: prev ? {...prev} : null, ads: {...ads}}
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems} >

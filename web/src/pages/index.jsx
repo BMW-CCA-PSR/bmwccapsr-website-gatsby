@@ -96,6 +96,23 @@ export const query = graphql`
         }
       }
     }
+    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
+      edges {
+        node {
+          _rawBanner(resolveReferences: {maxDepth: 10})
+          _rawBWlogo(resolveReferences: {maxDepth: 10})
+          _rawBox(resolveReferences: {maxDepth: 10})
+          category {
+            title
+          }
+          tier {
+            title
+          }
+          _rawLogo(resolveReferences: {maxDepth: 10})
+          name
+        }
+      }
+    }
   }
 `;
 

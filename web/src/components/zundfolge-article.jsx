@@ -8,14 +8,17 @@ import AuthorList from "./author-list";
 import VerticalLine from "./vertical-line";
 import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
 import RelatedContent from "./related-content";
+import { randomGenerator } from "../lib/helpers"
+import BoxAd from "./box-ad";
 
 function ZundfolgeArticle(props) {
-  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev } = props;
+  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, ads} = props;
   const pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
   const authorString = String(authors.map((author) => (` ${author.author.name}`)))
-
+  const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
+  const randomizedAd = ads.edges[randomAdPosition].node
   return (
     <article>
       <Flex sx={{
@@ -69,7 +72,8 @@ function ZundfolgeArticle(props) {
             mx: "auto",
             px: "1rem"
           }}>
-            <Heading variant="styles.h3" sx={{mb: "1rem"}}>Related Content</Heading>
+            <BoxAd {...randomizedAd} />
+            <Heading variant="styles.h3" sx={{my: "1rem"}}>Related Content</Heading>
             {next && <RelatedContent {...next} />}
             {prev && <RelatedContent {...prev} />}
           </div>

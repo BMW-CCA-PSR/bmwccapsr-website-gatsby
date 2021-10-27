@@ -49,3 +49,7 @@ export function toPlainText(blocks) {
     })
     .join("\n\n");
 }
+
+export function randomGenerator(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
