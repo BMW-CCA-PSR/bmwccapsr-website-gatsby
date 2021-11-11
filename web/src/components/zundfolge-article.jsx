@@ -1,15 +1,13 @@
 /** @jsxImportSource theme-ui */
 import { format, formatDistance, differenceInDays } from "date-fns";
 import React from "react";
-import { buildImageObj } from "../lib/helpers";
 import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
-import AuthorList from "./author-list";
 import VerticalLine from "./vertical-line";
-import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
+import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import { randomGenerator } from "../lib/helpers"
-import BoxAd from "./box-ad";
+import BoxAd from "./box-ads";
 
 function ZundfolgeArticle(props) {
   const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, ads} = props;
@@ -49,19 +47,6 @@ function ZundfolgeArticle(props) {
             </div>
           )}
           {_rawBody && <PortableText blocks={_rawBody} />}
-          <aside>
-            {authors && <AuthorList items={authors} title="Authors" />}
-            {categories && (
-              <div>
-                <h3>Categories</h3>
-                <ul>
-                  {categories.map(category => (
-                    <li key={category._id}>{category.title}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </aside>
         </Flex>
         <div sx={next || prev ? {
           display: ["none", "none", "flex", "flex"],
