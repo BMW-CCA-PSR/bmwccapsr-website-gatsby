@@ -15,6 +15,7 @@ function ZundfolgeArticle(props) {
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
   const authorString = String(authors.map((author) => (` ${author.author.name}`)))
+  const catString = String(categories.map((cat) => (` ${cat.title}`)))
   const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
   const randomizedAd = ads.edges[randomAdPosition].node
   return (
@@ -23,6 +24,7 @@ function ZundfolgeArticle(props) {
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         pt: ["6.5rem","6.5rem","10rem","10rem"],
+        pb: "1rem",
         width: "100%",
         flexDirection: "row",
         mx: "auto",
@@ -31,6 +33,7 @@ function ZundfolgeArticle(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
+          <Text variant="text.label">{catString}</Text>
           <Heading variant="styles.h1">{title}</Heading>
           <Text sx={{variant: "stypes.p", py: "1rem"}}>By <b>{authorString}</b> | {pubDate}</Text>
           {mainImage && mainImage.asset && (

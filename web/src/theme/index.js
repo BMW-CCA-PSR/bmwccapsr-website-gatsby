@@ -1,11 +1,10 @@
 module.exports = {
   colors: {
-    text: "#060606",
+    text: "#4d4d4d",
     background: "#fff",
     primary: "#1e94ff",
     secondary: "#0653b6",
     heading: "#e0f",
-    muted: "#191919",
     highlight: "#3cf",
     lightgray: "#f2f2f2",
     gray: "#777",
@@ -155,7 +154,6 @@ module.exports = {
         py: "4px",
         pr: "4px",
         pl: 0,
-        borderColor: "muted",
         borderBottomStyle: "solid"
       }
     },

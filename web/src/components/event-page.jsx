@@ -15,6 +15,7 @@ function EventPage(props) {
   var startInDays = startTime && (formatDistance(new Date(startTime), new Date()))
   var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
   var updated = _updatedAt && (format(new Date(_updatedAt), "MMMM do, yyyy"))
+  const catString = String(categories.map((cat) => (` ${cat.title}`)))
   const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
   const randomizedAd = ads.edges[randomAdPosition].node
   return (
@@ -23,6 +24,7 @@ function EventPage(props) {
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         pt: ["6.5rem","6.5rem","10rem","10rem"],
+        pb: "1rem",
         width: "100%",
         flexDirection: "row",
         mx: "auto",
@@ -31,6 +33,7 @@ function EventPage(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
+          <Text variant="text.label">{catString}</Text>
           <Heading variant="styles.h1">{title}</Heading>
           <Text sx={{variant: "styles.h4", py: "1rem"}}>{start} | {startInDays}</Text>
           <Text sx={{variant: "styles.p"}}>Last updated: {updated}</Text>
@@ -48,18 +51,6 @@ function EventPage(props) {
           )}
           {_rawBody && <PortableText blocks={_rawBody} />}
           <EventDetails {...props}/>
-          <aside>
-            {categories && (
-              <div>
-                <h3>Categories</h3>
-                <ul>
-                  {categories.map(category => (
-                    <li key={category._id}>{category.title}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </aside>
         </Flex>
         <div sx={next || prev ? {
           display: ["none", "none", "flex"],

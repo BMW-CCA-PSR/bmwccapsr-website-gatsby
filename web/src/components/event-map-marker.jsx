@@ -10,6 +10,7 @@ function Icon() {
             src="../images/map-pin.png"
             placeholder="blurred"
             layout="constrained"
+            loading="eager"
         />
     )
 }
