@@ -6,7 +6,7 @@ import {
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import EventPagePreviewGrid from "../components/event-page-preview-list";
+import EventPagePreviewGrid from "../components/event-page-preview-grid";
 import { Container, Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";

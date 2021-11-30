@@ -72,6 +72,9 @@ export const query = graphql`
             current
           }
           _rawMainImage(resolveReferences: {maxDepth: 1})
+          mainImage {
+            ...SanityImage
+          }
           categories {
             title
           }

@@ -1,7 +1,6 @@
 /** @jsxImportSource theme-ui */
 import { Link } from "gatsby";
 import React from "react";
-import { Heading } from "theme-ui"
 import EventPagePreview from "./event-page-preview";
 
 function EventPagePreviewGrid(props) {
@@ -17,10 +16,7 @@ function EventPagePreviewGrid(props) {
       }}>
         {props.nodes &&
           props.nodes.map(node => (
-            <li
-              key={node.id}>
               <EventPagePreview {...node} isInList />
-            </li>
           ))}
       </ul>
       {props.browseMoreHref && (

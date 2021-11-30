@@ -132,7 +132,6 @@ const StoryRowFlipped = (props) => {
 };
 
 const TopStories = (props) => {
-	const limit = props.limit;
 	return (
 		<Container
 			sx={{
@@ -159,7 +158,7 @@ const TopStories = (props) => {
 				<BoxIconFlipped />
 			</Flex>
 
-			{props.edges.slice(0, limit).map((c, i) => (
+			{props.edges.slice(0, 3).map((c, i) => (
 				<Card
 					sx={{
 						maxWidth: '1000px',

@@ -21,6 +21,7 @@ export default {
           { type: 'ctaColumns' },
           { type: 'ctaPlug' },
           { type: 'topStories' },
+          { type: 'otherStories' }
         ],
       },
     ],

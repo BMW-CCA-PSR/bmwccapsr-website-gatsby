@@ -12,6 +12,7 @@ import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import HeroSlider from "../components/slider";
 import TopStories from "../components/topStories";
+import OtherStories from "../components/other-stories";
 import EventSlider from "../components/event-slider";
 
 export const query = graphql`
@@ -84,6 +85,9 @@ const Page = (props) => {
             break;
           case "topStories":
             el = <TopStories key={c._key} {...c} {...post} />;
+            break;
+          case "otherStories":
+            el = <OtherStories key={c._key} {...c} {...post} />;
             break;
           case "uiComponentRef":
             switch (c.name) {

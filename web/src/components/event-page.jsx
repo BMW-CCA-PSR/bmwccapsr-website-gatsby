@@ -4,7 +4,7 @@ import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
 import VerticalLine from "./vertical-line";
-import { Container, Heading, Text, Flex, Box } from "@theme-ui/components";
+import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import EventDetails from "./event-detail";
 import { randomGenerator } from "../lib/helpers"
