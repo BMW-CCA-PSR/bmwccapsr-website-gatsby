@@ -76,7 +76,6 @@ export const query = graphql`
       edges {
         node {
           _rawBanner(resolveReferences: {maxDepth: 10})
-          _rawBWlogo(resolveReferences: {maxDepth: 10})
           _rawBox(resolveReferences: {maxDepth: 10})
           category {
             title
