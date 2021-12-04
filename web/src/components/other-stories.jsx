@@ -1,10 +1,9 @@
 /** @jsxImportSource theme-ui */
 import React from 'react';
 import { getZundfolgeUrl } from "../lib/helpers";
-import EventPagePreviewGrid from "../components/event-page-preview-grid";
 import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Card, Container, Heading, Text, Flex, Box, Badge } from '@theme-ui/components';
+import { Card, Container, Heading, Text, Flex, Box } from '@theme-ui/components';
 import { Link } from "gatsby";
 import {BoxIcon, BoxIconFlipped} from './box-icons';
 
@@ -95,10 +94,10 @@ const OtherStories = (props) => {
 	return (
 		<Container
 			sx={{
-				my: '0.5rem',
-				py: '1.5rem',
-				mb: '3rem',
-                bg: "lightgray"
+				mt: '0.5rem',
+				pt: '1.5rem',
+        pb: '2.5rem',
+        bg: "lightgray"
 			}}
 		>
 			<Flex sx={{

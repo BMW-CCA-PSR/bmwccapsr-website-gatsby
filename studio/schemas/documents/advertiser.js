@@ -58,13 +58,6 @@ export default {
         fieldset: 'assets'
       },
       {
-        name: 'BWlogo',
-        type: 'image',
-        title: 'B&W Logo',
-        description: "The greyscale or B&W logo of the advertiser",
-        fieldset: 'assets'
-      },
-      {
         name: 'banner',
         type: 'image',
         title: 'Banner Ad',

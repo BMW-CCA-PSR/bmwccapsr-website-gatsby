@@ -14,6 +14,7 @@ import HeroSlider from "../components/slider";
 import TopStories from "../components/topStories";
 import OtherStories from "../components/other-stories";
 import EventSlider from "../components/event-slider";
+import HomepageSponsors from "../components/home-page-sponsors";
 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -36,6 +37,23 @@ export const query = graphql`
         description
         image {
           ...SanityImage
+        }
+      }
+    }
+    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
+      edges {
+        node {
+          _rawBanner(resolveReferences: {maxDepth: 10})
+          _rawBWlogo(resolveReferences: {maxDepth: 10})
+          _rawBox(resolveReferences: {maxDepth: 10})
+          category {
+            title
+          }
+          tier {
+            title
+          }
+          _rawLogo(resolveReferences: {maxDepth: 10})
+          name
         }
       }
     }
@@ -63,6 +81,7 @@ const Page = (props) => {
     const page = data.page || data.route.page;
     const post = data.post
     const event = data.event
+    const ads = data.ads
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -88,6 +107,9 @@ const Page = (props) => {
             break;
           case "otherStories":
             el = <OtherStories key={c._key} {...c} {...post} />;
+            break;
+          case "homepageSponsors":
+            el = <HomepageSponsors key={c._key} {...c} {...ads} />;
             break;
           case "uiComponentRef":
             switch (c.name) {

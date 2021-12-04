@@ -1,13 +1,6 @@
 /** @jsxImportSource theme-ui */
-import { Link } from "gatsby";
-import { Card, Box, Text, Heading, Flex, Input } from "theme-ui"
 import React from "react";
-import { format, parseISO } from "date-fns";
-import { imageUrlFor } from "../lib/image-url";
-import { buildImageObj, cn, getZundfolgeUrl } from "../lib/helpers";
 import ZundfolgeArticlePreview from "./zundfolge-article-preview";
-import RelatedContent from "./related-content";
-import CTALink from "./CTALink";
 
 function ZundfolgeArticleGallery(props) {
     const [main, left, right, bottom] = props.nodes;
