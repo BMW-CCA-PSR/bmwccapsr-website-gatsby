@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import SanityImage from "gatsby-plugin-sanity-image"
 import React from "react";
-import { Box } from "@theme-ui/components";
+import { Box, Flex } from "@theme-ui/components";
 
 const BoxAd = props => {
     const box = props._rawBox
@@ -9,7 +9,7 @@ const BoxAd = props => {
         <Box sx={{
             height: "250px",
             width: "300px"
-          }}>
+        }}>
         {box && box.asset && (
             <SanityImage {...box} width={300}
             sx={{
@@ -25,20 +25,26 @@ const BoxAd = props => {
 const BannerAd = props => {
     const banner = props._rawBanner
     return (
-        <Box sx={{
-            height: "90px",
-            width: "728px"
-          }}>
-        {banner && banner.asset && (
-            <SanityImage {...banner} width={728}
-            sx={{
-                width: "100%", 
-                height: "100%", 
-                objectFit: "fit",
-            }} /> 
-        )}
-        </Box>
+        <Flex sx={{my: "1rem"}}>
+            <Box sx={{
+                height: "90px",
+                width: "728px",
+                mx: "auto", 
+            }}>
+            {banner && banner.asset && (
+                <SanityImage {...banner} width={728}
+                sx={{
+                    width: "100%", 
+                    height: "100%", 
+                    objectFit: "fit",
+                }} /> 
+            )}
+            </Box>
+        </Flex>
     )
 }
 
-export default BoxAd
+export {
+    BoxAd,
+    BannerAd
+} 

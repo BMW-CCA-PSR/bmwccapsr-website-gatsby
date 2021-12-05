@@ -15,6 +15,8 @@ import TopStories from "../components/topStories";
 import OtherStories from "../components/other-stories";
 import EventSlider from "../components/event-slider";
 import HomepageSponsors from "../components/home-page-sponsors";
+import { BannerAd } from "../components/ads";
+import { randomGenerator } from "../lib/helpers"
 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -114,6 +116,11 @@ const Page = (props) => {
             switch (c.name) {
               case "event-slider":
                 el = <EventSlider key={c._key} {...c} {...event} />;
+                break;
+              case "banner-ad":
+                const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
+                const randomizedAd = ads.edges[randomAdPosition].node
+                el = <BannerAd {...randomizedAd} />;
                 break;
               default:
                 break;

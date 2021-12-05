@@ -7,7 +7,7 @@ import VerticalLine from "./vertical-line";
 import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import { randomGenerator } from "../lib/helpers"
-import BoxAd from "./box-ads";
+import { BoxAd, BannerAd }  from "./ads";
 
 function ZundfolgeArticle(props) {
   const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, ads} = props;
@@ -49,6 +49,7 @@ function ZundfolgeArticle(props) {
               />
             </div>
           )}
+          <BannerAd {...randomizedAd} />
           {_rawBody && <PortableText blocks={_rawBody} />}
         </Flex>
         <div sx={next || prev ? {

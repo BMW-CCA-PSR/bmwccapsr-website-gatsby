@@ -8,7 +8,7 @@ import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import EventDetails from "./event-detail";
 import { randomGenerator } from "../lib/helpers"
-import BoxAd from "./box-ads";
+import BoxAd from "./ads";
 
 function EventPage(props) {
   const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev, ads } = props;
