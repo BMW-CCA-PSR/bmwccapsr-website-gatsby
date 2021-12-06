@@ -102,8 +102,6 @@ export const query = graphql`
     ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
       edges {
         node {
-          _rawBanner(resolveReferences: {maxDepth: 10})
-          _rawBox(resolveReferences: {maxDepth: 10})
           category {
             title
           }
@@ -112,6 +110,13 @@ export const query = graphql`
           }
           _rawLogo(resolveReferences: {maxDepth: 10})
           name
+        }
+      }
+    }
+    banners: allSanityAdvertiser(filter: {banner: {_type: {ne: null}}}) {
+      edges {
+        node {
+          _rawBanner(resolveReferences: {maxDepth: 10})
         }
       }
     }

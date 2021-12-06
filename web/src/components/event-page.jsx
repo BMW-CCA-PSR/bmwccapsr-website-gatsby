@@ -8,16 +8,16 @@ import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import EventDetails from "./event-detail";
 import { randomGenerator } from "../lib/helpers"
-import BoxAd from "./ads";
+import { BoxAd } from "./ads";
 
 function EventPage(props) {
-  const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev, ads } = props;
+  const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev, boxes } = props;
   var startInDays = startTime && (formatDistance(new Date(startTime), new Date()))
   var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
   var updated = _updatedAt && (format(new Date(_updatedAt), "MMMM do, yyyy"))
   const catString = String(categories.map((cat) => (` ${cat.title}`)))
-  const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
-  const randomizedAd = ads.edges[randomAdPosition].node
+  const randomAdPosition = randomGenerator(0, boxes.edges.length - 1)
+  const randomizedAd = boxes.edges[randomAdPosition].node
   return (
     <event>
       <Flex sx={{

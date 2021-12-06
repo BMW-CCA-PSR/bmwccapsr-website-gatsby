@@ -72,19 +72,10 @@ export const query = graphql`
         current
       }
     }
-    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
+    boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}}) {
       edges {
         node {
-          _rawBanner(resolveReferences: {maxDepth: 10})
           _rawBox(resolveReferences: {maxDepth: 10})
-          category {
-            title
-          }
-          tier {
-            title
-          }
-          _rawLogo(resolveReferences: {maxDepth: 10})
-          name
         }
       }
     }
@@ -97,8 +88,8 @@ const EventPageTemplate = props => {
   const site = data && data.site;
   const next = data && data.next;
   const prev = data && data.prev;
-  const ads = data && data.ads;
-  const pageData = {...event, next: next ? {...next} : null, prev: prev ? {...prev} : null, ads: {...ads}}
+  const boxes = data && data.boxes;
+  const pageData = {...event, next: next ? {...next} : null, prev: prev ? {...prev} : null, boxes: {...boxes}}
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems} >

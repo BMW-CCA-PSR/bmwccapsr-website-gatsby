@@ -54,6 +54,7 @@ export default {
         name: 'logo',
         type: 'image',
         title: 'Logo',
+        validation: Rule => Rule.error('You must provide a logo for the advertiser.').required(),
         description: "The logo of the advertiser",
         fieldset: 'assets'
       },

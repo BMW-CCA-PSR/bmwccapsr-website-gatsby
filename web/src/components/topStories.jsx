@@ -135,9 +135,7 @@ const TopStories = (props) => {
 	return (
 		<Container
 			sx={{
-				my: '0.5rem',
 				py: '1.5rem',
-				mb: '3rem',
 			}}
 		>
 			<Flex sx={{

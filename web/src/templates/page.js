@@ -42,22 +42,6 @@ export const query = graphql`
         }
       }
     }
-    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
-      edges {
-        node {
-          _rawBanner(resolveReferences: {maxDepth: 10})
-          _rawBox(resolveReferences: {maxDepth: 10})
-          category {
-            title
-          }
-          tier {
-            title
-          }
-          _rawLogo(resolveReferences: {maxDepth: 10})
-          name
-        }
-      }
-    }
   }
 `;
 
@@ -83,6 +67,7 @@ const Page = (props) => {
     const post = data.post
     const event = data.event
     const ads = data.ads
+    const banners = data.banners
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -118,8 +103,8 @@ const Page = (props) => {
                 el = <EventSlider key={c._key} {...c} {...event} />;
                 break;
               case "banner-ad":
-                const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
-                const randomizedAd = ads.edges[randomAdPosition].node
+                const randomAdPosition = randomGenerator(0, banners.edges.length - 1)
+                const randomizedAd = banners.edges[randomAdPosition].node
                 el = <BannerAd {...randomizedAd} />;
                 break;
               default:
