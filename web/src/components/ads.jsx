@@ -15,7 +15,6 @@ const BoxAd = props => {
             sx={{
                 width: "100%", 
                 height: "100%", 
-                objectFit: "fit",
             }} /> 
         )}
         </Box>
@@ -36,7 +35,7 @@ const BannerAd = props => {
                 sx={{
                     width: "100%", 
                     height: "100%", 
-                    objectFit: "fit",
+                    objectFit: "contain",
                 }} /> 
             )}
             </Box>

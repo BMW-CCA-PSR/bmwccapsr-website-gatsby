@@ -27,6 +27,13 @@ export default {
         title: 'Description'
       },
       {
+        title: 'External link',
+        description: 'Example: https://www.bmwseattle.com/',
+        name: 'href',
+        validation: Rule => Rule.error('You have to provide an advertiser web address.').required(),
+        type: 'url'
+      },
+      {
         name: 'category',
         type: 'reference',
         to: {
@@ -82,7 +89,8 @@ export default {
     preview: {
       select: {
         title: 'name',
-        media: 'logo'
+        media: 'logo',
+        subtitle: 'tier.title'
       }
     }
   }

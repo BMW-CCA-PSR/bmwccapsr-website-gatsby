@@ -10,14 +10,16 @@ import { randomGenerator } from "../lib/helpers"
 import { BoxAd, BannerAd }  from "./ads";
 
 function ZundfolgeArticle(props) {
-  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, ads} = props;
+  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, boxes, banners} = props;
   const pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
   const authorString = String(authors.map((author) => (` ${author.author.name}`)))
   const catString = String(categories.map((cat) => (` ${cat.title}`)))
-  const randomAdPosition = randomGenerator(0, ads.edges.length - 1)
-  const randomizedAd = ads.edges[randomAdPosition].node
+  const randomBoxPosition = randomGenerator(0, boxes.edges.length - 1)
+  const randomBannerPosition = randomGenerator(0, banners.edges.length - 1)
+  const randomizedBox = boxes.edges[randomBoxPosition].node
+  const randomizedBanner = banners.edges[randomBannerPosition].node
   return (
     <article>
       <Flex sx={{
@@ -49,7 +51,7 @@ function ZundfolgeArticle(props) {
               />
             </div>
           )}
-          <BannerAd {...randomizedAd} />
+          <BannerAd {...randomizedBanner} />
           {_rawBody && <PortableText blocks={_rawBody} />}
         </Flex>
         <div sx={next || prev ? {
@@ -60,7 +62,7 @@ function ZundfolgeArticle(props) {
           <div sx={{
             mx: "auto",
           }}>
-            <BoxAd {...randomizedAd} />
+            <BoxAd {...randomizedBox} />
             <Heading variant="styles.h3" sx={{my: "1rem"}}>Related Content</Heading>
             {next && <RelatedContent {...next} />}
             {prev && <RelatedContent {...prev} />}
