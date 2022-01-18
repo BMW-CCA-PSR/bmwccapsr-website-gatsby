@@ -3,46 +3,53 @@ import React from "react";
 import PortableText from "./portableText";
 import clientConfig from "../../client-config";
 import CTALink from "./CTALink";
-import {GatsbyImage} from 'gatsby-plugin-image'
-import {Heading} from "theme-ui"
-import {getGatsbyImageData} from 'gatsby-source-sanity'
-
-const maybeImage = illustration => {
-  let img = null;
-  if (illustration && illustration.image && illustration.image.asset && !illustration.disabled) {
-    const fluidProps = getGatsbyImageData(
-      illustration.image.asset._id,
-      { maxWidth: 960 },
-      clientConfig.sanity
-    );
-
-    img = (
-      <img className="w-full md:w-4/5 z-50" src={fluidProps.src} alt={illustration.image.alt} />
-    );
-  }
-  return img;
-};
+import SanityImage from "gatsby-plugin-sanity-image"
+import { Heading, Container, Flex, Box, Text } from "theme-ui"
 
 function Hero(props) {
-  const img = maybeImage(props.illustration);
+  const image = props.image
+  let fontColor = "#000"
+  if (
+    props.image &&
+    props.image.asset &&
+    props.image.asset.metadata &&
+    props.image.asset.metadata.palette
+  ) {
+    fontColor = props.image.asset.metadata.palette.dominant.foreground
+  }
   return (
-    <div className="container px-3 mx-auto flex flex-wrap flex-col md:flex-row items-center">
-      {/* Left col */}
-      <div className="flex flex-col w-full md:w-2/5 justify-center items-start text-center md:text-left">
-        <p className="uppercase tracking-loose w-full">{props.label}</p>
-        <Heading>{props.heading}</Heading>
-        <div className="leading-normal text-2xl mb-8">
-          <PortableText blocks={props.tagline} />
+    <div
+      sx={{
+        width: "100%",
+        height: 550,
+        position: "relative",
+      }}>
+      {/* background image component */}
+      <SanityImage {...image} width={1440}
+        sx={{
+          position: "absolute", 
+          width: "100%", 
+          height: "100%", 
+          objectFit: "cover",
+          zIndex: "-1",
+        }} />
+        <div sx={{background: "rgba(0,0,0,0.3)", height: "100%", zIndex: "0"}}>
+        {/* inner text component / content div */}
+        <div sx={{
+          p: ["16px","16px","50px","100px"],
+          //paddingRight: ["20px", "50px", "100px", "400px"],
+          paddingTop: ["120px", "120px","160px", "160px"]
+        }}>
+          <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
+          <Heading variant="styles.h1" sx={{color: `${fontColor}`}}>{props.heading}</Heading>
+          <div sx={{py: "20px"}}>
+            <Text variant="styles.h3" sx={{color: `${fontColor}`}}>{props.tagline}</Text>
+          </div>
+          {props.cta && props.cta.title && (
+            <CTALink {...props.cta} />
+          )}
+          </div>
         </div>
-        {props.cta && props.cta.title && (
-          <CTALink
-            {...props.cta}
-            buttonActionClass="mx-auto ml-4 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg"
-          />
-        )}
-      </div>
-      {/* Right col */}
-      <div className="w-full md:w-3/5 py-6 text-center">{img}</div>
     </div>
   );
 }

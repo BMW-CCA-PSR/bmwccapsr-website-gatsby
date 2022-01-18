@@ -25,7 +25,13 @@ export default {
         fieldset: 'link',
         to: [{type: 'route'}]
       },
-
+      {
+        title: 'Path',
+        name: 'route',
+        fieldset: 'link',
+        description: 'Example: /zundfolge',
+        type: 'string'
+      },
       {
         title: 'External link',
         description: 'Example: https://www.sanity.io',

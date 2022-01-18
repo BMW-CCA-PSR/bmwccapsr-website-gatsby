@@ -17,8 +17,12 @@ export function filterOutDocsPublishedInTheFuture({ publishedAt }) {
   return !isFuture(publishedAt);
 }
 
-export function getBlogUrl(slug) {
-  return `/blog/${slug.current || slug}/`;
+export function getZundfolgeUrl(slug) {
+  return `/zundfolge/${slug.current || slug}/`;
+}
+
+export function getEventsUrl(slug) {
+  return `/events/${slug.current || slug}/`;
 }
 
 export function buildImageObj(source = { asset: {} }) {
@@ -44,4 +48,8 @@ export function toPlainText(blocks) {
       return block.children.map(child => child.text).join("");
     })
     .join("\n\n");
+}
+
+export function randomGenerator(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }

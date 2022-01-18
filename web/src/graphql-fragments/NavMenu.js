@@ -20,6 +20,7 @@ fragment NavMenu on SanityNavigationMenu {
       }
     }
     ... on SanityNavigationItem {
+      title
       navigationItemUrl {
         title
         _type
@@ -49,6 +50,7 @@ fragment NavMenu on SanityNavigationMenu {
                 }
               }
             }
+            route
             title
             href
           }
@@ -67,6 +69,7 @@ fragment NavMenu on SanityNavigationMenu {
           }
         }
       }
+      route
       title
       href
     }

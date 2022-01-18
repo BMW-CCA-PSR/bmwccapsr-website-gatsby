@@ -1,3 +1,4 @@
+/** @jsxImportSource theme-ui */
 import React from "react";
 import Header from "./header";
 import Footer from "./footer";
@@ -46,6 +47,9 @@ class Layout extends React.Component {
           onShowNav={onShowNav}
           showNav={showNav}
           scrolled={scrolled}
+          sx={{
+            position: "absolute"
+          }}
         />
         <>{children}</>
         <Footer siteTitle={siteTitle} />

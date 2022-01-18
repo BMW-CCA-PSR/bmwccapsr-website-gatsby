@@ -14,11 +14,13 @@ export default {
       },
       {
         name: 'tagline',
-        type: 'simpleBlockContent'
+        type: 'string',
+        title: 'Tagline'
       },
       {
-        name: 'illustration',
-        type: 'illustration'
+        name: 'image',
+        type: 'mainImage',
+        validation: Rule => Rule.required(),
       },
       {
         name: 'cta',
@@ -29,12 +31,17 @@ export default {
       select: {
         title: 'heading',
         subtitle: 'label',
-        disabled: 'disabled'
+        disabled: 'disabled',
+        image: 'image'
       },
-      prepare({ title, disabled }) {
-        return {
-          title: `Hero: ${disabled ? 'DISABLED' : title}`
-        }
+      prepare({ title, disabled, image }) {
+        return !image ? 
+          { 
+            title: `Hero: ${disabled ? 'DISABLED' : title}` 
+          } : {
+            title: `Hero: ${disabled ? 'DISABLED' : title}`,
+            media: image.image
+          }
       }
     }
   }

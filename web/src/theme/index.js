@@ -1,55 +1,68 @@
 module.exports = {
   colors: {
-    text: "#060606",
+    text: "#4d4d4d",
     background: "#fff",
-    primary: "#228dd8",
-    secondary: "#e0f",
-    muted: "#191919",
+    primary: "#1e94ff",
+    secondary: "#0653b6",
+    heading: "#e0f",
     highlight: "#3cf",
-    gray: "#f6f5f5",
-    purple: "#c0f"
+    lightgray: "#f2f2f2",
+    gray: "#777",
+    darkgray: "#444444"
   },
+  breakpoints: ["480px", "768px", "1025px", "1200px"],
   fonts: {
     body: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif",
     heading: "inherit",
-    monospace: "Menlo, monospace"
+    monospace: 'Menlo, monospace',
   },
-  fontSizes: [
-    12,
-    14,
-    16,
-    20,
-    24,
-    32,
-    48,
-    64,
-    72
-  ],
-fontWeights: {
+  fontSizes: {
+    xxs: 12,
+    xs: 16,
+    sm: 20,
+    md: 30,
+    lg: 40,
+    xl: 64,
+  },
+  fontWeights: {
     body: 400,
     heading: 700,
-    display: 900
   },
   lineHeights: {
     body: 1.5,
-    heading: 1.25
+    heading: 1.1,
   },
-  textStyles: {
+  letterSpacings: {
+    normal: "0",
+    wide: "0.25em",
+    tight: "-.025em"
+  },
+  text: {
     heading: {
+      fontSize: "lg",
       fontFamily: "heading",
       fontWeight: "heading",
-      lineHeight: "heading"
     },
-    display: {
-      variant: "textStyles.heading",
-      fontSize: [
-        5,
-        6
-      ],
-      fontWeight: "display",
-      letterSpacing: "-0.03em",
-      mt: 3
-    }
+    title: {
+      fontFamily: "body",
+      fontWeight: "heading",
+      lineHeight: "heading",
+      fontSize: ["md", "lg"],
+    },
+    body: {
+      fontFamily: "body",
+      fontWeight: "body",
+      lineHeight: "body",
+      fontSize: "sm",
+    },
+    label: {
+      fontFamily: "heading",
+      fontWeight: "body",
+      lineHeight: "body",
+      fontSize: "xs",
+      letterSpacing: "wide",
+      textTransform: "uppercase",
+    },
   },
   buttons: {
     primary: {
@@ -60,75 +73,76 @@ fontWeights: {
         bg: "white",
       },
     },
-    secondary: {
+    heading: {
       color: "text",
-      bg: "secondary",
+      bg: "heading",
       "&:hover": {
-        color: "secondary",
+        color: "heading",
         bg: "text",
       },
     },
   },
-  styles: {
-    Container: {
-      p: 3,
-      maxWidth: 1024
+  badges: {
+    primary: {
+      color: 'background',
+      bg: 'primary',
     },
+    outline: {
+      color: 'primary',
+      bg: 'transparent',
+      boxShadow: 'inset 0 0 0 1px',
+    },
+  },
+  styles: {
     root: {
       fontFamily: "body",
-      lineHeight: "body",
-      fontWeight: "body"
     },
     h1: {
-      variant: "textStyles.display"
+      fontFamily: 'heading',
+      lineHeight: 'heading',
+      letterSpacing: "tight",
+      fontWeight: 'heading',
+      fontSize: "xl"
     },
     h2: {
-      variant: "textStyles.heading",
-      fontSize: 5
+      fontFamily: 'heading',
+      lineHeight: 'heading',
+      letterSpacing: "tight",
+      fontWeight: 'heading',
+      fontSize: "lg"
     },
     h3: {
-      variant: "textStyles.heading",
-      fontSize: 4
+      fontFamily: 'heading',
+      lineHeight: 'heading',
+      letterSpacing: "tight",
+      fontWeight: 'heading',
+      fontSize: "md"
     },
     h4: {
-      variant: "textStyles.heading",
-      fontSize: 3
+      fontFamily: 'heading',
+      lineHeight: 'heading',
+      letterSpacing: "tight",
+      fontWeight: 'heading',
+      fontSize: "sm"
     },
     h5: {
-      variant: "textStyles.heading",
-      fontSize: 2
+      fontFamily: 'heading',
+      lineHeight: 'heading',
+      letterSpacing: "tight",
+      fontWeight: 'heading',
+      fontSize: "xs"
     },
     h6: {
-      variant: "textStyles.heading",
-      fontSize: 1
+      fontFamily: 'heading',
+      lineHeight: 'heading',
+      letterSpacing: "tight",
+      fontWeight: 'heading',
+      fontSize: "xxs"
     },
-    a: {
-      color: "primary",
-      "&:hover": {
-        color: "secondary"
-      }
-    },
-    pre: {
-      variant: "prism",
-      fontFamily: "monospace",
-      fontSize: 1,
-      p: 3,
-      color: "text",
-      bg: "muted",
-      overflow: "auto",
-      code: {
-        color: "inherit"
-      }
-    },
-    code: {
-      fontFamily: "monospace",
-      color: "secondary",
-      fontSize: 1
-    },
-    inlineCode: {
-      fontFamily: "monospace",
-      color: "secondary",
-      bg: "muted"
+    p: {
+      fontFamily: 'body',
+      fontWeight: 'body',
+      lineHeight: 'body'
     },
     table: {
       width: "100%",
@@ -140,7 +154,6 @@ fontWeights: {
         py: "4px",
         pr: "4px",
         pl: 0,
-        borderColor: "muted",
         borderBottomStyle: "solid"
       }
     },
@@ -152,13 +165,17 @@ fontWeights: {
       verticalAlign: "top",
       borderBottomWidth: "1px"
     },
-    hr: {
-      border: 0,
-      borderBottom: "1px solid",
-      borderColor: "muted"
-    },
     img: {
-      maxWidth: "100%"
+      //maxWidth: "100%"
     },
+    li: {
+      margin: "0px",
+      padding: "0px"
+    },
+    ul: {
+      listStyle: 'none',
+      margin: "0px",
+      padding: "0px"
+    }
   },
 }

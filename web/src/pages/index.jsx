@@ -31,6 +31,12 @@ export const query = graphql`
           width
           height
         }
+        palette {
+          dominant {
+            background
+            foreground
+          }
+        }
       }
     }
   }
@@ -40,6 +46,9 @@ export const query = graphql`
     }
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
+      navMenu {
+        ...NavMenu
+      }
       openGraph {
         title
         description
@@ -48,12 +57,74 @@ export const query = graphql`
         }
       }
     }
+    post: allSanityPost(
+      filter: {slug: {current: {ne: null}}, isPublished: {eq: true}}
+      sort: {fields: [publishedAt], order: DESC}
+    ) {
+      edges {
+        node {
+          id
+          publishedAt
+          title
+          _rawBody(resolveReferences: {maxDepth: 1})
+          _rawExcerpt(resolveReferences: {maxDepth: 1})
+          slug {
+            current
+          }
+          _rawMainImage(resolveReferences: {maxDepth: 1})
+          mainImage {
+            ...SanityImage
+          }
+          categories {
+            title
+          }
+          authors {
+            author {
+              name
+            }
+          }
+        }
+      }
+    }
+    event: allSanityEvent(
+      filter: {isActive: {eq: true}}
+      sort: {order: DESC, fields: startTime}
+    ) {
+      edges {
+        node {
+          title
+          slug {
+            current
+          }
+        }
+      }
+    }
+    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
+      edges {
+        node {
+          category {
+            title
+          }
+          tier {
+            title
+          }
+          _rawLogo(resolveReferences: {maxDepth: 10})
+          name
+        }
+      }
+    }
+    banners: allSanityAdvertiser(filter: {banner: {_type: {ne: null}}}) {
+      edges {
+        node {
+          _rawBanner(resolveReferences: {maxDepth: 10})
+        }
+      }
+    }
   }
 `;
 
 const IndexPage = (props) => {
   const { data, errors } = props;
-
   if (errors) {
     return <Errors errors={errors} />;
   }

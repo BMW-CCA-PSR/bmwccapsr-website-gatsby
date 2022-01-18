@@ -1,3 +1,4 @@
+/** @jsxImportSource theme-ui */
 import React, { useState } from "react";
 import { graphql } from "gatsby";
 
@@ -9,6 +10,13 @@ import Cta from "../components/cta";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
+import HeroSlider from "../components/slider";
+import TopStories from "../components/topStories";
+import OtherStories from "../components/other-stories";
+import EventSlider from "../components/event-slider";
+import HomepageSponsors from "../components/home-page-sponsors";
+import { BannerAd } from "../components/ads";
+import { randomGenerator } from "../lib/helpers"
 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -23,6 +31,9 @@ export const query = graphql`
     }
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
+      navMenu {
+        ...NavMenu
+      }
       openGraph {
         title
         description
@@ -53,10 +64,13 @@ const Page = (props) => {
     }
 
     const page = data.page || data.route.page;
-
+    const post = data.post
+    const event = data.event
+    const ads = data.ads
+    const banners = data.banners
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
-      .map((c, i) => {
+      .map((c) => {
         let el = null;
         switch (c._type) {
           case "infoRows":
@@ -71,13 +85,38 @@ const Page = (props) => {
           case "ctaPlug":
             el = <Cta key={c._key} {...c} />;
             break;
+          case "heroCarousel":
+            el = <HeroSlider key={c._key} {...c} />;
+            break;
+          case "topStories":
+            el = <TopStories key={c._key} {...c} {...post} />;
+            break;
+          case "otherStories":
+            el = <OtherStories key={c._key} {...c} {...post} />;
+            break;
+          case "homepageSponsors":
+            el = <HomepageSponsors key={c._key} {...c} {...ads} />;
+            break;
+          case "uiComponentRef":
+            switch (c.name) {
+              case "event-slider":
+                el = <EventSlider key={c._key} {...c} {...event} />;
+                break;
+              case "banner-ad":
+                const randomAdPosition = randomGenerator(0, banners.edges.length - 1)
+                const randomizedAd = banners.edges[randomAdPosition].node
+                el = <BannerAd {...randomizedAd} />;
+                break;
+              default:
+                break;
+            }
+            break;
           default:
             el = null;
         }
         return el;
       });
-
-    const menuItems = page.navMenu && (page.navMenu.items || []);
+    const menuItems = site.navMenu && (site.navMenu.items || []);
     const pageTitle = data.route && !data.route.useSiteTitle && page.title;
 
     return (

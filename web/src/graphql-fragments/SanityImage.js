@@ -28,6 +28,12 @@ export const SanityImage = graphql`
           width
           height
         }
+        palette {
+          dominant {
+            background
+            foreground
+          }
+        }
       }
     }
   }

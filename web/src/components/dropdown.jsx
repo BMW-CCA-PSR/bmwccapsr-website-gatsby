@@ -1,5 +1,7 @@
 /** @jsxImportSource theme-ui */
+import NavLink from "./navLink";
 import React from "react";
+import CTALink from "./CTALink";
 
 const Dropdown = props => {
     const link = props.navigationItemUrl
@@ -9,22 +11,21 @@ const Dropdown = props => {
                 listStyle: "none",
                 margin: 0,
                 padding: 0,
-                color: "text",
+                color: "darkgray",
+                height: "100%",
             }}
         >
             <li
                 sx={{
-                    display: "block",
-                    padding: "1rem",
-                    height: "100%",
-                    mx: 2,
+                    textTransform: "uppercase",
+                    px: "8px",
                     position: "relative",
-                    transitionDuration: "0.5s",
+                    height: "100%",
                     ":hover": {
                         backgroundColor: "primary",
-                        borderRadius: "10px",
                         cursor: "pointer",
-                        color: "background"
+                        color: "background",
+                        display: "block",
                     },
                     ":hover > ul, :focus-within > ul ": {
                         visibility: "visible",
@@ -37,27 +38,34 @@ const Dropdown = props => {
                     sx={{
                         textDecoration: "none",
                         cursor: "pointer",
+                        display: "flex",
+                        height: "100%",
+                        alignItems: "center",
                     }}
                     aria-haspopup={link.items && link.items.length > 0 ? true : false}
                 >
-                    {link.title}
+                    {props.title}
                 </a>
                 {link.items && link.items.length > 0 ? (
                     <ul
                         sx={{
+                            textTransform: "uppercase",
                             listStyle: "none",
-                            m: 0,
+                            m: "-25px",
                             p: 0,
-                            backgroundColor: "primary",
+                            backgroundColor: "secondary",
                             visibility: "hidden",
                             opacity: "0",
                             display: "none",
                             position: "absolute",
-                            transition: "all 0.5s ease",
-                            marginTop: "1rem",
-                            borderRadius: "10px",
+                            width: "250px",
+                            marginTop: "0px",
+                            borderRadius: "6px",
+                            //borderBottomRightRadius: "6px",
+                            //borderBottomLeftRadius: "6px",
                             cursor: "pointer",
                             left: "0",
+                            boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 4px 5px 0 rgba(0, 0, 0, 0.14)",
                             ":hover": {
                                 visibility: "visible",
                                 opacity: "1",
@@ -73,25 +81,15 @@ const Dropdown = props => {
                             <li
                                 sx={{
                                     clear: "both",
-                                    borderRadius: "10px",
                                     padding: "1rem",
                                     ":hover": {
-                                        backgroundColor: "highlight",
+                                        backgroundColor: "primary",
                                     },
                                     width: "100%"
                                 }}
                                 key={subLink.title}
                             >
-                                <a
-                                    sx={{
-                                        color: "white",
-                                        textDecoration: "none",
-                                        display: "block"
-                                    }}
-                                    href={subLink.landingPageRoute ? subLink.landingPageRoute.slug.current : subLink.href}
-                                >
-                                    {subLink.title}
-                                </a>
+                                <NavLink {...subLink} subMenu={true} />
                             </li>
                         ))}
                     </ul>
