@@ -3,15 +3,12 @@ import { format, parseISO } from "date-fns";
 import { Link } from "gatsby";
 import React from "react";
 import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
-import { buildImageObj, cn, getZundfolgeUrl } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
-import PortableText from "./portableText";
+import { getZundfolgeUrl } from "../lib/helpers";
 import SanityImage from "gatsby-plugin-sanity-image"
 
 function ZundfolgeArticlePreview(props) {
-  console.log(props)
-  const bg = props.mainImage.asset.metadata.palette.dominant.background ? props.mainImage.asset.metadata.palette.dominant.background : "lightgrey"
-  const fg = props.mainImage.asset.metadata.palette.dominant.foreground ? props.mainImage.asset.metadata.palette.dominant.foreground : "black"
+  const bg = typeof(props.mainImage.asset.metadata.palette.dominant.background) !== 'undefined' ? props.mainImage.asset.metadata.palette.dominant.background : "lightgrey"
+  const fg = typeof(props.mainImage.asset.metadata.palette.dominant.foreground) !== 'undefined' ? props.mainImage.asset.metadata.palette.dominant.foreground : "black"
   return (
     <Link
       to={getZundfolgeUrl(props.slug.current)}
