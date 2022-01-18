@@ -59,7 +59,8 @@ const EventSlider = (props) => {
                     color: "white",
                     variant: "styles.h3",
                     fontWeight: "300",
-                }}>Next Event <MdDoubleArrow sx={{pt: "8px"}} /> </Text>
+                }}>{props.edges[0] ? `Next Event ${<MdDoubleArrow sx={{pt: "8px"}} />}` : 'No Upcoming Events! Check back later'}</Text>
+                {props.edges[0] && <div>
                 <Text sx={{
                     color: "white",
                     variant: "styles.h3",
@@ -73,6 +74,8 @@ const EventSlider = (props) => {
                 <Link to="/events" sx={outline}>
                     All Events
                 </Link>
+                </div>
+                }
             </Flex>
         </Container>
     )
