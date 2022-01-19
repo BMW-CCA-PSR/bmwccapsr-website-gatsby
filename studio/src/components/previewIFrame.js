@@ -16,7 +16,7 @@ const PreviewIFrame = () =>
         <React.Fragment>
           {
             env !== 'development' && <div style={{padding: '0 0.5em'}}>
-              <p>This is your <a href="https://bmw-cca-psr.org" target="_blank" rel="noopener noreferrer">production site on Amplify</a>. <a href="/dashboard">Trigger a deploy</a> to see published changes.</p>
+              <p>This is your <a href="https://bmw-cca-psr.org" target="_blank" rel="noopener noreferrer">production site on Gatsby Cloud</a>. <a href="/dashboard">Trigger a deploy</a> to see published changes.</p>
             </div>
           }
         <iframe
