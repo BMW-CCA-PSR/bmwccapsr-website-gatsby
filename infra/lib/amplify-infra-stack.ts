@@ -34,7 +34,7 @@ export class AmplifyInfraStack extends cdk.Stack {
 
     // branch setup
 
-    const masterBranch = amplifyApp.addBranch("master");
+    //const masterBranch = amplifyApp.addBranch("master");
     const devBranch = amplifyApp.addBranch("dev");
 
     // domain setup
@@ -46,10 +46,10 @@ export class AmplifyInfraStack extends cdk.Stack {
           branch: devBranch,
           prefix: "beta"
         },
-        {
-          branch: masterBranch,
-          prefix: ""
-        }
+        // {
+        //   branch: masterBranch,
+        //   prefix: ""
+        // }
       ]
     })
 
@@ -68,8 +68,8 @@ export class AmplifyInfraStack extends cdk.Stack {
       )
 
     // prod env vars
-    masterBranch.addEnvironment("STAGE", "prod");
-    masterBranch.addEnvironment("GATSBY_SANITY_DATASET", "production");
+    //masterBranch.addEnvironment("STAGE", "prod");
+    //masterBranch.addEnvironment("GATSBY_SANITY_DATASET", "production");
 
     // dev env vars
     devBranch.addEnvironment("STAGE", "dev");
