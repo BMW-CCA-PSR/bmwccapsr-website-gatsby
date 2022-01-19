@@ -6,7 +6,7 @@ widgets: [
     options: {
       sites: [
         {
-          siteUrl: 'bmw-club-psr.org',
+          siteUrl: 'https://preview-bmwccapsrwebsitegatsby.gtsb.io/',
         }
       ]
     }
