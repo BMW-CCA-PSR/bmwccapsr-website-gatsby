@@ -2068,7 +2068,7 @@
 
 "@sanity/vision@^2.25.0":
   version "2.25.0"
-  resolved "https://registry.npmjs.org/@sanity/vision/-/vision-2.25.0.tgz#852e736a028748e8f2fa2e40123ab6e7280a5335"
+  resolved "https://registry.yarnpkg.com/@sanity/vision/-/vision-2.25.0.tgz#852e736a028748e8f2fa2e40123ab6e7280a5335"
   integrity sha512-Whal6mzTIGordOv3pF408AtWt6u5LEVM+wOnQ8wekK+C6zZ0j++JiAMW3i+RegQtawd10fXaJ8+XgsWWYGnItA==
   dependencies:
     "@sanity/icons" "^1.2.1"
