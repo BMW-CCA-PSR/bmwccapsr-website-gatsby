@@ -15,47 +15,36 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
           type: "Boolean!",
           resolve: (source) => new Date(source.publishedAt) <= new Date(),
         },
-        related: {
+        relatedPosts: {
           type: "[SanityPost]",
-          //The resolve field is called when your page query looks for related posts
-          //Here we can query our data for posts we deem 'related'
-          //Exactly how you do this is up to you
-          //I'm querying purely by category
-          //But you could pull every single post and do a text match if you really wanted
-          //(note that might slow down your build time a bit)
-          //You could even query an external API if you needed
           resolve: async (source, args, context, info) => {
-            //source is the current (post) object
-            //context provides some methods to interact with the data store
-            
-            //Map a simple array of category IDs from our source object
-            //In my data each category in the array is an object with a _id field
-            //We're just flattening that to an array of those _id values
-            //E.g. categories = ["1234", "4567", "4534"]
-            const categories = source.categories.map((c) => c._id)
-            
-            //If this post has no categories, return an empty array
-            if (!categories.length) return []
-            
-            //Query the data store for posts in our target categories
+            const categories = source._rawDataCategories
+              ? source._rawDataCategories.map((c) => c._ref)
+              : [];
+            if (!categories.length) return [];
+
             const posts = await context.nodeModel.runQuery({
               query: {
                 filter: {
-                  //We're filtering for categories that are sharedby our source node
-                  categories: { elemMatch: { _id: { in: categories } } },
-                  //Dont forget to exclude the current post node!
+                  categories: {
+                    elemMatch: {
+                      _id: { in: categories },
+                    },
+                  },
+                  // exclude current node
                   _id: { ne: source._id },
                 },
+                sort: {
+                  fields: ["publishedAt"],
+                  order: ["DESC"],
+                },
+                // no way to limit results in runQuery
+                // see: https://github.com/gatsbyjs/gatsby/issues/15453
               },
-              //Change this to match the data type of your posts
-              //This will vary depending on how you source content
               type: "SanityPost",
-            })
+            });
 
-            //Gatsby gets unhappy if we return "null" here
-            //So check the result and either return an array of posts,
-            //or an empty array
-            return posts && posts.length ? posts : []
+            return posts && posts.length > 0 ? posts : [];
           },
         },
       },

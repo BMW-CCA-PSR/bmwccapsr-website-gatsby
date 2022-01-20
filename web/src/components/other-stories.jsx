@@ -122,7 +122,7 @@ const OtherStories = (props) => {
                     listStyle: 'none',
                     display: 'grid',
                     gridGap: 3,
-                    gridTemplateColumns: 'repeat(2, minmax(256px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))',
                     gridAutoRows: "minmax(50px, auto)",
                     m: 0,
                     p: 0,

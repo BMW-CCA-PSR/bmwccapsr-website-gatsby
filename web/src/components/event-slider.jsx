@@ -48,6 +48,7 @@ const EventSlider = (props) => {
             width: "100%",
             height: "100%",
             py: "20px",
+            px: "1rem"
         }}>
             <Flex sx={{
                 flexDirection: ["column","column","row","row"],
