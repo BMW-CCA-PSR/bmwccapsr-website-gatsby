@@ -24,12 +24,12 @@
     "@sanity/default-login",
     "@sanity/desk-tool",
     "@sanity/dashboard",
-    "dashboard-widget-amplifydeploybutton",
     "dashboard-widget-structure-menu",
     "asset-source-unsplash",
     "leaflet-input",
     "media",
-    "dashboard-widget-gatsby"
+    "dashboard-widget-gatsby",
+    "social-preview"
   ],
   "parts": [
     {
