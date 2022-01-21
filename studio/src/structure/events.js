@@ -4,7 +4,7 @@ import {
   RiCalendar2Line as AllEventIcon,
   RiCalendarEventLine as CatIcon,
 } from 'react-icons/ri'
-
+import SocialPreview from 'part:social-preview/component'
 import PreviewIFrame from '../../src/components/previewIFrame'
 
 export const icons = {
@@ -34,7 +34,7 @@ export const icons = {
                 S.document()
                   .documentId(documentId)
                   .schemaType('event')
-                  .views([S.view.form(), PreviewIFrame()])
+                  .views([S.view.form(), PreviewIFrame(),S.view.component(SocialPreview()).title('Social & SEO')])
               )
           ),
         S.documentTypeListItem('event').title('All events').icon(AllEventIcon),

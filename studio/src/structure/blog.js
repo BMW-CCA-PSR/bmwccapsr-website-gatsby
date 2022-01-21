@@ -7,7 +7,7 @@ import {
   GoArchive as AllIcon,
   GoPerson as AuthorIcon,
 } from 'react-icons/go'
-
+import SocialPreview from 'part:social-preview/component'
 import PreviewIFrame from '../../src/components/previewIFrame'
 
 export const icons = {
@@ -39,7 +39,7 @@ const blog = S.listItem()
                 S.document()
                   .documentId(documentId)
                   .schemaType('post')
-                  .views([S.view.form(), PreviewIFrame()])
+                  .views([S.view.form(), PreviewIFrame(),S.view.component(SocialPreview()).title('Social & SEO')])
               )
           ),
         S.documentTypeListItem('post').title('All articles').icon(AllIcon),
