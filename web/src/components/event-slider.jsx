@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
-import { Container, Text, Flex, Box } from '@theme-ui/components';
+import { Container, Text, Flex, Box, Button} from '@theme-ui/components';
 import { getEventsUrl } from "../lib/helpers";
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Link } from "gatsby";
 import { MdDoubleArrow } from "react-icons/md";
 
@@ -9,10 +9,13 @@ var style = {
     textDecoration: "none",
     textTransform: "uppercase",
     fontSize: 15,
+    whiteSpace: "nowrap",
     backgroundColor: "primary",
     border: "none",
     color: "white",
+    mx: [0,0,"1rem","1rem"],
     py: "8px",
+    my: "5px",
     px: "20px",
     position: "relative",
     borderRadius: "2px",
@@ -25,11 +28,14 @@ var style = {
 
   var outline = {
     textDecoration: "none",
+    whiteSpace: "nowrap",
     textTransform: "uppercase",
     fontSize: 15,
     border: "solid 1px #fff",
     color: "white",
     py: "8px",
+    my: "5px",
+    
     px: "20px",
     position: "relative",
     borderRadius: "2px",
@@ -41,7 +47,6 @@ var style = {
   }
 
 const EventSlider = (props) => {
-    console.log(props)
     return (
         <Container sx={{
             backgroundColor: "secondary", 
@@ -54,29 +59,30 @@ const EventSlider = (props) => {
                 flexDirection: ["column","column","row","row"],
                 justifyContent: "center",
                 height: "100%",
-                alignItems: "center"
                 }}>
                 <Text sx={{
                     color: "white",
                     variant: "styles.h3",
+                    mx: ["auto","auto",0,0],
                     fontWeight: "300",
-                }}>{props.edges[0] ? `Next Event ${<MdDoubleArrow sx={{pt: "8px"}} />}` : 'No Upcoming Events! Check back later'}</Text>
-                {props.edges[0] && <div>
+                }}>{props.edges[0] ? <Fragment>{`Next Event `}<MdDoubleArrow sx={{pt: "8px"}}/></Fragment>: 'No Upcoming Events! Check back later'}</Text>
+                {props.edges[0] && (
+                <>
                 <Text sx={{
                     color: "white",
                     variant: "styles.h3",
-                    px: "15px",
+                    mx: ["auto","auto",0,0],
+                    //px: "15px",
                     my: ["10px", "10px", "0px", "0px"]
                 }}>{props.edges[0].node.title}</Text>
                 <Link to={getEventsUrl(props.edges[0].node.slug.current)} sx={style}>
                     Learn More
                 </Link>
-                <div sx={{px: "10px", py: "8px"}}/>
                 <Link to="/events" sx={outline}>
                     All Events
                 </Link>
-                </div>
-                }
+                </>
+                )}
             </Flex>
         </Container>
     )

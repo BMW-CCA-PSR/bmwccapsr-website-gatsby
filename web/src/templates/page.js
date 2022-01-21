@@ -45,7 +45,7 @@ export const query = graphql`
   }
 `;
 
-const Page = (props) => {
+function Page(props) {
     const { data, errors } = props;
     if (errors) {
       return (
@@ -104,8 +104,8 @@ const Page = (props) => {
                 break;
               case "banner-ad":
                 const randomAdPosition = randomGenerator(0, banners.edges.length - 1)
-                const randomizedAd = banners.edges[randomAdPosition].node
-                el = <BannerAd {...randomizedAd} />;
+                const randomizedAd = banners.edges.length > 0 ? banners.edges[randomAdPosition].node : null
+                el = randomizedAd ? <BannerAd {...randomizedAd} /> : null;
                 break;
               default:
                 break;
@@ -130,5 +130,17 @@ const Page = (props) => {
       </Layout>
     );
   };
+
+  Page.defaultProps = {
+    banners: 
+      {
+        edges: [
+          {
+            node: ''
+          }
+        ]
+      }
+  };
+  
   
   export default Page;

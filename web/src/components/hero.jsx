@@ -25,14 +25,18 @@ function Hero(props) {
         position: "relative",
       }}>
       {/* background image component */}
-      <SanityImage {...image} width={1440}
-        sx={{
-          position: "absolute", 
-          width: "100%", 
-          height: "100%", 
-          objectFit: "cover",
-          zIndex: "-1",
-        }} />
+      {
+        props.image &&
+        props.image.asset &&
+        <SanityImage {...image} width={1440}
+          sx={{
+            position: "absolute", 
+            width: "100%", 
+            height: "100%", 
+            objectFit: "cover",
+            zIndex: "-1",
+          }} />
+        }
         <div sx={{background: "rgba(0,0,0,0.3)", height: "100%", zIndex: "0"}}>
         {/* inner text component / content div */}
         <div sx={{
