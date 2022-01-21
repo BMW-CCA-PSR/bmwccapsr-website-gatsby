@@ -5,7 +5,6 @@ import { Container, Heading, Text, Flex, Box, Divider } from "@theme-ui/componen
 import EventMap from "./event-map";
 
 function EventDetails(props) {
-    console.log(props)
     const { _updatedAt, categories, title, startTime, endTime } = props;
     var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
     var numHours = startTime && endTime && (differenceInHours(new Date(startTime), new Date(endTime)))

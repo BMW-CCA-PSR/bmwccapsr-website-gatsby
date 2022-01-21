@@ -6,7 +6,6 @@ import { Link } from "gatsby";
 import {BoxIcon, BoxIconFlipped} from './box-icons';
 
 const HomepageSponsors = (props) => {
-    console.log(props)
     return (
         <div>
             <Flex sx={{
