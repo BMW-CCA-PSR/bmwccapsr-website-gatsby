@@ -4,8 +4,10 @@ import {
   RiCalendar2Line as AllEventIcon,
   RiCalendarEventLine as CatIcon,
 } from 'react-icons/ri'
-
+import SocialPreview from 'part:social-preview/component'
 import PreviewIFrame from '../../src/components/previewIFrame'
+import { toPlainText } from 'part:social-preview/utils'
+import resolveSlugByType from '../../resolveSlugByType'
 
 export const icons = {
     ActiveIcon,
@@ -34,7 +36,22 @@ export const icons = {
                 S.document()
                   .documentId(documentId)
                   .schemaType('event')
-                  .views([S.view.form(), PreviewIFrame()])
+                  .views([
+                    S.view.form(), 
+                    PreviewIFrame(),
+                    S.view.component(
+                      SocialPreview({
+                          prepareFunction: (
+                            { title, mainImage, slug, excerpt }
+                          ) => ({
+                            title,
+                            description: toPlainText(excerpt || []),
+                            siteUrl: 'https://bmw-club-psr.org',
+                            ogImage: mainImage,
+                            slug: `${resolveSlugByType('event')}${slug.current}`
+                          }),
+                        }),
+                      ).title('Social & SEO')])
               )
           ),
         S.documentTypeListItem('event').title('All events').icon(AllEventIcon),

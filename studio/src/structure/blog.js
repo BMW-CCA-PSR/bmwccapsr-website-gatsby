@@ -7,8 +7,10 @@ import {
   GoArchive as AllIcon,
   GoPerson as AuthorIcon,
 } from 'react-icons/go'
-
+import SocialPreview from 'part:social-preview/component'
 import PreviewIFrame from '../../src/components/previewIFrame'
+import { toPlainText } from 'part:social-preview/utils'
+import resolveSlugByType from '../../resolveSlugByType'
 
 export const icons = {
   BlogIcon,
@@ -39,7 +41,22 @@ const blog = S.listItem()
                 S.document()
                   .documentId(documentId)
                   .schemaType('post')
-                  .views([S.view.form(), PreviewIFrame()])
+                  .views([
+                    S.view.form(), 
+                    PreviewIFrame(),
+                    S.view.component(
+                      SocialPreview({
+                          prepareFunction: (
+                            { title, mainImage, slug, excerpt }
+                          ) => ({
+                            title,
+                            description: toPlainText(excerpt || []),
+                            siteUrl: 'https://bmw-club-psr.org',
+                            ogImage: mainImage,
+                            slug: `${resolveSlugByType('post')}${slug.current}`
+                          }),
+                        }),
+                      ).title('Social & SEO')])
               )
           ),
         S.documentTypeListItem('post').title('All articles').icon(AllIcon),
