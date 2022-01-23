@@ -63,7 +63,7 @@ export default createSchema({
     eventCategory,
     tier,
     advertiser,
-    advertiserCategory
+    advertiserCategory,
   ])
   .concat(allPlugs),
 })

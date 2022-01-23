@@ -1,7 +1,7 @@
 export default {
     name: 'post',
     type: 'document',
-    title: 'Blog Post',
+    title: 'Zundfolge Article',
     fields: [
       {
         name: 'title',
@@ -28,7 +28,9 @@ export default {
       {
         name: 'mainImage',
         type: 'mainImage',
+        validation: Rule => Rule.error('You have to select a main image for the article.').required(),
         title: 'Main image',
+        description: 'The main image for the post. Required'
       },
       {
         name: 'excerpt',
