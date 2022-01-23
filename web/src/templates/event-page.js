@@ -22,6 +22,12 @@ export const query = graphql`
       cost
       website
       venueName
+      address {
+        line1
+        line2
+        state
+        city
+      }
       categories {
         _id
         title

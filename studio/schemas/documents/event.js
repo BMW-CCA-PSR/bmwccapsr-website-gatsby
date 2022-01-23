@@ -58,37 +58,11 @@ export default {
             description: 'The name of the venue.',
         },
         {
-            name: 'address1',
-            type: 'string',
-            validation: Rule => Rule.required(),
-            title: 'Address Line 1',
+            name: 'address',
+            type: 'address',
+            title: 'Address',
             fieldset: 'venue',
-            description: 'Line 1 of the address',
-        },
-        {
-            name: 'address2',
-            type: 'string',
-            title: 'Address Line 2',
-            fieldset: 'venue',
-            description: 'Line 2 of the address',
-        },
-        {
-            name: 'city',
-            type: 'string',
-            title: 'City',
-            fieldset: 'venue',
-            description: 'City of the event',
-        },
-        {
-            title: 'State',
-            name: 'state',
-            fieldset: 'venue',
-            type: 'string',
-            options: {
-              list: [
-                ...states
-              ],
-            }
+            description: 'The address of the venue.',
         },
         {
             name: 'location',
