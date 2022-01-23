@@ -3,10 +3,13 @@ import {
     RiAdvertisementLine as AdIcon,
     RiAdvertisementFill as AdIconFill,
 } from 'react-icons/ri'
-import { ImStatsBars2 as TierIcon } from 'react-icons/im'
-
-
-import PreviewIFrame from '../../src/components/previewIFrame'
+import {
+  GoPencil as EditIcon,
+} from 'react-icons/go'
+import { 
+  ImStatsBars2 as TierIcon 
+} from 'react-icons/im'
+import DesktopPreviewIFrame from '../../src/components/previewIFrame'
 
 export const icons = {
     AdIcon,
@@ -34,7 +37,10 @@ export const icons = {
                 S.document()
                   .documentId(documentId)
                   .schemaType('advertiser')
-                  .views([S.view.form(), PreviewIFrame()])
+                  .views([
+                    S.view.form().icon(EditIcon),
+                    DesktopPreviewIFrame()
+                  ])
               )
           ),
         S.documentTypeListItem('advertiser').title('All advertisers').icon(AdIcon),
