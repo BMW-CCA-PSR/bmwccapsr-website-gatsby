@@ -1,3 +1,5 @@
+import states from '../components/states'
+
 export default {
     name: 'event',
     type: 'document',
@@ -56,6 +58,13 @@ export default {
             description: 'The name of the venue.',
         },
         {
+            name: 'address',
+            type: 'address',
+            title: 'Address',
+            fieldset: 'venue',
+            description: 'The address of the venue.',
+        },
+        {
             name: 'location',
             type: 'geopoint',
             validation: Rule => Rule.required(),
@@ -72,7 +81,9 @@ export default {
         {
             name: 'mainImage',
             type: 'mainImage',
+            validation: Rule => Rule.error('You have to select a main image for the event post.').required(),
             title: 'Main image',
+            description: 'The main image for the event post. Required'
         },
         {
             name: 'excerpt',

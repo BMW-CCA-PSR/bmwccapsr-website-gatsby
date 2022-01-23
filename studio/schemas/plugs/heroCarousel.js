@@ -3,6 +3,7 @@ import { BiSlideshow } from "react-icons/bi";
 export default {
     type: 'object',
     name: 'heroCarousel',
+    title: 'Carousel',
     icon: BiSlideshow,
     fields: [
       {

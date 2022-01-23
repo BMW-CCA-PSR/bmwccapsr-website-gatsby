@@ -32,6 +32,7 @@ import link from './objects/link'
 import variation from './objects/variation'
 import openGraph from './objects/openGraph'
 import navItem from './objects/navItem'
+import address from './objects/address'
 
 const allPlugs = Object.values(plugs).map((plug) => {
   return { ...plug, fields: plugDefaultFields.concat(plug.fields) }
@@ -63,7 +64,8 @@ export default createSchema({
     eventCategory,
     tier,
     advertiser,
-    advertiserCategory
+    advertiserCategory,
+    address
   ])
   .concat(allPlugs),
 })

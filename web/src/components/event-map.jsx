@@ -12,14 +12,6 @@ function EventMap(props) {
     latitude: props.location.lat,
     longitude: props.location.lng,
     zoom: 14,
-    // disable all map interactions
-    scrollZoom: false,
-    boxZoom: false,
-    dragPan: false,
-    keyboard: false,
-    dragRotate: false,
-    doubleClickZoom: false,
-    touchZoomRotate: false,
   });
 
   return (
@@ -28,6 +20,14 @@ function EventMap(props) {
       width="100%"
       mapStyle="mapbox://styles/mapbox/streets-v11"
       onViewportChange={nextViewport => setViewport(nextViewport)}
+      // disable all map interactions
+      scrollZoom={false}
+      dragPan={false}
+      boxZoom={false}
+      keyboard={false}
+      dragRotate={false}
+      doubleClickZoom={false}
+      touchZoomRotate={false}
     >
       <Pin {...props} />
     </ReactMapGL>
