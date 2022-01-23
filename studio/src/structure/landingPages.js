@@ -1,7 +1,12 @@
 import S from '@sanity/desk-tool/structure-builder'
-import PreviewIFrame from '../../src/components/previewIFrame'
-
-import { MdMenu, MdBuild } from 'react-icons/md'
+import { 
+  MdMenu, 
+  MdBuild 
+} from 'react-icons/md'
+import {
+  GoPencil as EditIcon,
+} from 'react-icons/go'
+import DesktopPreviewIFrame from '../../src/components/previewIFrame'
 
 export default S.listItem()
   .title('Page Builder')
@@ -25,7 +30,10 @@ export default S.listItem()
                 S.document()
                   .documentId(documentId)
                   .schemaType('route')
-                  .views([S.view.form(), PreviewIFrame()])
+                  .views([
+                    S.view.form().icon(EditIcon),, 
+                    DesktopPreviewIFrame()
+                  ])
               )
           ),
         S.listItem()

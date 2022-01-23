@@ -1,13 +1,17 @@
 import S from '@sanity/desk-tool/structure-builder'
-import { GoBrowser as PageIcon, GoFile, GoHome, GoSettings } from 'react-icons/go'
+import { 
+  GoBrowser as PageIcon, 
+  GoFile, 
+  GoHome, 
+  GoSettings,
+  GoPencil as EditIcon,
+} from 'react-icons/go'
 import blog from './src/structure/blog'
 import events from './src/structure/events'
 import advertisers from './src/structure/advertisers'
 import landingPages from './src/structure/landingPages'
-import PreviewIFrame from './src/components/previewIFrame'
-import SocialPreview from 'part:social-preview/component'
-import { toPlainText } from 'part:social-preview/utils'
-import resolveSlugByType from './resolveSlugByType'
+import DesktopPreviewIFrame from './src/components/previewIFrame'
+import SocialPreviewIFrame from './src/components/socialPreviewIFrame'
 
 const hiddenDocTypes = (listItem) =>
   !['route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory', 'tier', 'advertiser', 'advertiserCategory'].includes(
@@ -26,7 +30,10 @@ export default () =>
           S.document()
             .schemaType('siteSettings')
             .documentId('siteSettings')
-            .views([S.view.form(), PreviewIFrame()])
+            .views([
+              S.view.form().icon(EditIcon),
+              DesktopPreviewIFrame()
+            ])
         ),
       S.documentListItem()
         .title('Frontpage')
@@ -36,7 +43,10 @@ export default () =>
           S.document()
             .schemaType('page')
             .documentId('frontpage')
-            .views([S.view.form(), PreviewIFrame()])
+            .views([
+              S.view.form().icon(EditIcon),
+              DesktopPreviewIFrame()
+            ])
         ),
         blog,
         events,
@@ -52,21 +62,12 @@ export const getDefaultDocumentNode = ({ schemaType }) => {
   // Add the social preview view only to those schema types that support it
   if (['post', 'event'].includes(schemaType)) {
     return S.document().views([
-      S.view.form(),
-      S.view.component(
-        SocialPreview({
-          prepareFunction: (
-            { title, mainImage, slug, excerpt }
-          ) => ({
-            title,
-            description: toPlainText(excerpt || []),
-            siteUrl: 'https://bmw-club-psr.org',
-            ogImage: mainImage,
-            slug: `${resolveSlugByType(schemaType)}${slug.current}`
-          }),
-        }),
-      ).title('Social & SEO'),
+      S.view.form().icon(EditIcon),
+      DesktopPreviewIFrame(),
+      SocialPreviewIFrame(schemaType),
     ])
   }
-  return S.document().views([S.view.form()])
+  return S.document().views([
+    S.view.form().icon(EditIcon),
+  ])
 }
