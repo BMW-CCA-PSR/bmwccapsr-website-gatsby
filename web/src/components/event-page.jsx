@@ -3,6 +3,7 @@ import { format, formatDistance } from "date-fns";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
+import { Link } from "gatsby";
 import VerticalLine from "./vertical-line";
 import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
@@ -33,9 +34,9 @@ function EventPage(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
-          <Text variant="text.label">{catString}</Text>
+          <Text variant="text.label"><Link to="/events/" sx={{textDecoration:"none", color: "text"}}>Events</Link> / {catString}</Text>
           <Heading variant="styles.h1">{title}</Heading>
-          <Text sx={{variant: "styles.h4", py: "1rem"}}>{start} | {startInDays}</Text>
+          <Text sx={{variant: "styles.h3", py: "1rem"}}>{start} | {startInDays}</Text>
           <Text sx={{variant: "styles.p"}}>Last updated: {updated}</Text>
           {mainImage && mainImage.asset && (
             <div sx={{

@@ -3,12 +3,27 @@ import React from "react";
 import { buildImageObj, getEventsUrl, getZundfolgeUrl } from "../lib/helpers";
 import { Link } from "gatsby";
 import { imageUrlFor } from "../lib/image-url";
-import { Heading, Text, Box, Card } from "@theme-ui/components";
+import { Heading, Text, Box, Card, Avatar, Flex } from "@theme-ui/components";
+import SanityImage from 'gatsby-plugin-sanity-image';
 
 
 function RelatedContent(props) {
-    const { categories, title, mainImage, slug, publishedAt } = props;
+    const { title, mainImage, slug, publishedAt, authors, categories } = props;
     const isArticle = publishedAt ? true : false;
+    var avatarImg = null
+    const catString = String(categories.map((cat) => ` ${cat.title}`));
+    var authorString = null
+    if (isArticle){
+        authorString = String(authors.map((author) => ` ${author.author.name}`));
+        // commenting out author avatar on related content for now - 1/24/22
+        //
+        // avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+        //     .width(48)
+        //     .height(48)
+        //     .fit("fill")
+        //     .auto("format")
+        //     .url()
+    }
     return (
         <Link
         to={isArticle ? getZundfolgeUrl(slug.current) : getEventsUrl(slug.current)}
@@ -27,25 +42,27 @@ function RelatedContent(props) {
                 }}>
                     <div>
                     {mainImage && mainImage.asset && (
-                        <img
-                        src={imageUrlFor(buildImageObj(mainImage))
-                            .width(300)
-                            .height(Math.floor((9 / 16) * 300))
-                            .fit("crop")
-                            .auto("format")
-                            .url()}
-                        alt={mainImage.alt}
-                        sx={{
-                            borderTopRightRadius: "8px",
-                            borderTopLeftRadius: "8px",
-                            width: "100%",
-                            height: "100%"
-                        }}
+                        <SanityImage
+                            {...mainImage}
+                            width={600}
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                maxHeight: '200px',
+                                objectFit: 'cover',
+                                borderTopLeftRadius: "8px",
+                                borderTopRightRadius: "8px"
+                            }}
                         />
                     )}
                     </div>
                     <Box p={3}>
+                        <Text sx={{ variant: 'text.label'}}>{catString}</Text>
                         <Heading sx={{ textDecoration: "none" }} variant="styles.h4">{title}</Heading>
+                        {/* <Flex sx={{py:"0.5rem"}}>
+						  <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
+						  <Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem"}}>{authorString}</Text>
+					  </Flex> */}
                     </Box>
             </Card>
         </Link>

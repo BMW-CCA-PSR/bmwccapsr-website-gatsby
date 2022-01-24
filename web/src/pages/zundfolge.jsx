@@ -42,6 +42,35 @@ export const query = graphql`
           categories {
             title
           }
+          authors {
+            _key
+            author {
+              image {
+                crop {
+                  _key
+                  _type
+                  top
+                  bottom
+                  left
+                  right
+                }
+                hotspot {
+                  _key
+                  _type
+                  x
+                  y
+                  height
+                  width
+                }
+                asset {
+                  _id
+                  gatsbyImageData
+                  url
+                }
+              }
+              name
+            }
+          }
         }
       }
     }

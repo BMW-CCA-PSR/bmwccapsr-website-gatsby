@@ -60,6 +60,7 @@ export default {
         {
             name: 'address',
             type: 'address',
+            validation: Rule => Rule.required(),
             title: 'Address',
             fieldset: 'venue',
             description: 'The address of the venue.',

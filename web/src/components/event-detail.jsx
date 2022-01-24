@@ -50,9 +50,9 @@ function EventDetails(props) {
                     {props.venueName &&<Heading variant="styles.h4">Name</Heading>}
                     {props.venueName &&<Text variant="styles.p">{props.venueName}</Text>}
                     <Heading variant="styles.h4">Address</Heading>
-                    <Text variant="styles.p">{address.line1}</Text>
+                    {address.line2 &&<Text variant="styles.p">{address.line1}</Text>}
                     {address.line2 &&<Text variant="styles.p">{address.line2}</Text>}
-                    <Text variant="styles.p">{address.city}, {address.state}</Text>
+                    {address.city && address.state && <Text variant="styles.p">{address.city}, {address.state}</Text>}
                     {props.website && <Heading variant="styles.h4">Website</Heading>}
                     {props.website && <Text variant="styles.p">{props.website}</Text>}
                 </Flex>

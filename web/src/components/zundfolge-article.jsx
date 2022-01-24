@@ -3,14 +3,17 @@ import { format, formatDistance, differenceInDays } from "date-fns";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
+import { Link } from "gatsby";
 import VerticalLine from "./vertical-line";
 import { Heading, Text, Flex } from "@theme-ui/components";
 import RelatedContent from "./related-content";
 import { randomGenerator } from "../lib/helpers"
 import { BoxAd, BannerAd }  from "./ads";
+import { Avatar } from 'theme-ui'
+import { imageUrlFor } from "../lib/image-url";
 
 function ZundfolgeArticle(props) {
-  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, boxes, banners} = props;
+  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, boxes, banners, relatedPosts} = props;
   const pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
@@ -20,6 +23,15 @@ function ZundfolgeArticle(props) {
   const randomBannerPosition = randomGenerator(0, banners.edges.length - 1)
   const randomizedBox = boxes.edges[randomBoxPosition].node
   const randomizedBanner = banners.edges[randomBannerPosition].node
+
+
+  const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+    .width(50)
+    .height(50)
+    .fit("fill")
+    .auto("format")
+    .url()
+
   return (
     <article>
       <Flex sx={{
@@ -35,9 +47,12 @@ function ZundfolgeArticle(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
-          <Text variant="text.label">{catString}</Text>
+          <Text variant="text.label"><Link to="/zundfolge/" sx={{textDecoration:"none", color: "text"}}>Zundfolge</Link> / {catString}</Text>
           <Heading variant="styles.h1">{title}</Heading>
-          <Text sx={{variant: "stypes.p", py: "1rem"}}>By <b>{authorString}</b> | {pubDate}</Text>
+          <Flex sx={{py:"0.5rem"}}>
+            <Avatar src={avatarImg} sx={{minWidth: "50px", maxHeight: "50px"}}/>
+            <Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem"}}>By <b>{authorString}</b> | {pubDate}</Text>
+          </Flex>
           {mainImage && mainImage.asset && (
             <div sx={{
               maxHeight: "500px",
@@ -64,8 +79,7 @@ function ZundfolgeArticle(props) {
           }}>
             <BoxAd {...randomizedBox} />
             <Heading variant="styles.h3" sx={{my: "1rem"}}>Related Content</Heading>
-            {next && <RelatedContent {...next} />}
-            {prev && <RelatedContent {...prev} />}
+            {relatedPosts && relatedPosts.slice(0, 3).map((post) => (<RelatedContent {...post} />))}
           </div>
         </div>  
       </Flex>

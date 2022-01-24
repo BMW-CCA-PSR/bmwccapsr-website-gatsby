@@ -3,9 +3,10 @@ import React from 'react';
 import { getZundfolgeUrl } from "../lib/helpers";
 import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Card, Container, Heading, Text, Flex, Box } from '@theme-ui/components';
+import { Card, Container, Heading, Text, Flex, Box, Avatar } from '@theme-ui/components';
 import { Link } from "gatsby";
 import {BoxIcon, BoxIconFlipped} from './box-icons';
+import { imageUrlFor } from "../lib/image-url";
 
 var style = {
     textDecoration: "none",
@@ -35,8 +36,8 @@ var style = {
 				height: '100%',
 				maxHeight: '200px',
 				objectFit: 'cover',
-                borderTopLeftRadius: "6px",
-                borderTopRightRadius: "6px"
+        borderTopLeftRadius: "6px",
+        borderTopRightRadius: "6px"
 			}}
 		/>
 	);
@@ -44,16 +45,22 @@ var style = {
 
   function StoryPreview(props) {
     const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
-	const authors = props.node.authors;
+    const authors = props.node.authors;
     const categories = props.node.categories;
-	const authorString = String(authors.map((author) => ` ${author.author.name}`));
+	  const authorString = String(authors.map((author) => ` ${author.author.name}`));
     const catString = String(categories.map((cat) => ` ${cat.title}`));
+    const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+      .width(48)
+      .height(48)
+      .fit("fill")
+      .auto("format")
+      .url()
     return (
       <Link
         to={getZundfolgeUrl(props.node.slug.current)}
         sx={{textDecoration: "none"}}
       >
-        <div sx={{            maxWidth: "600px",}}>
+        <div sx={{ maxWidth: "600px",}}>
         <Text sx={{ variant: 'text.label', color: 'black'}}>{catString}</Text>
         <Card
           sx={{
@@ -70,9 +77,10 @@ var style = {
 		  <StoryImg {...props.node.mainImage} />
           <Box p={3}>
             <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.node.title}</Heading>
-            <Text sx={{ variant: 'styles.p', py: '1rem' }}>
-					By <b>{authorString}</b>
-				</Text>
+            <Flex sx={{py:"0.5rem"}}>
+						  <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
+						  <Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem"}}>{authorString}</Text>
+					  </Flex>
 				<Text
 					sx={{
 						variant: 'styles.p',
@@ -80,7 +88,7 @@ var style = {
 						marginbottom: '2rem'
 					}}
 				>
-					{text ? <PortableText blocks={text} /> : <br/>}
+					{text ? <PortableText blocks={text} /> : null}
 				</Text>
           </Box>
         </Card>
