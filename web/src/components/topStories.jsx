@@ -71,7 +71,7 @@ const StoryRow = (props) => {
 				>
 					{props.node.title}
 				</Heading>
-				<Flex sx={{py:"0.5rem"}}>
+				<Flex sx={{py:"0.5rem", pb: "0px"}}>
 					<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
 					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
 				</Flex>
@@ -79,10 +79,9 @@ const StoryRow = (props) => {
 					sx={{
 						variant: 'styles.p',
 						color: 'gray',
-						marginbottom: '2rem'
 					}}
 				>
-					{text ? <PortableText blocks={text} /> : <br/>}
+					{text ? <PortableText blocks={text} /> : null}
 				</Text>
                 <div sx={{my: "1.5rem"}}>
                     <Link to={getZundfolgeUrl(props.node.slug.current)} sx={style}>
@@ -124,7 +123,7 @@ const StoryRowFlipped = (props) => {
 				>
 					{props.node.title}
 				</Heading>
-				<Flex sx={{py:"0.5rem"}}>
+				<Flex sx={{py:"0.5rem", pb: "0px"}}>
 					<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
 					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
 				</Flex>
@@ -132,10 +131,9 @@ const StoryRowFlipped = (props) => {
 					sx={{
 						variant: 'styles.p',
 						color: 'gray',
-						marginbottom: '2rem'
 					}}
 				>
-					{text ? <PortableText blocks={text} /> : <br/>}
+					{text ? <PortableText blocks={text} /> : null}
 				</Text>
                 <div sx={{my: "1.5rem"}}>
                     <Link to={getZundfolgeUrl(props.node.slug.current)} sx={style}>
