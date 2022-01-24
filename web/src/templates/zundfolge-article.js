@@ -30,6 +30,50 @@ export const query = graphql`
       slug {
         current
       }
+      relatedPosts {
+        categories {
+          _id
+          title
+        }
+        publishedAt
+        title
+        slug {
+          current
+        }
+        mainImage {
+          ...SanityImage
+          alt
+        }
+        authors {
+          _key
+          author {
+            image {
+              crop {
+                _key
+                _type
+                top
+                bottom
+                left
+                right
+              }
+              hotspot {
+                _key
+                _type
+                x
+                y
+                height
+                width
+              }
+              asset {
+                _id
+                gatsbyImageData
+                url
+              }
+            }
+            name
+          }
+        }
+      }
       _rawExcerpt(resolveReferences: { maxDepth: 5 })
       _rawBody(resolveReferences: { maxDepth: 5 })
       authors {
@@ -54,6 +98,8 @@ export const query = graphql`
             }
             asset {
               _id
+              gatsbyImageData
+              url
             }
           }
           name
@@ -75,6 +121,35 @@ export const query = graphql`
       slug {
         current
       }
+      authors {
+        _key
+        author {
+          image {
+            crop {
+              _key
+              _type
+              top
+              bottom
+              left
+              right
+            }
+            hotspot {
+              _key
+              _type
+              x
+              y
+              height
+              width
+            }
+            asset {
+              _id
+              gatsbyImageData
+              url
+            }
+          }
+          name
+        }
+      }
     }
     prev: sanityPost(id: { eq: $prev }) {
       id
@@ -90,6 +165,35 @@ export const query = graphql`
       title
       slug {
         current
+      }
+      authors {
+        _key
+        author {
+          image {
+            crop {
+              _key
+              _type
+              top
+              bottom
+              left
+              right
+            }
+            hotspot {
+              _key
+              _type
+              x
+              y
+              height
+              width
+            }
+            asset {
+              _id
+              gatsbyImageData
+              url
+            }
+          }
+          name
+        }
       }
     }
     boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}}) {

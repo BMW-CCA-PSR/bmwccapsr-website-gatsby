@@ -2,16 +2,19 @@
 import { format, parseISO } from "date-fns";
 import { Link } from "gatsby";
 import React from "react";
-import { Card, Box, Text, Heading, Flex } from "theme-ui"
-import { buildImageObj, cn, getEventsUrl } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import { Card, Text, Heading, Container } from "theme-ui"
+import { getEventsUrl } from "../lib/helpers";
+import SanityImage from 'gatsby-plugin-sanity-image';
 
 function EventPagePreview(props) {
+  const catString = String(props.categories.map((cat) => ` ${cat.title}`));
+
   return (
     <Link
       to={getEventsUrl(props.slug.current)}
       sx={{textDecoration: "none"}}
     >
+      <Text sx={{ variant: 'text.label', color: 'black'}}>{catString}</Text>
       <Card
         sx={{
           textDecoration: "none",
@@ -22,32 +25,23 @@ function EventPagePreview(props) {
           mx: "auto",
           borderRadius: "8px"
         }}
-      >
-        <div>
-          {props.mainImage && props.mainImage.asset && (
-            <img
-              src={imageUrlFor(buildImageObj(props.mainImage))
-                .width(600)
-                .height(Math.floor((9 / 16) * 600))
-                .fit("crop")
-                .auto("format")
-                .url()}
-              alt={props.mainImage.alt}
+      >{props.mainImage && props.mainImage.asset && (
+            <SanityImage
+              {...props.mainImage}
+              width={600}
               sx={{
+                width: '100%',
+                height: '240px',
+                objectFit: 'cover',
                 borderTopRightRadius: "8px",
                 borderTopLeftRadius: "8px",
-                width: "100%",
-                height: "100%"
               }}
             />
           )}
-        </div>
-        <Box p={3}>
+        <Container p={3}>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
-          <Text sx={{
-            color: "grey"
-          }}>{format(parseISO(props.startTime), "MMMM do, yyyy")}</Text>
-        </Box>
+          <Text sx={{variant: "styles.h5"}}>{format(parseISO(props.startTime), "MMMM do, yyyy")}</Text>
+        </Container>
       </Card>
     </Link>
   );

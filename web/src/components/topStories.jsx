@@ -3,9 +3,11 @@ import React from 'react';
 import { getZundfolgeUrl } from "../lib/helpers";
 import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Card, Container, Heading, Text, Flex } from '@theme-ui/components';
+import { Card, Container, Heading, Text, Flex, Avatar} from '@theme-ui/components';
 import { Link } from "gatsby";
 import {BoxIcon, BoxIconFlipped} from './box-icons';
+import { imageUrlFor } from "../lib/image-url";
+
 
 var style = {
     textDecoration: "none",
@@ -44,6 +46,12 @@ const StoryImg = (props) => {
 const StoryRow = (props) => {
 	const authors = props.node.authors;
 	const authorString = String(authors.map((author) => ` ${author.author.name}`));
+	const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+		.width(48)
+		.height(48)
+		.fit("fill")
+		.auto("format")
+		.url()
 	const img = props.node._rawMainImage;
 	const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
 	return (
@@ -63,9 +71,10 @@ const StoryRow = (props) => {
 				>
 					{props.node.title}
 				</Heading>
-				<Text sx={{ variant: 'stypes.p', py: '1rem' }}>
-					By <b>{authorString}</b>
-				</Text>
+				<Flex sx={{py:"0.5rem"}}>
+					<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
+					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
+				</Flex>
 				<Text
 					sx={{
 						variant: 'styles.p',
@@ -89,6 +98,12 @@ const StoryRow = (props) => {
 const StoryRowFlipped = (props) => {
 	const authors = props.node.authors;
 	const authorString = String(authors.map((author) => ` ${author.author.name}`));
+	const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+		.width(48)
+		.height(48)
+		.fit("fill")
+		.auto("format")
+		.url()
 	const img = props.node._rawMainImage;
 	const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
 	return (
@@ -109,9 +124,10 @@ const StoryRowFlipped = (props) => {
 				>
 					{props.node.title}
 				</Heading>
-				<Text sx={{ variant: 'stypes.p', py: '1rem' }}>
-					By <b>{authorString}</b>
-				</Text>
+				<Flex sx={{py:"0.5rem"}}>
+					<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
+					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
+				</Flex>
 				<Text
 					sx={{
 						variant: 'styles.p',
