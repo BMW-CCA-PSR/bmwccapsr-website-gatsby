@@ -94,21 +94,16 @@ export default {
                 'This ends up on summary pages, on Google, when people share the event in social media.',
         },
         {
-            name: 'categories',
-            type: 'array',
-            title: 'Categories',
-            validation: Rule => Rule.error('You have to select a category.').required().min(1),
+            name: 'category',
+            type: 'reference',
+            to: {
+                type: 'eventCategory',
+            },
+            title: 'Category',
+            validation: Rule => Rule.error('You have to select a category.').required(),
             options: {
                 isHighlighted: true
             },
-            of: [
-                {
-                    type: 'reference',
-                    to: {
-                        type: 'eventCategory',
-                    },
-                },
-            ],
         },
         {
             name: 'body',

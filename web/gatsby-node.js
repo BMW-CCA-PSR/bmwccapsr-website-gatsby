@@ -18,33 +18,22 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         relatedPosts: {
           type: "[SanityPost]",
           resolve: async (source, args, context, info) => {
-            const categories = source._rawDataCategories
-              ? source._rawDataCategories.map((c) => c._ref)
-              : [];
-            if (!categories.length) return [];
+            const category = source._rawDataCategory
+              ? source._rawDataCategory._ref
+              : null;
+            if (!category) return [];
 
-            const posts = await context.nodeModel.runQuery({
+            const { entries } = await context.nodeModel.findAll({
+              type: "SanityPost",
               query: {
-                filter: {
-                  categories: {
-                    elemMatch: {
-                      _id: { in: categories },
-                    },
-                  },
-                  // exclude current node
-                  _id: { ne: source._id },
-                },
                 sort: {
                   fields: ["publishedAt"],
                   order: ["DESC"],
                 },
-                // no way to limit results in runQuery
-                // see: https://github.com/gatsbyjs/gatsby/issues/15453
-              },
-              type: "SanityPost",
-            });
-
-            return posts && posts.length > 0 ? posts : [];
+              }
+            })
+            const posts = entries.filter(post => post._rawDataCategory._ref == category && post._id != source._id)
+            return Array.from(posts)
           },
         },
       },

@@ -39,7 +39,7 @@ export const query = graphql`
           slug {
             current
           }
-          categories {
+          category {
             title
           }
           authors {

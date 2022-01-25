@@ -28,7 +28,7 @@ export const query = graphql`
         state
         city
       }
-      categories {
+      category {
         _id
         title
       }
@@ -50,7 +50,7 @@ export const query = graphql`
     }
     next: sanityEvent(id: { eq: $next }) {
       id
-      categories {
+      category {
         _id
         title
       }
@@ -65,7 +65,7 @@ export const query = graphql`
     }
     prev: sanityEvent(id: { eq: $prev }) {
       id
-      categories {
+      category {
         _id
         title
       }

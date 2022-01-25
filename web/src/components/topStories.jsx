@@ -61,7 +61,7 @@ const StoryRow = (props) => {
 			}}
 		>
 			<div sx={{ px: '1rem'}}>
-				<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.categories.map((cat) => cat.title)}</Text>
+				<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>
 				<Heading
 					sx={{
 						variant: 'styles.h3',
@@ -113,7 +113,7 @@ const StoryRowFlipped = (props) => {
 		>
 			<StoryImg {...img} />
 			<div sx={{ px: '1rem' }}>
-				<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.categories.map((cat) => cat.title)}</Text>
+				<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>
 				<Heading
 					sx={{
 						variant: 'styles.h3',

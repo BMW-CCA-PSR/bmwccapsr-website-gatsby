@@ -7,14 +7,14 @@ import { getEventsUrl } from "../lib/helpers";
 import SanityImage from 'gatsby-plugin-sanity-image';
 
 function EventPagePreview(props) {
-  const catString = String(props.categories.map((cat) => ` ${cat.title}`));
+  const category = props.category.title
 
   return (
     <Link
       to={getEventsUrl(props.slug.current)}
       sx={{textDecoration: "none"}}
     >
-      <Text sx={{ variant: 'text.label', color: 'black'}}>{catString}</Text>
+      <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
       <Card
         sx={{
           textDecoration: "none",

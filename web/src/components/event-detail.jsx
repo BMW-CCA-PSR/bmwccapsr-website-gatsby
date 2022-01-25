@@ -5,7 +5,7 @@ import { Container, Heading, Text, Flex, Box, Divider } from "@theme-ui/componen
 import EventMap from "./event-map";
 
 function EventDetails(props) {
-    const { _updatedAt, categories, title, startTime, endTime, address } = props;
+    const { startTime, endTime, address } = props;
     var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
     var numHours = startTime && endTime && (differenceInHours(new Date(endTime), new Date(startTime)))
     return (
@@ -21,7 +21,6 @@ function EventDetails(props) {
             <Flex sx={{
             width: "100%",
             flexDirection: ["column", "row"],
-            //justifyContent: "center",
             alignItems: "flex-start",
             textAlign: ["center", "left"],
             mx: "auto",

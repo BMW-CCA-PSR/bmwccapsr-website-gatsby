@@ -9,7 +9,7 @@ import { imageUrlFor } from "../lib/image-url";
 
 function ZundfolgeArticlePreview(props) {
 	const authorString = String(props.authors.map((author) => (` ${author.author.name}`)))
-	const catString = String(props.categories.map((cat) => ` ${cat.title}`));
+	const cat = props.category.title
 	const avatarImg = props.authors[0].author.image && imageUrlFor(props.authors[0].author.image)
 		.width(48)
 		.height(48)
@@ -51,7 +51,7 @@ function ZundfolgeArticlePreview(props) {
 					/>
 				)}
 				<Box p={3} sx={{}}>
-					<Text sx={{ variant: 'text.label', color: `${fg}`}}>{catString}</Text>
+					<Text sx={{ variant: 'text.label', color: `${fg}`}}>{cat}</Text>
 					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: `${fg}` }}>{props.title}</Heading>
 					{/* <Text sx={{color: `${fg}`}}>{format(parseISO(props.publishedAt), 'MMMM do, yyyy')}</Text> */}
 					<Flex sx={{py:"0.5rem"}}>
@@ -68,7 +68,9 @@ ZundfolgeArticlePreview.defaultProps = {
 	title: '',
 	nodes: [],
 	publishedAt: '2022-01-01',
-	categories: [],
+	category: {
+		title: ''
+	},
 	browseMoreHref: '',
 	slug: {
 		current: ''

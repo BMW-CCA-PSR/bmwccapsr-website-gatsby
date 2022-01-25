@@ -18,7 +18,7 @@ export const query = graphql`
     post: sanityPost(id: { eq: $id }) {
       id
       publishedAt
-      categories {
+      category {
         _id
         title
       }
@@ -31,7 +31,7 @@ export const query = graphql`
         current
       }
       relatedPosts {
-        categories {
+        category {
           _id
           title
         }
@@ -109,7 +109,7 @@ export const query = graphql`
     next: sanityPost(id: { eq: $next }) {
       id
       publishedAt
-      categories {
+      category {
         _id
         title
       }
@@ -154,7 +154,7 @@ export const query = graphql`
     prev: sanityPost(id: { eq: $prev }) {
       id
       publishedAt
-      categories {
+      category {
         _id
         title
       }
