@@ -4,6 +4,10 @@ export default {
     name: 'event',
     type: 'document',
     title: 'Event',
+    initialValue: () => ({
+        startTime: new Date().toISOString(),
+        endTime: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString()
+      }),
     fieldsets: [
         {
           title: 'Venue',
@@ -16,16 +20,6 @@ export default {
             type: 'string',
             title: 'Title',
             description: 'Titles should be catchy, descriptive, and not too long',
-        },
-        {
-            name: 'slug',
-            type: 'slug',
-            title: 'Slug',
-            description: 'The unique address that the event will live at. (e.g. "/events/your-event")',
-            options: {
-                source: 'title',
-                maxLength: 96,
-            },
         },
         {
             name: 'startTime',
@@ -43,6 +37,27 @@ export default {
             title: 'End Time',
             description: 'The end date/time of the event.',
             validation: Rule => Rule.error('End time must be later than start time.').required().min(Rule.valueOfField('startTime'))
+        },
+        {
+            name: 'slug',
+            type: 'slug',
+            title: 'Slug',
+            description: 'The unique address that the event will live at. (e.g. "/events/<year>/<month>/your-event")',
+            options: {
+                source: 'title',
+                maxLength: 96,
+                slugify: input => input
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\/\-]+/g, '')
+                .replace(/\-\-+/g, '-'),
+                // date string represented as "2022-01-01" -- substring values are as follows:
+                // 10 == "2020/01/01/"
+                // 7 == "2020/01"
+                // 4 == "2020"
+                source: doc => `${doc.startTime.substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
+            },
         },
         {
             name: 'cost',
