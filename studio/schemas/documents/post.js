@@ -2,6 +2,9 @@ export default {
     name: 'post',
     type: 'document',
     title: 'Zundfolge Article',
+    initialValue: () => ({
+      publishedAt: new Date().toISOString(),
+    }),
     fields: [
       {
         name: 'title',
@@ -10,20 +13,31 @@ export default {
         description: 'Titles should be catchy, descriptive, and not too long',
       },
       {
-        name: 'slug',
-        type: 'slug',
-        title: 'Slug',
-        description: 'The unique address that the article will live at. (e.g. "/zundfolge/your-article")',
-        options: {
-          source: 'title',
-          maxLength: 96,
-        },
-      },
-      {
         name: 'publishedAt',
         type: 'datetime',
         title: 'Published at',
         description: 'This can be used to schedule post for publishing',
+      },
+      {
+        name: 'slug',
+        type: 'slug',
+        title: 'Slug',
+        description: 'The unique address that the article will live at. (e.g. "/zundfolge/<year>/<month>/your-article")',
+        options: {
+          source: 'title',
+          maxLength: 96,
+          slugify: input => input
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\/\-]+/g, '')
+          .replace(/\-\-+/g, '-'),
+          // date string represented as "2022-01-01" -- substring values are as follows:
+          // 10 == "2020/01/01/"
+          // 7 == "2020/01"
+          // 4 == "2020"
+          source: doc => `${doc.publishedAt.substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
+        },
       },
       {
         name: 'mainImage',
