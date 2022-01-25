@@ -13,12 +13,12 @@ import { Avatar } from 'theme-ui'
 import { imageUrlFor } from "../lib/image-url";
 
 function ZundfolgeArticle(props) {
-  const { _rawBody, authors, categories, title, mainImage, publishedAt, next, prev, boxes, banners, relatedPosts} = props;
+  const { _rawBody, authors, category, title, mainImage, publishedAt, next, prev, boxes, banners, relatedPosts} = props;
   const pubDate = publishedAt && (differenceInDays(new Date(publishedAt), new Date()) > 3
     ? formatDistance(new Date(publishedAt), new Date())
     : format(new Date(publishedAt), "MMMM do, yyyy"))
   const authorString = String(authors.map((author) => (` ${author.author.name}`)))
-  const catString = String(categories.map((cat) => (` ${cat.title}`)))
+  const cat = category.title
   const randomBoxPosition = randomGenerator(0, boxes.edges.length - 1)
   const randomBannerPosition = randomGenerator(0, banners.edges.length - 1)
   const randomizedBox = boxes.edges[randomBoxPosition].node
@@ -47,7 +47,7 @@ function ZundfolgeArticle(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
-          <Text variant="text.label"><Link to="/zundfolge/" sx={{textDecoration:"none", color: "text"}}>Zundfolge</Link> / {catString}</Text>
+          <Text variant="text.label"><Link to="/zundfolge/" sx={{textDecoration:"none", color: "text"}}>Zundfolge</Link> / {cat}</Text>
           <Heading variant="styles.h1">{title}</Heading>
           <Flex sx={{py:"0.5rem"}}>
             <Avatar src={avatarImg} sx={{minWidth: "50px", maxHeight: "50px"}}/>

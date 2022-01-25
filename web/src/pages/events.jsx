@@ -43,7 +43,7 @@ query EventPageQuery {
           slug {
             current
           }
-          categories {
+          category {
             title
           }
           endTime

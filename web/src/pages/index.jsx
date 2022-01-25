@@ -75,7 +75,7 @@ export const query = graphql`
           mainImage {
             ...SanityImage
           }
-          categories {
+          category {
             title
           }
           authors {

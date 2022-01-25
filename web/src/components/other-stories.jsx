@@ -46,9 +46,8 @@ var style = {
   function StoryPreview(props) {
     const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
     const authors = props.node.authors;
-    const categories = props.node.categories;
+    const category = props.node.category.title;
 	  const authorString = String(authors.map((author) => ` ${author.author.name}`));
-    const catString = String(categories.map((cat) => ` ${cat.title}`));
     const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
       .width(48)
       .height(48)
@@ -61,7 +60,7 @@ var style = {
         sx={{textDecoration: "none"}}
       >
         <div sx={{ maxWidth: "600px",}}>
-        <Text sx={{ variant: 'text.label', color: 'black'}}>{catString}</Text>
+        <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
         <Card
           sx={{
             textDecoration: "none",

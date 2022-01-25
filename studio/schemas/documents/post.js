@@ -54,17 +54,16 @@ export default {
         ],
       },
       {
-        name: 'categories',
-        type: 'array',
-        title: 'Categories',
-        of: [
-          {
-            type: 'reference',
-            to: {
-              type: 'category',
-            },
-          },
-        ],
+        name: 'category',
+        type: 'reference',
+        to: {
+            type: 'category',
+        },
+        title: 'Category',
+        validation: Rule => Rule.error('You have to select a category.').required(),
+        options: {
+            isHighlighted: true
+        },
       },
       {
         name: 'body',

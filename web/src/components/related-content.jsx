@@ -8,10 +8,10 @@ import SanityImage from 'gatsby-plugin-sanity-image';
 
 
 function RelatedContent(props) {
-    const { title, mainImage, slug, publishedAt, authors, categories } = props;
+    const { title, mainImage, slug, publishedAt, authors, category } = props;
     const isArticle = publishedAt ? true : false;
     var avatarImg = null
-    const catString = String(categories.map((cat) => ` ${cat.title}`));
+    const cat = category.title
     var authorString = null
     if (isArticle){
         authorString = String(authors.map((author) => ` ${author.author.name}`));
@@ -57,7 +57,7 @@ function RelatedContent(props) {
                     )}
                     </div>
                     <Box p={3}>
-                        <Text sx={{ variant: 'text.label'}}>{catString}</Text>
+                        <Text sx={{ variant: 'text.label'}}>{cat}</Text>
                         <Heading sx={{ textDecoration: "none" }} variant="styles.h4">{title}</Heading>
                         {/* <Flex sx={{py:"0.5rem"}}>
 						  <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>

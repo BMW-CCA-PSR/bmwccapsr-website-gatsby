@@ -61,7 +61,7 @@ const blog = S.listItem()
                   .schemaType('post')
                   .title('Articles')
                   .filter(
-                    '_type == "post" && $catId in categories[]._ref'
+                    '_type == "post" && $catId == category._ref'
                   )
                   .params({ catId })
               )

@@ -59,7 +59,7 @@ export const icons = {
                 .schemaType('events')
                 .title('Events')
                 .filter(
-                  '_type == "event" && $catId in categories[]._ref'
+                  '_type == "event" && $catId == category._ref'
                 )
                 .params({ catId })
             )

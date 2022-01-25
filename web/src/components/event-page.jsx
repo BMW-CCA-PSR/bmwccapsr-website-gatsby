@@ -12,11 +12,11 @@ import { randomGenerator } from "../lib/helpers"
 import { BoxAd } from "./ads";
 
 function EventPage(props) {
-  const { _rawBody, _updatedAt, categories, title, mainImage, startTime, next, prev, boxes } = props;
+  const { _rawBody, _updatedAt, category, title, mainImage, startTime, next, prev, boxes } = props;
   var startInDays = startTime && (formatDistance(new Date(startTime), new Date()))
   var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
   var updated = _updatedAt && (format(new Date(_updatedAt), "MMMM do, yyyy"))
-  const catString = String(categories.map((cat) => (` ${cat.title}`)))
+  const cat = category.title
   const randomAdPosition = randomGenerator(0, boxes.edges.length - 1)
   const randomizedAd = boxes.edges[randomAdPosition].node
   return (
@@ -34,7 +34,7 @@ function EventPage(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
-          <Text variant="text.label"><Link to="/events/" sx={{textDecoration:"none", color: "text"}}>Events</Link> / {catString}</Text>
+          <Text variant="text.label"><Link to="/events/" sx={{textDecoration:"none", color: "text"}}>Events</Link> / {cat}</Text>
           <Heading variant="styles.h1">{title}</Heading>
           <Text sx={{variant: "styles.h3", py: "1rem"}}>{start} | {startInDays}</Text>
           <Text sx={{variant: "styles.p"}}>Last updated: {updated}</Text>
