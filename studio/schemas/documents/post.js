@@ -3,6 +3,7 @@ export default {
     type: 'document',
     title: 'Zundfolge Article',
     initialValue: () => ({
+      title: 'change me',
       publishedAt: new Date().toISOString(),
     }),
     fields: [

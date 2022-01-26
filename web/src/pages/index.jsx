@@ -133,6 +133,7 @@ export const query = graphql`
           }
           _rawLogo(resolveReferences: {maxDepth: 10})
           name
+          href
         }
       }
     }
@@ -140,6 +141,7 @@ export const query = graphql`
       edges {
         node {
           _rawBanner(resolveReferences: {maxDepth: 10})
+          href
         }
       }
     }

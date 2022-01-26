@@ -196,17 +196,19 @@ export const query = graphql`
         }
       }
     }
-    boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}}) {
+    boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}, active: {eq: true}}) {
       edges {
         node {
           _rawBox(resolveReferences: {maxDepth: 10})
+          href
         }
       }
     }
-    banners: allSanityAdvertiser(filter: {banner: {_type: {ne: null}}}) {
+    banners: allSanityAdvertiser(filter: {banner: {_type: {ne: null}}, active: {eq: true}}) {
       edges {
         node {
           _rawBanner(resolveReferences: {maxDepth: 10})
+          href
         }
       }
     }

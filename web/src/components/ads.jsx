@@ -2,6 +2,7 @@
 import SanityImage from "gatsby-plugin-sanity-image"
 import React from "react";
 import { Box, Flex } from "@theme-ui/components";
+import { Link } from "gatsby";
 
 const BoxAd = props => {
     const box = props._rawBox
@@ -11,11 +12,16 @@ const BoxAd = props => {
             width: "300px"
         }}>
         {box && box.asset && (
+        <Link
+            to={props.href}
+            sx={{textDecoration: "none"}}
+        >
             <SanityImage {...box} width={300}
             sx={{
                 width: "100%", 
                 height: "100%", 
             }} /> 
+        </Link>
         )}
         </Box>
     )
@@ -31,12 +37,17 @@ const BannerAd = props => {
                 mx: "auto", 
             }}>
             {banner && banner.asset && (
+            <Link
+                to={props.href}
+                sx={{textDecoration: "none"}}
+            >
                 <SanityImage {...banner} width={728}
                 sx={{
                     width: "100%", 
                     height: "100%", 
                     objectFit: "contain",
                 }} /> 
+            </Link>
             )}
             </Box>
         </Flex>

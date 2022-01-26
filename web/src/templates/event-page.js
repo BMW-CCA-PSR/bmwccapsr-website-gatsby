@@ -62,6 +62,11 @@ export const query = graphql`
       slug {
         current
       }
+      address {
+        city
+        state
+      }
+      startTime
     }
     prev: sanityEvent(id: { eq: $prev }) {
       id
@@ -77,11 +82,17 @@ export const query = graphql`
       slug {
         current
       }
+      address {
+        city
+        state
+      }
+      startTime
     }
-    boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}}) {
+    boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}, active: {eq: true}}) {
       edges {
         node {
           _rawBox(resolveReferences: {maxDepth: 10})
+          href
         }
       }
     }

@@ -43,15 +43,15 @@ const StoryImg = (props) => {
 	);
 };
 
-const StoryRow = (props) => {
+function StoryRow(props) {
 	const authors = props.node.authors;
 	const authorString = String(authors.map((author) => ` ${author.author.name}`));
-	const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+	const avatarImg = authors[0] ? authors[0].author.image && imageUrlFor(authors[0].author.image)
 		.width(48)
 		.height(48)
 		.fit("fill")
 		.auto("format")
-		.url()
+		.url() : null
 	const img = props.node._rawMainImage;
 	const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
 	return (
@@ -61,7 +61,7 @@ const StoryRow = (props) => {
 			}}
 		>
 			<div sx={{ px: '1rem'}}>
-				<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>
+				{props.node.category && <Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>}
 				<Heading
 					sx={{
 						variant: 'styles.h3',
@@ -72,7 +72,7 @@ const StoryRow = (props) => {
 					{props.node.title}
 				</Heading>
 				<Flex sx={{py:"0.5rem", pb: "0px"}}>
-					<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
+					{avatarImg && <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>}
 					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
 				</Flex>
 				<Text
@@ -89,20 +89,20 @@ const StoryRow = (props) => {
                     </Link>
                 </div>
 			</div>
-			<StoryImg {...img} />
+			{img && <StoryImg {...img} />}
 		</Flex>
 	);
 };
 
-const StoryRowFlipped = (props) => {
+function StoryRowFlipped(props) {
 	const authors = props.node.authors;
 	const authorString = String(authors.map((author) => ` ${author.author.name}`));
-	const avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
+	const avatarImg = authors[0] ? authors[0].author.image && imageUrlFor(authors[0].author.image)
 		.width(48)
 		.height(48)
 		.fit("fill")
 		.auto("format")
-		.url()
+		.url() : null
 	const img = props.node._rawMainImage;
 	const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
 	return (
@@ -111,9 +111,9 @@ const StoryRowFlipped = (props) => {
 				flexDirection: [ 'column-reverse', 'column-reverse', 'row', 'row' ]
 			}}
 		>
-			<StoryImg {...img} />
+			{img && <StoryImg {...img} />}
 			<div sx={{ px: '1rem' }}>
-				<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>
+				{props.node.category && <Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>}
 				<Heading
 					sx={{
 						variant: 'styles.h3',
@@ -124,7 +124,7 @@ const StoryRowFlipped = (props) => {
 					{props.node.title}
 				</Heading>
 				<Flex sx={{py:"0.5rem", pb: "0px"}}>
-					<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
+					{avatarImg && <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>}
 					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
 				</Flex>
 				<Text
@@ -145,7 +145,7 @@ const StoryRowFlipped = (props) => {
 	);
 };
 
-const TopStories = (props) => {
+function TopStories(props) {
 	return (
 		<Container
 			sx={{
@@ -184,4 +184,41 @@ const TopStories = (props) => {
 		</Container>
 	);
 };
+
+TopStories.defaultProps = {
+	edges: [
+		{
+			title: '',
+			slug: {
+				current: ''
+			},
+			category: {
+				title: ''
+			},
+			authors: [
+				{
+					author: {
+						name: ''
+					}
+				}
+			]
+		},
+		{
+			title: '',
+			slug: {
+				current: ''
+			},
+			category: {
+				title: ''
+			},
+			authors: [
+				{
+					author: {
+						name: ''
+					}
+				}
+			]
+		}
+	]
+}
 export default TopStories;

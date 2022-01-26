@@ -2,13 +2,13 @@
 import { format, parseISO } from "date-fns";
 import { Link } from "gatsby";
 import React from "react";
-import { Card, Text, Heading, Container } from "theme-ui"
+import { Card, Text, Heading, Container, Box, Flex } from "theme-ui"
 import { getEventsUrl } from "../lib/helpers";
 import SanityImage from 'gatsby-plugin-sanity-image';
 
 function EventPagePreview(props) {
   const category = props.category.title
-
+  const cityState = props.address && props.address.city && props.address.state ? `${props.address.city}, ${props.address.state}` : "TBD"
   return (
     <Link
       to={getEventsUrl(props.slug.current)}
@@ -25,22 +25,43 @@ function EventPagePreview(props) {
           mx: "auto",
           borderRadius: "8px"
         }}
-      >{props.mainImage && props.mainImage.asset && (
-            <SanityImage
-              {...props.mainImage}
-              width={600}
-              sx={{
-                width: '100%',
-                height: '240px',
-                objectFit: 'cover',
-                borderTopRightRadius: "8px",
-                borderTopLeftRadius: "8px",
-              }}
-            />
-          )}
+      >
+      {props.mainImage && props.mainImage.asset && (
+        <div sx={{position: "relative"}}>
+          <SanityImage
+            {...props.mainImage}
+            width={600}
+            sx={{
+              width: '100%',
+              height: '240px',
+              objectFit: 'cover',
+              borderTopRightRadius: "8px",
+              borderTopLeftRadius: "8px",
+            }}
+          />
+            <Box sx={{
+              position: "absolute",
+              backgroundColor: "white",
+              height: "65px",
+              width: "60px",
+              alignContent: "center",
+              bottom: "20px",
+              right: "20px",
+              m: "auto",
+              borderBottom: "5px",
+              borderBottomStyle: "solid",
+              borderBottomColor: "highlight"
+            }}>
+              <div sx={{justifyContent: "center", textAlign: "center"}}>
+                <Text sx={{variant: "styles.h4", display: "block"}}>{format(parseISO(props.startTime), "MMM")}</Text>
+                <Text sx={{variant: "styles.h3", }}>{format(parseISO(props.startTime), "i")}</Text>
+              </div>
+            </Box>
+          </div>
+        )}
         <Container p={3}>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
-          <Text sx={{variant: "styles.h5"}}>{format(parseISO(props.startTime), "MMMM do, yyyy")}</Text>
+          <Text sx={{variant: "styles.h5"}}>{cityState}</Text>
         </Container>
       </Card>
     </Link>
