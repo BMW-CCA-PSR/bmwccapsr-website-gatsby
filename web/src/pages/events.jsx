@@ -22,7 +22,7 @@ query EventPageQuery {
     }
     events: allSanityEvent(
       limit: 6
-      sort: {fields: [startTime], order: DESC}
+      sort: {fields: [startTime], order: ASC}
       filter: {slug: {current: {ne: null}}, isActive: {eq: true}}
     ) {
       edges {
@@ -51,11 +51,14 @@ query EventPageQuery {
             lat
             lng
           }
+          address {
+            city
+            state
+          }
         }
       }
     }
   }
-  
 `;
 
 const IndexPage = props => {

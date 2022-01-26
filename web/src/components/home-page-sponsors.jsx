@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React from 'react';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Card, Container, Heading, Text, Flex } from '@theme-ui/components';
+import { Heading, Flex } from '@theme-ui/components';
 import { Link } from "gatsby";
 import {BoxIcon, BoxIconFlipped} from './box-icons';
 
@@ -39,10 +39,13 @@ const HomepageSponsors = (props) => {
                     padding: '1.5rem'
                 }}>
                     {props.edges &&
-                    props.edges.map((logo) => (
-                        <li>
+                    props.edges.map((ad) => (
+                        <Link
+                            to={ad.node.href}
+                            sx={{textDecoration: "none"}}
+                        >
                             <SanityImage 
-                            {...logo.node._rawLogo}
+                            {...ad.node._rawLogo}
                             width={100}
                             config={{
                                 saturation: "-100"
@@ -53,7 +56,7 @@ const HomepageSponsors = (props) => {
                                 maxHeight: '300px',
                                 objectFit: 'contain',
                             }}/>
-                        </li>
+                        </Link>
                     ))}
                 </ul>
             </div>

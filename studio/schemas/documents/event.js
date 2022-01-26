@@ -5,6 +5,7 @@ export default {
     type: 'document',
     title: 'Event',
     initialValue: () => ({
+        title: 'change me',
         startTime: new Date().toISOString(),
         endTime: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString()
       }),
