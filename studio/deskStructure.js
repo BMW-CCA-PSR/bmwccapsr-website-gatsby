@@ -6,6 +6,7 @@ import {
   GoSettings,
   GoPencil as EditIcon,
 } from 'react-icons/go'
+import { workflowListItems } from './src/structure/workflow'
 import blog from './src/structure/blog'
 import events from './src/structure/events'
 import advertisers from './src/structure/advertisers'
@@ -14,7 +15,7 @@ import DesktopPreviewIFrame from './src/components/previewIFrame'
 import SocialPreviewIFrame from './src/components/socialPreviewIFrame'
 
 const hiddenDocTypes = (listItem) =>
-  !['route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory', 'tier', 'advertiser', 'advertiserCategory'].includes(
+  !['media.tag', 'route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory', 'tier', 'advertiser', 'advertiserCategory'].includes(
     listItem.getId()
   )
 
@@ -34,7 +35,7 @@ export default () =>
               S.view.form().icon(EditIcon),
               DesktopPreviewIFrame()
             ])
-        ),
+      ),
       S.documentListItem()
         .title('Frontpage')
         .schemaType('page')
@@ -47,11 +48,13 @@ export default () =>
               S.view.form().icon(EditIcon),
               DesktopPreviewIFrame()
             ])
-        ),
-        blog,
-        events,
-        advertisers,
-        landingPages,
+      ),
+      blog,
+      events,
+      advertisers,
+      landingPages,
+      S.divider(),
+      ...workflowListItems,
       // This returns an array of all the document types
       // defined in schema.js. We filter out those that we have
       // defined the structure above

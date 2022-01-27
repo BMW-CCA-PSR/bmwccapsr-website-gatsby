@@ -43,6 +43,22 @@
     {
       "name": "part:@sanity/desk-tool/structure",
       "path": "./deskStructure.js"
+    },
+    {
+      "implements": "part:@sanity/base/tool",
+      "path": "./src/tools/board"
+    },
+    {
+      "implements": "part:@sanity/base/theme/variables/override-style",
+      "path": "./variableOverrides.css"
+    },
+    {
+      "implements": "part:@sanity/base/document-actions/resolver",
+      "path": "./src/documentActions"
+    },
+    {
+      "implements": "part:@sanity/base/document-badges/resolver",
+      "path": "./src/documentBadges"
     }
   ],
   "__experimental_spaces": [

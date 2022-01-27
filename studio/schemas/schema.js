@@ -15,6 +15,7 @@ import eventCategory from './documents/eventCategory'
 import tier from './documents/tier'
 import advertiser from './documents/advertiser'
 import advertiserCategory from './documents/advertiserCategory'
+import workflow from './documents/workflow'
 
 import simpleBlockContent from './objects/simpleBlockContent'
 
@@ -65,7 +66,8 @@ export default createSchema({
     tier,
     advertiser,
     advertiserCategory,
-    address
+    address,
+    workflow
   ])
   .concat(allPlugs),
 })
