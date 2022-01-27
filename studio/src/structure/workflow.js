@@ -40,7 +40,12 @@ export const workflowListItems = [
           return S.list()
             .title(docs.length ? 'Assigned to me' : 'No assigments')
             .id('me')
-            .items(docs.map(item => S.documentListItem().id(item._id).schemaType(item._type)))
+            .items(
+              docs.map(
+                item => 
+                  S.documentListItem()
+                    .id(item._id)
+                    .schemaType(item._type)))
         })
       )
     })
