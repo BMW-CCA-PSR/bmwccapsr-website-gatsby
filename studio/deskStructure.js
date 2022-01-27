@@ -15,7 +15,7 @@ import DesktopPreviewIFrame from './src/components/previewIFrame'
 import SocialPreviewIFrame from './src/components/socialPreviewIFrame'
 
 const hiddenDocTypes = (listItem) =>
-  !['media.tag', 'route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory', 'tier', 'advertiser', 'advertiserCategory'].includes(
+  !['workflow.metadata', 'media.tag', 'route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory', 'tier', 'advertiser', 'advertiserCategory'].includes(
     listItem.getId()
   )
 
