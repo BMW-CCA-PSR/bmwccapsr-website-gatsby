@@ -9,19 +9,21 @@ import { imageUrlFor } from "../lib/image-url";
 
 function ZundfolgeArticlePreview(props) {
 	const authorString = String(props.authors.map((author) => (` ${author.author.name}`)))
-	const cat = props.category.title
-	const avatarImg = props.authors[0].author.image && imageUrlFor(props.authors[0].author.image)
+	const cat = props.category ? props.category.title : 'null'
+	const avatarImg = props.authors[0].author && imageUrlFor(props.authors[0].author.image)
 		.width(48)
 		.height(48)
 		.fit("fill")
 		.auto("format")
 		.url()
 	const bg =
-		typeof props.mainImage !== 'undefined'
+			props.mainImage
 			? props.mainImage.asset.metadata.palette.dominant.background
 			: 'lightgrey';
 	const fg =
-		typeof props.mainImage !== 'undefined' ? props.mainImage.asset.metadata.palette.dominant.foreground : 'black';
+		props.mainImage
+		? props.mainImage.asset.metadata.palette.dominant.foreground 
+		: 'black';
 	return (
 		<Link to={getZundfolgeUrl(props.slug.current)} sx={{ textDecoration: 'none' }}>
 			<Card
@@ -65,6 +67,13 @@ function ZundfolgeArticlePreview(props) {
 }
 
 ZundfolgeArticlePreview.defaultProps = {
+	authors: [
+		{
+			author: {
+				name: ''
+			}
+		}
+	],
 	title: '',
 	nodes: [],
 	publishedAt: '2022-01-01',
