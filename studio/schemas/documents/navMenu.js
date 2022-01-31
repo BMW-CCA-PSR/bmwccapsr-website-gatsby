@@ -11,7 +11,6 @@ export default {
         type: 'array',
         name: 'items',
         of: [
-          { type: 'cta' },
           { type: 'navigationItem' },
           { type: 'link'},
         ]
