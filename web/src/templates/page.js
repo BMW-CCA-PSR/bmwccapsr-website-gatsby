@@ -1,6 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React, { useState } from "react";
 import { graphql } from "gatsby";
+import { Flex } from '@theme-ui/components';
 
 import Hero from "../components/hero";
 import InfoRows from "../components/InfoRows";
@@ -16,8 +17,10 @@ import OtherStories from "../components/other-stories";
 import EventSlider from "../components/event-slider";
 import HomepageSponsors from "../components/home-page-sponsors";
 import { BannerAd } from "../components/ads";
-import { randomGenerator } from "../lib/helpers"
-
+import { randomGenerator } from "../lib/helpers";
+import BoxHeader from '../components/BoxHeader';
+import PortableText from '../components/portableText';
+ 
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
     route: sanityRoute(id: { eq: $id }) {
@@ -96,6 +99,18 @@ function Page(props) {
             break;
           case "homepageSponsors":
             el = <HomepageSponsors key={c._key} {...c} {...ads} />;
+            break;
+          case "headerBar":
+            el = <BoxHeader key={c._key} title={c.title} />;
+            break;
+          case "pageContent":
+            el = <Flex sx={{
+              mx: "auto",
+              my: "20px",
+              justifyContent: "center"
+              }}>
+                <PortableText key={c._key} {...c} color={'text'} />;
+              </Flex>;
             break;
           case "uiComponentRef":
             switch (c.name) {

@@ -4,7 +4,10 @@ import clientConfig from "../../client-config";
 import BlockContent from "@sanity/block-content-to-react";
 import serializers from "./serializers";
 
-const PortableText = ({ blocks, color }) => (
+function PortableText(props){
+  const blocks = props.body
+  const color = props.color
+  return (
   <BlockContent 
     blocks={blocks} 
     serializers={serializers} 
@@ -13,6 +16,6 @@ const PortableText = ({ blocks, color }) => (
       color: `${color}`
     }} 
   />
-);
-
+  );
+} 
 export default PortableText;

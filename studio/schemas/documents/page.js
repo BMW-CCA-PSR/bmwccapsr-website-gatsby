@@ -22,7 +22,9 @@ export default {
           { type: 'ctaPlug' },
           { type: 'topStories' },
           { type: 'otherStories' },
-          { type: 'homepageSponsors' }
+          { type: 'homepageSponsors' },
+          { type: 'headerBar' },
+          { type: 'pageContent' }
         ],
       },
     ],
