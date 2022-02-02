@@ -145,6 +145,14 @@ export const query = graphql`
         }
       }
     }
+    boxes: allSanityAdvertiser(filter: {box: {_type: {ne: null}}}) {
+      edges {
+        node {
+          _rawBox(resolveReferences: {maxDepth: 10})
+          href
+        }
+      }
+    }
   }
 `;
 

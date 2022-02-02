@@ -6,7 +6,9 @@ export default {
     {
       name: 'name',
       type: 'string',
-      title: 'Name'
+      title: 'Name',
+      validation: Rule => Rule.error('You must select an author name.').required(),
+
     },
     // {
     //   name: 'slug',
@@ -21,7 +23,8 @@ export default {
     {
       name: 'image',
       type: 'mainImage',
-      title: 'Image'
+      title: 'Image',
+      validation: Rule => Rule.error('You must select an author image.').required(),
     },
     {
       name: 'bio',

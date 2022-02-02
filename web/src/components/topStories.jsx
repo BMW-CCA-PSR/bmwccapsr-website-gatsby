@@ -44,7 +44,7 @@ const StoryImg = (props) => {
 
 function StoryRow(props) {
 	const authors = props.node.authors;
-	const authorString = String(authors.map((author) => ` ${author.author.name}`));
+	const authorString = authors[0] ? String(authors.map((author) => ` ${author.author.name}`)) : null
 	const avatarImg = authors[0] ? authors[0].author.image && imageUrlFor(authors[0].author.image)
 		.width(48)
 		.height(48)
@@ -95,7 +95,7 @@ function StoryRow(props) {
 
 function StoryRowFlipped(props) {
 	const authors = props.node.authors;
-	const authorString = String(authors.map((author) => ` ${author.author.name}`));
+	const authorString = authors[0] ? String(authors.map((author) => ` ${author.author.name}`)) : null
 	const avatarImg = authors[0] ? authors[0].author.image && imageUrlFor(authors[0].author.image)
 		.width(48)
 		.height(48)
