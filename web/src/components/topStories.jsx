@@ -80,7 +80,7 @@ function StoryRow(props) {
 						color: 'gray',
 					}}
 				>
-					{text ? <PortableText blocks={text} /> : null}
+					{text ? <PortableText body={text} /> : null}
 				</Text>
                 <div sx={{my: "1.5rem"}}>
                     <Link to={getZundfolgeUrl(props.node.slug.current)} sx={style}>
@@ -132,7 +132,7 @@ function StoryRowFlipped(props) {
 						color: 'gray',
 					}}
 				>
-					{text ? <PortableText blocks={text} /> : null}
+					{text ? <PortableText body={text} /> : null}
 				</Text>
                 <div sx={{my: "1.5rem"}}>
                     <Link to={getZundfolgeUrl(props.node.slug.current)} sx={style}>

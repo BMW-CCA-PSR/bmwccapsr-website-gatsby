@@ -113,6 +113,7 @@ function Page(props) {
             }
             break;
           case "pageContent":
+            console.log(c)
             el = <Flex sx={{
               mx: "auto",
               my: "20px",

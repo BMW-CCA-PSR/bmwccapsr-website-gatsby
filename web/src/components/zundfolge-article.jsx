@@ -31,7 +31,7 @@ function ZundfolgeArticle(props) {
     .fit("fill")
     .auto("format")
     .url()
-
+  console.log(_rawBody)
   return (
     <article>
       <Flex sx={{
@@ -67,7 +67,7 @@ function ZundfolgeArticle(props) {
             </div>
           )}
           <BannerAd {...randomizedBanner} />
-          {_rawBody && <PortableText blocks={_rawBody} />}
+          {_rawBody && <PortableText body={_rawBody} />}
         </Flex>
         <div sx={next || prev ? {
           display: ["none", "none", "flex", "flex"],

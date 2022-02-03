@@ -26,7 +26,7 @@ const CTAColumn = ({ width, label, title, body, ctas = [] }) => {
           <p className="w-full text-gray-600 text-xs md:text-sm px-6">{label}</p>
           <div className="w-full font-bold text-xl text-gray-800 px-6">{title}</div>
           <p className="text-gray-800 text-base px-6 mb-5">
-            <PortableText blocks={body} />
+            <PortableText body={body} />
           </p>
         </a>
       </div>

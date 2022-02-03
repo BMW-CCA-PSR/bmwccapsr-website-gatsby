@@ -50,7 +50,7 @@ function EventPage(props) {
                 }} />
             </div>
           )}
-          {_rawBody && <PortableText blocks={_rawBody} />}
+          {_rawBody && <PortableText body={_rawBody} />}
           <EventDetails {...props}/>
         </Flex>
         <div sx={next || prev ? {
