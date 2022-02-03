@@ -16,7 +16,7 @@ import TopStories from "../components/topStories";
 import OtherStories from "../components/other-stories";
 import EventSlider from "../components/event-slider";
 import HomepageSponsors from "../components/home-page-sponsors";
-import { BannerAd } from "../components/ads";
+import { BannerAd, BoxAd } from "../components/ads";
 import { randomGenerator } from "../lib/helpers";
 import BoxHeader from '../components/BoxHeader';
 import PortableText from '../components/portableText';
@@ -71,6 +71,7 @@ function Page(props) {
     const event = data.event
     const ads = data.ads
     const banners = data.banners
+    const boxes = data.boxes
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -103,7 +104,16 @@ function Page(props) {
           case "headerBar":
             el = <BoxHeader key={c._key} title={c.title} />;
             break;
+          case "advertisement":
+            const adType = c.type ? c.type == "banner" ? banners : boxes : null
+            if(adType && adType.edges){
+              const randomAdPosition = randomGenerator(0, adType.edges.length - 1)
+              const randomizedAd = adType.edges.length > 0 ? adType.edges[randomAdPosition].node : null
+              el = c.type == "banner" && randomizedAd ? <BannerAd {...randomizedAd} /> : <BoxAd {...randomizedAd} />
+            }
+            break;
           case "pageContent":
+            console.log(c)
             el = <Flex sx={{
               mx: "auto",
               my: "20px",

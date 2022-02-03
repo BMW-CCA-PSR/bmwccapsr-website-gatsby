@@ -87,7 +87,7 @@ var style = {
 						marginbottom: '2rem'
 					}}
 				>
-					{text ? <PortableText blocks={text} /> : null}
+					{text ? <PortableText body={text} /> : null}
 				</Text>
           </Box>
         </Card>

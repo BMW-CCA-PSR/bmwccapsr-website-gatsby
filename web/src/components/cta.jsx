@@ -24,7 +24,7 @@ const Cta = ({ label, title, body, ctas }) => (
       //my: "0.5rem",
       variant: "styles.h3"
     }}>
-      <PortableText blocks={body} />
+      <PortableText body={body} />
     </div>
 
     <Flex>

@@ -33,7 +33,7 @@ const InfoRow = props => {
       <div className={"w-5/6 p-6 " + sizeClass}>
         <h3 className="text-3xl text-gray-800 font-bold leading-none mb-3">{props.title}</h3>
         <p className="text-gray-600 mb-8">
-          <PortableText blocks={props.text} />
+          <PortableText body={props.text} />
         </p>
       </div>
       {img && <div className={"w-full " + sizeClass}>{img}</div>}
@@ -50,7 +50,7 @@ const InfoRowFlipped = props => {
       <div className={"w-5/6 p-6 " + sizeClass}>
         <h3 className="text-3xl text-gray-800 font-bold leading-none mb-3">{props.title}</h3>
         <p className="text-gray-600 mb-8">
-          <PortableText blocks={props.text} />
+          <PortableText body={props.text} />
         </p>
       </div>
     </div>

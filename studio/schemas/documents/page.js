@@ -24,7 +24,8 @@ export default {
           { type: 'otherStories' },
           { type: 'homepageSponsors' },
           { type: 'headerBar' },
-          { type: 'pageContent' }
+          { type: 'pageContent' },
+          { type: 'advertisement' }
         ],
       },
     ],
