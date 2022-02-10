@@ -7,12 +7,18 @@ export default {
     initialValue: () => ({
         title: 'change me',
         startTime: new Date().toISOString(),
-        endTime: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString()
+        endTime: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString(),
+        slug: {
+            type: 'slug', 
+            name: 'slug',
+            current: `draft/${Math.floor(Math.random() * 10000)}`
+          },
       }),
     fieldsets: [
         {
           title: 'Venue',
           name: 'venue',
+          description: 'The place or location where the event is happening.'
         },
       ],
     fields: [
@@ -65,6 +71,12 @@ export default {
             type: 'number',
             title: 'Cost',
             description: 'The cost of the event. (leave empty or 0 for free event)'
+        },
+        {
+            name: 'poc',
+            type: 'poc',
+            title: 'Point of Contact',
+            description: 'The Point of Contact for the event.',
         },
         {
             name: 'venueName',

@@ -16,7 +16,7 @@ function DesktopPreviewIFrame() {
       return (
         <React.Fragment>
           {env !== 'development' && <div style={{ padding: '0 0.5em' }}>
-            <p>This is a production preview showing cojntent updates on Gatsby Cloud. <a href="/dashboard">Trigger a full deployment</a> to publish changes.</p>
+            <p>This is a production preview showing content updates on Gatsby Cloud. <a href="/dashboard">Trigger a full deployment</a> to publish changes.</p>
           </div>}
           <iframe
             style={{

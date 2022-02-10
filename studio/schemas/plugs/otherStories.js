@@ -19,11 +19,13 @@ export default {
     ],
     preview: {
         select: {
-          title: 'title'
+          title: 'title',
+          limit: 'limit'
         },
-        prepare({ title }) {
+        prepare({ title, limit }) {
           return {
-            title: title
+            title: title,
+            subtitle: `Limit: ${limit}`
           }
         }
       }

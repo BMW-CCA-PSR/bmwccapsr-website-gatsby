@@ -10,7 +10,8 @@ export default {
       {
         name: 'heading',
         type: 'string',
-        title: 'Heading'
+        title: 'Heading',
+        validation: Rule => Rule.max(60).warning(`A title shouldn't be more than 60 characters.`)
       },
       {
         name: 'tagline',

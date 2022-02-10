@@ -1,18 +1,32 @@
 import React from "react";
-import { buildImageObj } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import Image from 'gatsby-plugin-sanity-image';
+import { Box, Text } from '@theme-ui/components';
 
-const MainImage = ({ mainImage, width = 1200 }) => {
-  const imgUrl =
-    mainImage &&
-    imageUrlFor(buildImageObj(mainImage))
-      .width(width)
-      .height(Math.floor((9 / 16) * width))
-      .fit("crop")
-      .auto("format")
-      .url();
-
-  return imgUrl ? <img src={imgUrl} alt={mainImage.alt || ""} /> : <></>;
+function MainImage(props){
+  return (
+    (props ? 
+    <Box sx={{
+      backgroundColor: "lightgray",
+      padding: '1.5rem',
+    }}>
+      <Image
+        {...props.mainImage}
+        width={300}
+        alt={props.mainImage.alt}
+        sx={{
+          width: "50px",
+          height: "50px", 
+          objectFit: "cover",
+        }}
+      />
+    <Text sx={{
+      variant: "stypes.p", 
+      py: "1rem", 
+      px: "0.5rem", 
+      color: `black`
+    }}>{props.mainImage.caption}</Text>
+    </Box> : <></>)
+  );
 };
 
 export default MainImage;

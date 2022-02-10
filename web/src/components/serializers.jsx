@@ -16,7 +16,12 @@ const AuthorReference = ({ node }) => {
 const serializers = {
   types: {
     authorReference: AuthorReference,
-    mainImage: ({ node }) => <MainImage mainImage={node} />,
+    mainImage: ({ node }) => <MainImage mainImage={node} sx={{
+      //width: "100%",
+      maxWidth: "100px",
+      mx: "auto",
+      pr: "1rem"
+    }}/>,
     videoEmbed: ({ node }) => <ReactPlayer className="mt-6 mb-6" url={node.url} controls />,
     instagram: ({ node }) => {
       if (!node.url) return null;

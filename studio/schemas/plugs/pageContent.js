@@ -19,7 +19,7 @@ export default {
         },
         prepare({ title }) {
           return {
-            title: `Page Content: ${disabled ? 'DISABLED' : title}` 
+            title: `Page Content: ${title ? title : ''}` 
           }
         }
       }

@@ -34,6 +34,7 @@ import variation from './objects/variation'
 import openGraph from './objects/openGraph'
 import navItem from './objects/navItem'
 import address from './objects/address'
+import poc from './objects/poc'
 
 const allPlugs = Object.values(plugs).map((plug) => {
   return { ...plug, fields: plugDefaultFields.concat(plug.fields) }
@@ -67,7 +68,8 @@ export default createSchema({
     advertiser,
     advertiserCategory,
     address,
-    workflow
+    workflow,
+    poc
   ])
   .concat(allPlugs),
 })
