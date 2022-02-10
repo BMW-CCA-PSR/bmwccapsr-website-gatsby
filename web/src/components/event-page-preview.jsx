@@ -7,7 +7,7 @@ import { getEventsUrl } from "../lib/helpers";
 import SanityImage from 'gatsby-plugin-sanity-image';
 
 function EventPagePreview(props) {
-  const category = props.category.title
+  const category = props.category ?  props.category.title : ''
   const cityState = props.address && props.address.city && props.address.state ? `${props.address.city}, ${props.address.state}` : "TBD"
   return (
     <Link
@@ -54,14 +54,14 @@ function EventPagePreview(props) {
             }}>
               <div sx={{justifyContent: "center", textAlign: "center"}}>
                 <Text sx={{variant: "styles.h4", display: "block"}}>{format(parseISO(props.startTime), "MMM")}</Text>
-                <Text sx={{variant: "styles.h3", }}>{format(parseISO(props.startTime), "i")}</Text>
+                <Text sx={{variant: "styles.h3", }}>{format(parseISO(props.startTime), "d")}</Text>
               </div>
             </Box>
           </div>
         )}
         <Container p={3}>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
-          <Text sx={{variant: "styles.h5"}}>{cityState}</Text>
+          <Text sx={{variant: "styles.h5", textTransform: "capitalize"}}>{cityState}</Text>
         </Container>
       </Card>
     </Link>

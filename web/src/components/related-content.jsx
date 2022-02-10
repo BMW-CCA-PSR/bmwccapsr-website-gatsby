@@ -73,7 +73,7 @@ function RelatedContent(props) {
                           }}>
                             <div sx={{justifyContent: "center", textAlign: "center"}}>
                               <Text sx={{variant: "styles.h4", display: "block"}}>{format(parseISO(startTime), "MMM")}</Text>
-                              <Text sx={{variant: "styles.h3", }}>{format(parseISO(startTime), "i")}</Text>
+                              <Text sx={{variant: "styles.h3", }}>{format(parseISO(startTime), "d")}</Text>
                             </div>
                           </Box>}
                     </div>
@@ -82,7 +82,7 @@ function RelatedContent(props) {
                     <Box p={3}>
                         <Text sx={{ variant: 'text.label'}}>{cat}</Text>
                         <Heading sx={{ textDecoration: "none" }} variant="styles.h4">{title}</Heading>
-                        {!isArticle && <Text sx={{variant: "styles.h5"}}>{cityState}</Text>}
+                        {!isArticle && <Text sx={{variant: "styles.h5", textTransform: "capitalize"}}>{cityState}</Text>}
                         {/* <Flex sx={{py:"0.5rem"}}>
 						  <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
 						  <Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem"}}>{authorString}</Text>

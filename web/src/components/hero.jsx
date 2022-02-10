@@ -45,7 +45,7 @@ function Hero(props) {
           paddingTop: ["120px", "120px","160px", "160px"]
         }}>
           <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
-          <Heading variant="styles.h1" sx={{color: `${fontColor}`}}>{props.heading}</Heading>
+          <Heading variant="styles.h1" sx={{color: `${fontColor}`, lineHeight: "55px"}}>{props.heading}</Heading>
           <div sx={{py: "20px"}}>
             <Text variant="styles.h3" sx={{color: `${fontColor}`}}>{props.tagline}</Text>
           </div>

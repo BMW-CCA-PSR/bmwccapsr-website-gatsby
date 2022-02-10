@@ -5,6 +5,11 @@ export default {
     initialValue: () => ({
       title: 'change me',
       publishedAt: new Date().toISOString(),
+      slug: {
+        type: 'slug', 
+        name: 'slug',
+        current: `draft/${Math.floor(Math.random() * 10000)}`
+      },
     }),
     fields: [
       {

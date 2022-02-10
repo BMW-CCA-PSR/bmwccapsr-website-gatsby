@@ -21,11 +21,13 @@ export default {
     ],
     preview: {
         select: {
-          type: 'type'
+          type: 'type',
+          title: 'title'
         },
-        prepare({ type }) {
+        prepare({ title, type }) {
           return {
-            title: disabled ? 'DISABLED' : type ? `Advertisement: ${type}` : `Advertisement`
+            title: type ? `Advertisement: ${type}` : `Advertisement`,
+            subtitle: title ? title : ''
           }
         }
       }

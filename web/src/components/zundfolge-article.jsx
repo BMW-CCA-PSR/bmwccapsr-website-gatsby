@@ -41,7 +41,7 @@ function ZundfolgeArticle(props) {
         pb: "1rem",
         width: "100%",
         flexDirection: "row",
-        mx: "auto",
+        //mx: "auto",
       }}>
         <Flex sx={{
           //pr: "16px",
@@ -49,7 +49,7 @@ function ZundfolgeArticle(props) {
         }}>
           <Text variant="text.label"><Link to="/zundfolge/" sx={{textDecoration:"none", color: "text"}}>Zundfolge</Link> / {cat}</Text>
           <Heading variant="styles.h1">{title}</Heading>
-          <Flex sx={{py:"0.5rem"}}>
+          <Flex sx={{py:"0.5rem", width: "100%"}}>
             <Avatar src={avatarImg} sx={{minWidth: "50px", maxHeight: "50px"}}/>
             <Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem"}}>By <b>{authorString}</b> | {pubDate}</Text>
           </Flex>

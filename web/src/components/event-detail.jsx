@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import { format, formatDistance, differenceInHours } from "date-fns";
-import { Container, Heading, Text, Flex, Box, Divider } from "@theme-ui/components";
+import { Container, Heading, Text, Flex, Box, Divider, Link } from "@theme-ui/components";
 import EventMap from "./event-map";
 
 function EventDetails(props) {
@@ -51,9 +51,9 @@ function EventDetails(props) {
                     <Heading variant="styles.h4">Address</Heading>
                     {address.line2 &&<Text variant="styles.p">{address.line1}</Text>}
                     {address.line2 &&<Text variant="styles.p">{address.line2}</Text>}
-                    {address.city && address.state && <Text variant="styles.p">{address.city}, {address.state}</Text>}
+                    {address.city && address.state && <Text variant="styles.p" sx={{textTransform: "capitalize"}}>{address.city}, {address.state}</Text>}
                     {props.website && <Heading variant="styles.h4">Website</Heading>}
-                    {props.website && <Text variant="styles.p">{props.website}</Text>}
+                    {props.website && <Text variant="styles.p" sx={{textAlign: "left", width: "100%", wordWrap: "break-word"}}><a href={props.website}>{props.website}</a></Text>}
                 </Flex>
             </Flex>
             {/* Right col (map) */}

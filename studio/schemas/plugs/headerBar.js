@@ -15,7 +15,7 @@ export default {
         },
         prepare({ title }) {
           return {
-            title: `Section Header: ${disabled ? 'DISABLED' : title}` 
+            title: `Section Header: ${title ? title : ''}` 
           }
         }
       }
