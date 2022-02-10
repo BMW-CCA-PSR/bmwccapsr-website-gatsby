@@ -1,10 +1,10 @@
 /** @jsxImportSource theme-ui */
 import { Themed } from "theme-ui"
 import React from "react";
-import Figure from "./Figure";
-import MainImage from "./MainImage";
 import ReactPlayer from "react-player";
 import InstagramEmbed from "react-instagram-embed";
+import SanityImage from "gatsby-plugin-sanity-image"
+import { Box, Text } from '@theme-ui/components';
 
 const AuthorReference = ({ node }) => {
   if (node && node.author && node.author.name) {
@@ -12,16 +12,32 @@ const AuthorReference = ({ node }) => {
   }
   return <></>;
 };
-
 const serializers = {
   types: {
     authorReference: AuthorReference,
-    mainImage: ({ node }) => <MainImage mainImage={node} sx={{
-      //width: "100%",
-      maxWidth: "100px",
-      mx: "auto",
-      pr: "1rem"
-    }}/>,
+    mainImage: ({ node }) => 
+      <Box sx={{
+          backgroundColor: "lightgray",
+          padding: '0.5rem',
+          borderRadius: "6px"
+        }}>
+          <SanityImage
+          {...node}
+          width={300}
+          alt={node.alt}
+          sx={{
+            width: "100%",
+            objectFit: "cover",
+            borderRadius: "6px"
+          }}
+        />
+        <Text sx={{
+          variant: "styles.h5", 
+          py: "1rem", 
+          px: "0.5rem", 
+          color: `black`
+        }}>{node.caption}</Text>
+      </Box>,
     videoEmbed: ({ node }) => <ReactPlayer className="mt-6 mb-6" url={node.url} controls />,
     instagram: ({ node }) => {
       if (!node.url) return null;
