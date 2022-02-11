@@ -60,7 +60,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 					<div sx={{ mx: 'auto' }} />
 					{showNav &&
 					navMenuItems && (
-						<div sx={{ height: '60px' }}>
+						<div sx={{ height: '60px', pr: "1rem" }}>
 							{index > 2 ? (
 								<ul
 									sx={{
