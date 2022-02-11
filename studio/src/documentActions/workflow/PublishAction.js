@@ -17,6 +17,7 @@ export function PublishAction(props) {
     }
 
     metadata.setState('published')
+    metadata.clearAssignees()
     ops.publish.execute()
     props.onComplete()
   }
