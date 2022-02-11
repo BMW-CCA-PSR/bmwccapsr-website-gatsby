@@ -20,9 +20,9 @@ const Dropdown = props => {
             <li
                 sx={{
                     textTransform: "uppercase",
-                    px: "8px",
                     position: "relative",
                     height: "100%",
+                    textAlign: "center",
                     ":hover": {
                         backgroundColor: "primary",
                         cursor: "pointer",
@@ -39,6 +39,7 @@ const Dropdown = props => {
                 <a
                     sx={{
                         textDecoration: "none",
+                        px: "2rem",
                         cursor: "pointer",
                         display: "flex",
                         height: "100%",
@@ -64,7 +65,8 @@ const Dropdown = props => {
                             position: "absolute",
                             marginTop: "0px",
                             borderRadius: "6px",
-                            left: "0px",
+                            textAlign: "center",
+                            right: "0",
                             //borderBottomRightRadius: "6px",
                             //borderBottomLeftRadius: "6px",
                             cursor: "pointer",

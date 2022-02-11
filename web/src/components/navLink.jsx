@@ -27,14 +27,14 @@ const NavLink = props => {
       sx={subMenu ? {
         textDecoration: "none",
         textTransform: "uppercase",
-        color: "background"
+        color: "background",
       } : {
         textDecoration: "none",
         textTransform: "uppercase",
         color: "darkgray",
         display: "flex",
         alignItems: "center",
-        px: "8px",
+        px: "2rem",
         height: "100%",
         ":hover": {
           backgroundColor: "primary",
