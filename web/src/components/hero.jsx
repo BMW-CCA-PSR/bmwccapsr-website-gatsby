@@ -4,7 +4,7 @@ import PortableText from "./portableText";
 import clientConfig from "../../client-config";
 import CTALink from "./CTALink";
 import SanityImage from "gatsby-plugin-sanity-image"
-import { Heading, Container, Flex, Box, Text } from "theme-ui"
+import { Heading, Text } from "theme-ui"
 
 function Hero(props) {
   const image = props.image

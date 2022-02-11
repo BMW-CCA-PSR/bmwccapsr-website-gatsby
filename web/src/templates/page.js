@@ -117,6 +117,7 @@ function Page(props) {
             el = <Flex sx={{
               mx: "auto",
               my: "20px",
+              px: ["16px","16px","50px","100px"],
               justifyContent: "center"
               }}>
                 <PortableText key={c._key} {...c} color={'text'} />;
