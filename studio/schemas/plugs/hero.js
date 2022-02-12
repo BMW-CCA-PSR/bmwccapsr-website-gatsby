@@ -20,6 +20,18 @@ export default {
         validation: Rule => Rule.max(60).error(`A tagline shouldn't be more than 60 characters.`)
       },
       {
+        title: "Text Color Override",
+        description: "Optional text color override",
+        name: "colors",
+        type: "colorlist", // required
+        options: {
+          list: [
+            { title: "Black", value: "#000000" },
+            { title: "White", value: "#FFFFFF" },
+          ]
+        }
+      },
+      {
         name: 'image',
         type: 'mainImage',
         validation: Rule => Rule.required(),

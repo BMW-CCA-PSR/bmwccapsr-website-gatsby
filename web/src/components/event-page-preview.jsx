@@ -14,7 +14,6 @@ function EventPagePreview(props) {
       to={getEventsUrl(props.slug.current)}
       sx={{textDecoration: "none"}}
     >
-      <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
       <Card
         sx={{
           textDecoration: "none",
@@ -60,6 +59,7 @@ function EventPagePreview(props) {
           </div>
         )}
         <Container p={3}>
+          <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
           <Text sx={{variant: "styles.h5", textTransform: "capitalize"}}>{cityState}</Text>
         </Container>

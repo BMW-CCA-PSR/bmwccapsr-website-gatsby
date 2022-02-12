@@ -64,7 +64,7 @@ const Dropdown = props => {
                             opacity: "0",
                             position: "absolute",
                             marginTop: "0px",
-                            borderRadius: "6px",
+                            //borderRadius: "6px",
                             textAlign: "center",
                             right: "0",
                             //borderBottomRightRadius: "6px",

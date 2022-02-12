@@ -32,7 +32,7 @@ const serializers = {
           }}
         />
         <Text sx={{
-          variant: "styles.h5", 
+          variant: "styles.p", 
           py: "1rem", 
           px: "0.5rem", 
           color: `black`
