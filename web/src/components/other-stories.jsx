@@ -60,7 +60,6 @@ var style = {
         sx={{textDecoration: "none"}}
       >
         <div sx={{ maxWidth: "600px",}}>
-        <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
         <Card
           sx={{
             textDecoration: "none",
@@ -75,6 +74,7 @@ var style = {
         >
 		  <StoryImg {...props.node.mainImage} />
           <Box p={3}>
+            <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
             <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.node.title}</Heading>
             <Flex sx={{py:"0.5rem"}}>
 						  <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
@@ -113,7 +113,8 @@ const OtherStories = (props) => {
               listStyle: 'none',
               display: 'grid',
               gridGap: 3,
-              gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))',
+              gridAutoFlow: "dense",
+              gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 1fr))',
               gridAutoRows: "minmax(50px, auto)",
               m: 0,
               p: 0,

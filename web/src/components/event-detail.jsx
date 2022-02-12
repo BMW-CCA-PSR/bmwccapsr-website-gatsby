@@ -49,11 +49,11 @@ function EventDetails(props) {
                     {props.venueName &&<Heading variant="styles.h4">Name</Heading>}
                     {props.venueName &&<Text variant="styles.p">{props.venueName}</Text>}
                     <Heading variant="styles.h4">Address</Heading>
-                    {address.line2 &&<Text variant="styles.p">{address.line1}</Text>}
+                    {address.line1 &&<Text variant="styles.p">{address.line1}</Text>}
                     {address.line2 &&<Text variant="styles.p">{address.line2}</Text>}
                     {address.city && address.state && <Text variant="styles.p" sx={{textTransform: "capitalize"}}>{address.city}, {address.state}</Text>}
                     {props.website && <Heading variant="styles.h4">Website</Heading>}
-                    {props.website && <Text variant="styles.p" sx={{textAlign: "left", width: "100%", wordWrap: "break-word"}}><a href={props.website}>{props.website}</a></Text>}
+                    {props.website && <Text variant="styles.p" sx={{textAlign: "left", width: "100%", wordWrap: "break-word"}}><a href={props.website}>Link</a></Text>}
                 </Flex>
             </Flex>
             {/* Right col (map) */}

@@ -8,6 +8,8 @@ import { Heading, Text } from "theme-ui"
 
 function Hero(props) {
   const image = props.image
+  console.log(props.colors)
+  const colorOverride = props.colors ? props.colors.value : null
   let fontColor = "#000"
   if (
     props.image &&
@@ -17,6 +19,7 @@ function Hero(props) {
   ) {
     fontColor = props.image.asset.metadata.palette.dominant.foreground
   }
+  fontColor = colorOverride ? colorOverride : fontColor
   return (
     <div
       sx={{
