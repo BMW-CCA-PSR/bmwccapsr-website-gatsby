@@ -27,7 +27,9 @@ const Cta = ({ label, title, body, ctas }) => (
       {(ctas || []).map((c) => (
         <div sx={{
           flex: "1 1 0%",
+          flexDirection: "column",
           py: "0.5rem",
+          mx: "10px",
           textAlign: "center"
         }}>
           <CTALink
