@@ -1,7 +1,6 @@
 /** @jsxImportSource theme-ui */
 import NavLink from "./navLink";
 import React from "react";
-import CTALink from "./CTALink";
 
 const Dropdown = props => {
     const link = props.navigationItemUrl
@@ -86,7 +85,7 @@ const Dropdown = props => {
                             <li
                                 sx={{
                                     clear: "both",
-                                    padding: "1rem",
+                                    //p: "1rem",
                                     ":hover": {
                                         backgroundColor: "primary",
                                     },

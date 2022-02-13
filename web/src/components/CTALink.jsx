@@ -1,71 +1,51 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { Link, navigate } from "gatsby";
+import { Link } from "gatsby";
+import { Button } from "@theme-ui/components";
 
-const doNavigate = target => {
-  if (!target || !target.length) {
-    return;
-  }
-  const internal = /^\/(?!\/)/.test(target);
-  if (internal) {
-    navigate(target);
-  } else {
-    window.location = target;
-  }
-};
+
 var style = {
   textTransform: "uppercase",
+  textDecoration: "none",
+  maxWidth: "100px",
   fontSize: 15,
   backgroundColor: "primary",
   border: "none",
+  wordWrap: "break-word",
   color: "white",
   py: "8px",
   px: "20px",
-  borderRadius: "2px",
+  borderRadius: "4px",
+  transition: "background-color 0.5s ease-out",
   boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
   "&:hover":{
-    color: "black",
-    bg: "highlight",
+    color: "white",
+    bg: "secondary",
   }
 }
 
 const CTALink = props => {
-  let link = props.route || props.link || "#";
-  if (
-    props.landingPageRoute &&
-    props.landingPageRoute.slug &&
-    props.landingPageRoute.slug.current
-  ) {
-    link = `/${props.landingPageRoute.slug.current}`;
-  }
-
-  if (props.kind === "button") {
+  console.log(props)
+  // Internal
+  if (props.landingPageRoute || props.route) {
+    let path = props.landingPageRoute ? `/${props.landingPageRoute.slug.current}` : props.route ? props.route : "/"
     return (
-      <button
-        id="navAction"
-        sx={style}
-        onClick={() => doNavigate(link)}
-        className={props.buttonActionClass || ""}
-      >
-        {props.title}
-      </button>
+      <Link to={path}>
+        <Button sx={style}>
+          {props.title}
+        </Button>
+      </Link>
     );
-  }
-
   // External
-  if (props.link) {
+  } else if (props.link) {
     return (
-      <a href={props.link} target="_blank" rel="noopener noreferrer" sx={style}>
-        {props.title}
+      <a href={props.link} sx={{textDecoration: "none", color: "white"}}>
+        <Button sx={style}>
+          {props.title}
+        </Button>
       </a>
-    );
+    )
   }
-
-  return (
-    <Link to={link} sx={style}>
-      {props.title}
-    </Link>
-  );
 };
 
 export default CTALink;

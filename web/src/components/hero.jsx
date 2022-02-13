@@ -8,7 +8,6 @@ import { Heading, Text } from "theme-ui"
 
 function Hero(props) {
   const image = props.image
-  console.log(props.colors)
   const colorOverride = props.colors ? props.colors.value : null
   let fontColor = "#000"
   if (
@@ -48,7 +47,7 @@ function Hero(props) {
           paddingTop: ["120px", "120px","160px", "160px"]
         }}>
           <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
-          <Heading sx={{fontSize: ["l","xl"], color: `${fontColor}`, lineHeight: ["40px", "60px"]}}>{props.heading}</Heading>
+          <Heading sx={{fontSize: ["50px","xl"], color: `${fontColor}`, lineHeight: ["40px", "60px"]}}>{props.heading}</Heading>
           <div sx={{py: "20px"}}>
             <Text variant="styles.h3" sx={{color: `${fontColor}`}}>{props.tagline}</Text>
           </div>

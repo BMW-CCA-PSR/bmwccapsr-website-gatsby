@@ -14,7 +14,7 @@ export default {
         options: {
           list: [
             { "title": "Banner", "value": "banner"},
-            { "title": "Box", "value": "box"},
+            //{ "title": "Box", "value": "box"},
           ],
         }
     },

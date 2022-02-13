@@ -16,38 +16,31 @@ export default {
       {
         title: 'Title',
         name: 'title',
-        type: 'string'
+        type: 'string',
+        validation: Rule => Rule.max(32).error(`A cta title cannot exceed 32 characters.`)
       },
       {
-        title: 'Landing page',
+        title: 'Internal Landing page',
         name: 'landingPageRoute',
         type: 'reference',
+        description: 'Only for links to Internal dynamic pages',
         fieldset: 'link',
         to: [{type: 'route'}]
       },
       {
-        title: 'Path',
+        title: 'Internal Path',
         name: 'route',
         fieldset: 'link',
-        description: 'Example: /blog',
+        description: 'Example: /zundfolge -- Only for links to Internal static pages',
         type: 'string'
       },
       {
         title: 'External link',
         name: 'link',
         type: 'string',
-        description: 'Example: https://www.sanity.io',
+        description: 'Example: https://www.sanity.io -- Only for links to External pages',
         fieldset: 'link'
       },
-      {
-        title: 'Kind',
-        name: 'kind',
-        type: 'string',
-        options: {
-          layout: 'radio',
-          list: ['button', 'link']
-        }
-      }
     ],
     preview: {
       select: {

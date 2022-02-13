@@ -3,8 +3,6 @@ import React from "react";
 import PortableText from "../components/portableText";
 import CTALink from "./CTALink";
 import { Container, Flex, Heading } from "@theme-ui/components";
-import HorizontalLine from "./horizontal-line";
-import { displayPartsToString } from "typescript";
 
 const Cta = ({ label, title, body, ctas }) => (
   <Container sx={{

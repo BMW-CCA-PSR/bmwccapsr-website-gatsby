@@ -76,7 +76,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 										if (i.navigationItemUrl) {
 											return <Dropdown key={i._key} {...i} />;
 										} else if (i._type == 'link') {
-											return <NavLink key={i._key} {...i} />;
+											return <NavLink key={i._key} {...i} sx={{height: "100%"}} />;
 										}
 									})}
 								</ul>
