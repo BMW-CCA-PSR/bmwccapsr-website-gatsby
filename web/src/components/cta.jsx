@@ -19,9 +19,7 @@ const Cta = ({ label, title, body, ctas }) => (
       variant: "styles.h2",
       textAlign: "center",
     }}>{title}</Heading>
-    <HorizontalLine width="300"/>
     <div sx={{
-      //my: "0.5rem",
       variant: "styles.h3"
     }}>
       <PortableText body={body} />
