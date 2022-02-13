@@ -1,6 +1,8 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import { Link } from "gatsby";
+import { Box } from "@theme-ui/components";
+
 
 const NavLink = props => {
   let subMenu = props.subMenu;
@@ -24,10 +26,13 @@ const NavLink = props => {
   return (
     <Link
       to={link}
-      sx={subMenu ? {
+      sx={{textDecoration: "none", height: "100%"}}
+    >
+        <Box sx={subMenu ? {
         textDecoration: "none",
         textTransform: "uppercase",
         color: "background",
+        p: "1rem"
       } : {
         textDecoration: "none",
         textTransform: "uppercase",
@@ -43,6 +48,7 @@ const NavLink = props => {
         },
       }}>
       {props.title}
+      </Box>
     </Link>
   );
 };

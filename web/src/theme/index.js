@@ -10,7 +10,7 @@ module.exports = {
     gray: "#777",
     darkgray: "#444444"
   },
-  breakpoints: ["480px", "768px", "1025px", "1200px"],
+  breakpoints: ["480px", "768px", "1050px", "1200px"],
   fonts: {
     body: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif",
     heading: "inherit",
@@ -30,7 +30,8 @@ module.exports = {
   },
   lineHeights: {
     body: 1.5,
-    heading: 1.1,
+    label: 1.1,
+    heading: 0.9,
   },
   letterSpacings: {
     normal: "0",
@@ -58,7 +59,7 @@ module.exports = {
     label: {
       fontFamily: "heading",
       fontWeight: "body",
-      lineHeight: "body",
+      lineHeight: "label",
       fontSize: "xs",
       letterSpacing: "wide",
       textTransform: "uppercase",

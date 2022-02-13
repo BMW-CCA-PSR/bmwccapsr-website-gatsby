@@ -5,19 +5,20 @@ export default {
     fields: [
       {
         name: 'label',
-        type: 'string'
+        type: 'string',
+        validation: Rule => Rule.max(16).error(`A label cannot exceed 16 characters.`)
       },
       {
         name: 'heading',
         type: 'string',
         title: 'Heading',
-        validation: Rule => Rule.max(60).error(`A title shouldn't be more than 60 characters.`)
+        validation: Rule => Rule.max(64).error(`A title cannot exceed 64 characters.`)
       },
       {
         name: 'tagline',
         type: 'string',
         title: 'Tagline',
-        validation: Rule => Rule.max(60).error(`A tagline shouldn't be more than 60 characters.`)
+        validation: Rule => Rule.max(32).error(`A tagline cannot exceed 32 characters.`)
       },
       {
         title: "Text Color Override",

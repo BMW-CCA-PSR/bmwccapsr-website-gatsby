@@ -18,11 +18,12 @@ var style = {
     py: "8px",
     px: "20px",
     position: "relative",
-    borderRadius: "2px",
+    borderRadius: "4px",
+	transition: "background-color 0.5s ease-out",
     boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
     "&:hover":{
-      color: "black",
-      bg: "highlight",
+      color: "white",
+      bg: "secondary",
     }
   }
 

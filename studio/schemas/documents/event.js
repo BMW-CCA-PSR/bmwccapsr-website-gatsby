@@ -26,7 +26,8 @@ export default {
             name: 'title',
             type: 'string',
             title: 'Title',
-            description: 'Titles should be catchy, descriptive, and not too long',
+            description: 'Titles should be catchy, descriptive, and not too long (< 32 characters)',
+            validation: Rule => Rule.max(32).error(`A title cannot exceed 32 characters.`)
         },
         {
             name: 'startTime',
