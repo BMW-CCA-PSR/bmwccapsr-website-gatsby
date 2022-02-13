@@ -24,7 +24,7 @@
     "gatsby": "^4.5.4",
     "gatsby-background-image": "^1.5.3",
     "gatsby-image": "^3.11.0",
-    "gatsby-plugin-gatsby-cloud": "^4.5.2",
+    "gatsby-plugin-gatsby-cloud": "^4.7.0",
     "gatsby-plugin-graphql-codegen": "^3.0.0",
     "gatsby-plugin-image": "^2.5.2",
     "gatsby-plugin-mdx": "^3.5.2",
