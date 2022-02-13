@@ -7,7 +7,7 @@ import { Button } from "@theme-ui/components";
 var style = {
   textTransform: "uppercase",
   textDecoration: "none",
-  maxWidth: "100px",
+  maxWidth: "200px",
   fontSize: 15,
   backgroundColor: "primary",
   border: "none",
@@ -25,7 +25,6 @@ var style = {
 }
 
 const CTALink = props => {
-  console.log(props)
   // Internal
   if (props.landingPageRoute || props.route) {
     let path = props.landingPageRoute ? `/${props.landingPageRoute.slug.current}` : props.route ? props.route : "/"
