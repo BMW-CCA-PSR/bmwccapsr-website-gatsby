@@ -1,15 +1,12 @@
 /** @jsxImportSource theme-ui */
 import React from 'react';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Heading, Flex } from '@theme-ui/components';
-import { Link } from "gatsby";
-import {BoxIcon, BoxIconFlipped} from './box-icons';
 import BoxHeader from './BoxHeader';
 
 const HomepageSponsors = (props) => {
     return (
-        <div>
-			<BoxHeader title='Our Partners'/>
+        <div sx={{py: '1.5rem'}}>
+			<BoxHeader title={props.title}/>
             <div>
                 <ul sx={{
                     listStyle: 'none',
@@ -25,8 +22,8 @@ const HomepageSponsors = (props) => {
                 }}>
                     {props.edges &&
                     props.edges.map((ad) => (
-                        <Link
-                            to={ad.node.href}
+                        <a
+                            href={ad.node.href}
                             sx={{textDecoration: "none"}}
                         >
                             <SanityImage 
@@ -41,7 +38,7 @@ const HomepageSponsors = (props) => {
                                 maxHeight: '300px',
                                 objectFit: 'contain',
                             }}/>
-                        </Link>
+                        </a>
                     ))}
                 </ul>
             </div>

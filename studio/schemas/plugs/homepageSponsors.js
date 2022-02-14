@@ -1,7 +1,7 @@
 export default {
     type: 'object',
     name: 'homepageSponsors',
-    title: 'Homepage Sponsors',
+    title: 'Homepage Partners',
     fields: [
       {
         type: 'string',

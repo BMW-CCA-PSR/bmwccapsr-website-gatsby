@@ -62,12 +62,11 @@ const IndexPage = props => {
       <Container sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
-        //pr: "16px",
         pt: ["6.5rem","6.5rem","10rem","10rem"],
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Our Sponsors</Heading>
+        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Our Partners</Heading>
         {ads && <SponsorPageGrid {...ads} />}
       </Container>
     </Layout>

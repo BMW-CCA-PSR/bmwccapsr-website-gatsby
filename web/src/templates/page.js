@@ -65,7 +65,6 @@ function Page(props) {
         'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
       );
     }
-
     const page = data.page || data.route.page;
     const post = data.post
     const event = data.event
