@@ -73,6 +73,6 @@ export default {
       options: { hotspot: true }
     },
     // { type: 'instagram' },
-    // { type: 'videoEmbed' },
+    { type: 'videoEmbed' },
   ]
 }

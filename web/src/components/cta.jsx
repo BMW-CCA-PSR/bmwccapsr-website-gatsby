@@ -9,7 +9,6 @@ const Cta = ({ label, title, body, ctas }) => (
     mx: "auto",
     textAlign:"center",
     py: "1.5rem",
-    mb: "3rem",
   }}>
     <Heading sx={{
       width: "100%",

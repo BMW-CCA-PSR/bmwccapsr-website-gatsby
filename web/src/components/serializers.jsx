@@ -38,10 +38,13 @@ const serializers = {
           color: `black`
         }}>{node.caption}</Text>
       </Box>,
-    videoEmbed: ({ node }) => <ReactPlayer className="mt-6 mb-6" url={node.url} controls />,
+    videoEmbed: ({ node }) => 
+    <div sx={{mx: "auto", display: "flex", position: "relative", paddingTop: "56.25%", width: ["92vw", "92vw", "50vw", "50vw"]}}>
+      <ReactPlayer sx={{position: "absolute", top: 0}} url={node.url} width="100%" height="100%" controls />
+    </div>,
     instagram: ({ node }) => {
       if (!node.url) return null;
-      return <InstagramEmbed url={node.url} className="container mx-auto mt-6 mb-6" />;
+      return <InstagramEmbed url={node.url} />;
     },
     block(props) {
       switch (props.node.style) {

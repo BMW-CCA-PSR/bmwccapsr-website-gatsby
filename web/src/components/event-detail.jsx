@@ -5,6 +5,7 @@ import { Container, Heading, Text, Flex, Box, Divider, Link } from "@theme-ui/co
 import EventMap from "./event-map";
 
 function EventDetails(props) {
+    console.log(props)
     const { startTime, endTime, address } = props;
     var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
     var numHours = startTime && endTime && (differenceInHours(new Date(endTime), new Date(startTime)))
@@ -38,6 +39,9 @@ function EventDetails(props) {
                     <Text variant="styles.p">{numHours} hours</Text>
                     <Heading variant="styles.h4">Cost</Heading>
                     <Text variant="styles.p">{!props.cost || props.cost == 0 ? "Free" : `$${props.cost}`}</Text>
+                    {props.poc && <Heading variant="styles.h4">Point of Contact</Heading>}
+                    {props.poc.name && <Text variant="styles.p">{props.poc.name}</Text>}
+                    {props.poc.contact && <Text variant="styles.p">{props.poc.contact}</Text>}
                 </Flex>
                 <Flex sx={{
                     flexDirection: "column",
