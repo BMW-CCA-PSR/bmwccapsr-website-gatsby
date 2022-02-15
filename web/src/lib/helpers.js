@@ -1,4 +1,4 @@
-import { format, isFuture } from "date-fns";
+import { format, isFuture, parseISO } from "date-fns";
 
 export function cn(...args) {
   return args.filter(Boolean).join(" ");
@@ -14,7 +14,7 @@ export function filterOutDocsWithoutSlugs({ slug }) {
 }
 
 export function filterOutDocsPublishedInTheFuture({ publishedAt }) {
-  return !isFuture(publishedAt);
+  return !isFuture(parseISO(publishedAt));
 }
 
 export function getZundfolgeUrl(slug) {
