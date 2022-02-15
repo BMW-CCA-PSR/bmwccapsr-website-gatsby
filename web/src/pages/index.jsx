@@ -111,7 +111,7 @@ export const query = graphql`
     }
     event: allSanityEvent(
       filter: {isActive: {eq: true}}
-      sort: {order: DESC, fields: startTime}
+      sort: {order: ASC, fields: startTime}
     ) {
       edges {
         node {
