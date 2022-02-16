@@ -4,6 +4,7 @@ import React from "react";
 import ZundfolgeArticlePreview from "./zundfolge-article-preview";
 
 function ZundfolgeArticlePreviewGrid(props) {
+  console.log(props)
   return (
     <div>
       <ul sx={{

@@ -8,7 +8,7 @@ import {
 } from "../lib/helpers";
 import ZundfolgeArticlePreviewGrid from "../components/zundfolge-article-preview-grid";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
-import { Container, Heading } from "@theme-ui/components";
+import { Container, Heading, Text } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
@@ -120,6 +120,10 @@ const IndexPage = props => {
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
         <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
+        <div sx={{display: "flex", flexDirection: "column"}}>
+          <div sx={{pb: "0.5rem"}}><Text variant="styles.h5" sx={{color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
+          <div><Text variant="styles.h5" sx={{color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Region CCA Since 1969.</div>
+        </div>
         {postNodes && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
         {postNodes && <ZundfolgeArticlePreviewGrid nodes={postNodes} />}
       </Container>

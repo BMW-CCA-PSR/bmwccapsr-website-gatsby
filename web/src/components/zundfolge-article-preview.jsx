@@ -53,12 +53,12 @@ function ZundfolgeArticlePreview(props) {
 					/>
 				)}
 				<Box p={3} sx={{}}>
-					<Text sx={{ variant: 'text.label', color: `${fg}`}}>{cat}</Text>
-					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: `${fg}` }}>{props.title}</Heading>
+					<Text sx={{ variant: 'text.label', color: "white"}}>{cat}</Text>
+					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: "white" }}>{props.title}</Heading>
 					{/* <Text sx={{color: `${fg}`}}>{format(parseISO(props.publishedAt), 'MMMM do, yyyy')}</Text> */}
 					<Flex sx={{py:"0.5rem"}}>
 						<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
-						<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `${fg}`}}>{authorString}</Text>
+						<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: "white"}}>{authorString}</Text>
 					</Flex>
 				</Box>
 			</Card>
