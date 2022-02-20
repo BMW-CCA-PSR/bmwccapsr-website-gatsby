@@ -1,39 +1,43 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { Link, graphql } from "gatsby";
+import { graphql, Link } from "gatsby";
 import {
   mapEdgesToNodes,
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
-import { Container, Heading, Text } from "@theme-ui/components";
+import { Container, Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
-import ZundfolgeArticlePreview from "../components/zundfolge-article-preview";
+import EventPagePreview from "../components/event-page-preview";
 
 export const query = graphql`
-  query ZundfolgePageQuery($skip: Int!, $limit: Int!) {
-    site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
+query EventPageQuery($skip: Int!, $limit: Int!) {
+    site: sanitySiteSettings(_id: {regex: "/(drafts.|)siteSettings/"}) {
       title
       navMenu {
         ...NavMenu
       }
     }
-    posts: allSanityPost(
+    events: allSanityEvent(
       limit: $limit
       skip: $skip
-      sort: { fields: [publishedAt], order: DESC }
-      filter: { slug: { current: { ne: null } }, publishedAt: { ne: null } }
+      sort: {fields: [startTime], order: ASC}
+      filter: {slug: {current: {ne: null}}, isActive: {eq: true}}
     ) {
       edges {
         node {
           id
-          publishedAt
+          startTime
           mainImage {
             ...SanityImage
             alt
+            asset {
+              metadata {
+                lqip
+              }
+            }
           }
           title
           _rawExcerpt
@@ -43,34 +47,14 @@ export const query = graphql`
           category {
             title
           }
-          authors {
-            _key
-            author {
-              image {
-                crop {
-                  _key
-                  _type
-                  top
-                  bottom
-                  left
-                  right
-                }
-                hotspot {
-                  _key
-                  _type
-                  x
-                  y
-                  height
-                  width
-                }
-                asset {
-                  _id
-                  gatsbyImageData
-                  url
-                }
-              }
-              name
-            }
+          endTime
+          location {
+            lat
+            lng
+          }
+          address {
+            city
+            state
           }
         }
       }
@@ -83,8 +67,9 @@ const IndexPage = props => {
   const { numPages, limit, skip, currentPage } = pageContext
   const isFirst = currentPage === 1
   const isLast = currentPage === numPages
-  const prevPage = currentPage - 1 === 1 ? "/zundfolge" : `/zundfolge/page/${(currentPage - 1).toString()}`
-  const nextPage =  `/zundfolge/page/${(currentPage + 1).toString()}`
+  const prevPage = currentPage - 1 === 1 ? "/events" : `/events/page/${(currentPage - 1).toString()}`
+  const nextPage =  `/events/page/${(currentPage + 1).toString()}`
+
 
   if (errors) {
     return (
@@ -95,8 +80,8 @@ const IndexPage = props => {
   }
 
   const site = (data || {}).site;
-  const postNodes = (data || {}).posts
-    ? mapEdgesToNodes(data.posts)
+  const eventNodes = (data || {}).events
+    ? mapEdgesToNodes(data.events)
         .filter(filterOutDocsWithoutSlugs)
         .filter(filterOutDocsPublishedInTheFuture)
     : [];
@@ -106,12 +91,6 @@ const IndexPage = props => {
     );
   }
   const menuItems = site.navMenu && (site.navMenu.items || []);
-  const indexToRemove = 0;
-  const numberToRemove = 4;
-  var galleryNodes = []
-  if (isFirst){
-    galleryNodes = postNodes.splice(indexToRemove, numberToRemove);
-  }
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
       <SEO
@@ -127,29 +106,23 @@ const IndexPage = props => {
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
-        <div sx={{display: "flex", flexDirection: "column"}}>
-          <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
-          <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1969.</div>
-        </div>
-        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Latest Stories</Heading>
+        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Events</Heading>
         <div>
-          {isFirst && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
           <ul sx={{
             listStyle: 'none',
             display: 'grid',
             gridGap: 3,
-            gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
-            gridAutoRows: "minmax(50px, 300px)",
+            gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))',
             m: 0,
             p: 0
           }}>
-            {postNodes.map((node, index) => {
+            {eventNodes &&
+              eventNodes.map((node, index) => {
                 return <li
                   key={index}>
-                  <ZundfolgeArticlePreview {...node} />
-                </li>
-              })}
+                    <EventPagePreview {...node} isInList />
+                  </li>
+            })}
           </ul>
           <div>
             <ul
@@ -181,7 +154,7 @@ const IndexPage = props => {
                   }}
                 >
                   <Link
-                    to={`/zundfolge/${i === 0 ? '' : '/zundfolge/page/' + (i + 1)}`}
+                    to={`/events/${i === 0 ? '' : '/events/page/' + (i + 1)}`}
                     sx={{
                       marginTop: '0.1rem',
                       marginBottom: '0.1rem',

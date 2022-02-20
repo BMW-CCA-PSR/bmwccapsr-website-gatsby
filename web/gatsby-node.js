@@ -159,7 +159,9 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
 
 async function createEventPages(pathPrefix = "/events", graphql, actions, reporter) {
   const { createPage } = actions;
-  const result = await graphql(`
+  const eventPageTemplate = require.resolve("./src/templates/event-page.js")
+  const eventPageLandingPage = require.resolve("./src/templates/events.js")
+  const result = graphql(`
     {
       allSanityEvent(
         filter: { slug: { current: { ne: null } }, isActive: { eq: true } }
@@ -184,34 +186,50 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
         }
       }
     }
-  `);
-
-  if (result.errors) throw result.errors;
-
-  const eventEdges = (result.data.allSanityEvent || {}).edges || [];
-  eventEdges
-    .filter((edge) => isFuture(parseISO(edge.node.startTime)))
-    .forEach((edge) => {
-      const { id, slug = {} } = edge.node;
-      const { next, previous } = edge;
-      const path = `${pathPrefix}/${slug.current}/`;
-      reporter.info(`Creating events page: ${path}`);
-      createPage({
-        path,
-        component: require.resolve("./src/templates/event-page.js"),
-        context: { 
-          id,
-          next: next ? next.id : null, 
-          prev: previous ? previous.id : null
-        },
+  `).then(result => {
+    const eventEdges = (result.data.allSanityEvent || {}).edges || [];
+    eventEdges
+      .filter((edge) => isFuture(parseISO(edge.node.startTime)))
+      .forEach((edge) => {
+        const { id, slug = {} } = edge.node;
+        const { next, previous } = edge;
+        const path = `${pathPrefix}/${slug.current}/`;
+        reporter.info(`Creating events page: ${path}`);
+        createPage({
+          path,
+          component: eventPageTemplate,
+          context: { 
+            id,
+            next: next ? next.id : null, 
+            prev: previous ? previous.id : null
+          },
+        });
       });
-    });
+      const eventPerPage = 6
+      const numPages = Math.ceil(eventEdges.length / eventPerPage)
+  
+      Array.from({length: numPages }).forEach((_, i) => {
+        const path = i === 0 ? `${pathPrefix}/` : `${pathPrefix}/page/${i + 1}`
+        reporter.info(`Creating events landing page: ${path}`);
+        createPage({
+          path,
+          component: eventPageLandingPage,
+          context: {
+            limit: eventPerPage,
+            skip: i * eventPerPage,
+            numPages,
+            currentPage: i + 1
+          }
+        })
+      })
+
+  })
 }
 
 exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
   createZundfolgePages("/zundfolge", graphql, actions, reporter);
-  await createEventPages("/events", graphql, actions, reporter);
+  createEventPages("/events", graphql, actions, reporter);
 };
 
 const path = require("path")
