@@ -52,11 +52,13 @@ const EventSlider = (props) => {
             backgroundColor: "secondary", 
             width: "100%",
             height: "100%",
+            alignItems: "center",
             py: "20px",
             px: "1rem"
         }}>
             <Flex sx={{
                 flexDirection: ["column","column","row","row"],
+                alignItems: "center",
                 justifyContent: "center",
                 height: "100%",
                 }}>
@@ -71,6 +73,8 @@ const EventSlider = (props) => {
                 <Text sx={{
                     color: "white",
                     variant: "styles.h3",
+                    justifyContent: "center",
+                    alignContent: "center",
                     mx: ["auto","auto",0,0],
                     //px: "15px",
                     my: ["10px", "10px", "0px", "0px"]
