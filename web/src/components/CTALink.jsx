@@ -38,7 +38,7 @@ const CTALink = props => {
   // External
   } else if (props.link) {
     return (
-      <a href={props.link} sx={{textDecoration: "none", color: "white"}}>
+      <a href={props.link} target="_blank" sx={{textDecoration: "none", color: "white"}}>
         <Button sx={style}>
           {props.title}
         </Button>

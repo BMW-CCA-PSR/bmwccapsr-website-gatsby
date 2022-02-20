@@ -91,7 +91,7 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
   const { createPage } = actions;
   const zundfolgeArticleTemplate = require.resolve("./src/templates/zundfolge-article.js")
   const zundfolgeLandingTemplate = require.resolve("./src/templates/zundfolge.js")
-  return graphql(`
+  await graphql(`
     {
       allSanityPost(
         filter: { slug: { current: { ne: null } }, isPublished: { eq: true } }
@@ -161,7 +161,7 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
   const { createPage } = actions;
   const eventPageTemplate = require.resolve("./src/templates/event-page.js")
   const eventPageLandingPage = require.resolve("./src/templates/events.js")
-  const result = graphql(`
+  await graphql(`
     {
       allSanityEvent(
         filter: { slug: { current: { ne: null } }, isActive: { eq: true } }
@@ -228,8 +228,8 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
 
 exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
-  createZundfolgePages("/zundfolge", graphql, actions, reporter);
-  createEventPages("/events", graphql, actions, reporter);
+  await createZundfolgePages("/zundfolge", graphql, actions, reporter);
+  await createEventPages("/events", graphql, actions, reporter);
 };
 
 const path = require("path")

@@ -113,7 +113,7 @@ const EventPageTemplate = props => {
   const pageData = {...event, next: next ? {...next} : null, prev: prev ? {...prev} : null, boxes: {...boxes}}
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
-    <Layout textWhite={true} navMenuItems={menuItems} >
+    <Layout textWhite={true} navMenuItems={menuItems}>
       {errors && <SEO title="GraphQL Error" />}
       {event && (
         <SEO
