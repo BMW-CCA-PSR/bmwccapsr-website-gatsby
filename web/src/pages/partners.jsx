@@ -15,7 +15,10 @@ query SponsorPageQuery {
         ...NavMenu
       }
     }
-    ads: allSanityAdvertiser(filter: {active: {eq: true}}) {
+    ads: allSanityAdvertiser(
+      filter: {active: {eq: true}}
+      sort: { fields: [name], order: ASC }
+      ) {
         edges {
             node {
                 category {

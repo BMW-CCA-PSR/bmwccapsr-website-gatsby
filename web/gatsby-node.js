@@ -89,7 +89,9 @@ async function createLandingPages(pathPrefix = "/", graphql, actions, reporter) 
 
 async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions, reporter) {
   const { createPage } = actions;
-  const result = await graphql(`
+  const zundfolgeArticleTemplate = require.resolve("./src/templates/zundfolge-article.js")
+  const zundfolgeLandingTemplate = require.resolve("./src/templates/zundfolge.js")
+  return graphql(`
     {
       allSanityPost(
         filter: { slug: { current: { ne: null } }, isPublished: { eq: true } }
@@ -114,21 +116,18 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
         }
       }
     }
-  `);
-
-  if (result.errors) throw result.errors;
-
-  const postEdges = (result.data.allSanityPost || {}).edges || [];
-  postEdges
+  `).then(result => {
+    const postEdges = (result.data.allSanityPost || {}).edges || [];
+    postEdges
     .filter((edge) => !isFuture(parseISO(edge.node.publishedAt)))
     .forEach((edge) => {
       const { id, slug = {} } = edge.node;
       const { next, previous } = edge;
       const path = `${pathPrefix}/${slug.current}/`;
-      reporter.info(`Creating zundfolge page: ${path}`);
+      reporter.info(`Creating zundfolge article page: ${path}`);
       createPage({
         path,
-        component: require.resolve("./src/templates/zundfolge-article.js"),
+        component: zundfolgeArticleTemplate,
         context: { 
           id,
           next: next ? next.id : null, 
@@ -136,6 +135,24 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
         },
       });
     });
+    const articlePerPage = 6
+    const numPages = Math.ceil(postEdges.length / articlePerPage)
+
+    Array.from({length: numPages }).forEach((_, i) => {
+      const path = i === 0 ? `${pathPrefix}/` : `${pathPrefix}/page/${i + 1}`
+      reporter.info(`Creating zundfolge landing page: ${path}`);
+      createPage({
+        path,
+        component: zundfolgeLandingTemplate,
+        context: {
+          limit: articlePerPage,
+          skip: i * articlePerPage,
+          numPages,
+          currentPage: i + 1
+        }
+      })
+    })
+  })
 }
 
 // EVENT PAGE
@@ -193,7 +210,7 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
 
 exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
-  await createZundfolgePages("/zundfolge", graphql, actions, reporter);
+  createZundfolgePages("/zundfolge", graphql, actions, reporter);
   await createEventPages("/events", graphql, actions, reporter);
 };
 

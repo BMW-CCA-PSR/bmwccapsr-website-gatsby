@@ -8,6 +8,7 @@ import SanityImage from 'gatsby-plugin-sanity-image';
 import { imageUrlFor } from "../lib/image-url";
 
 function ZundfolgeArticlePreview(props) {
+	console.log(props)
 	const authorString = String(props.authors.map((author) => (` ${author.author.name}`)))
 	const cat = props.category ? props.category.title : 'null'
 	const avatarImg = props.authors[0].author && imageUrlFor(props.authors[0].author.image)
