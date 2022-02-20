@@ -53,7 +53,7 @@ function ZundfolgeArticlePreview(props) {
 						}}
 					/>
 				)}
-				<Box p={3} sx={{}}>
+				<Box p={3}>
 					<Text sx={{ variant: 'text.label', color: "white"}}>{cat}</Text>
 					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: "white" }}>{props.title}</Heading>
 					{/* <Text sx={{color: `${fg}`}}>{format(parseISO(props.publishedAt), 'MMMM do, yyyy')}</Text> */}

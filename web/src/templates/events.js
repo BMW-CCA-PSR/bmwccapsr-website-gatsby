@@ -107,12 +107,14 @@ const IndexPage = props => {
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
         <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Events</Heading>
+        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Events</Heading>
         <div>
           <ul sx={{
             listStyle: 'none',
             display: 'grid',
             gridGap: 3,
-            gridTemplateColumns: 'repeat(auto-fit, minmax(256px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
+            gridAutoRows: "minmax(50px, 300px)",
             m: 0,
             p: 0
           }}>

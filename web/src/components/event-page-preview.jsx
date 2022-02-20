@@ -2,7 +2,7 @@
 import { format, parseISO } from "date-fns";
 import { Link } from "gatsby";
 import React from "react";
-import { Card, Text, Heading, Container, Box, Flex } from "theme-ui"
+import { Card, Text, Heading, Box, Flex } from "theme-ui"
 import { getEventsUrl } from "../lib/helpers";
 import SanityImage from 'gatsby-plugin-sanity-image';
 
@@ -19,9 +19,10 @@ function EventPagePreview(props) {
           textDecoration: "none",
           color: "text",
           backgroundColor: "lightgrey",
-          width: "100%",
-          maxWidth: "600px",
-          mx: "auto",
+					width: '100%',
+					height: '100%',
+          maxWidth: ["","","50vw","50vw"],
+					mx: 'auto',
           borderRadius: "8px"
         }}
       >
@@ -32,7 +33,8 @@ function EventPagePreview(props) {
             width={600}
             sx={{
               width: '100%',
-              height: '240px',
+              height: '100%',
+              maxHeight: "220px",
               objectFit: 'cover',
               borderTopRightRadius: "8px",
               borderTopLeftRadius: "8px",
@@ -58,11 +60,11 @@ function EventPagePreview(props) {
             </Box>
           </div>
         )}
-        <Container p={3}>
+        <Box sx={{pt: "5px", pl: "10px", height: "100%"}}>
           <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
           <Text sx={{variant: "styles.h5", textTransform: "capitalize"}}>{cityState}</Text>
-        </Container>
+        </Box>
       </Card>
     </Link>
   );
