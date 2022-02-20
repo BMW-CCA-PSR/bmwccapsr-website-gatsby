@@ -34,6 +34,8 @@ function EventDetails(props) {
                     <Heading variant="styles.h3" sx={{pb: 3}}>Details</Heading>
                     <Heading variant="styles.h4">Date</Heading>
                     <Text variant="styles.p">{start}</Text>
+                    <Heading variant="styles.h4">Time</Heading>
+                    <Text variant="styles.p">{format(new Date(startTime), "p")}</Text>
                     <Heading variant="styles.h4">Length</Heading>
                     <Text variant="styles.p">{numHours} hours</Text>
                     <Heading variant="styles.h4">Cost</Heading>
@@ -60,14 +62,14 @@ function EventDetails(props) {
                 </Flex>
             </Flex>
             {/* Right col (map) */}
-            <Box sx={{
+            {/* <Box sx={{
                 width: "100%",
                 textAlign: "center",
                 display: "block",
                 position: "relative"
             }}>
                 <EventMap {...props} />
-            </Box>
+            </Box> */}
         </Flex>
     </Box>)
 }
