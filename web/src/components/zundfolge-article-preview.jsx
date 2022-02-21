@@ -30,11 +30,14 @@ function ZundfolgeArticlePreview(props) {
 			<Card
 				sx={{
 					textDecoration: 'none',
-					background: `linear-gradient(to top, transparent 0%, ${bg} 80%)`,
+					background: `linear-gradient(to top, transparent 50%, black 100%)`,
 					width: '100%',
 					height: '100%',
 					mx: 'auto',
 					borderRadius: '8px',
+					borderStyle: "solid",
+					borderColor: "black",
+					borderWidth: "1px",
 					position: 'relative'
 				}}
 			>

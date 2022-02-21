@@ -161,9 +161,17 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 									</ul>
 								);
 							} else if (i._type == 'link') {
-								return <MobileNavLink key={i._key} {...i} />;
+								return (
+									<div>
+										<Divider sx={{ color: 'darkgray' }} />
+										<MobileNavLink key={i._key} {...i} />
+									</div>)
 							} else if (i._type == 'cta') {
-								return <MobileCTALink key={i._key} {...i} />;
+								return (
+								<div>
+									<Divider sx={{ color: 'darkgray' }} />
+									<MobileCTALink key={i._key} {...i} />
+								</div>)
 							}
 						})}
 					</ul>

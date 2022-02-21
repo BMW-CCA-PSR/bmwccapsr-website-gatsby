@@ -6,7 +6,7 @@ import EventMap from "./event-map";
 
 function EventDetails(props) {
     const { startTime, endTime, address } = props;
-    var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
+    var start = startTime && (format(new Date(startTime), "eeee MMMM do, yyyy"))
     var numHours = startTime && endTime && (differenceInHours(new Date(endTime), new Date(startTime)))
     return (
     <Box sx={{

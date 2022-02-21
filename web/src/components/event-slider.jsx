@@ -9,7 +9,6 @@ var style = {
     textDecoration: "none",
     textTransform: "uppercase",
     fontSize: 15,
-    whiteSpace: "nowrap",
     backgroundColor: "primary",
     border: "none",
     color: "white",
@@ -18,10 +17,11 @@ var style = {
     my: "5px",
     px: "20px",
     position: "relative",
-    borderRadius: "2px",
-    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 2px 1px -1px rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.14)",
+    borderRadius: "4px",
+	transition: "background-color 0.5s ease-out",
+    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
     "&:hover":{
-      color: "black",
+      color: "white",
       bg: "highlight",
     }
   }
@@ -35,13 +35,13 @@ var style = {
     color: "white",
     py: "8px",
     my: "5px",
-    
     px: "20px",
     position: "relative",
-    borderRadius: "2px",
-    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 2px 1px -1px rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.14)",
+    borderRadius: "4px",
+	transition: "background-color 0.5s ease-out",
+    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
     "&:hover":{
-      color: "black",
+      color: "white",
       bg: "highlight",
     }
   }

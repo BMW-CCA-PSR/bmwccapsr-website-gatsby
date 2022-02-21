@@ -14,13 +14,11 @@ const doNavigate = target => {
   }
 };
 var style = {
-  //fontSize: 15,
   backgroundColor: "primary",
   border: "none",
   color: "white",
   p: "0.5rem"
-  //py: ".75rem",
-  //px: "1.3rem",
+
 }
 
 const MobileCTALink = props => {

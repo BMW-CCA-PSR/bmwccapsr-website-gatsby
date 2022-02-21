@@ -34,7 +34,8 @@ var style = {
 			sx={{
 				width: '100%',
 				height: '100%',
-				maxHeight: '200px',
+				maxHeight: '220px',
+        minHeight: '220px',
 				objectFit: 'cover',
         borderTopLeftRadius: "6px",
         borderTopRightRadius: "6px"
@@ -59,17 +60,19 @@ var style = {
         to={getZundfolgeUrl(props.node.slug.current)}
         sx={{textDecoration: "none"}}
       >
-        <div sx={{ maxWidth: "600px",}}>
+        <div sx={{height: "100%"}}>
         <Card
           sx={{
             textDecoration: "none",
             color: "text",
             width: "100%",
-            maxWidth: "600px",
+            height: "100%",
+            borderStyle: "solid",
+            borderWidth: "1px",
             mx: "auto",
             borderRadius: "6px",
             backgroundColor: "white",
-            boxShadow: "0 5px 5px -3px rgba(110, 131, 183, 0.2), 0 3px 14px 2px rgba(110, 131, 183, 0.12), 0 8px 10px 0 rgba(110, 131, 183, 0.14)"
+            //boxShadow: "0 5px 5px -3px rgba(110, 131, 183, 0.2), 0 3px 14px 2px rgba(110, 131, 183, 0.12), 0 8px 10px 0 rgba(110, 131, 183, 0.14)"
           }}
         >
 		  <StoryImg {...props.node.mainImage} />
@@ -113,9 +116,7 @@ const OtherStories = (props) => {
               listStyle: 'none',
               display: 'grid',
               gridGap: 3,
-              gridAutoFlow: "dense",
               gridTemplateColumns: 'repeat(auto-fill, minmax(256px, 1fr))',
-              gridAutoRows: "minmax(50px, auto)",
               m: 0,
               p: 0,
               maxWidth: '1000px',

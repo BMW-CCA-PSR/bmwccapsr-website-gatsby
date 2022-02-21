@@ -71,7 +71,7 @@ function RelatedContent(props) {
                             borderBottomStyle: "solid",
                             borderBottomColor: "highlight"
                           }}>
-                            <div sx={{justifyContent: "center", textAlign: "center"}}>
+                            <div sx={{justifyContent: "center", textAlign: "center", pt: "5px"}}>
                               <Text sx={{variant: "styles.h4", display: "block"}}>{format(parseISO(startTime), "MMM")}</Text>
                               <Text sx={{variant: "styles.h3", }}>{format(parseISO(startTime), "d")}</Text>
                             </div>

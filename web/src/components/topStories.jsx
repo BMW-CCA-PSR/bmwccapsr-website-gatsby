@@ -23,7 +23,7 @@ var style = {
     boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
     "&:hover":{
       color: "white",
-      bg: "secondary",
+      bg: "highlight",
     }
   }
 
@@ -33,6 +33,9 @@ const StoryImg = (props) => {
 			{...props}
 			width={600}
 			sx={{
+				borderStyle: "solid",
+				borderWidth: "1px",
+				borderColor: "black",
 				width: '100%',
 				height: '100%',
 				maxHeight: '300px',

@@ -181,7 +181,7 @@ const IndexPage = props => {
                   }}
                 >
                   <Link
-                    to={`/zundfolge/${i === 0 ? '' : '/zundfolge/page/' + (i + 1)}`}
+                    to={`/zundfolge/${i === 0 ? '' : 'page/' + (i + 1)}`}
                     sx={{
                       marginTop: '0.1rem',
                       marginBottom: '0.1rem',

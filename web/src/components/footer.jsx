@@ -20,7 +20,7 @@ const Footer = ({ siteTitle }) => (
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
-        maxWidth: 768,
+        maxWidth: '1000px',
         mx: 'auto',
         px: 2,
         py: 1,

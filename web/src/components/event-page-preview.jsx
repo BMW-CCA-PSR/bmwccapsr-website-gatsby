@@ -8,7 +8,7 @@ import SanityImage from 'gatsby-plugin-sanity-image';
 
 function EventPagePreview(props) {
   const category = props.category ?  props.category.title : ''
-  const cityState = props.address && props.address.city && props.address.state ? `${props.address.city}, ${props.address.state}` : "TBD"
+  const cityState = props.address && props.address.city && props.address.state ? `${props.address.city}, ${props.address.state}` : ""
   return (
     <Link
       to={getEventsUrl(props.slug.current)}
@@ -18,12 +18,15 @@ function EventPagePreview(props) {
         sx={{
           textDecoration: "none",
           color: "text",
-          backgroundColor: "lightgrey",
+          //backgroundColor: "lightgrey",
 					width: '100%',
 					height: '100%',
           maxWidth: ["","","50vw","50vw"],
-					mx: 'auto',
-          borderRadius: "8px"
+          borderRadius: "9px",
+          display: "flex",
+          flexDirection: "column",
+          borderStyle: "solid",
+          borderWidth: "1px",
         }}
       >
       {props.mainImage && props.mainImage.asset && (
@@ -35,6 +38,7 @@ function EventPagePreview(props) {
               width: '100%',
               height: '100%',
               maxHeight: "220px",
+              minHeight: "220px",
               objectFit: 'cover',
               borderTopRightRadius: "8px",
               borderTopLeftRadius: "8px",
@@ -60,10 +64,10 @@ function EventPagePreview(props) {
             </Box>
           </div>
         )}
-        <Box sx={{pt: "5px", pl: "10px", height: "100%"}}>
+        <Box sx={{py: "5px", px: "10px",  display: "flex", justifyContent: "center", flexDirection: "column"}}>
           <Text sx={{ variant: 'text.label', color: 'black'}}>{category}</Text>
           <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.title}</Heading>
-          <Text sx={{variant: "styles.h5", textTransform: "capitalize"}}>{cityState}</Text>
+          {cityState && <Text sx={{variant: "styles.h5", textTransform: "capitalize"}}>{cityState}</Text>}
         </Box>
       </Card>
     </Link>

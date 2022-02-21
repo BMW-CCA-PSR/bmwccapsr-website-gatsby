@@ -114,7 +114,7 @@ const IndexPage = props => {
             display: 'grid',
             gridGap: 3,
             gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
-            gridAutoRows: "minmax(50px, 300px)",
+            gridAutoRows: "minmax(50px, 325px)",
             m: 0,
             p: 0
           }}>
@@ -156,7 +156,7 @@ const IndexPage = props => {
                   }}
                 >
                   <Link
-                    to={`/events/${i === 0 ? '' : '/events/page/' + (i + 1)}`}
+                    to={`/events/${i === 0 ? '' : 'page/' + (i + 1)}`}
                     sx={{
                       marginTop: '0.1rem',
                       marginBottom: '0.1rem',
