@@ -42,7 +42,7 @@ const NavLink = props => {
   // External
   } else if (props.href) {
     return (
-      <a href={props.href} target="_blank" sx={{textDecoration: "none", color: "white"}}>
+      <a href={props.href} rel="noopener noreferrer" target="_blank" sx={{textDecoration: "none", color: "white"}}>
         <Box sx={subMenu ? styleWithSubMenu : style }>
           {props.title}
         </Box>
