@@ -24,6 +24,8 @@ const HomepageSponsors = (props) => {
                     props.edges.map((ad) => (
                         <a
                             href={ad.node.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             sx={{textDecoration: "none"}}
                         >
                             <SanityImage 

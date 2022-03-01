@@ -2,7 +2,6 @@
 import SanityImage from "gatsby-plugin-sanity-image"
 import React from "react";
 import { Box, Flex } from "@theme-ui/components";
-import { Link } from "gatsby";
 
 const BoxAd = props => {
     const box = props._rawBox
