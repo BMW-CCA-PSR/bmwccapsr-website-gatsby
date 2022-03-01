@@ -17,13 +17,14 @@ export default {
         type: 'string',
         title: 'Title',
         description: 'Titles should be catchy, descriptive, and not too long (< 32 characters)',
-        validation: Rule => Rule.max(32).error(`A title cannot exceed 32 characters.`)
+        validation: Rule => Rule.max(32).error(`A title cannot exceed 32 characters.`).required(),
       },
       {
         name: 'publishedAt',
         type: 'datetime',
         title: 'Published at',
         description: 'This can be used to schedule post for publishing',
+        validation: Rule => Rule.required()
       },
       {
         name: 'slug',
@@ -49,7 +50,7 @@ export default {
       {
         name: 'mainImage',
         type: 'mainImage',
-        validation: Rule => Rule.error('You have to select a main image for the article.').required(),
+        validation: Rule => Rule.required(),
         title: 'Main image',
         description: 'The main image for the post. Required'
       },
@@ -64,7 +65,7 @@ export default {
         name: 'authors',
         title: 'Authors',
         type: 'array',
-        validation: Rule => Rule.error('You have to select an author.').required().min(1),
+        validation: Rule => Rule.error('Must select an author.').required().min(1),
         options: {
           isHighlighted: true
         },
@@ -81,7 +82,7 @@ export default {
             type: 'category',
         },
         title: 'Category',
-        validation: Rule => Rule.error('You have to select a category.').required(),
+        validation: Rule => Rule.error('Must select a category.').required(),
         options: {
             isHighlighted: true
         },
@@ -89,6 +90,7 @@ export default {
       {
         name: 'body',
         type: 'bodyPortableText',
+        validation: Rule => Rule.error('Must enter article body.').required(),
         title: 'Body',
       },
     ],

@@ -27,7 +27,7 @@ export default {
             type: 'string',
             title: 'Title',
             description: 'Titles should be catchy, descriptive, and not too long (< 32 characters)',
-            validation: Rule => Rule.max(32).error(`A title cannot exceed 32 characters.`)
+            validation: Rule => Rule.max(32).error(`A title cannot exceed 32 characters.`).required()
         },
         {
             name: 'startTime',
@@ -89,18 +89,18 @@ export default {
         {
             name: 'address',
             type: 'address',
-            validation: Rule => Rule.required(),
+            validation: Rule => Rule.error('Must enter address line1.').required(),
             title: 'Address',
             fieldset: 'venue',
             description: 'The address of the venue.',
         },
-        {
-            name: 'location',
-            type: 'geopoint',
-            validation: Rule => Rule.required(),
-            title: 'Location',
-            fieldset: 'venue'
-        },
+        // {
+        //     name: 'location',
+        //     type: 'geopoint',
+        //     validation: Rule => Rule.required(),
+        //     title: 'Location',
+        //     fieldset: 'venue'
+        // },
         {
             name: 'website',
             type: 'string',
@@ -111,7 +111,7 @@ export default {
         {
             name: 'mainImage',
             type: 'mainImage',
-            validation: Rule => Rule.error('You have to select a main image for the event post.').required(),
+            validation: Rule => Rule.error('Must select a main image for the event post.').required(),
             title: 'Main image',
             description: 'The main image for the event post. Required'
         },
@@ -129,7 +129,7 @@ export default {
                 type: 'eventCategory',
             },
             title: 'Category',
-            validation: Rule => Rule.error('You have to select a category.').required(),
+            validation: Rule => Rule.error('Must select a category.').required(),
             options: {
                 isHighlighted: true
             },
@@ -138,6 +138,7 @@ export default {
             name: 'body',
             type: 'bodyPortableText',
             title: 'Body',
+            validation: Rule => Rule.error('Must enter event body.').required(),
         },
     ],
     preview: {

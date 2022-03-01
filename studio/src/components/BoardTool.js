@@ -61,6 +61,9 @@ export function BoardTool() {
     } else {
       if (newTargetState && metadata.state !== newTargetState) {
         metadataList.move(documentId, revisionId, newTargetState)
+        if (newTargetState == "published") {
+          metadataList.clearAssignees(documentId)
+        }
       }
 
       setDragData(null)

@@ -4,10 +4,13 @@ import {EyeOpenIcon} from '@sanity/icons'
 
 import {inferMetadataState, useWorkflowMetadata} from '../../lib/workflow'
 import RequestReviewWizard from '../../components/RequestReviewWizard'
+import {useValidationStatus} from '@sanity/react-hooks'
+
 
 export function RequestReviewAction(props) {
   const [showWizardDialog, setShowWizardDialog] = React.useState(false)
   const metadata = useWorkflowMetadata(props.id, inferMetadataState(props))
+  const {markers} = useValidationStatus(props.id, props.type)
   const {state} = metadata.data
 
   if (!props.draft || state === 'inReview' || state === 'approved') {
@@ -41,7 +44,7 @@ export function RequestReviewAction(props) {
       content: <RequestReviewWizard metadata={metadata.data} onClose={onClose} onSend={onSend} />,
       onClose: props.onComplete
     },
-    disabled: showWizardDialog,
+    disabled: markers.length > 0 ? true : showWizardDialog,
     icon: EyeOpenIcon,
     label: 'Request review',
     onHandle
