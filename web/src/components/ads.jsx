@@ -12,8 +12,10 @@ const BoxAd = props => {
             width: "300px"
         }}>
         {box && box.asset && (
-        <Link
-            to={props.href}
+        <a
+            href={props.href}
+            target="_blank"
+            rel="noopener noreferrer"
             sx={{textDecoration: "none"}}
         >
             <SanityImage {...box} width={300}
@@ -21,7 +23,7 @@ const BoxAd = props => {
                 width: "100%", 
                 height: "100%", 
             }} /> 
-        </Link>
+        </a>
         )}
         </Box>
     )
@@ -37,8 +39,10 @@ const BannerAd = props => {
                 mx: "auto", 
             }}>
             {banner && banner.asset && (
-            <Link
-                to={props.href}
+            <a
+                href={props.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 sx={{textDecoration: "none"}}
             >
                 <SanityImage {...banner} width={728}
@@ -47,7 +51,7 @@ const BannerAd = props => {
                     height: "100%", 
                     objectFit: "contain",
                 }} /> 
-            </Link>
+            </a>
             )}
             </Box>
         </Flex>
