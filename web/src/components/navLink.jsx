@@ -27,7 +27,6 @@ const style = {
 }
 
 const NavLink = props => {
-  console.log(props.location)
   let subMenu = props.subMenu;
   // Internal
   if (props.landingPageRoute || props.route) {
