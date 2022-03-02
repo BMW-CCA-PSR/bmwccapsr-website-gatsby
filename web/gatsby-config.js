@@ -7,7 +7,7 @@ const path = require("path");
 const clientConfig = require("./client-config");
 
 const isProd = process.env.NODE_ENV === "production";
-
+const isPreview = process.env.preview ? true : false;
 module.exports = {
   siteMetadata: {
     siteUrl: "https://bmw-club-psr.org",
@@ -32,7 +32,7 @@ module.exports = {
         ...clientConfig.sanity,
         token: process.env.GATSBY_SANITY_TOKEN,
         watchMode: isProd ? false : true,
-        overlayDrafts: isProd ? false : true
+        overlayDrafts: !(isProd && isPreview) ? false : true
       },
     },
     {
