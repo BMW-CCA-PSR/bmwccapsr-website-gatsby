@@ -25,7 +25,12 @@ module.exports = {
     "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
-    "gatsby-plugin-gatsby-cloud",
+    {
+      resolve: `gatsby-plugin-gatsby-cloud`,
+      options: {
+        mergeSecurityHeaders: true, // boolean to turn off the default security headers
+      },
+    },
     {
       resolve: "gatsby-source-sanity",
       options: {
