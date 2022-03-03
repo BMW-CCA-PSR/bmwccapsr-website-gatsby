@@ -28,7 +28,9 @@ module.exports = {
     {
       resolve: `gatsby-plugin-gatsby-cloud`,
       options: {
-        mergeSecurityHeaders: true, // boolean to turn off the default security headers
+        allPageHeaders: [
+          "X-Frame-Options: allow",
+        ],
       },
     },
     {
