@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "gatsby";
 import { Box } from "@theme-ui/components";
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const styleWithSubMenu = {
   textDecoration: "none",
@@ -41,11 +42,11 @@ const NavLink = props => {
   // External
   } else if (props.href) {
     return (
-      <a href={props.href} rel="noopener noreferrer" target="_blank" sx={{textDecoration: "none", color: "white"}}>
+      <OutboundLink href={props.href} rel="noopener noreferrer" target="_blank" sx={{textDecoration: "none", color: "white"}}>
         <Box sx={subMenu ? styleWithSubMenu : style }>
           {props.title}
         </Box>
-      </a>
+      </OutboundLink>
     )
   } else {
     return (

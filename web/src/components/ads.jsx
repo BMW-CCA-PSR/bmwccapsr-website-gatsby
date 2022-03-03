@@ -2,6 +2,7 @@
 import SanityImage from "gatsby-plugin-sanity-image"
 import React from "react";
 import { Box, Flex } from "@theme-ui/components";
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const BoxAd = props => {
     const box = props._rawBox
@@ -11,7 +12,7 @@ const BoxAd = props => {
             width: "300px"
         }}>
         {box && box.asset && (
-        <a
+        <OutboundLink
             href={props.href}
             target="_blank"
             rel="noopener noreferrer"
@@ -22,7 +23,7 @@ const BoxAd = props => {
                 width: "100%", 
                 height: "100%", 
             }} /> 
-        </a>
+        </OutboundLink>
         )}
         </Box>
     )
@@ -38,7 +39,7 @@ const BannerAd = props => {
                 mx: "auto", 
             }}>
             {banner && banner.asset && (
-            <a
+            <OutboundLink
                 href={props.href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -50,7 +51,7 @@ const BannerAd = props => {
                     height: "100%", 
                     objectFit: "contain",
                 }} /> 
-            </a>
+            </OutboundLink>
             )}
             </Box>
         </Flex>

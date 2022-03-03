@@ -6744,6 +6744,14 @@
     "lodash" "^4.17.21"
     "webpack-assets-manifest" "^5.1.0"
 
+"gatsby-plugin-google-gtag@^4.9.0":
+  "integrity" "sha512-wD2h+7CJUEbF1S3EoftOhwdhhNN7lnfy6LxAbT721HcYPgfFJ2ibwt6G40TdfyrwVueym6wdzkw1p3/U+/1abQ=="
+  "resolved" "https://registry.npmjs.org/gatsby-plugin-google-gtag/-/gatsby-plugin-google-gtag-4.9.0.tgz"
+  "version" "4.9.0"
+  dependencies:
+    "@babel/runtime" "^7.15.4"
+    "minimatch" "^3.0.4"
+
 "gatsby-plugin-graphql-codegen@^3.0.0":
   "integrity" "sha512-4mDkLkLwU5q0dPN2rSv68W62lHjBStER7ZANiQ0Hp4Pwk7jtzQW4coUMbRYWY0wrV9l5TartFm91teKii38R7g=="
   "resolved" "https://registry.npmjs.org/gatsby-plugin-graphql-codegen/-/gatsby-plugin-graphql-codegen-3.1.0.tgz"

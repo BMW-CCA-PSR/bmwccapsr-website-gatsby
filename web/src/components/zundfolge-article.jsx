@@ -31,7 +31,6 @@ function ZundfolgeArticle(props) {
     .fit("fill")
     .auto("format")
     .url()
-  console.log(_rawBody)
   return (
     <article>
       <Flex sx={{

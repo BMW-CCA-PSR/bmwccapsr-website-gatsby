@@ -1,6 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import { Link, navigate } from "gatsby";
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const doNavigate = target => {
   if (!target || !target.length) {
@@ -47,9 +48,9 @@ const MobileCTALink = props => {
   // External
   if (props.link) {
     return (
-      <a href={props.link} target="_blank" rel="noopener noreferrer" sx={style}>
+      <OutboundLink href={props.link} target="_blank" rel="noopener noreferrer" sx={style}>
         {props.title}
-      </a>
+      </OutboundLink>
     );
   }
 

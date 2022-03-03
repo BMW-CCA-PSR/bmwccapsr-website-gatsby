@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "gatsby";
 import { Button } from "@theme-ui/components";
-
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 var style = {
   textTransform: "uppercase",
@@ -38,11 +38,11 @@ const CTALink = props => {
   // External
   } else if (props.link) {
     return (
-      <a href={props.link} rel="noopener noreferrer" target="_blank" sx={{textDecoration: "none", color: "white"}}>
+      <OutboundLink href={props.link} rel="noopener noreferrer" target="_blank" sx={{textDecoration: "none", color: "white"}}>
         <Button sx={style}>
           {props.title}
         </Button>
-      </a>
+      </OutboundLink>
     )
   }
 };

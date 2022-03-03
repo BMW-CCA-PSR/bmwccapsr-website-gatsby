@@ -1,6 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import { Link } from "gatsby";
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const MobileNavLink = props => {
   let link = props.route || props.link || props.href || "#";
@@ -15,7 +16,7 @@ const MobileNavLink = props => {
   if (props.link || props.href) {
     const ref = props.link ? props.link : props.href
     return (
-      <a 
+      <OutboundLink 
       href={ref} 
       target="_blank" 
       rel="noopener noreferrer"
@@ -28,7 +29,7 @@ const MobileNavLink = props => {
       }}
       >
         {props.title}
-      </a>
+      </OutboundLink>
     );
   }
 

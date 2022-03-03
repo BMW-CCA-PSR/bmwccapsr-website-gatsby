@@ -2,6 +2,7 @@
 import React from 'react';
 import SanityImage from 'gatsby-plugin-sanity-image';
 import BoxHeader from './BoxHeader';
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const HomepageSponsors = (props) => {
     return (
@@ -22,7 +23,7 @@ const HomepageSponsors = (props) => {
                 }}>
                     {props.edges &&
                     props.edges.map((ad) => (
-                        <a
+                        <OutboundLink
                             href={ad.node.href}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -40,7 +41,7 @@ const HomepageSponsors = (props) => {
                                 maxHeight: '300px',
                                 objectFit: 'contain',
                             }}/>
-                        </a>
+                        </OutboundLink>
                     ))}
                 </ul>
             </div>

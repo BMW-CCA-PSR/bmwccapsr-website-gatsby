@@ -130,7 +130,7 @@ const IndexPage = props => {
         <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
         <div sx={{display: "flex", flexDirection: "column"}}>
           <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
-          <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1969.</div>
+          <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1975.</div>
         </div>
         <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Latest Stories</Heading>
         <div>
