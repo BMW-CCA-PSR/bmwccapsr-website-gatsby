@@ -17,6 +17,7 @@ var style = {
     my: "5px",
     px: "20px",
     position: "relative",
+    textAlign: "center",
     borderRadius: "4px",
 	transition: "background-color 0.5s ease-out",
     boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
@@ -66,6 +67,7 @@ const EventSlider = (props) => {
                     color: "white",
                     variant: "styles.h3",
                     mx: ["auto","auto",0,0],
+                    textAlign: "center",
                     fontWeight: "300",
                 }}>{props.edges[0] ? <Fragment>{`Next Event `}<MdDoubleArrow sx={{pt: "8px"}}/></Fragment>: 'No Upcoming Events! Check back later'}</Text>
                 {props.edges[0] && (
@@ -75,6 +77,7 @@ const EventSlider = (props) => {
                     variant: "styles.h3",
                     justifyContent: "center",
                     alignContent: "center",
+                    textAlign: "center",
                     mx: ["auto","auto",0,0],
                     //px: "15px",
                     my: ["10px", "10px", "0px", "0px"]
