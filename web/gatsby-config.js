@@ -28,9 +28,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-gatsby-cloud`,
       options: {
-        allPageHeaders: [
-          "X-Frame-Options: allow",
-        ],
+        mergeSecurityHeaders: false
       },
     },
     {

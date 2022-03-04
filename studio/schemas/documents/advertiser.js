@@ -80,15 +80,10 @@ export default {
         fieldset: 'assets'
       },
       {
-        name: 'slide',
-        type: 'image',
-        title: 'Slide Ad',
-        fieldset: 'assets'
-      },
-      {
         name: 'slideAd',
-        title: 'slideAd',
+        title: 'Slide Ad',
         type: 'hero',
+        description: "For Plat/Gold tier only",
         fieldset: 'assets'
       },
     ],
