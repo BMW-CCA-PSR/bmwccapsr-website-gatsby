@@ -48,10 +48,10 @@ query EventPageQuery($skip: Int!, $limit: Int!) {
             title
           }
           endTime
-          location {
-            lat
-            lng
-          }
+          #location {
+          #  lat
+          #  lng
+          #}
           address {
             city
             state

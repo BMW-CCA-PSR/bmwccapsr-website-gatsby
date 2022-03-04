@@ -71,6 +71,7 @@ function Page(props) {
     const ads = data.ads
     const banners = data.banners
     const boxes = data.boxes
+    const slideAds = data.slideAds
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -89,7 +90,7 @@ function Page(props) {
             el = <Cta key={c._key} {...c} />;
             break;
           case "heroCarousel":
-            el = <HeroSlider key={c._key} {...c} />;
+            el = <HeroSlider key={c._key} {...c} {...slideAds} />;
             break;
           case "topStories":
             el = <TopStories key={c._key} {...c} {...post} />;

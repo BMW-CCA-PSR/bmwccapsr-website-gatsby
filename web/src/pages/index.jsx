@@ -153,6 +153,13 @@ export const query = graphql`
         }
       }
     }
+    slideAds: allSanityAdvertiser(filter: {slideAd: {_type: {ne: null}, disabled: {ne: true}}}) {
+      edges {
+        node {
+          _rawSlideAd(resolveReferences: {maxDepth: 10})
+        }
+      }
+    }
   }
 `;
 

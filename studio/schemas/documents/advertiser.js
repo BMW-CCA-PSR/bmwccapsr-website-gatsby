@@ -85,6 +85,12 @@ export default {
         title: 'Slide Ad',
         fieldset: 'assets'
       },
+      {
+        name: 'slideAd',
+        title: 'slideAd',
+        type: 'hero',
+        fieldset: 'assets'
+      },
     ],
     preview: {
       select: {

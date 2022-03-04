@@ -44,10 +44,10 @@ export const query = graphql`
       slug {
         current
       }
-      location {
-        lat
-        lng
-      }
+      # location {
+      #   lat
+      #   lng
+      # }
       _rawExcerpt(resolveReferences: { maxDepth: 5 })
       _rawBody(resolveReferences: { maxDepth: 5 })
       _updatedAt(locale: "en_US")

@@ -2,7 +2,6 @@ export default {
     name: 'mainImage',
     type: 'image',
     title: 'Image',
-    validation: Rule => Rule.required(),
     options: {
       hotspot: true,
       metadata: ['lqip', 'palette']
@@ -21,6 +20,7 @@ export default {
         type: 'string',
         title: 'Alternative text',
         description: 'Important for SEO and accessibility.',
+        validation: Rule => Rule.required(),
         options: {
           isHighlighted: true
         }

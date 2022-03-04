@@ -22,6 +22,9 @@ SwiperCore.use([Autoplay,Pagination,Navigation]);
 function HeroSlider(props) {
 
     const slides = props.slides
+    props.edges.forEach( slideAd => {
+        slides.push(slideAd.node._rawSlideAd)
+    })
 
     return (
         <div>
@@ -35,7 +38,7 @@ function HeroSlider(props) {
                 pagination={{
                     clickable: true
                 }} 
-                navigation={true} 
+                navigation={false} 
             >
             {slides.map((i) => {
                 if (i._type == "hero") {
