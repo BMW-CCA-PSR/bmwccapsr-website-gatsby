@@ -20,7 +20,7 @@ export class Client {
 
   fetchMostRecentEvent = () => {
     return this.client
-    .fetch(`*[_type == "event" && dateTime(startTime) > dateTime(now())] | order(startTime asc)[0]`);
+    .fetch(`*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`);
   }
 
 };

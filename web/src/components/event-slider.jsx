@@ -60,7 +60,6 @@ const EventSlider = (props) => {
           }
         fetchEvent();
     }, []);
-    console.log(event)
 
     return (
         <Container sx={{
