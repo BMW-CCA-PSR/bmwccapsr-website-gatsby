@@ -1,9 +1,12 @@
 /** @jsxImportSource theme-ui */
 import { Container, Text, Flex, Box, Button} from '@theme-ui/components';
 import { getEventsUrl } from "../lib/helpers";
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Link } from "gatsby";
 import { MdDoubleArrow } from "react-icons/md";
+import { Client } from "../services/FetchClient"
+
+const sanity = new Client();
 
 var style = {
     textDecoration: "none",
@@ -48,6 +51,17 @@ var style = {
   }
 
 const EventSlider = (props) => {
+    const [event, setEvent] = useState({title: '', slug: {current: ''}});
+
+    useEffect(() => {
+        const fetchEvent = async () => {
+            const response = await sanity.fetchMostRecentEvent();
+            setEvent(response);
+          }
+        fetchEvent();
+    }, []);
+    console.log(event)
+
     return (
         <Container sx={{
             backgroundColor: "secondary", 
@@ -63,33 +77,33 @@ const EventSlider = (props) => {
                 justifyContent: "center",
                 height: "100%",
                 }}>
-                <Text sx={{
-                    color: "white",
-                    variant: "styles.h3",
-                    mx: ["auto","auto",0,0],
-                    textAlign: "center",
-                    fontWeight: "300",
-                }}>{props.edges[0] ? <Fragment>{`Next Event `}<MdDoubleArrow sx={{pt: "8px"}}/></Fragment>: 'No Upcoming Events! Check back later'}</Text>
-                {props.edges[0] && (
-                <>
-                <Text sx={{
-                    color: "white",
-                    variant: "styles.h3",
-                    justifyContent: "center",
-                    alignContent: "center",
-                    textAlign: "center",
-                    mx: ["auto","auto",0,0],
-                    //px: "15px",
-                    my: ["10px", "10px", "0px", "0px"]
-                }}>{props.edges[0].node.title}</Text>
-                <Link to={getEventsUrl(props.edges[0].node.slug.current)} sx={style}>
-                    Learn More
-                </Link>
-                <Link to="/events" sx={outline}>
-                    All Events
-                </Link>
-                </>
-                )}
+                    <Text sx={{
+                        color: "white",
+                        variant: "styles.h3",
+                        mx: ["auto","auto",0,0],
+                        textAlign: "center",
+                        fontWeight: "300",
+                    }}>{event ? <Fragment>{`Next Event `}<MdDoubleArrow sx={{pt: "8px"}}/></Fragment>: 'No Upcoming Events! Check back later'}</Text>
+                    {event && (
+                    <>
+                    <Text sx={{
+                        color: "white",
+                        variant: "styles.h3",
+                        justifyContent: "center",
+                        alignContent: "center",
+                        textAlign: "center",
+                        mx: ["auto","auto",0,0],
+                        //px: "15px",
+                        my: ["10px", "10px", "0px", "0px"]
+                    }}>{event.title}</Text>
+                    <Link to={getEventsUrl(event.slug.current)} sx={style}>
+                        Learn More
+                    </Link>
+                    <Link to="/events" sx={outline}>
+                        All Events
+                    </Link>
+                    </>
+                    )}
             </Flex>
         </Container>
     )

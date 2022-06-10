@@ -18,4 +18,9 @@ export class Client {
     }`);
   }
 
+  fetchMostRecentEvent = () => {
+    return this.client
+    .fetch(`*[_type == "event" && dateTime(startTime) > dateTime(now())] | order(startTime asc)[0]`);
+  }
+
 };
