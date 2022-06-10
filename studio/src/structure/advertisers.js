@@ -43,6 +43,25 @@ export const icons = {
                   ])
               )
           ),
+          S.listItem()
+          .title('Active partners')
+          .schemaType('advertiser')
+          .icon(AdIconFill)
+          .child(
+            S.documentList('advertiser')
+                .title('Active partners')
+                .menuItems(S.documentTypeList('advertiser').getMenuItems())
+                .filter('_type == "advertiser" && partner && !(_id in path("drafts.**"))')
+                .child((documentId) =>
+                  S.document()
+                    .documentId(documentId)
+                    .schemaType('advertiser')
+                    .views([
+                      S.view.form().icon(EditIcon),
+                      DesktopPreviewIFrame()
+                    ])
+                )
+            ),
         S.documentTypeListItem('advertiser').title('All advertisers').icon(AdIcon),
         S.listItem()
         .title('Advertisers by category')
