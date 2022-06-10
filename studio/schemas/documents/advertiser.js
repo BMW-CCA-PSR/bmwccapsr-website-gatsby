@@ -38,7 +38,7 @@ export default {
         type: 'string',
         title: 'Discount',
         hidden: ({document}) => !document?.partner,
-        validation: Rule => Rule.max(32).error(`A discount cannot exceed 32 characters.`).required()
+        validation: Rule => Rule => Rule.custom((field, context) => (context.document.partner && field === undefined) ? "A partner must include a discount." : true).max(32),
       },
       {
         title: 'External link',
