@@ -13,18 +13,32 @@ export default {
       {
         name: 'name',
         type: 'string',
-        title: 'Name'
+        title: 'Name',
+        validation: Rule => Rule.max(32).error(`A advertiser name cannot exceed 32 characters.`).required()
       },
       {
-        title: 'Active',
+        title: 'Active Advertiser',
         name: 'active',
         type: 'boolean',
         initialValue: true
       },
       {
+        title: 'Active Partner',
+        name: 'partner',
+        type: 'boolean',
+        initialValue: false
+      },
+      {
         name: 'description',
         type: 'simpleBlockContent',
         title: 'Description'
+      },
+      {
+        name: 'discount',
+        type: 'string',
+        title: 'Discount',
+        hidden: ({document}) => !document?.partner,
+        validation: Rule => Rule.max(32).error(`A discount cannot exceed 32 characters.`).required()
       },
       {
         title: 'External link',
@@ -52,7 +66,8 @@ export default {
             type: 'tier',
         },
         title: 'Tier',
-        validation: Rule => Rule.error('You have to select a tier.').required(),
+        validation: Rule => Rule.custom((field, context) => (context.document.active && field === undefined) ? "You have to select a tier." : true),
+        //validation: Rule => Rule.error('You have to select a tier.').required(),
         options: {
             isHighlighted: true
         },
