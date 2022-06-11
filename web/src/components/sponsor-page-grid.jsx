@@ -4,11 +4,97 @@ import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
 import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
 
+const PartnerCard = (props) => {
+  const tier = props.tier == null ? "" : props.tier.title;
+  return (
+    <Card
+    sx={{
+      textDecoration: "none",
+      color: "text",
+      width: '100%',
+      height: '100%',
+      maxWidth: ["","","50vw","50vw"],
+      borderRadius: "9px",
+      display: "flex",
+      flexDirection: "column",
+      borderStyle: "solid",
+      borderWidth: "1px",
+    }}
+  >
+  {props._rawLogo && props._rawLogo.asset && (
+      <SanityImage
+        {...props._rawLogo}
+        width={600}
+        sx={{
+          width: '100%',
+          height: '100%',
+          maxHeight: '200px',
+          minHeight: '200px',
+          objectFit: 'contain',
+          borderTopRightRadius: "8px",
+          borderTopLeftRadius: "8px",
+        }}
+      />
+    )}
+    <Box sx={{py: "5px", px: "10px",  display: "flex", justifyContent: "center", flexDirection: "column"}}>
+      <Text sx={{ variant: 'text.label', color: 'black'}}>{tier}</Text>
+      <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{props.name}</Heading>
+    </Box>
+  </Card>
+)}
+
+const DiscountCard = (props) => {
+  const tier = props.tier == null ? "" : props.tier.title;
+  return (
+    <Card
+    sx={{
+      textDecoration: "none",
+      color: "text",
+      width: '100%',
+      height: '100%',
+      maxWidth: ["","","50vw","50vw"],
+      borderRadius: "9px",
+      display: "flex",
+      flexDirection: "column",
+      borderStyle: "solid",
+      borderWidth: "1px",
+    }}
+  >
+    <Flex
+        sx={{
+          flexDirection: 'row'
+        }}
+      >
+    {props._rawLogo && props._rawLogo.asset && (
+        <SanityImage
+          {...props._rawLogo}
+          width={600}
+          sx={{
+            p: "10px",
+            maxHeight: '100px',
+            minHeight: '100px',
+            maxWidth: '100px',
+            objectFit: 'contain',
+            borderTopRightRadius: "8px",
+            borderTopLeftRadius: "8px",
+          }}
+        />
+      )}
+      <Box sx={{py: "5px", px: "10px",  display: "flex", justifyContent: "center", flexDirection: "column", alignContent: "right"}}>
+        <Heading sx={{ textDecoration: "none", variant: "styles.h4"}} >{props.name}</Heading>
+        <Text sx={{ variant: 'styles.h5', pt: "5px"}}>{props.discount}</Text>
+      </Box>
+    </Flex>
+  </Card>
+)}
 
 function SponsorPageGrid(props) {
-  let sponsors = props.edges
+  let advertisers = props.edges.filter(advertisers => advertisers.node.active);
+  let partners = props.edges.filter(partner => partner.node.partner);
+  console.log(props)
   return (
     <div>
+      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Premier Partners</Heading>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
@@ -19,47 +105,19 @@ function SponsorPageGrid(props) {
         pt: 0,
         pb: "1rem"
       }}>
-        {sponsors &&
-          sponsors
-            .filter(sponsor => sponsor.node.tier.title == 'Platinum')
-            .map(sponsor => (
+        {advertisers &&
+          advertisers
+            .filter(ad => ad.node.tier.title == 'Platinum')
+            .map(ad => (
               <Link
-              to={sponsor.node.href}
+              to={ad.node.href}
               sx={{textDecoration: "none"}}
             >
-              <Card
-                sx={{
-                  textDecoration: "none",
-                  color: "text",
-                  backgroundColor: "white",
-                  width: "100%",
-                  mx: "auto",
-                  borderRadius: "8px",
-                  boxShadow: "0 5px 5px -3px rgba(110, 131, 183, 0.2), 0 3px 14px 2px rgba(110, 131, 183, 0.12), 0 8px 10px 0 rgba(110, 131, 183, 0.14)",
-                }}
-              >
-              {sponsor.node._rawLogo && sponsor.node._rawLogo.asset && (
-                <SanityImage
-                {...sponsor.node._rawLogo}
-                width={600}
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  maxHeight: '200px',
-                  minHeight: '200px',
-                  objectFit: 'contain',
-                  borderTopLeftRadius: "6px",
-                  borderTopRightRadius: "6px"
-                }}
-                />
-              )}
-                <Box p={3} sx={{backgroundColor: "lightgrey"}}>
-                  <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{sponsor.node.name}</Heading>
-                </Box>
-              </Card>
+              <PartnerCard {...ad.node} />
             </Link>
             ))}
       </ul>
+      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Partners</Heading>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
@@ -68,45 +126,37 @@ function SponsorPageGrid(props) {
         m: 0,
         p: 0
       }}>
-        {sponsors &&
-          sponsors
-            .filter(sponsor => sponsor.node.tier.title != 'Platinum')
-            .map(sponsor => (
+        {advertisers &&
+          advertisers
+            .filter(ad => !ad.node.partner && ad.node.tier.title != 'Platinum')
+            .map(ad => (
               <Link
-              to={sponsor.node.href}
+              to={ad.node.href}
               sx={{textDecoration: "none"}}
             >
-              <Card
-                sx={{
-                  textDecoration: "none",
-                  color: "text",
-                  backgroundColor: "white",
-                  width: "100%",
-                  mx: "auto",
-                  borderRadius: "8px",
-                  boxShadow: "0 5px 5px -3px rgba(110, 131, 183, 0.2), 0 3px 14px 2px rgba(110, 131, 183, 0.12), 0 8px 10px 0 rgba(110, 131, 183, 0.14)",
-                }}
-              >
-              {sponsor.node._rawLogo && sponsor.node._rawLogo.asset && (
-                <SanityImage
-                {...sponsor.node._rawLogo}
-                width={600}
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  maxHeight: '200px',
-                  minHeight: '200px',
-                  objectFit: 'contain',
-                  borderTopLeftRadius: "6px",
-                  borderTopRightRadius: "6px"
-                }}
-                />
-              )}
-                <Box p={3} sx={{backgroundColor:"lightgrey"}}>
-                  <Heading sx={{ textDecoration: "none", variant: "styles.h3"}} >{sponsor.node.name}</Heading>
-                </Box>
-              </Card>
+              <PartnerCard {...ad.node} />
             </Link>
+            ))}
+      </ul>
+      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Discounts</Heading>
+      <ul sx={{
+        listStyle: 'none',
+        display: 'grid',
+        gridGap: 3,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
+        m: 0,
+        p: 0
+      }}>
+        {partners &&
+          partners
+            .filter(ad => ad.node.partner)
+            .map(ad => (
+            //   <Link
+            //   to={ad.node.href}
+            //   sx={{textDecoration: "none"}}
+            // >
+              <DiscountCard {...ad.node} />
+            // </Link>
             ))}
       </ul>
     </div>

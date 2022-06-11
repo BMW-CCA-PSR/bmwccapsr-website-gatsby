@@ -16,16 +16,19 @@ query SponsorPageQuery {
       }
     }
     ads: allSanityAdvertiser(
-      filter: {active: {eq: true}}
       sort: { fields: [name], order: ASC }
       ) {
         edges {
             node {
+                active
+                partner
+                discount
                 category {
                     title
                 }
                 tier {
                     title
+                    rate
                 }
                 _rawLogo(resolveReferences: {maxDepth: 10})
                 name
