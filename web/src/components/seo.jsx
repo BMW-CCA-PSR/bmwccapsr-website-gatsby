@@ -12,7 +12,6 @@ function Seo({ description, lang, meta, keywords, title, image }) {
     <StaticQuery
       query={detailsQuery}
       render={data => {
-        console.log(data.site.openGraph.image)
         const metaDescription = description || (data.site.openGraph && data.site.openGraph.description) || "";
         const siteTitle = (data.site && data.site.title) || "";
         const siteAuthor = (data.site && data.site.author && data.site.author.name) || "";

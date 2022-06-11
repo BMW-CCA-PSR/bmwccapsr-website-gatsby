@@ -95,7 +95,7 @@ const IndexPage = props => {
     <Layout textWhite={false} navMenuItems={menuItems}>
       <SEO
         title={site.title || "Missing title"}
-        description={site.description || "Missing description"}
+        description="BMW CCA PSR Upcoming Events"
         keywords={site.keywords || []}
       />
       <Container sx ={{

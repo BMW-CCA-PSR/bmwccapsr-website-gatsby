@@ -14,6 +14,13 @@ query SponsorPageQuery {
       navMenu {
         ...NavMenu
       }
+      openGraph {
+        title
+        description
+        image {
+          ...SanityImage
+        }
+      }
     }
     ads: allSanityAdvertiser(
       sort: { fields: [name], order: ASC }
@@ -62,7 +69,7 @@ const IndexPage = props => {
     <Layout textWhite={false} navMenuItems={menuItems}>
       <SEO
         title={site.title || "Missing title"}
-        description={site.description || "Missing description"}
+        description="Partners and Discounts offered to club members"
         keywords={site.keywords || []}
       />
       <Container sx ={{
