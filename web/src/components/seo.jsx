@@ -12,12 +12,13 @@ function Seo({ description, lang, meta, keywords, title, image }) {
     <StaticQuery
       query={detailsQuery}
       render={data => {
-        const metaDescription = description || (data.site && data.site.description) || "";
+        console.log(data.site.openGraph.image)
+        const metaDescription = description || (data.site.openGraph && data.site.openGraph.description) || "";
         const siteTitle = (data.site && data.site.title) || "";
         const siteAuthor = (data.site && data.site.author && data.site.author.name) || "";
         const metaImage =
-          image && image.asset
-            ? imageUrlFor(buildImageObj(image))
+          data.site.openGraph.image && data.site.openGraph.image.asset
+            ? imageUrlFor(buildImageObj(data.site.openGraph.image))
                 .width(1200)
                 .url()
             : "";
@@ -105,12 +106,51 @@ Seo.propTypes = {
 export default Seo;
 
 const detailsQuery = graphql`
+  fragment SanityImage on SanityMainImage {
+    alt
+    crop {
+      _key
+      _type
+      top
+      bottom
+      left
+      right
+    }
+    hotspot {
+      _key
+      _type
+      x
+      y
+      height
+      width
+    }
+    asset {
+      _id
+      metadata {
+        lqip
+        dimensions {
+          aspectRatio
+          width
+          height
+        }
+        palette {
+          dominant {
+            background
+            foreground
+          }
+        }
+      }
+    }
+  }
   query DefaultSEOQuery {
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
       openGraph {
         title
         description
+        image {
+          ...SanityImage
+        }
       }
     }
   }
