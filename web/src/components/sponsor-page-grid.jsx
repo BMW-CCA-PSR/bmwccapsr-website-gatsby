@@ -138,7 +138,7 @@ function SponsorPageGrid(props) {
             </Link>
             ))}
       </ul>
-      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Discounts</Heading>
+      {partners.length != 0 ? <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Discounts</Heading> : null}
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
