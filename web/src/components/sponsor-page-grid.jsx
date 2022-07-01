@@ -94,7 +94,7 @@ function SponsorPageGrid(props) {
   console.log(props)
   return (
     <div>
-      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Premier Partners</Heading>
+      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading>
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
@@ -117,7 +117,7 @@ function SponsorPageGrid(props) {
             </Link>
             ))}
       </ul>
-      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Partners</Heading>
+      {/* <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Partners</Heading> */}
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
@@ -138,7 +138,7 @@ function SponsorPageGrid(props) {
             </Link>
             ))}
       </ul>
-      {partners.length != 0 ? <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Discounts</Heading> : null}
+      {partners.length != 0 ? <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading> : null}
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
