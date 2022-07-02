@@ -15,12 +15,12 @@ function Seo({ description, lang, meta, keywords, title, image }) {
         const metaDescription = description || (data.site.openGraph && data.site.openGraph.description) || "";
         const siteTitle = (data.site && data.site.title) || "";
         const siteAuthor = (data.site && data.site.author && data.site.author.name) || "";
-        const metaImage =
-          data.site.openGraph.image && data.site.openGraph.image.asset
-            ? imageUrlFor(buildImageObj(data.site.openGraph.image))
-                .width(1200)
-                .url()
-            : "";
+        // const metaImage =
+        //   image || (data.site.openGraph.image && data.site.openGraph.image.asset)
+        //     ? imageUrlFor(buildImageObj(data.site.openGraph.image))
+        //         .width(1200)
+        //         .url()
+        //     : "";
 
         const pageTitle = title || siteTitle;
 
@@ -50,10 +50,10 @@ function Seo({ description, lang, meta, keywords, title, image }) {
                 property: "og:type",
                 content: "website"
               },
-              {
-                property: "og:image",
-                content: metaImage
-              },
+              // {
+              //   property: "og:image",
+              //   content: metaImage
+              // },
               {
                 name: "twitter:card",
                 content: "summary"

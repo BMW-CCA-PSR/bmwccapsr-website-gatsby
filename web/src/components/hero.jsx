@@ -1,7 +1,5 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import PortableText from "./portableText";
-import clientConfig from "../../client-config";
 import CTALink from "./CTALink";
 import SanityImage from "gatsby-plugin-sanity-image"
 import { Heading, Text } from "theme-ui"

@@ -94,7 +94,7 @@ function SponsorPageGrid(props) {
   console.log(props)
   return (
     <div>
-      <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading>
+      {/* <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading> */}
       <ul sx={{
         listStyle: 'none',
         display: 'grid',

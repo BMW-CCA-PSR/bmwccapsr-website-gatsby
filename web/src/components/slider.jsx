@@ -1,7 +1,5 @@
 /** @jsxImportSource theme-ui */
-import React, { useState, useEffect, useCallback } from "react";
-import clientConfig from "../../client-config";
-import SanityImage from "gatsby-plugin-sanity-image"
+import React from "react";
 import Hero from "./hero";
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -46,11 +44,10 @@ function HeroSlider(props) {
                         <SwiperSlide >
                             <Hero {...i} />
                         </SwiperSlide>
-                    )
-                }
-            })
-        }
-
+                        )
+                    }
+                })
+            }
             </Swiper>
         </div>
     );

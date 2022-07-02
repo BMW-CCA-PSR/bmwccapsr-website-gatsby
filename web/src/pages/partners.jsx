@@ -67,11 +67,11 @@ const IndexPage = props => {
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
-      <SEO
+      {/* <SEO
         title={site.title || "Missing title"}
         description="Partners and Discounts offered to club members"
         keywords={site.keywords || []}
-      />
+      /> */}
       <Container sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
