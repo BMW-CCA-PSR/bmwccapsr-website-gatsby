@@ -151,12 +151,12 @@ function SponsorPageGrid(props) {
           partners
             .filter(ad => ad.node.partner)
             .map(ad => (
-            //   <Link
-            //   to={ad.node.href}
-            //   sx={{textDecoration: "none"}}
-            // >
+            <Link
+              to={ad.node.href}
+              sx={{textDecoration: "none"}}
+            >
               <DiscountCard {...ad.node} />
-            // </Link>
+            </Link>
             ))}
       </ul>
     </div>
