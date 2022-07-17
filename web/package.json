@@ -37,7 +37,7 @@
     "gatsby-source-sanity": "^7.4.2",
     "gatsby-transformer-sharp": "^4.5.0",
     "gbimage-bridge": "^0.2.1",
-    "mapbox-gl": "^2.4.1",
+    "mapbox-gl": "^2.9.2",
     "prettier": "^2.3.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
