@@ -3,6 +3,7 @@ import { Link } from "gatsby";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
 import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
+import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const PartnerCard = (props) => {
   const tier = props.tier == null ? "" : props.tier.title;
@@ -109,12 +110,14 @@ function SponsorPageGrid(props) {
           advertisers
             .filter(ad => ad.node.tier.title == 'Platinum')
             .map(ad => (
-              <Link
-              to={ad.node.href}
-              sx={{textDecoration: "none"}}
-            >
-              <PartnerCard {...ad.node} />
-            </Link>
+              <OutboundLink
+                target="_blank"
+                rel="noopener noreferrer"
+                href={ad.node.href}
+                sx={{textDecoration: "none"}}
+              >
+                <PartnerCard {...ad.node} />
+              </OutboundLink>
             ))}
       </ul>
       {/* <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Partners</Heading> */}
@@ -128,14 +131,16 @@ function SponsorPageGrid(props) {
       }}>
         {advertisers &&
           advertisers
-            .filter(ad => !ad.node.partner && ad.node.tier.title != 'Platinum')
+            .filter(ad => ad.node.tier.title != 'Platinum')
             .map(ad => (
-              <Link
-              to={ad.node.href}
-              sx={{textDecoration: "none"}}
-            >
-              <PartnerCard {...ad.node} />
-            </Link>
+              <OutboundLink
+                target="_blank"
+                rel="noopener noreferrer"
+                href={ad.node.href}
+                sx={{textDecoration: "none"}}
+              >
+                <PartnerCard {...ad.node} />
+              </OutboundLink>
             ))}
       </ul>
       {partners.length != 0 ? <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading> : null}
@@ -151,12 +156,14 @@ function SponsorPageGrid(props) {
           partners
             .filter(ad => ad.node.partner)
             .map(ad => (
-            <Link
-              to={ad.node.href}
+            <OutboundLink
+              target="_blank"
+              rel="noopener noreferrer"
+              href={ad.node.href}
               sx={{textDecoration: "none"}}
             >
               <DiscountCard {...ad.node} />
-            </Link>
+            </OutboundLink>
             ))}
       </ul>
     </div>
