@@ -6,6 +6,7 @@
   "keywords": [
     "gatsby"
   ],
+  "packageManager": "yarn@1.22.19",
   "scripts": {
     "develop": "gatsby develop",
     "start": "gatsby develop",
