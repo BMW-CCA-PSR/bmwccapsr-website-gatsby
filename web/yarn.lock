@@ -2785,10 +2785,10 @@
   dependencies:
     csstype "^3.0.10"
 
-"@theme-ui/match-media@^0.13.1":
-  version "0.13.1"
-  resolved "https://registry.yarnpkg.com/@theme-ui/match-media/-/match-media-0.13.1.tgz#2988f623701515778a2296132905faa98a3ccbeb"
-  integrity sha512-SHTNDa5YQae5pRtBplSL9A1i4oufg/ojQByJGleV03YfkDDJ8vc4IrehpcOuW3MBqVd+TpVj7+BngIrtiua7Fg==
+"@theme-ui/match-media@^0.14.7":
+  version "0.14.7"
+  resolved "https://registry.yarnpkg.com/@theme-ui/match-media/-/match-media-0.14.7.tgz#ea0ed22c9b743c4ad006cad21f8ae7cdb3e8ac79"
+  integrity sha512-Kt4q/Ebl5cBZUnoN0uQfzOFnivfumEiDAQWYcQedP5IJanDPnskAIscz1BM6zQ7GeYWX3ZYIJmTgQTid5so2eA==
 
 "@theme-ui/mdx@0.13.1":
   version "0.13.1"
