@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "prettier": "^2.3.2",
-    "sanity-codegen": "^0.9.5"
+    "sanity-codegen": "^0.9.8"
   },
   "repository": {
     "type": "git",
