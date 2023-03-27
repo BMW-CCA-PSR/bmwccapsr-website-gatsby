@@ -1,7 +1,3 @@
-import createSchema from 'part:@sanity/base/schema-creator'
-
-import schemaTypes from 'all:part:@sanity/base/schema-type'
-
 // document schemas
 import navMenu from './documents/navMenu'
 import author from './documents/author'
@@ -17,11 +13,6 @@ import advertiser from './documents/advertiser'
 import advertiserCategory from './documents/advertiserCategory'
 import workflow from './documents/workflow'
 
-import simpleBlockContent from './objects/simpleBlockContent'
-
-import * as plugs from './plugs'
-import plugDefaultFields from './plugs/_plugDefaultFields'
-
 // Object types
 import { instagram, videoEmbed } from './objects/embeds'
 import cta from './objects/cta'
@@ -35,14 +26,20 @@ import openGraph from './objects/openGraph'
 import navItem from './objects/navItem'
 import address from './objects/address'
 import poc from './objects/poc'
+import hero from './objects/hero'
+import simpleBlockContent from './objects/simpleBlockContent'
+import advertisement from './objects/advertisement'
+import otherStories from './objects/otherStories'
+import article from './objects/article'
+import ctaPlug from './objects/ctaPlug'
+import headerBar from './objects/headerBar'
+import topStories from './objects/topStories'
+import pageContent from './objects/pageContent'
+import uiComponent from './objects/uiComponent'
+import homepageSponsors from './objects/homepageSponsors'
+import heroCarousel from './objects/heroCarousel'
 
-const allPlugs = Object.values(plugs).map((plug) => {
-  return { ...plug, fields: plugDefaultFields.concat(plug.fields) }
-})
-
-export default createSchema({
-  name: 'default',
-  types: schemaTypes.concat([
+export default [
     variation,
     openGraph,
     route,
@@ -69,7 +66,16 @@ export default createSchema({
     advertiserCategory,
     address,
     workflow,
-    poc
-  ])
-  .concat(allPlugs),
-})
+    poc,
+    hero,
+    advertisement,
+    otherStories,
+    article,
+    ctaPlug,
+    headerBar,
+    topStories,
+    pageContent,
+    uiComponent,
+    homepageSponsors,
+    heroCarousel
+]

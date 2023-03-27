@@ -1,4 +1,3 @@
-import S from '@sanity/desk-tool/structure-builder'
 import {
   GoMegaphone as BlogIcon,
   GoChecklist as ApprovedIcon,
@@ -8,7 +7,7 @@ import {
   GoPerson as AuthorIcon,
   GoPencil as EditIcon,
 } from 'react-icons/go'
-import DesktopPreviewIFrame from '../../src/components/previewIFrame'
+//import DesktopPreviewIFrame from '../components/previewIFrame'
 import SocialPreviewIFrame from '../components/socialPreviewIFrame'
 
 export const icons = {
@@ -19,7 +18,7 @@ export const icons = {
   AllIcon,
 }
 
-const blog = S.listItem()
+export default (S) => S.listItem()
   .title('Zundfolge')
   .icon(BlogIcon)
   .child(
@@ -42,7 +41,7 @@ const blog = S.listItem()
                   .schemaType('post')
                   .views([
                     S.view.form().icon(EditIcon),
-                    DesktopPreviewIFrame(),
+                    //DesktopPreviewIFrame(),
                     SocialPreviewIFrame('post')
                   ])
               )
@@ -71,5 +70,3 @@ const blog = S.listItem()
         S.documentTypeListItem('category').title('Categories')
       ])
   )
-
-export default blog

@@ -1,3 +1,5 @@
+import ColorSelector, { colorHexValidator } from '../../src/components/colorSelector';
+
 export default {
     type: 'object',
     name: 'hero',
@@ -21,16 +23,24 @@ export default {
         validation: Rule => Rule.max(32).error(`A tagline cannot exceed 32 characters.`)
       },
       {
-        title: "Text Color Override",
+        title: "Text Color Override", // currently broken from v3
         description: "Optional text color override",
         name: "colors",
-        type: "colorlist", // required
-        options: {
-          list: [
-            { title: "Black", value: "#000000" },
-            { title: "White", value: "#FFFFFF" },
-          ]
-        }
+        type: "string",
+        components: {
+          input: props => (
+            <ColorSelector
+              {...props}
+              withHexInput
+              withColorNames
+              list={[
+                { title: 'Black', value: '#000000' },
+                { title: 'White', value: '#FFFFFF' },
+              ]}
+            />
+          ),
+        },
+        validation: Rule => Rule.custom(colorHexValidator),
       },
       {
         name: 'image',

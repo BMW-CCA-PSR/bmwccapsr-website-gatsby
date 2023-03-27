@@ -1,6 +1,6 @@
-import {observePaths} from 'part:@sanity/base/preview'
+//import {observePaths} from 'part:@sanity/base/preview'
 import {get} from 'lodash'
-import schema from 'part:@sanity/base/schema'
+//import schema from 'part:@sanity/base/schema'
 import {combineLatest} from 'rxjs'
 import {map} from 'rxjs/operators'
 

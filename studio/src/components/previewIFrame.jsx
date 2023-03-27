@@ -1,5 +1,4 @@
 import React from 'react'
-import S from '@sanity/desk-tool/structure-builder'
 import resolveUrl from '../../resolvePreviewUrl'
 import { 
   FiMonitor as Monitor, 
@@ -7,7 +6,7 @@ import {
 
 const env = process.env.NODE_ENV || 'development'
 
-function DesktopPreviewIFrame() {
+export default (S) => {
   return S.view
     .component(({ document }) => {
       const { displayed } = document
@@ -28,5 +27,3 @@ function DesktopPreviewIFrame() {
       )
     }).title('Desktop preview').icon(Monitor)
 }
-
-export default DesktopPreviewIFrame

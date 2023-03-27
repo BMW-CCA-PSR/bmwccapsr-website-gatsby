@@ -1,8 +1,7 @@
 import React from 'react'
-import S from '@sanity/desk-tool/structure-builder'
 import resolveSlugByType from '../../resolveSlugByType'
-import { toPlainText } from 'part:social-preview/utils'
-import SocialPreview from 'part:social-preview/component'
+//import { toPlainText } from 'part:social-preview/utils'
+//import SocialPreview from 'part:social-preview/component'
 import {
     GoThumbsup as ThumbsUp,
 } from 'react-icons/go'

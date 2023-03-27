@@ -1,4 +1,3 @@
-import S from '@sanity/desk-tool/structure-builder'
 import {
     RiAdvertisementLine as AdIcon,
     RiAdvertisementFill as AdIconFill,
@@ -9,7 +8,7 @@ import {
 import { 
   ImStatsBars2 as TierIcon 
 } from 'react-icons/im'
-import DesktopPreviewIFrame from '../../src/components/previewIFrame'
+import DesktopPreviewIFrame from '../components/previewIFrame'
 
 export const icons = {
     AdIcon,
@@ -17,7 +16,7 @@ export const icons = {
     TierIcon
   }
 
-  const advertisers = S.listItem()
+export default (S) => S.listItem()
   .title('Advertisers')
   .icon(AdIcon)
   .child(
@@ -39,7 +38,7 @@ export const icons = {
                   .schemaType('advertiser')
                   .views([
                     S.view.form().icon(EditIcon),
-                    DesktopPreviewIFrame()
+                    //DesktopPreviewIFrame()
                   ])
               )
           ),
@@ -58,7 +57,7 @@ export const icons = {
                     .schemaType('advertiser')
                     .views([
                       S.view.form().icon(EditIcon),
-                      DesktopPreviewIFrame()
+                      //DesktopPreviewIFrame()
                     ])
                 )
             ),
@@ -98,5 +97,3 @@ export const icons = {
         S.documentTypeListItem('advertiserCategory').title('Categories')
       ])
   )
-
-export default advertisers

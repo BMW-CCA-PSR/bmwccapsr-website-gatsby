@@ -1,4 +1,3 @@
-import S from '@sanity/desk-tool/structure-builder'
 import { 
   MdMenu, 
   MdBuild 
@@ -6,9 +5,9 @@ import {
 import {
   GoPencil as EditIcon,
 } from 'react-icons/go'
-import DesktopPreviewIFrame from '../../src/components/previewIFrame'
+//import DesktopPreviewIFrame from '../components/previewIFrame'
 
-export default S.listItem()
+export default (S) => S.listItem()
   .title('Page Builder')
   .icon(MdBuild)
   .child(

@@ -1,4 +1,3 @@
-import S from '@sanity/desk-tool/structure-builder'
 import {
   RiCalendarCheckLine as ActiveIcon,
   RiCalendar2Line as AllEventIcon,
@@ -7,7 +6,7 @@ import {
 import {
   GoPencil as EditIcon,
 } from 'react-icons/go'
-import DesktopPreviewIFrame from '../../src/components/previewIFrame'
+//import DesktopPreviewIFrame from '../components/previewIFrame'
 import SocialPreviewIFrame from '../components/socialPreviewIFrame'
 
 
@@ -17,7 +16,7 @@ export const icons = {
     CatIcon
   }
 
-  const events = S.listItem()
+export default (S) => S.listItem()
   .title('Events')
   .icon(ActiveIcon)
   .child(
@@ -40,7 +39,7 @@ export const icons = {
                   .schemaType('event')
                   .views([
                     S.view.form().icon(EditIcon),
-                    DesktopPreviewIFrame(),
+                    //DesktopPreviewIFrame(),
                     SocialPreviewIFrame('event')
                   ])
               )
@@ -68,5 +67,3 @@ export const icons = {
         S.documentTypeListItem('eventCategory').title('Categories').icon(CatIcon)
       ])
   )
-
-export default events
