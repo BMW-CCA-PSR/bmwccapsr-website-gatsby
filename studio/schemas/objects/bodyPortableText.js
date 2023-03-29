@@ -39,10 +39,8 @@ export default {
           {
             title: 'Highlight',
             value: 'highlight',
-            blockEditor: {
-              icon: highlightIcon,
-              render: highlightRender
-            }
+            icon: highlightIcon,
+            component: highlightRender
           }
         ],
         // Annotations can be any object structure – e.g. a link or a footnote.

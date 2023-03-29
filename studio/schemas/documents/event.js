@@ -35,9 +35,6 @@ export default {
             title: 'Start Time',
             description: 'The start date/time of the event.',
             validation: Rule => Rule.error('You have to select a start time.').required(),
-            options: {
-                isHighlighted: true
-            },
         },
         {
             name: 'endTime',
@@ -130,9 +127,6 @@ export default {
             },
             title: 'Category',
             validation: Rule => Rule.error('Must select a category.').required(),
-            options: {
-                isHighlighted: true
-            },
         },
         {
             name: 'body',

@@ -14,9 +14,9 @@ export const instagram = {
       description: 'The URL to the post as seen in a desktop browser',
     },
   ],
-  preview: {
+  components: {
     select: { url: 'url' },
-    component: InstagramPreview,
+    preview: InstagramPreview,
   },
 }
 
@@ -31,8 +31,8 @@ export const videoEmbed = {
       name: 'url',
     },
   ],
-  preview: {
+  components: {
     select: { url: 'url' },
-    component: EmbedPlayer,
+    preview: EmbedPlayer,
   },
 }

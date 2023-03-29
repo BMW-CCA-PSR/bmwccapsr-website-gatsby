@@ -11,9 +11,6 @@ export default {
         name: 'caption',
         type: 'string',
         title: 'Caption',
-        options: {
-          isHighlighted: true
-        }
       },
       {
         name: 'alt',
@@ -21,9 +18,6 @@ export default {
         title: 'Alternative text',
         description: 'Important for SEO and accessibility.',
         validation: Rule => Rule.required(),
-        options: {
-          isHighlighted: true
-        }
       }
     ],
     preview: {

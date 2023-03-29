@@ -31,7 +31,6 @@ export default {
           input: props => (
             <ColorSelector
               {...props}
-              withHexInput
               withColorNames
               list={[
                 { title: 'Black', value: '#000000' },
