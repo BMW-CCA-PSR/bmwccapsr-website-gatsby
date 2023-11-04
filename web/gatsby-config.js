@@ -25,12 +25,7 @@ module.exports = {
     "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
-    {
-      resolve: `gatsby-plugin-gatsby-cloud`,
-      options: {
-        mergeSecurityHeaders: false
-      },
-    },
+    "gatsby-plugin-netlify",
     {
       resolve: "gatsby-source-sanity",
       options: {
