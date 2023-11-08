@@ -1,12 +1,12 @@
-import client from 'part:@sanity/base/client'
+import { useClient } from 'sanity'
 import { MdLink } from 'react-icons/md'
 
-function myAsyncSlugifier(input) {
+async function myAsyncSlugifier(input) {
+  const client = useClient({apiVersion: '2021-10-21'})
   const query = '*[_id == $id][0]'
   const params = {id: input._ref}
-  return client.fetch(query, params).then(doc => {
-    return doc.title.toLowerCase().replace(/\s+/g, '-').slice(0, 200)
-  })
+  const doc = await client.fetch(query, params)
+  return doc.title.toLowerCase().replace(/\s+/g, '-').slice(0, 200)
 }
 
 export default {

@@ -1,9 +1,18 @@
-# Sanity Clean Content Studio
+# Sanity Studio
 
-Congratulations, you have now installed the Sanity Content Studio, an open source real-time content editing environment connected to the Sanity backend.
+This is the Sanity Studio for the [Sanity.io](https://www.sanity.io/) backend for the [BMW CCA PSR website](https://bmw-club-psr.org/).
 
-Now you can do the following things:
+## Getting started
+To run the studio locally, you'll need to have [Node.js](https://nodejs.org/) installed. Then, run the following commands:
 
-- [Read “getting started” in the docs](https://www.sanity.io/docs/introduction/getting-started?utm_source=readme)
-- [Join the community Slack](https://slack.sanity.io/?utm_source=readme)
-- [Extend and build plugins](https://www.sanity.io/docs/content-studio/extending?utm_source=readme)
+```bash
+yarn install
+yarn dev
+```
+
+## Deploying
+The studio is deployed Sanity hosted backend. To deploy, run the following command:
+
+```bash
+sanity deploy
+```

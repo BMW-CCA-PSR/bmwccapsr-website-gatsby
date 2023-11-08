@@ -55,9 +55,6 @@ export default {
         },
         title: 'Category',
         validation: Rule => Rule.error('You have to select a category.').required(),
-        options: {
-            isHighlighted: true
-        },
       },
       {
         name: 'tier',
@@ -68,9 +65,6 @@ export default {
         title: 'Tier',
         validation: Rule => Rule.custom((field, context) => (context.document.active && field === undefined) ? "You have to select a tier." : true),
         //validation: Rule => Rule.error('You have to select a tier.').required(),
-        options: {
-            isHighlighted: true
-        },
       },
       {
         name: 'logo',

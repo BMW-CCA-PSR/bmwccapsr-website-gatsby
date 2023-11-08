@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import {Box, Text, MenuItem, TextInput, Flex, Badge} from '@sanity/ui'
 import {AddCircleIcon, RemoveCircleIcon, RestoreIcon} from '@sanity/icons'
-import {UserAvatar} from '@sanity/base/components'
+//import {UserAvatar} from '@sanity/base/components'
 
 function searchUsers(users, searchString) {
   return users.filter(user => {
@@ -94,7 +94,7 @@ export default function UserAssignmentMenu({value = [], userList = [], onAdd, on
             onClick={() => handleAssignment(value.indexOf(user.id) > -1, user)}
           >
             <Flex align="center" padding={2}>
-              <UserAvatar userId={user.id} />
+              {/* <UserAvatar userId={user.id} /> */}
               <Box paddingX={2} flex={1}>
                 <Text>{user.displayName}</Text>
               </Box>

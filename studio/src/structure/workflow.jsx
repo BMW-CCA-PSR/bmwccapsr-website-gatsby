@@ -1,7 +1,6 @@
-import S from '@sanity/desk-tool/structure-builder'
 import {filter, map, switchMap} from 'rxjs/operators'
 import {FiTag} from 'react-icons/fi'
-import userDatastore from 'part:@sanity/base/user'
+//import userDatastore from 'part:@sanity/base/user'
 
 import {getDocumentMutations$, getDocumentQuery$} from '../lib/document'
 

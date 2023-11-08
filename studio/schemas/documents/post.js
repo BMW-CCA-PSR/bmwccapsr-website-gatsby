@@ -66,9 +66,6 @@ export default {
         title: 'Authors',
         type: 'array',
         validation: Rule => Rule.error('Must select an author.').required().min(1),
-        options: {
-          isHighlighted: true
-        },
         of: [
           {
             type: 'authorReference',
@@ -83,9 +80,6 @@ export default {
         },
         title: 'Category',
         validation: Rule => Rule.error('Must select a category.').required(),
-        options: {
-            isHighlighted: true
-        },
       },
       {
         name: 'body',

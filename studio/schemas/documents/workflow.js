@@ -12,7 +12,9 @@ export default {
       title: 'Assignees',
       description: 'The people who are assigned to move this further in the workflow.',
       of: [{type: 'string'}],
-      inputComponent: UserAssignmentMenu
+      components: {
+        input: UserAssignmentMenu
+      }
     }
   ],
   liveEdit: true

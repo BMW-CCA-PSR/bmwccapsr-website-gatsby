@@ -17,8 +17,6 @@ export default {
           { type: 'uiComponentRef' },
           { type: 'hero' },
           { type: 'heroCarousel' },
-          // { type: 'infoRows' },
-          // { type: 'ctaColumns' },
           { type: 'ctaPlug' },
           { type: 'topStories' },
           { type: 'otherStories' },

@@ -4,8 +4,6 @@ import { graphql } from "gatsby";
 import { Flex } from '@theme-ui/components';
 
 import Hero from "../components/hero";
-import InfoRows from "../components/InfoRows";
-import CTAColumns from "../components/cta-columns";
 import Cta from "../components/cta";
 
 import GraphQLErrorList from "../components/graphql-error-list";
@@ -77,14 +75,8 @@ function Page(props) {
       .map((c) => {
         let el = null;
         switch (c._type) {
-          case "infoRows":
-            el = <InfoRows key={c._key} {...c} />;
-            break;
           case "hero":
             el = <Hero key={c._key} {...c} />;
-            break;
-          case "ctaColumns":
-            el = <CTAColumns key={c._key} {...c} />;
             break;
           case "ctaPlug":
             el = <Cta key={c._key} {...c} />;
