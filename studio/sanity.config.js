@@ -19,9 +19,9 @@ export default defineConfig({
       structure: deskStructure,
     }),
     unsplashImageAsset(),
-    //contentGraphView({}),
+    contentGraphView({}),
     //scheduledPublishing(),
-    //media()
+    media()
   ],
   schema: {
     types: schemas,
