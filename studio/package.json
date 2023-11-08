@@ -31,6 +31,7 @@
     "sanity": "^3.8.0",
     "sanity-algolia": "^1.0.2",
     "sanity-plugin-asset-source-unsplash": "^1.0.6",
+    "sanity-plugin-dashboard-widget-netlify": "^2.0.1",
     "sanity-plugin-graph-view": "^2.0.1",
     "sanity-plugin-iframe-pane": "^2.3.0",
     "sanity-plugin-leaflet-input": "^1.0.1",

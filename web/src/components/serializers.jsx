@@ -70,7 +70,7 @@ const serializers = {
       return <InstagramEmbed url={node.url} />;
     },
     file: ({ node }) => {
-    
+      console.log(node.asset.filename.split('.')[0])
       if (node.asset) {
         return (
           <div style={{ display: 'flex', justifyContent: 'center' }}> {/* This div will act as a flex container */}
@@ -81,7 +81,7 @@ const serializers = {
             rel="noopener noreferrer"
             download
           >
-            {node.asset.title}
+            {node.asset.filename.split('.')[0]}
           </Link>
           </div>
         );

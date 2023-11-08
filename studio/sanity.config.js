@@ -8,6 +8,8 @@ import { contentGraphView } from "sanity-plugin-graph-view";
 import {media} from 'sanity-plugin-media'
 import schemas from "./schemas/schema";
 import deskStructure from "./deskStructure";
+import { netlifyWidget } from "sanity-plugin-dashboard-widget-netlify";
+import vars from 'env.local.json'
 
 export default defineConfig({
   title: "BMW CCA PSR Website",
@@ -21,7 +23,19 @@ export default defineConfig({
     unsplashImageAsset(),
     contentGraphView({}),
     //scheduledPublishing(),
-    media()
+    media(),
+    netlifyWidget({
+      title: 'My Netlify deploys',
+      sites: [
+        {
+          title: 'Sanity Studio',
+          apiId: vars.apiId,
+          buildHookId: vars.buildHookId,
+          name: 'bmw-club-psr',
+          url: 'https://bmw-club-psr.org'
+        },
+      ]
+    })
   ],
   schema: {
     types: schemas,
