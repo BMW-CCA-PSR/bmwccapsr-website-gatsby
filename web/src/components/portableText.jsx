@@ -7,6 +7,7 @@ import serializers from "./serializers";
 function PortableText(props){
   const blocks = props.body
   const color = props.color
+  console.log(props)
   return (
   <BlockContent 
     blocks={blocks} 

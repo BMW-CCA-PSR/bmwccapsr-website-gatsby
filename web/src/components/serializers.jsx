@@ -1,10 +1,33 @@
 /** @jsxImportSource theme-ui */
 import { Themed } from "theme-ui"
 import React from "react";
+import { Link } from "gatsby";
 import ReactPlayer from "react-player";
 import InstagramEmbed from "react-instagram-embed";
 import SanityImage from "gatsby-plugin-sanity-image"
 import { Box, Text } from '@theme-ui/components';
+
+var style = {
+  textDecoration: "none",
+  textTransform: "uppercase",
+  fontSize: 15,
+  backgroundColor: "primary",
+  border: "none",
+  color: "white",
+  mx: [0,0,"1rem","1rem"],
+  py: "8px",
+  my: "5px",
+  px: "20px",
+  position: "relative",
+  textAlign: "center",
+  borderRadius: "4px",
+  transition: "background-color 0.5s ease-out",
+  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+  "&:hover":{
+    color: "white",
+    bg: "highlight",
+  }
+}
 
 const AuthorReference = ({ node }) => {
   if (node && node.author && node.author.name) {
@@ -45,6 +68,26 @@ const serializers = {
     instagram: ({ node }) => {
       if (!node.url) return null;
       return <InstagramEmbed url={node.url} />;
+    },
+    file: ({ node }) => {
+    
+      if (node.asset) {
+        return (
+          <div style={{ display: 'flex', justifyContent: 'center' }}> {/* This div will act as a flex container */}
+          <Link 
+            target="_blank"
+            to={node.asset.url} 
+            sx={style}
+            rel="noopener noreferrer"
+            download
+          >
+            {node.asset.title}
+          </Link>
+          </div>
+        );
+      }
+    
+      return null;
     },
     block(props) {
       switch (props.node.style) {

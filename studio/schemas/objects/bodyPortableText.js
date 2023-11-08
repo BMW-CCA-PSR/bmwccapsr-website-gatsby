@@ -63,7 +63,7 @@ export default {
         ]
       },
       of: [
-        { type: 'authorReference' },
+        // { type: 'authorReference' },
       ]
     },
     // You can add additional types here. Note that you can't use
@@ -73,7 +73,7 @@ export default {
       type: 'mainImage',
       options: { hotspot: true }
     },
-    { type: 'videoEmbed' },
+    // { type: 'videoEmbed' },
     { type: 'file', title: 'File Reference'}
   ]
 }

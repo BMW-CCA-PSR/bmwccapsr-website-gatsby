@@ -14,6 +14,7 @@ import advertiserCategory from './documents/advertiserCategory'
 import workflow from './documents/workflow'
 
 // Object types
+import pdfUpload from './objects/pdfUpload'
 import { videoEmbed } from './objects/embeds'
 import cta from './objects/cta'
 import bodyPortableText from './objects/bodyPortableText'
@@ -76,5 +77,6 @@ export default [
     pageContent,
     uiComponent,
     homepageSponsors,
-    heroCarousel
+    heroCarousel,
+    pdfUpload
 ]
