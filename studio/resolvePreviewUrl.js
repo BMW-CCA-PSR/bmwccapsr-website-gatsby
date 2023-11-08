@@ -1,5 +1,4 @@
 const env = process.env.NODE_ENV || 'development'
-import { PREVIEW, DOMAIN } from "../infra/config"
 
 export default function resolvePreviewUrl(document) {
   const baseUrl = env === 'development' ? 'http://localhost:8000' : `https://preview-bmwccapsrwebsitegatsby.gtsb.io`

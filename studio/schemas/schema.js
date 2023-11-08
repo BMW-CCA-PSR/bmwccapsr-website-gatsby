@@ -14,7 +14,7 @@ import advertiserCategory from './documents/advertiserCategory'
 import workflow from './documents/workflow'
 
 // Object types
-import { instagram, videoEmbed } from './objects/embeds'
+import { videoEmbed } from './objects/embeds'
 import cta from './objects/cta'
 import bodyPortableText from './objects/bodyPortableText'
 import excerptPortableText from './objects/excerptPortableText'
@@ -54,7 +54,6 @@ export default [
     author,
     mainImage,
     authorReference,
-    instagram,
     videoEmbed,
     bodyPortableText,
     excerptPortableText,

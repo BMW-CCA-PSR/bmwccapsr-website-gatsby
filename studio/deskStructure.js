@@ -2,7 +2,7 @@ import {
   GoBrowser as PageIcon, 
   GoFile, 
   GoHome, 
-  GoSettings,
+  GoGear as Settings,
   GoPencil as EditIcon,
   GoMegaphone as BlogIcon,
   GoChecklist as ApprovedIcon,
@@ -39,7 +39,7 @@ export default (S) =>
       S.documentListItem()
         .schemaType('siteSettings')
         .title('Site settings')
-        .icon(GoSettings)
+        .icon(Settings)
         .child(
           S.document()
             .schemaType('siteSettings')
