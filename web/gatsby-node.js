@@ -226,10 +226,26 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
   })
 }
 
+// ARCHIVE PAGE
+
+async function createArchivePages(pathPrefix = "/archive", graphql, actions, reporter) {
+  const { createPage } = actions;
+  const archiveTemplate = require.resolve("./src/templates/archive.js");
+
+  const path = `${pathPrefix}/`;
+  reporter.info(`Creating archive page: ${path}`);
+  createPage({
+    path,
+    component: archiveTemplate,
+    context: {},
+  });
+}
+
 exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
   await createZundfolgePages("/zundfolge", graphql, actions, reporter);
   await createEventPages("/events", graphql, actions, reporter);
+  await createArchivePages("/archive", graphql, actions, reporter);
 };
 
 const path = require("path")
