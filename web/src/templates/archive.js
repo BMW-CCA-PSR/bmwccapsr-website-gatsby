@@ -98,7 +98,7 @@ const IndexPage = props => {
                 borderRadius: "2px",
                 m: 0,
                 border: "none",
-                boxShadow: "none"
+                boxShadow: "none",
               }}
             >
               {year}
@@ -115,9 +115,23 @@ const IndexPage = props => {
                 const pdfUrl = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${baseName}.pdf`;
                 const label = baseName.split("_")[1] || baseName;
                 return (
-                  <div key={src} sx={{ textAlign: "center" }}>
+                  <div key={src} sx={{ textAlign: "center", width: "198px", mx: "auto" }}>
                     <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
-                      <img src={src} alt={`Zündfolge ${selectedYear} Issue ${label}`} sx={{ width: "100%", height: "auto", borderRadius: "4px", boxShadow: "0 0 6px rgba(0,0,0,0.2)" }} />
+                      <img
+                        src={src}
+                        alt={`Zündfolge ${selectedYear} Issue ${label}`}
+                        sx={{
+                          width: "198px",
+                          height: "255px",
+                          borderRadius: "4px",
+                          boxShadow: "0 0 6px rgba(0,0,0,0.2)",
+                          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                          ":hover": {
+                            transform: "scale(1.05)",
+                            boxShadow: "0 0 12px rgba(0,0,0,0.3)"
+                          }
+                        }}
+                      />
                     </a>
                     <Text sx={{ mt: 2, fontWeight: "bold" }}>{label}</Text>
                   </div>

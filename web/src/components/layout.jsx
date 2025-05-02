@@ -47,9 +47,6 @@ class Layout extends React.Component {
           onShowNav={onShowNav}
           showNav={showNav}
           scrolled={scrolled}
-          sx={{
-            position: "absolute"
-          }}
         />
         <>{children}</>
         <Footer siteTitle={siteTitle} />
