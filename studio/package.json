@@ -38,7 +38,7 @@
     "sanity-plugin-media": "^1.4.0",
     "sanity-plugin-social-preview": "^0.1.5",
     "sanity-secrets": "^0.0.5",
-    "styled-components": "^5.2.0"
+    "styled-components": "^5.3.8"
   },
   "devDependencies": {
     "prettier": "^2.3.2",
