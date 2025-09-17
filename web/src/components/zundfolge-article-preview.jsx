@@ -1,7 +1,8 @@
 /** @jsxImportSource theme-ui */
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInDays } from 'date-fns';
+import { Badge } from 'theme-ui';
 import { Link } from 'gatsby';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Box, Text, Heading, Flex, Avatar } from 'theme-ui';
 import { getZundfolgeUrl } from '../lib/helpers';
 import SanityImage from 'gatsby-plugin-sanity-image';
@@ -24,6 +25,17 @@ function ZundfolgeArticlePreview(props) {
 		props.mainImage
 		? props.mainImage.asset.metadata.palette.dominant.foreground 
 		: 'black';
+	const [isNew, setIsNew] = useState(false);
+	useEffect(() => {
+		try {
+			if (!props.publishedAt) return;
+			const days = differenceInDays(new Date(), parseISO(props.publishedAt));
+			setIsNew(days <= 14);
+		} catch (_) {
+			setIsNew(false);
+		}
+	}, [props.publishedAt]);
+
 	return (
 		<Link to={getZundfolgeUrl(props.slug.current)} sx={{ textDecoration: 'none' }}>
 			<Card
@@ -40,6 +52,7 @@ function ZundfolgeArticlePreview(props) {
 					position: 'relative'
 				}}
 			>
+				{/* NEW pill now placed inline next to the category label below */}
 				{props.mainImage &&
 				props.mainImage.asset && (
 					<SanityImage
@@ -56,7 +69,28 @@ function ZundfolgeArticlePreview(props) {
 					/>
 				)}
 				<Box p={3}>
-					<Text sx={{ variant: 'text.label', color: "white"}}>{cat}</Text>
+					<div sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+						<Text sx={{ variant: 'text.label', color: 'white' }}>{cat}</Text>
+						{isNew && (
+							<Badge
+								sx={{
+									bg: 'transparent',
+									color: 'white',
+									px: 2,
+									py: 1,
+									borderRadius: 9999,
+									fontWeight: 700,
+									fontSize: 'xxs',
+									letterSpacing: 'wide',
+									textTransform: 'uppercase',
+									backgroundImage: 'linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)',
+									boxShadow: '0 2px 6px rgba(0,0,0,0.25)'
+								}}
+							>
+								NEW
+							</Badge>
+						)}
+					</div>
 					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: "white" }}>{props.title}</Heading>
 					{/* <Text sx={{color: `${fg}`}}>{format(parseISO(props.publishedAt), 'MMMM do, yyyy')}</Text> */}
 					<Flex sx={{py:"0.5rem"}}>

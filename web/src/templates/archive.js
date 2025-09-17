@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, graphql } from "gatsby";
 
-import { Container, Heading, Text } from "@theme-ui/components";
+import { Container, Heading, Text, Card, Box } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
@@ -23,26 +23,123 @@ const IndexPage = props => {
 
   const site = (data || {}).site;
 
-  const [selectedYear, setSelectedYear] = useState(2021);
-  const [thumbnails, setThumbnails] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [issues, setIssues] = useState([]);
+  const [years, setYears] = useState([]);
+  const [manifest, setManifest] = useState(null);
 
+  // Configure decades and manual enable/disable toggles here
+  const DECADES = [
+    { key: '1970s', start: 1970, end: 1979, enabled: true },
+    { key: '1980s', start: 1980, end: 1989, enabled: true },
+    { key: '1990s', start: 1990, end: 1999, enabled: true },
+    { key: "2000s", start: 2000, end: 2009, enabled: true },
+    { key: "2010s", start: 2010, end: 2019, enabled: true },
+  ];
+
+  // Load manifest once, derive years and default selected year
   useEffect(() => {
-    if (!selectedYear) return;
-
     fetch("/zundfolge/manifest.json")
       .then(res => res.json())
       .then(data => {
-        const entries = data[String(selectedYear)] || [];
-        const urls = entries.map(name =>
-          `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${name}.jpg`
-        );
-        setThumbnails(urls);
+        setManifest(data);
+        const parsedYears = Object.keys(data)
+          .map((y) => parseInt(y, 10))
+          .filter((n) => !isNaN(n))
+          .sort((a, b) => b - a);
+        setYears(parsedYears);
+        if (!selectedYear && parsedYears.length > 0) {
+          setSelectedYear(parsedYears[0]);
+        }
       })
       .catch(err => {
-        console.error("Failed to load manifest or year data", err);
-        setThumbnails([]);
+        console.error("Failed to load manifest", err);
+        setYears([]);
       });
-  }, [selectedYear]);
+  }, []);
+
+  // Recompute issues when selected year changes
+  useEffect(() => {
+    if (!selectedYear || !manifest) return;
+
+    const monthNames = [
+      'January','February','March','April','May','June','July','August','September','October','November','December'
+    ];
+
+    function parseMonths(entry) {
+      const lc = entry.toLowerCase();
+      // Prefer explicit two-month patterns first (e.g., 1-2, 11.12)
+      const two = lc.match(/(?:^|[_-])(\d{1,2})[.-](\d{1,2})(?:$|[^\d])/);
+      if (two) {
+        const a = parseInt(two[1], 10);
+        const b = parseInt(two[2], 10);
+        if (a >= 1 && a <= 12 && b >= 1 && b <= 12) return [a, b];
+      }
+      // Common one-month patterns (year-month at end or in middle)
+      const oneHyphenEnd = lc.match(/-(\d{1,2})(?:[^\d]|$)/); // e.g., 90-10, 89-5
+      if (oneHyphenEnd) {
+        const m = parseInt(oneHyphenEnd[1], 10);
+        if (m >= 1 && m <= 12) return [m];
+      }
+      const oneUnderscore = lc.match(/_(\d{1,2})(?:[^\d]|$)/); // e.g., 2019_4
+      if (oneUnderscore) {
+        const m = parseInt(oneUnderscore[1], 10);
+        if (m >= 1 && m <= 12) return [m];
+      }
+      const midDashMonth = lc.match(/-(\d{2})-/); // e.g., Zundfolge-1976-02-February
+      if (midDashMonth) {
+        const m = parseInt(midDashMonth[1], 10);
+        if (m >= 1 && m <= 12) return [m];
+      }
+      // Month names
+      const monthNameIdx = monthNames
+        .map((n, i) => ({ i: i + 1, re: new RegExp(n.toLowerCase()) }))
+        .find(obj => obj.re.test(lc));
+      if (monthNameIdx) return [monthNameIdx.i];
+      return [];
+    }
+
+    function labelFor(entry, totalCount) {
+      const months = parseMonths(entry);
+      const toName = (m) => monthNames[m - 1] || String(m);
+      if (totalCount === 4) {
+        if (months.length > 0) {
+          const q = Math.ceil(months[0] / 3) || 1;
+          return `Qtr ${q}`;
+        }
+        return 'Qtr ?';
+      }
+      if (totalCount === 6) {
+        if (months.length === 2) return `${toName(months[0]).slice(0,3)}/${toName(months[1]).slice(0,3)}`;
+        if (months.length === 1) {
+          const m = months[0];
+          const start = m % 2 === 0 ? m - 1 : m;
+          const end = Math.min(start + 1, 12);
+          return `${toName(start).slice(0,3)}/${toName(end).slice(0,3)}`;
+        }
+        return '';
+      }
+      // Default monthly (or irregular) handling
+      if (months.length === 2) {
+        return `${toName(months[0]).slice(0,3)}/${toName(months[1]).slice(0,3)}`; // handles 11.12 -> Nov/Dec
+      }
+      if (months.length === 1) {
+        return toName(months[0]);
+      }
+      return '';
+    }
+
+    const entries = manifest[String(selectedYear)] || [];
+    const total = entries.length;
+    const mapped = entries.map((name) => {
+      const jpg = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${name}.jpg`;
+      const base = name; // original manifest token
+      const label = labelFor(base, total) || base.split("_")[1] || base;
+      const pdfUrl = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${base}.pdf`;
+      return { jpg, pdfUrl, label };
+    });
+    setIssues(mapped);
+  }, [selectedYear, manifest]);
 
   if (errors) {
     return (
@@ -59,7 +156,8 @@ const IndexPage = props => {
   }
   const menuItems = site.navMenu && (site.navMenu.items || []);
 
-  const years = Array.from({ length: 2022 - 1970 }, (_, i) => 1970 + i);
+  // years are derived from manifest; fallback if fetch fails
+  const fallbackYears = years && years.length ? years : Array.from({ length: 2022 - 1970 }, (_, i) => 1970 + i).reverse();
 
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
@@ -80,12 +178,64 @@ const IndexPage = props => {
         <Text>
           Since its founding, the Puget Sound chapter of the BMW CCA has published <em>Zündfolge</em>—a printed newsletter dedicated to informing members about upcoming events, technical tips, club news, and shared experiences with the marque. From 1970 through 2021, <em>Zündfolge</em> chronicled the life and passion of our BMW community in the Pacific Northwest. This archive serves as a curated digital record of that legacy, preserving over five decades of enthusiasm, expertise, and camaraderie.
         </Text>
-        <div sx={{display: "flex", flexDirection: "column"}}>
-          <div sx={{pb: "0.5rem"}}></div>
+        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Issues</Heading>
+        {/*
+        <div sx={{display: "flex", flexDirection: "column", mt: 3}}>
+          <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Issues by Decade</Heading>
+          <div sx={{
+            display: 'grid',
+            gridTemplateColumns: ['1fr', '1fr 1fr', 'repeat(3, 1fr)'],
+            gap: 3,
+            mb: 4,
+          }}>
+            {DECADES.map(dec => {
+              const hasContent = years.some(y => y >= dec.start && y <= dec.end);
+              const disabled = !dec.enabled || !hasContent;
+              return (
+                <Card key={dec.key} sx={{
+                  position: 'relative',
+                  p: 3,
+                  borderRadius: '8px',
+                  borderStyle: 'solid',
+                  borderColor: 'black',
+                  borderWidth: '1px',
+                  background: disabled ? '#f6f6f6' : 'linear-gradient(to top, transparent 50%, black 100%)',
+                  overflow: 'hidden',
+                }}>
+                  <Box sx={{ position: 'relative', zIndex: 1 }}>
+                    <Heading as="h4" sx={{ color: disabled ? 'gray' : 'white', mb: 2 }}>{dec.key}</Heading>
+                    <Text sx={{ color: disabled ? 'gray' : 'white', opacity: disabled ? 0.8 : 0.9 }}>
+                      {dec.start} – {dec.end}
+                    </Text>
+                    {disabled ? (
+                      <Text sx={{ mt: 2, color: 'gray', fontWeight: 'bold' }}>Coming Soon</Text>
+                    ) : (
+                      <div sx={{ mt: 3 }}>
+                        <button
+                          onClick={() => {
+                            const decadeYears = years.filter(y => y >= dec.start && y <= dec.end);
+                            if (decadeYears.length) setSelectedYear(decadeYears[0]);
+                          }}
+                          sx={{
+                            variant: 'buttons.primary',
+                            bg: 'white',
+                            color: 'primary',
+                            '&:hover': { transform: 'translateY(-1px)' },
+                          }}
+                        >
+                          View
+                        </button>
+                      </div>
+                    )}
+                  </Box>
+                </Card>
+              );
+            })}
+          </div>
         </div>
-        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Issues by Year</Heading>
-        <div sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(60px, 1fr))", gap: "2px", mb: "2rem" }}>
-          {years.map(year => (
+        */}
+        <div sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))", gap: "6px", mb: "2rem" }}>
+          {fallbackYears.map(year => (
             <button
               key={year}
               onClick={() => setSelectedYear(year)}
@@ -93,9 +243,9 @@ const IndexPage = props => {
                 variant: "buttons.primary",
                 backgroundColor: selectedYear === year ? "primary" : "muted",
                 color: selectedYear === year ? "background" : "text",
-                py: "5px",
-                px: "5px",
-                borderRadius: "2px",
+                py: "8px",
+                px: "10px",
+                borderRadius: "4px",
                 m: 0,
                 border: "none",
                 boxShadow: "none",
@@ -110,16 +260,13 @@ const IndexPage = props => {
           <div>
             <Heading as="h4" sx={{ mt: "1rem", mb: "0.5rem" }}>{selectedYear}</Heading>
             <div sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", mt: "1rem" }}>
-              {thumbnails.map((src, idx) => {
-                const baseName = src.split("/").pop().replace(".jpg", "");
-                const pdfUrl = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${baseName}.pdf`;
-                const label = baseName.split("_")[1] || baseName;
+              {issues.map((issue) => {
                 return (
-                  <div key={src} sx={{ textAlign: "center", width: "198px", mx: "auto" }}>
-                    <a href={pdfUrl} target="_blank" rel="noopener noreferrer">
+                  <div key={issue.jpg} sx={{ textAlign: "center", width: "198px", mx: "auto" }}>
+                    <a href={issue.pdfUrl} target="_blank" rel="noopener noreferrer">
                       <img
-                        src={src}
-                        alt={`Zündfolge ${selectedYear} Issue ${label}`}
+                        src={issue.jpg}
+                        alt={`Zündfolge ${selectedYear} Issue ${issue.label}`}
                         sx={{
                           width: "198px",
                           height: "255px",
@@ -133,7 +280,7 @@ const IndexPage = props => {
                         }}
                       />
                     </a>
-                    <Text sx={{ mt: 2, fontWeight: "bold" }}>{label}</Text>
+                    <Text sx={{ mt: 2, fontWeight: "bold" }}>{issue.label}</Text>
                   </div>
                 );
               })}
