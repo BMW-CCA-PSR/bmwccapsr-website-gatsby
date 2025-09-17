@@ -1,13 +1,14 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { Link, graphql } from "gatsby";
+import { Link, graphql, withPrefix } from "gatsby";
 import {
   mapEdgesToNodes,
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
-import { Container, Heading, Text } from "@theme-ui/components";
+import { Container, Heading, Text, Card, Box } from "@theme-ui/components";
+import { FiArchive } from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
@@ -127,10 +128,51 @@ const IndexPage = props => {
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge</Heading>
-        <div sx={{display: "flex", flexDirection: "column"}}>
-          <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
-          <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1975.</div>
+        <div
+          sx={{
+            display: "grid",
+            gridTemplateColumns: ["1fr", "1fr", "1fr 420px"],
+            alignItems: "stretch",
+            gap: 3,
+            pb: "1rem",
+          }}
+        >
+          <div>
+            <Heading sx={{variant: "styles.h1", mb: 2}}>Zündfolge</Heading>
+            <div sx={{display: "flex", flexDirection: "column"}}>
+              <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
+              <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1975.</div>
+            </div>
+          </div>
+          <div sx={{ display: ["none", "none", "block"], minHeight: 220 }}>
+            <Link to="/archive/" sx={{ textDecoration: 'none' }} aria-label="Open the Zündfolge archive">
+              <Card
+                sx={{
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%), url(${withPrefix('/images/zundfolge-archive-collage.png')})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                  width: '100%',
+                  height: '100%',
+                  mx: 'auto',
+                  borderRadius: '8px',
+                  borderStyle: 'solid',
+                  borderColor: 'black',
+                  borderWidth: '1px',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                <Box p={3}>
+                  <Text sx={{ variant: 'text.label', color: 'white' }}>Archive</Text>
+                  <Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: 'white' }}>Zündfolge Archive</Heading>
+                  <Text sx={{ color: 'white', opacity: 0.9 }}>Browse decades of issues, covers, and stories.</Text>
+                </Box>
+              </Card>
+            </Link>
+          </div>
         </div>
         <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Latest Stories</Heading>
         <div>

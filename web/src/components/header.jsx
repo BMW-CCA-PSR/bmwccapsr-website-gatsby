@@ -19,20 +19,28 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 	  }, [isToggledOn])
 
 	return (
+    <>
+    <div sx={{ overflowX: "hidden", position: "relative", zIndex: 1300 }}>
 		<nav
 			sx={{
 				backgroundColor: 'lightgray',
-				position: 'relative',
-				zIndex: 10,
+				position: 'fixed',
+				top: 0,
+				left: 0,
+				right: 0,
+				zIndex: 1200,
+				width: "100%",
         borderBottom: "4px solid",
         borderBottomColor: "primary",
         boxShadow: '0 3px 5px -1px rgba(0, 0, 0, 0.3), 0 1px 18px 0 rgba(0, 0, 0, 0.32), 0 6px 10px 0 rgba(0, 0, 0, 0.24)'
 			}}
 		>
+      <div sx={{ position: "relative", zIndex: 20, overflow: "visible" }}>
 			<Container
 				sx={{
 					flexWrap: 'wrap',
 					mt: '0px',
+					overflow: 'visible'
 				}}
 			>
 				<Flex
@@ -51,7 +59,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 							color: 'text',
 							textDecoration: 'none',
 							display: 'flex',
-							position: 'absolute'
+							position: 'absolute',
+							zIndex: 1250
 						}}
 					>
 						<Logo />
@@ -179,7 +188,11 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 					: null}
 				</Flex>
 			</Container>
+      </div>
 		</nav>
+    </div>
+    <div sx={{ mt: ["65px"] }} />
+    </>
 	);
 };
 
