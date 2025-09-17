@@ -99,15 +99,12 @@ const IndexPage = props => {
       return [];
     }
 
-    function labelFor(entry, totalCount) {
+    function labelFor(entry, totalCount, indexInYear) {
       const months = parseMonths(entry);
       const toName = (m) => monthNames[m - 1] || String(m);
       if (totalCount === 4) {
-        if (months.length > 0) {
-          const q = Math.ceil(months[0] / 3) || 1;
-          return `Qtr ${q}`;
-        }
-        return 'Qtr ?';
+        // Treat as quarterly issues; use position for clarity
+        return `Qtr ${indexInYear + 1}`;
       }
       if (totalCount === 6) {
         if (months.length === 2) return `${toName(months[0]).slice(0,3)}/${toName(months[1]).slice(0,3)}`;
@@ -129,12 +126,20 @@ const IndexPage = props => {
       return '';
     }
 
+    function monthKey(entry, fallbackIndex) {
+      const months = parseMonths(entry);
+      if (months.length === 0) return 100 + fallbackIndex; // stable fallback after real months
+      return Math.min(...months);
+    }
+
     const entries = manifest[String(selectedYear)] || [];
     const total = entries.length;
-    const mapped = entries.map((name) => {
+    // Sort by month for yearly/bimonthly cases (>= 6 entries). Preserve order for 4 (quarterly)
+    const sorted = total >= 6 ? entries.slice().sort((a, b) => monthKey(a, 0) - monthKey(b, 0)) : entries;
+    const mapped = sorted.map((name, idx) => {
       const jpg = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${name}.jpg`;
       const base = name; // original manifest token
-      const label = labelFor(base, total) || base.split("_")[1] || base;
+      const label = labelFor(base, total, idx) || base.split("_")[1] || base;
       const pdfUrl = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${base}.pdf`;
       return { jpg, pdfUrl, label };
     });
