@@ -10,6 +10,7 @@ export const videoEmbed = {
     {
       type: 'url',
       name: 'url',
+      title: 'Video URL (e.g. YouTube URL)',
     },
   ],
   components: {
