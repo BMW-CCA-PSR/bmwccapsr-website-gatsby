@@ -73,7 +73,7 @@ export default {
       type: 'mainImage',
       options: { hotspot: true }
     },
-    // { type: 'videoEmbed' },
+    { type: 'videoEmbed' },
     { type: 'file', title: 'File Reference'}
   ]
 }
