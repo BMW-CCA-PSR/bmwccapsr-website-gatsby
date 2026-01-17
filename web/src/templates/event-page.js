@@ -4,7 +4,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
 import EventPage from "../components/event-page";
-import { Container } from "@theme-ui/components";
+import ContentContainer from "../components/content-container";
 import { toPlainText } from "../lib/helpers";
 
 export const query = graphql`
@@ -124,9 +124,9 @@ const EventPageTemplate = props => {
       )}
 
       {errors && (
-        <Container>
+        <ContentContainer>
           <GraphQLErrorList errors={errors} />
-        </Container>
+        </ContentContainer>
       )}
 
       {event && <EventPage {...pageData} />}

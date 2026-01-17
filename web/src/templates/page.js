@@ -10,8 +10,8 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import HeroSlider from "../components/slider";
-import TopStories from "../components/topStories";
-import OtherStories from "../components/other-stories";
+import ZundfolgeLatest from "../components/zundfolge-latest";
+import UpcomingEvents from "../components/upcoming-events";
 import EventSlider from "../components/event-slider";
 import HomepageSponsors from "../components/home-page-sponsors";
 import { BannerAd, BoxAd } from "../components/ads";
@@ -64,6 +64,8 @@ function Page(props) {
       );
     }
     const page = data.page || data.route.page;
+    const isFrontpage =
+      page && (page._id === "frontpage" || page._id === "drafts.frontpage");
     const post = data.post
     const event = data.event
     const ads = data.ads
@@ -76,19 +78,27 @@ function Page(props) {
         let el = null;
         switch (c._type) {
           case "hero":
-            el = <Hero key={c._key} {...c} />;
+            el = <Hero key={c._key} {...c} isHomepage={isFrontpage} />;
             break;
           case "ctaPlug":
             el = <Cta key={c._key} {...c} />;
             break;
           case "heroCarousel":
-            el = <HeroSlider key={c._key} {...c} {...slideAds} />;
+            el = (
+              <HeroSlider
+                key={c._key}
+                {...c}
+                {...slideAds}
+                isHomepage={isFrontpage}
+              />
+            );
             break;
           case "topStories":
-            el = <TopStories key={c._key} {...c} {...post} />;
+          case "zundfolgeLatest":
+            el = <ZundfolgeLatest key={c._key} {...c} {...post} />;
             break;
-          case "otherStories":
-            el = <OtherStories key={c._key} {...c} {...post} />;
+          case "upcomingEvents":
+            el = <UpcomingEvents key={c._key} {...c} {...event} />;
             break;
           case "homepageSponsors":
             el = <HomepageSponsors key={c._key} {...c} {...ads} />;
@@ -109,8 +119,10 @@ function Page(props) {
               mx: "auto",
               my: "20px",
               px: ["16px","16px","50px","100px"],
+              maxWidth: ["100%", "100%", "1040px", "1040px"],
+              width: "100%",
               }}>
-                <PortableText key={c._key} {...c} color={'text'} />
+                <PortableText key={c._key} {...c} color={'text'} boxed />
               </Flex>
             break;
           case "uiComponentRef":

@@ -30,13 +30,14 @@ var style = {
     }
   }
 
-  var outline = {
+export const outline = {
     textDecoration: "none",
     whiteSpace: "nowrap",
     textTransform: "uppercase",
     fontSize: 15,
-    border: "solid 1px #fff",
-    color: "white",
+    border: "solid 1px",
+    borderColor: "currentColor",
+    color: "primary",
     py: "8px",
     my: "5px",
     px: "20px",
@@ -98,7 +99,10 @@ const EventSlider = (props) => {
                     <Link to={getEventsUrl(event.slug.current)} sx={style}>
                         Learn More
                     </Link>
-                    <Link to="/events" sx={outline}>
+                    <Link
+                        to="/events"
+                        sx={{ ...outline, color: "white" }}
+                    >
                         All Events
                     </Link>
                     </>

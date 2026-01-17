@@ -2,10 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, graphql } from "gatsby";
 
-import { Container, Heading, Text, Card, Box } from "@theme-ui/components";
+import { Heading, Text, Card, Box } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
+import ContentContainer from "../components/content-container";
+
+const zundfolgeRed = "#B5322E";
 
 export const query = graphql`
   query ArchivePageQuery {
@@ -171,7 +174,7 @@ const IndexPage = props => {
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
       />
-      <Container sx ={{
+      <ContentContainer sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         //pr: "16px",
@@ -179,9 +182,15 @@ const IndexPage = props => {
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge Archive</Heading>
+        <Heading sx={{ variant: "styles.h1", pb: "1rem" }}>
+          <Box as="span" sx={{ color: zundfolgeRed }}>Zündfolge</Box> Archive
+        </Heading>
         <Text>
-          Since its founding, the Puget Sound chapter of the BMW CCA has published <em>Zündfolge</em>—a printed newsletter dedicated to informing members about upcoming events, technical tips, club news, and shared experiences with the marque. From 1970 through 2021, <em>Zündfolge</em> chronicled the life and passion of our BMW community in the Pacific Northwest. This archive serves as a curated digital record of that legacy, preserving over five decades of enthusiasm, expertise, and camaraderie.
+          Since its founding, the Puget Sound chapter of the BMW CCA has published{" "}
+          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>Zündfolge</Box>
+          —a printed newsletter dedicated to informing members about upcoming events, technical tips, club news, and shared experiences with the marque. From 1970 through 2021,{" "}
+          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>Zündfolge</Box>{" "}
+          chronicled the life and passion of our BMW community in the Pacific Northwest. This archive serves as a curated digital record of that legacy, preserving over five decades of enthusiasm, expertise, and camaraderie.
         </Text>
         <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Issues</Heading>
         {/*
@@ -292,7 +301,7 @@ const IndexPage = props => {
             </div>
           </div>
         )}
-      </Container>
+      </ContentContainer>
     </Layout>
   );
 };

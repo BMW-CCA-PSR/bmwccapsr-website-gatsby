@@ -19,10 +19,22 @@ SwiperCore.use([Autoplay,Pagination,Navigation]);
 
 function HeroSlider(props) {
 
-    const slides = props.slides
-    props.edges.forEach( slideAd => {
-        slides.push(slideAd.node._rawSlideAd)
-    })
+    const baseSlides = Array.isArray(props.slides) ? props.slides : [];
+    const adSlides = Array.isArray(props.edges)
+      ? props.edges
+          .map((slideAd) => slideAd?.node?._rawSlideAd)
+          .filter(Boolean)
+      : [];
+    const slides = [...baseSlides, ...adSlides];
+    const seenKeys = new Set();
+    const uniqueSlides = slides.filter((slide, index) => {
+        const key = slide?._key || slide?._id || slide?.heading || slide?.title || `slide-${index}`;
+        if (seenKeys.has(key)) {
+            return false;
+        }
+        seenKeys.add(key);
+        return true;
+    });
 
     return (
         <div>
@@ -38,11 +50,11 @@ function HeroSlider(props) {
                 }} 
                 navigation={false} 
             >
-            {slides.map((i) => {
+            {uniqueSlides.map((i, index) => {
                 if (i._type == "hero") {
                     return (
-                        <SwiperSlide >
-                            <Hero {...i} />
+                        <SwiperSlide key={i._key || i._id || `slide-${index}`}>
+                            <Hero {...i} isHomepage={props.isHomepage} />
                         </SwiperSlide>
                         )
                     }

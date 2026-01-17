@@ -4,7 +4,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import ZundfolgeArticle from "../components/zundfolge-article";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
-import { Container } from "@theme-ui/components";
+import ContentContainer from "../components/content-container";
 import { toPlainText } from "../lib/helpers";
 
 export const query = graphql`
@@ -237,9 +237,9 @@ const ZundfolgePostTemplate = props => {
       )}
 
       {errors && (
-        <Container>
+        <ContentContainer>
           <GraphQLErrorList errors={errors} />
-        </Container>
+        </ContentContainer>
       )}
 
       {post && <ZundfolgeArticle {...pageData} />}

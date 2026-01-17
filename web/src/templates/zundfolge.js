@@ -7,12 +7,16 @@ import {
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
-import { Container, Heading, Text, Card, Box } from "@theme-ui/components";
+import { Heading, Text, Card, Box } from "@theme-ui/components";
 import { FiArchive } from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
 import ZundfolgeArticlePreview from "../components/zundfolge-article-preview";
+import ContentContainer from "../components/content-container";
+import { BoxIcon } from "../components/box-icons";
+
+const zundfolgeRed = "#B5322E";
 
 export const query = graphql`
   query ZundfolgePageQuery($skip: Int!, $limit: Int!) {
@@ -120,7 +124,7 @@ const IndexPage = props => {
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
       />
-      <Container sx ={{
+      <ContentContainer sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         //pr: "16px",
@@ -138,7 +142,10 @@ const IndexPage = props => {
           }}
         >
           <div>
-            <Heading sx={{variant: "styles.h1", mb: 2}}>Zündfolge</Heading>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "0.75rem", mb: 2 }}>
+              <Heading sx={{ variant: "styles.h1", mb: 0, color: zundfolgeRed }}>Zündfolge</Heading>
+              <BoxIcon />
+            </Box>
             <div sx={{display: "flex", flexDirection: "column"}}>
               <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
               <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1975.</div>
@@ -250,7 +257,7 @@ const IndexPage = props => {
             </ul>
           </div>
         </div>
-      </Container>
+      </ContentContainer>
     </Layout>
   );
 };

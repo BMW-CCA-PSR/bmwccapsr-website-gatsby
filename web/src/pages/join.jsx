@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { graphql, Link } from "gatsby";
 import {
-  Container,
   Box,
   Flex,
   Grid,
@@ -11,16 +10,10 @@ import {
   Button
 } from "@theme-ui/components";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
-import { format, parseISO } from "date-fns";
-import SanityImage from "gatsby-plugin-sanity-image";
 import Layout from "../containers/layout";
 import Seo from "../components/seo";
 import GraphQLErrorList from "../components/graphql-error-list";
-import {
-  mapEdgesToNodes,
-  filterOutDocsWithoutSlugs,
-  getEventsUrl
-} from "../lib/helpers";
+import ContentContainer from "../components/content-container";
 
 const baseJoinUrl = "https://www.bmwcca.org/join";
 const heroImage = "/images/bmw-join-image.jpg";
@@ -110,46 +103,76 @@ const benefits = [
     description: "From scenic drives to track days and tech sessions."
   },
   {
-    title: "Rebates on new and CPO vehicles",
-    description: "Apply for up to $1,500 in rebates on eligible purchases."
+    title: "Meet other BMW owners",
+    description: "Talk cars, learn more about your Bimmer, and build community."
   },
   {
-    title: "A welcoming community of enthusiasts",
-    description: "Connect with people who love the marque as much as you do."
+    title: "Parts, service, and insurance discounts",
+    description: "Savings from participating dealers and vendors."
   },
   {
-    title: "Parts, service, and partner discounts",
-    description: "Member pricing from major suppliers and providers."
+    title: "Award-winning BMW magazines",
+    description: "Roundel and BimmerLife included with membership."
   },
   {
-    title: "Membership that pays for itself",
-    description: "Just $58 per year with national perks and savings."
+    title: "15% off BMW Performance Center programs",
+    description: "Includes M Schools and driver programs."
   },
   {
-    title: "Exclusive merchandise access",
-    description: "Apparel and lifestyle gear for BMW CCA members."
+    title: "Rebates up to $1,000 new / $500 CPO",
+    description:
+      "Eligible after one year or 6 months with a 3-year membership."
   },
   {
-    title: "Dream car sweepstakes",
-    description: "Enter to win a new or classic BMW each year."
+    title: "500+ member-only events each year",
+    description: "National calendar plus your local chapter."
+  },
+  {
+    title: "Local BMW CCA chapter membership",
+    description: "Access to your regional community and programs."
   }
 ];
 
-const benefitsPrimary = benefits.slice(0, 3);
-const benefitsSecondary = benefits.slice(3);
+const benefitsPrimary = benefits.slice(0, 4);
+const benefitsSecondary = benefits.slice(4);
 
-const isBoardMeeting = (event) => {
-  const title = (event.title || "").toLowerCase();
-  const category = (event.category && event.category.title
-    ? event.category.title
-    : ""
-  ).toLowerCase();
-  return (
-    title.includes("board meeting") ||
-    (title.includes("board") && title.includes("meeting")) ||
-    category.includes("board")
-  );
-};
+const hpdeEvents = [
+  {
+    title: "Ridge Motorsports Park — Shelton",
+    details: "Jul 16"
+  },
+  {
+    title: "Pacific Raceways — Kent",
+    details: "Mar 8*, Apr 16*, May 21, Jun 24, Aug 21, Sep 24*"
+  }
+];
+
+const socialEvents = [
+  {
+    title: "Burgers & BMWs",
+    details: "May 9 — Woodinville"
+  },
+  {
+    title: "BMW Seattle M-Car Day",
+    details: "Jun 28 — Seattle"
+  },
+  {
+    title: "Deutsche Marque at LeMay’s",
+    details: "Jul 18 — Tacoma"
+  },
+  {
+    title: "Griot’s M-Car Day",
+    details: "Aug 22 — Tacoma"
+  },
+  {
+    title: "Leavenworth Wine Tour",
+    details: "Sep 12 — Plain"
+  },
+  {
+    title: "Chelan Wine Tour",
+    details: "Oct 13-14 — Chelan"
+  }
+];
 
 const QrLandingPage = (props) => {
   const { data, errors, location } = props;
@@ -197,13 +220,6 @@ const QrLandingPage = (props) => {
 
   const site = data?.site;
   const menuItems = site?.navMenu?.items || [];
-  const eventNodes = data?.events
-    ? mapEdgesToNodes(data.events)
-        .filter(filterOutDocsWithoutSlugs)
-        .filter((event) => !isBoardMeeting(event))
-        .slice(0, 6)
-    : [];
-
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
       <Seo
@@ -212,7 +228,7 @@ const QrLandingPage = (props) => {
         keywords={["BMW CCA", "Puget Sound", "events", "club", "membership"]}
       />
       <main>
-        <Container
+        <ContentContainer
           sx={{
             pl: ["16px", "16px", "50px", "100px"],
             pr: ["16px", "16px", "50px", "100px"],
@@ -316,10 +332,10 @@ const QrLandingPage = (props) => {
               />
             </Box>
           </Box>
-        </Container>
+        </ContentContainer>
 
-        <Box id="upcoming" sx={{ backgroundColor: "lightgray", py: "2.5rem" }}>
-          <Container
+        <Box id="events" sx={{ backgroundColor: "lightgray", py: "2.5rem" }}>
+          <ContentContainer
             sx={{
               pl: ["16px", "16px", "50px", "100px"],
               pr: ["16px", "16px", "50px", "100px"]
@@ -334,200 +350,384 @@ const QrLandingPage = (props) => {
               }}
             >
               <Heading sx={{ variant: "styles.h2" }}>
-                Upcoming events
+                Event highlights for 2026
               </Heading>
               <Link to="/events" sx={{ textDecoration: "none" }}>
                 <Button sx={calendarButton}>Full Calendar</Button>
               </Link>
             </Flex>
-            <Text sx={{ mt: "0.5rem", maxWidth: "38rem" }}>
-              A simplified look at the next few events. See the full calendar
-              for all details and registration info.
+            <Text sx={{ mt: "0.5rem", maxWidth: "42rem" }}>
+              A persistent snapshot of event types you can expect throughout the
+              year. Dates listed are representative for CY2026.
             </Text>
 
-            {eventNodes.length > 0 ? (
-              <Grid
+            <Box
+              sx={{
+                mt: "1.5rem",
+                backgroundColor: "background",
+                borderRadius: "18px",
+                border: "1px solid",
+                borderColor: "gray",
+                boxShadow: "0 18px 28px -20px rgba(0, 0, 0, 0.4)",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: ["column", "column", "row"]
+              }}
+            >
+              <Box
                 sx={{
-                  gridTemplateColumns: [
-                    "1fr",
-                    "1fr",
-                    "repeat(2, minmax(0, 1fr))",
-                    "repeat(2, minmax(0, 1fr))"
-                  ],
-                  gap: "1.5rem",
-                  mt: "1.5rem"
+                  p: ["1.5rem", "1.75rem", "2.25rem"],
+                  flex: "1 1 58%"
                 }}
               >
-                {eventNodes.map((event) => {
-                  const startDate = event.startTime
-                    ? format(parseISO(event.startTime), "EEE, MMM d")
-                    : "";
-                  const startTime = event.startTime
-                    ? format(parseISO(event.startTime), "p")
-                    : "";
-                  const cityState =
-                    event.address && event.address.city && event.address.state
-                      ? `${event.address.city}, ${event.address.state}`
-                      : "";
-                  return (
-                    <Link
-                      key={event.id}
-                      to={getEventsUrl(event.slug.current)}
-                      sx={{ textDecoration: "none" }}
-                    >
-                      <Box
-                        sx={{
-                          backgroundColor: "background",
-                          borderRadius: "14px",
-                          border: "1px solid",
-                          borderColor: "gray",
-                          height: "100%",
-                          overflow: "hidden",
-                          boxShadow:
-                            "0 12px 20px -16px rgba(0, 0, 0, 0.4)",
-                          transition:
-                            "transform 0.3s ease-out, box-shadow 0.3s ease-out",
-                          "&:hover": {
-                            transform: "translateY(-3px)",
-                            boxShadow:
-                              "0 20px 28px -20px rgba(0, 0, 0, 0.5)"
-                          },
-                          "&:hover .event-image-frame": {
-                            transform: "scaleX(1.08)"
-                          },
-                          "&:hover .event-image": {
-                            transform: "scale(1.08)"
-                          }
-                        }}
-                      >
-                        <Flex
-                          sx={{
-                            flexDirection: ["column", "row"],
-                            alignItems: "stretch",
-                            minHeight: ["auto", "170px", "190px"]
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: ["100%", "120px", "140px"],
-                              minHeight: ["170px", "100%"],
-                              flexShrink: 0,
-                              position: "relative",
-                              overflow: "hidden",
-                              backgroundColor: "lightgray",
-                              clipPath: [
-                                "none",
-                                "none",
-                                "polygon(0 0, 100% 0, 88% 100%, 0 100%)"
-                              ],
-                              transition: "transform 0.35s ease-out",
-                              transformOrigin: "left center",
-                              transform: "scaleX(1)",
-                              zIndex: 1
-                            }}
-                            className="event-image-frame"
-                          >
-                            {event.mainImage && event.mainImage.asset ? (
-                              <SanityImage
-                                {...event.mainImage}
-                                width={320}
-                                className="event-image"
-                                sx={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                  transition: "transform 0.35s ease-out",
-                                  transformOrigin: "left center"
-                                }}
-                              />
-                            ) : (
-                              <Box
-                                className="event-image"
-                                sx={{
-                                  width: "100%",
-                                  height: "100%",
-                                  backgroundImage:
-                                    "linear-gradient(135deg, #1e94ff 0%, #86c8ff 100%)",
-                                  transition: "transform 0.35s ease-out",
-                                  transformOrigin: "left center"
-                                }}
-                              />
-                            )}
-                          </Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              p: "1.25rem",
-                              flex: "1 1 auto"
-                            }}
-                          >
-                            <Text
-                              sx={{
-                                variant: "text.label",
-                                color: "secondary"
-                              }}
-                            >
-                              {startDate}
-                              {startTime ? ` - ${startTime}` : ""}
-                            </Text>
-                            <Heading
-                              sx={{
-                                variant: "styles.h3",
-                                mt: "0.5rem",
-                                mb: "0.5rem",
-                                color: "black"
-                              }}
-                            >
-                              {event.title}
-                            </Heading>
-                            {cityState && (
-                              <Text sx={{ color: "darkgray" }}>
-                                {cityState}
-                              </Text>
-                            )}
-                            <Text
-                              sx={{
-                                mt: "0.75rem",
-                                color: "primary",
-                                fontWeight: "700",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.08em",
-                                fontSize: 13
-                              }}
-                            >
-                              View details
-                            </Text>
-                          </Box>
-                        </Flex>
-                        <Box
-                          sx={{
-                            height: "6px",
-                            width: "100%",
-                            bg: "primary",
-                            borderBottomLeftRadius: "14px",
-                            borderBottomRightRadius: "14px"
-                          }}
-                        />
-                      </Box>
-                    </Link>
-                  );
-                })}
-              </Grid>
-            ) : (
-              <Box sx={{ mt: "1.5rem" }}>
-                <Text sx={{ fontSize: "sm" }}>
-                  No upcoming events are listed right now. Check the full
-                  calendar for the latest updates.
+                <Heading
+                  as="h3"
+                  sx={{ variant: "styles.h3", color: "secondary" }}
+                >
+                  High Performance Driving Events & Clinics
+                </Heading>
+                <Text sx={{ mt: "0.5rem", fontWeight: "700" }}>
+                  Drive More. Learn More. Belong More.
+                </Text>
+                <Text sx={{ mt: "0.5rem", color: "darkgray" }}>
+                  Experience your BMW as it was engineered to be driven, with
+                  professional instruction and a supportive community. Every
+                  event builds skill, confidence, and control.
+                </Text>
+                <ul
+                  sx={{
+                    listStyleType: "disc",
+                    pl: "1.5rem",
+                    mt: "1rem",
+                    mb: 0
+                  }}
+                >
+                  {hpdeEvents.map((event) => (
+                    <li key={event.title} sx={{ mb: "0.75rem" }}>
+                      <Text sx={{ fontWeight: "700", color: "text" }}>
+                        {event.title}
+                      </Text>
+                      <Text sx={{ display: "block", color: "darkgray" }}>
+                        {event.details}
+                      </Text>
+                    </li>
+                  ))}
+                </ul>
+                <Text sx={{ mt: "0.75rem", fontSize: "xxs", color: "darkgray" }}>
+                  * concurrent HPDE & Car Control Clinics
                 </Text>
               </Box>
-            )}
-          </Container>
+
+              <Box
+                sx={{
+                  position: "relative",
+                  width: ["100%", "100%", "42%"],
+                  minHeight: ["220px", "260px", "100%"],
+                  clipPath: [
+                    "none",
+                    "none",
+                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
+                  ],
+                  borderTopRightRadius: "18px",
+                  borderBottomRightRadius: "18px",
+                  overflow: "hidden"
+                }}
+              >
+                <Box
+                  data-tooltip="HPDE event at Pacific"
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 1,
+                    "&:hover .image-layer": {
+                      filter: "grayscale(100%)"
+                    },
+                    "&:hover .image-tint": {
+                      opacity: 0.55
+                    },
+                    "&:hover::after": {
+                      opacity: 1,
+                      transform: "translateY(-6px)"
+                    },
+                    "&::after": {
+                      content: "attr(data-tooltip)",
+                      position: "absolute",
+                      left: "12px",
+                      bottom: "12px",
+                      backgroundColor: "rgba(6, 59, 122, 0.92)",
+                      color: "white",
+                      fontSize: "12px",
+                      letterSpacing: "0.02em",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      opacity: 0,
+                      transform: "translateY(0)",
+                      transition: "opacity 0.2s ease, transform 0.2s ease",
+                      pointerEvents: "none",
+                      maxWidth: "90%",
+                      zIndex: 2
+                    }
+                  }}
+                >
+                  <Box
+                    className="image-layer"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: "url(/images/hpde1.jpg)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      filter: "grayscale(0%)",
+                      transition: "filter 0.2s ease"
+                    }}
+                  />
+                  <Box
+                    className="image-tint"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(30, 148, 255, 0.55)",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease",
+                      pointerEvents: "none"
+                    }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(120deg, rgba(6, 59, 122, 0.25), rgba(6, 59, 122, 0.05))",
+                    pointerEvents: "none",
+                    zIndex: 0
+                  }}
+                />
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                mt: ["1.5rem", "1.75rem", "2rem"],
+                backgroundColor: "background",
+                borderRadius: "18px",
+                border: "1px solid",
+                borderColor: "gray",
+                boxShadow: "0 18px 28px -20px rgba(0, 0, 0, 0.4)",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: ["column", "column", "row"]
+              }}
+            >
+              <Box
+                sx={{
+                  p: ["1.5rem", "1.75rem", "2.25rem"],
+                  flex: "1 1 58%"
+                }}
+              >
+                <Heading
+                  as="h3"
+                  sx={{ variant: "styles.h3", color: "secondary" }}
+                >
+                  Social Events & Tours
+                </Heading>
+                <Text sx={{ mt: "0.5rem", fontWeight: "700" }}>
+                  Not just cars — community.
+                </Text>
+                <Text sx={{ mt: "0.5rem", color: "darkgray" }}>
+                  From scenic drives to automotive gatherings, these events
+                  connect BMW owners who share a passion for driving,
+                  craftsmanship, and great company.
+                </Text>
+                <ul
+                  sx={{
+                    listStyleType: "disc",
+                    pl: "1.5rem",
+                    mt: "1rem",
+                    mb: 0,
+                    columnCount: [1, 1, 2],
+                    columnGap: "1.5rem"
+                  }}
+                >
+                  {socialEvents.map((event) => (
+                    <li
+                      key={event.title}
+                      sx={{ mb: "0.75rem", breakInside: "avoid" }}
+                    >
+                      <Text sx={{ fontWeight: "700", color: "text" }}>
+                        {event.title}
+                      </Text>
+                      <Text sx={{ display: "block", color: "darkgray" }}>
+                        {event.details}
+                      </Text>
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+
+              <Box
+                sx={{
+                  position: "relative",
+                  width: ["100%", "100%", "42%"],
+                  minHeight: ["220px", "260px", "100%"],
+                  clipPath: [
+                    "none",
+                    "none",
+                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
+                  ],
+                  borderTopRightRadius: "18px",
+                  borderBottomRightRadius: "18px",
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: ["column", "row", "row"]
+                }}
+              >
+                <Box
+                  data-tooltip="Griots Tech Session"
+                  sx={{
+                    flex: "1 1 50%",
+                    mr: ["0", "0", "-40px"],
+                    transform: ["none", "none", "scaleX(1.12)"],
+                    transformOrigin: "left center",
+                    position: "relative",
+                    zIndex: 1,
+                    "&:hover .image-layer": {
+                      filter: "grayscale(100%)"
+                    },
+                    "&:hover .image-tint": {
+                      opacity: 0.55
+                    },
+                    "&:hover::after": {
+                      opacity: 1,
+                      transform: "translateY(-6px)"
+                    },
+                    "&::after": {
+                      content: "attr(data-tooltip)",
+                      position: "absolute",
+                      left: "12px",
+                      bottom: "12px",
+                      backgroundColor: "rgba(6, 59, 122, 0.92)",
+                      color: "white",
+                      fontSize: "12px",
+                      letterSpacing: "0.02em",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      opacity: 0,
+                      transform: "translateY(0)",
+                      transition: "opacity 0.2s ease, transform 0.2s ease",
+                      pointerEvents: "none",
+                      maxWidth: "90%",
+                      zIndex: 2
+                    }
+                  }}
+                >
+                  <Box
+                    className="image-layer"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: "url(/images/tech1.jpg)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center left",
+                      filter: "grayscale(0%)",
+                      transition: "filter 0.2s ease"
+                    }}
+                  />
+                  <Box
+                    className="image-tint"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(30, 148, 255, 0.55)",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease",
+                      pointerEvents: "none"
+                    }}
+                  />
+                </Box>
+                <Box
+                  data-tooltip="BC tour to Duffey Lake."
+                  sx={{
+                    flex: "1 1 50%",
+                    clipPath: [
+                      "none",
+                      "none",
+                      "polygon(24% 0, 100% 0, 100% 100%, 0 100%)"
+                    ],
+                    ml: ["0", "0", "-20px"],
+                    position: "relative",
+                    zIndex: 2,
+                    "&:hover .image-layer": {
+                      filter: "grayscale(100%)"
+                    },
+                    "&:hover .image-tint": {
+                      opacity: 0.55
+                    },
+                    "&:hover::after": {
+                      opacity: 1,
+                      transform: "translateY(-6px)"
+                    },
+                    "&::after": {
+                      content: "attr(data-tooltip)",
+                      position: "absolute",
+                      left: "12px",
+                      bottom: "12px",
+                      backgroundColor: "rgba(6, 59, 122, 0.92)",
+                      color: "white",
+                      fontSize: "12px",
+                      letterSpacing: "0.02em",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      opacity: 0,
+                      transform: "translateY(0)",
+                      transition: "opacity 0.2s ease, transform 0.2s ease",
+                      pointerEvents: "none",
+                      maxWidth: "90%",
+                      zIndex: 2
+                    }
+                  }}
+                >
+                  <Box
+                    className="image-layer"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: "url(/images/tour1.png)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      filter: "grayscale(0%)",
+                      transition: "filter 0.2s ease"
+                    }}
+                  />
+                  <Box
+                    className="image-tint"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(30, 148, 255, 0.55)",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease",
+                      pointerEvents: "none"
+                    }}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(120deg, rgba(6, 59, 122, 0.2), rgba(6, 59, 122, 0.05))",
+                    pointerEvents: "none",
+                    zIndex: 0
+                  }}
+                />
+              </Box>
+            </Box>
+          </ContentContainer>
         </Box>
 
         <Box id="benefits" sx={{ py: "2.5rem" }}>
-          <Container
+          <ContentContainer
             sx={{
               pl: ["16px", "16px", "50px", "100px"],
               pr: ["16px", "16px", "50px", "100px"]
@@ -545,7 +745,8 @@ const QrLandingPage = (props) => {
                 flexDirection: ["column", "column", "row"],
                 borderRadius: "18px",
                 overflow: "hidden",
-                boxShadow: "0 18px 30px -22px rgba(0, 0, 0, 0.45)"
+                boxShadow: "0 18px 30px -22px rgba(0, 0, 0, 0.45)",
+                backgroundColor: "lightgray"
               }}
             >
               <Box
@@ -573,7 +774,7 @@ const QrLandingPage = (props) => {
                         sx={{
                           fontWeight: "700",
                           color: "text",
-                          fontSize: ["20px", "22px", "24px"]
+                          fontSize: ["22px", "24px", "26px"]
                         }}
                       >
                         {benefit.title}
@@ -591,24 +792,58 @@ const QrLandingPage = (props) => {
                   minHeight: ["220px", "260px", "320px"],
                   flex: "1 1 45%",
                   position: "relative",
-                  backgroundColor: "lightgray"
+                  backgroundColor: "lightgray",
+                  clipPath: [
+                    "none",
+                    "none",
+                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
+                  ]
                 }}
               >
                 <Box
                   sx={{
                     position: "absolute",
                     inset: 0,
-                    backgroundImage: "url(/images/join1.jpg)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center"
+                    zIndex: 1,
+                    "&:hover .image-layer": {
+                      filter: "grayscale(100%)"
+                    },
+                    "&:hover .image-tint": {
+                      opacity: 0.55
+                    }
                   }}
-                />
+                >
+                  <Box
+                    className="image-layer"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: "url(/images/join1.jpg)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      filter: "grayscale(0%)",
+                      transition: "filter 0.2s ease"
+                    }}
+                  />
+                  <Box
+                    className="image-tint"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(30, 148, 255, 0.55)",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease",
+                      pointerEvents: "none"
+                    }}
+                  />
+                </Box>
                 <Box
                   sx={{
                     position: "absolute",
                     inset: 0,
                     background:
-                      "linear-gradient(140deg, rgba(6, 59, 122, 0.2), rgba(6, 59, 122, 0))"
+                      "linear-gradient(140deg, rgba(6, 59, 122, 0.2), rgba(6, 59, 122, 0))",
+                    pointerEvents: "none"
                   }}
                 />
               </Box>
@@ -621,7 +856,8 @@ const QrLandingPage = (props) => {
                 flexDirection: ["column", "column", "row"],
                 borderRadius: "18px",
                 overflow: "hidden",
-                boxShadow: "0 18px 30px -22px rgba(0, 0, 0, 0.45)"
+                boxShadow: "0 18px 30px -22px rgba(0, 0, 0, 0.45)",
+                backgroundColor: "lightgray"
               }}
             >
               <Box
@@ -629,24 +865,81 @@ const QrLandingPage = (props) => {
                   minHeight: ["220px", "260px", "300px"],
                   flex: "1 1 45%",
                   position: "relative",
-                  backgroundColor: "lightgray"
+                  backgroundColor: "lightgray",
+                  clipPath: [
+                    "none",
+                    "none",
+                    "polygon(0 0, 100% 0, 88% 100%, 0 100%)"
+                  ]
                 }}
               >
                 <Box
+                  data-tooltip="M car day"
                   sx={{
                     position: "absolute",
                     inset: 0,
-                    backgroundImage: "url(/images/join2.jpg)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center"
+                    zIndex: 1,
+                    "&:hover .image-layer": {
+                      filter: "grayscale(100%)"
+                    },
+                    "&:hover .image-tint": {
+                      opacity: 0.55
+                    },
+                    "&:hover::after": {
+                      opacity: 1,
+                      transform: "translateY(-6px)"
+                    },
+                    "&::after": {
+                      content: "attr(data-tooltip)",
+                      position: "absolute",
+                      left: "12px",
+                      bottom: "12px",
+                      backgroundColor: "rgba(6, 59, 122, 0.92)",
+                      color: "white",
+                      fontSize: "12px",
+                      letterSpacing: "0.02em",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      opacity: 0,
+                      transform: "translateY(0)",
+                      transition: "opacity 0.2s ease, transform 0.2s ease",
+                      pointerEvents: "none",
+                      maxWidth: "90%",
+                      zIndex: 2
+                    }
                   }}
-                />
+                >
+                  <Box
+                    className="image-layer"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: "url(/images/join3.jpg)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center bottom",
+                      filter: "grayscale(0%)",
+                      transition: "filter 0.2s ease"
+                    }}
+                  />
+                  <Box
+                    className="image-tint"
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(30, 148, 255, 0.55)",
+                      opacity: 0,
+                      transition: "opacity 0.2s ease",
+                      pointerEvents: "none"
+                    }}
+                  />
+                </Box>
                 <Box
                   sx={{
                     position: "absolute",
                     inset: 0,
                     background:
-                      "linear-gradient(160deg, rgba(6, 59, 122, 0.15), rgba(6, 59, 122, 0))"
+                      "linear-gradient(160deg, rgba(6, 59, 122, 0.15), rgba(6, 59, 122, 0))",
+                    pointerEvents: "none"
                   }}
                 />
               </Box>
@@ -676,7 +969,7 @@ const QrLandingPage = (props) => {
                         sx={{
                           fontWeight: "700",
                           color: "text",
-                          fontSize: ["20px", "22px", "24px"]
+                          fontSize: ["22px", "24px", "26px"]
                         }}
                       >
                         {benefit.title}
@@ -720,7 +1013,7 @@ const QrLandingPage = (props) => {
                 </OutboundLink>
               </Box>
             </Box>
-          </Container>
+          </ContentContainer>
         </Box>
       </main>
     </Layout>
@@ -733,38 +1026,6 @@ export const query = graphql`
       title
       navMenu {
         ...NavMenu
-      }
-    }
-    events: allSanityEvent(
-      limit: 12
-      sort: { fields: [startTime], order: ASC }
-      filter: { slug: { current: { ne: null } }, isActive: { eq: true } }
-    ) {
-      edges {
-        node {
-          id
-          title
-          startTime
-          category {
-            title
-          }
-          mainImage {
-            ...SanityImage
-            alt
-            asset {
-              metadata {
-                lqip
-              }
-            }
-          }
-          slug {
-            current
-          }
-          address {
-            city
-            state
-          }
-        }
       }
     }
   }

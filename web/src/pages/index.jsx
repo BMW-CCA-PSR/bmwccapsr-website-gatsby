@@ -115,9 +115,27 @@ export const query = graphql`
     ) {
       edges {
         node {
+          id
+          startTime
+          mainImage {
+            ...SanityImage
+            alt
+            asset {
+              metadata {
+                lqip
+              }
+            }
+          }
           title
           slug {
             current
+          }
+          category {
+            title
+          }
+          address {
+            city
+            state
           }
         }
       }

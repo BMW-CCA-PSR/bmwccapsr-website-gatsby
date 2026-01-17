@@ -3,12 +3,22 @@ import { format, parseISO } from "date-fns";
 import { Link } from "gatsby";
 import React from "react";
 import { Card, Text, Heading, Box, Flex } from "theme-ui"
-import { getEventsUrl } from "../lib/helpers";
+import { buildImageObj, getEventsUrl } from "../lib/helpers";
 import SanityImage from 'gatsby-plugin-sanity-image';
+import { imageUrlFor } from "../lib/image-url";
 
 function EventPagePreview(props) {
   const category = props.category ?  props.category.title : ''
   const cityState = props.address && props.address.city && props.address.state ? `${props.address.city}, ${props.address.state}` : ""
+  const hasGatsbyImage = Boolean(props.mainImage?.asset?.metadata?.lqip);
+  const imageUrl = props.mainImage
+    ? imageUrlFor(buildImageObj(props.mainImage))
+        .width(800)
+        .height(440)
+        .fit("crop")
+        .auto("format")
+        .url()
+    : null;
   return (
     <Link
       to={getEventsUrl(props.slug.current)}
@@ -18,10 +28,9 @@ function EventPagePreview(props) {
         sx={{
           textDecoration: "none",
           color: "text",
-          //backgroundColor: "lightgrey",
+          backgroundColor: "white",
 					width: '100%',
 					height: '100%',
-          maxWidth: ["","","50vw","50vw"],
           borderRadius: "9px",
           display: "flex",
           flexDirection: "column",
@@ -31,19 +40,38 @@ function EventPagePreview(props) {
       >
       {props.mainImage && props.mainImage.asset && (
         <div sx={{position: "relative"}}>
-          <SanityImage
-            {...props.mainImage}
-            width={600}
-            sx={{
-              width: '100%',
-              height: '100%',
-              maxHeight: "220px",
-              minHeight: "220px",
-              objectFit: 'cover',
-              borderTopRightRadius: "8px",
-              borderTopLeftRadius: "8px",
-            }}
-          />
+          {hasGatsbyImage ? (
+            <SanityImage
+              {...props.mainImage}
+              width={600}
+              sx={{
+                width: '100%',
+                height: '100%',
+                maxHeight: "220px",
+                minHeight: "220px",
+                objectFit: 'cover',
+                borderTopRightRadius: "8px",
+                borderTopLeftRadius: "8px",
+              }}
+            />
+          ) : (
+            imageUrl && (
+              <Box
+                as="img"
+                src={imageUrl}
+                alt={props.mainImage?.alt || props.title || "Event"}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  maxHeight: "220px",
+                  minHeight: "220px",
+                  objectFit: 'cover',
+                  borderTopRightRadius: "8px",
+                  borderTopLeftRadius: "8px",
+                }}
+              />
+            )
+          )}
             <Box sx={{
               position: "absolute",
               backgroundColor: "white",

@@ -7,6 +7,28 @@ import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const PartnerCard = (props) => {
   const tier = props.tier == null ? "" : props.tier.title;
+  const tierStyles = {
+    platinum: {
+      borderColor: "#e5e4e2",
+      borderWidth: "4px",
+      boxShadow:
+        "0 0 0 2px rgba(229, 228, 226, 0.7), 0 0 26px rgba(255, 255, 255, 0.65)"
+    },
+    gold: {
+      borderColor: "#d4af37",
+      borderWidth: "4px",
+      boxShadow:
+        "0 0 0 1px rgba(212, 175, 55, 0.6), 0 0 20px rgba(212, 175, 55, 0.35)"
+    },
+    silver: {
+      borderColor: "#c0c0c0",
+      borderWidth: "4px",
+      boxShadow:
+        "0 0 0 1px rgba(192, 192, 192, 0.55), 0 0 18px rgba(192, 192, 192, 0.3)"
+    }
+  };
+  const tierKey = tier.toLowerCase();
+  const tierStyle = tierStyles[tierKey] || {};
   return (
     <Card
     sx={{
@@ -14,12 +36,13 @@ const PartnerCard = (props) => {
       color: "text",
       width: '100%',
       height: '100%',
-      maxWidth: ["","","50vw","50vw"],
       borderRadius: "9px",
       display: "flex",
       flexDirection: "column",
       borderStyle: "solid",
-      borderWidth: "1px",
+      borderWidth: tierStyle.borderWidth || "1px",
+      borderColor: tierStyle.borderColor,
+      boxShadow: tierStyle.boxShadow,
     }}
   >
   {props._rawLogo && props._rawLogo.asset && (
@@ -53,7 +76,6 @@ const DiscountCard = (props) => {
       color: "text",
       width: '100%',
       height: '100%',
-      maxWidth: ["","","50vw","50vw"],
       borderRadius: "9px",
       display: "flex",
       flexDirection: "column",
@@ -143,12 +165,33 @@ function SponsorPageGrid(props) {
               </OutboundLink>
             ))}
       </ul>
-      {partners.length != 0 ? <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading> : null}
+      {partners.length != 0 ? (
+        <>
+          <Heading
+            sx={{
+              variant: "styles.h3",
+              borderBottomStyle: "solid",
+              pt: "1rem",
+              pb: "3px",
+              borderBottomWidth: "3px",
+              my: "0.5rem"
+            }}
+          ></Heading>
+          <Heading sx={{ variant: "styles.h2", mt: "1rem", mb: "1rem" }}>
+            Partner Discounts
+          </Heading>
+        </>
+      ) : null}
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
         gridGap: 3,
-        gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
+        gridTemplateColumns: [
+          "1fr",
+          "1fr",
+          "repeat(2, minmax(0, 1fr))",
+          "repeat(2, minmax(0, 1fr))"
+        ],
         m: 0,
         p: 0
       }}>

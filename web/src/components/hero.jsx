@@ -3,10 +3,13 @@ import React from "react";
 import CTALink from "./CTALink";
 import SanityImage from "gatsby-plugin-sanity-image"
 import { Heading, Text } from "theme-ui"
+import { BoxIcon } from "./box-icons";
+import ContentContainer from "./content-container";
 
 function Hero(props) {
   const image = props.image
-  const colorOverride = props.colors ? props.colors.value : null
+  const colorOverride =
+    typeof props.colors === "string" ? props.colors : props.colors?.value
   let fontColor = "#000"
   if (
     props.image &&
@@ -21,7 +24,7 @@ function Hero(props) {
     <div
       sx={{
         width: "100%",
-        height: 550,
+        height: props.isHomepage ? 480 : 360,
         position: "relative",
       }}>
       {/* background image component */}
@@ -37,22 +40,45 @@ function Hero(props) {
             zIndex: "-1",
           }} />
         }
-        <div sx={{background: "rgba(0,0,0,0.3)", height: "100%", zIndex: "0"}}>
+        <div
+          sx={{
+            background:
+              "linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 35%, rgba(0,0,0,0) 60%), rgba(120, 120, 120, 0.38)",
+            height: "100%",
+            zIndex: "0"
+          }}
+        >
         {/* inner text component / content div */}
-        <div sx={{
-          p: ["16px","16px","50px","100px"],
+        <ContentContainer sx={{
+          px: ["16px","16px","50px","100px"],
           //paddingRight: ["20px", "50px", "100px", "400px"],
-          paddingTop: ["120px", "120px","160px", "160px"]
+          pt: ["120px", "120px","160px", "160px"]
         }}>
           <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
-          <Heading sx={{fontSize: ["50px","xl"], color: `${fontColor}`, lineHeight: ["40px", "60px"]}}>{props.heading}</Heading>
+          <Heading
+            sx={{
+              fontSize: ["50px", "xl"],
+              color: `${fontColor}`,
+              lineHeight: ["40px", "60px"]
+            }}
+          >
+            {props.heading}
+            <BoxIcon
+              as="span"
+              sx={{
+                display: "inline-grid",
+                ml: "0.5rem",
+                verticalAlign: "middle"
+              }}
+            />
+          </Heading>
           <div sx={{py: "20px"}}>
             <Text variant="styles.h3" sx={{color: `${fontColor}`}}>{props.tagline}</Text>
           </div>
           {props.cta && props.cta.title && (
             <CTALink {...props.cta} />
           )}
-          </div>
+          </ContentContainer>
         </div>
     </div>
   );

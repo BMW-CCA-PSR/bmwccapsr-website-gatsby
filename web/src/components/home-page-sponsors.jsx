@@ -1,13 +1,42 @@
 /** @jsxImportSource theme-ui */
 import React from 'react';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import BoxHeader from './BoxHeader';
+import { Box, Heading } from "@theme-ui/components";
+import { BoxIcon } from "./box-icons";
 import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const HomepageSponsors = (props) => {
     return (
         <div sx={{ py: '1.5rem', width: '100%' }}> {/* Ensure full width */}
-            <BoxHeader title={props.title} />
+            <Box sx={{ maxWidth: "1000px", mx: "auto", mb: "1.5rem" }}>
+                <Heading
+                    as="h2"
+                    sx={{
+                        variant: "styles.h2",
+                        mb: 0
+                    }}
+                >
+                    {props.title}
+                    <BoxIcon
+                        as="span"
+                        sx={{
+                            display: "inline-grid",
+                            ml: "0.5rem",
+                            verticalAlign: "middle"
+                        }}
+                    />
+                </Heading>
+                <Box
+                    as="hr"
+                    sx={{
+                        border: "none",
+                        borderTop: "3px solid",
+                        borderColor: "text",
+                        mt: "0.75rem",
+                        mb: 0
+                    }}
+                />
+            </Box>
             <div>
                 <ul sx={{
                     listStyle: 'none',

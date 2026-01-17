@@ -36,23 +36,24 @@ export default (S) =>
   S.list()
     .title('Content')
     .items([
-      S.documentListItem()
-        .schemaType('siteSettings')
-        .title('Site settings')
+      S.listItem()
+        .id('siteSettings')
+        .title('Site Settings')
         .icon(Settings)
         .child(
           S.document()
             .schemaType('siteSettings')
             .documentId('siteSettings')
       ),
-      S.documentListItem()
-        .title('Frontpage')
-        .schemaType('page')
+      S.listItem()
+        .id('frontpage')
+        .title('Homepage Settings')
         .icon(GoHome)
         .child(
           S.document()
             .schemaType('page')
             .documentId('frontpage')
+            .title('Homepage Settings')
       ),
       // zundfolge
       S.listItem()

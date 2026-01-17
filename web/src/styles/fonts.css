@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Friz Quadrata";
+  src: url("/font/friz-quadrata-regular-os-5870333951e7c.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Friz Quadrata";
+  src: url("/font/friz-quadrata-bold-italic-os-5870341205e0f.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}

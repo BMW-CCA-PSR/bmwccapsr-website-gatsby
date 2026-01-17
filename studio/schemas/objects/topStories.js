@@ -1,12 +1,14 @@
 export default {
     type: 'object',
     name: 'topStories',
-    title: 'Top Stories',
+    title: 'DEPRECATED - topStories',
+    hidden: true,
     fields: [
       {
         type: 'string',
         name: 'title',
-        validation: Rule => Rule.required(),
+        hidden: true,
+        initialValue: 'Zundfolge'
       }
     ],
     preview: {
@@ -15,7 +17,7 @@ export default {
         },
         prepare({ title }) {
           return {
-            title: title
+            title: title || 'Zundfolge'
           }
         }
       }

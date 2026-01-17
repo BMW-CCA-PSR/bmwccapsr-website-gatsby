@@ -10,6 +10,7 @@ import RelatedContent from "./related-content";
 import EventDetails from "./event-detail";
 import { randomGenerator } from "../lib/helpers"
 import { BoxAd } from "./ads";
+import ContentContainer from "./content-container";
 
 function EventPage(props) {
   const { _rawBody, _updatedAt, category, title, mainImage, startTime, next, prev, boxes } = props;
@@ -21,7 +22,8 @@ function EventPage(props) {
   const randomizedAd = boxes.edges[randomAdPosition].node
   return (
     <event>
-      <Flex sx={{
+      <ContentContainer sx={{
+        display: "flex",
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         pt: ["6.5rem","6.5rem","10rem","10rem"],
@@ -50,7 +52,7 @@ function EventPage(props) {
                 }} />
             </div>
           )}
-          {_rawBody && <PortableText body={_rawBody} />}
+          {_rawBody && <PortableText body={_rawBody} boxed />}
           <EventDetails {...props}/>
         </Flex>
         <div sx={next || prev ? {
@@ -67,7 +69,7 @@ function EventPage(props) {
             {prev && <RelatedContent {...prev} />}
           </div>
         </div>  
-      </Flex>
+      </ContentContainer>
     </event>
   );
 }

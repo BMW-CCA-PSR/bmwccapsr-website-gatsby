@@ -1,15 +1,16 @@
 /** @jsxImportSource theme-ui */
 import { Link } from "gatsby";
 import React from "react";
-import { Container, Flex } from "@theme-ui/components";
+import { Box, Container, Flex } from "@theme-ui/components";
+import { StaticImage } from "gatsby-plugin-image";
+import { OutboundLink } from "gatsby-plugin-google-gtag";
 
 const Footer = ({ siteTitle }) => (
   <div
     sx={{
       fontSize: "sm",
-      color: 'text',
-      bg: 'darkgray',
-      variant: 'styles.footer',
+      color: "gray",
+      bg: "darkgray",
       textDecoration: "none",
       width: "100%",
       left: 0,
@@ -17,28 +18,70 @@ const Footer = ({ siteTitle }) => (
     }}>
     <Container
       sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        maxWidth: '1000px',
-        mx: 'auto',
-        px: 2,
-        py: 1,
+        display: "grid",
+        gridTemplateColumns: ["1fr", "1fr", "auto 1fr"],
+        gap: "1.5rem",
+        alignItems: "start",
+        maxWidth: "1000px",
+        mx: "auto",
+        px: ["16px", "16px", "50px", "100px"],
+        py: "2rem",
       }}>
-      <Link to="/" sx={{ variant: 'styles.p', p: 2, textDecoration: "none", color: "gray" }}>
-        Home
-      </Link>
-      {/* <Link to="/" sx={{ variant: 'styles.navlink', p: 2, textDecoration: "none", color:"text"}}>
-        Blog
-      </Link>
-      <Link to="/" sx={{ variant: 'styles.navlink', p: 2,textDecoration: "none", color: "text"}}>
-        About
-      </Link> */}
-      <div sx={{ mx: 'auto' }} />
-      <div sx={{ variant: 'styles.p', p: 2, color: "gray"}}>© {new Date().getFullYear()} BMW Car Club of America</div>
-      <div>
-        <p sx={{ fontSize: "xs", p: 2, color: "gray"}}>This site is not in any way connected with Bayerische Motoren Werke AG or BMW of North America, Inc. The club assumes no liability for any of the information, opinion, or suggestions contained herein. It is provided by and for the club membership only.</p>
-      </div>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <Link to="/" sx={{ textDecoration: "none" }}>
+          <StaticImage
+            alt="BMW CCA PSR"
+            src="../images/new-logo.png"
+            placeholder="blurred"
+            layout="constrained"
+            width={120}
+            sx={{
+              objectFit: "contain",
+              width: "120px"
+            }}
+          />
+        </Link>
+      </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+        <Link to="/zundfolge/" sx={{ textDecoration: "none", color: "gray" }}>
+          Zündfolge
+        </Link>
+        <Link to="/events" sx={{ textDecoration: "none", color: "gray" }}>
+          Events
+        </Link>
+        <Link to="/partners" sx={{ textDecoration: "none", color: "gray" }}>
+          Partners
+        </Link>
+        <OutboundLink
+          href="https://www.bmwcca.org/"
+          rel="noopener noreferrer"
+          target="_blank"
+          sx={{ textDecoration: "none", color: "gray" }}
+        >
+          BMW CCA National
+        </OutboundLink>
+      </Box>
+      <Box sx={{ gridColumn: ["1", "1", "1 / -1"], mt: "0.5rem" }}>
+        <Box sx={{ fontSize: "xs", color: "gray", lineHeight: "1.6" }}>
+          This site is not in any way connected with Bayerische Motoren Werke AG
+          or BMW of North America, Inc. The club assumes no liability for any of
+          the information, opinion, or suggestions contained herein. It is
+          provided by and for the club membership only.
+        </Box>
+        <Box
+          as="hr"
+          sx={{
+            border: "none",
+            borderTop: "1px solid",
+            borderColor: "gray",
+            opacity: 0.4,
+            my: "0.75rem"
+          }}
+        />
+        <Box sx={{ fontSize: "xs", color: "gray", lineHeight: "1.6", mt: "0.5rem" }}>
+          © {new Date().getFullYear()} BMW Car Club of America
+        </Box>
+      </Box>
     </Container>
   </div>
 );

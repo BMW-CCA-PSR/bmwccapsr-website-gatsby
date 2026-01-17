@@ -11,6 +11,7 @@ import { randomGenerator } from "../lib/helpers"
 import { BoxAd, BannerAd }  from "./ads";
 import { Avatar } from 'theme-ui'
 import { imageUrlFor } from "../lib/image-url";
+import ContentContainer from "./content-container";
 
 function ZundfolgeArticle(props) {
   const { _rawBody, authors, category, title, mainImage, publishedAt, next, prev, boxes, banners, relatedPosts} = props;
@@ -33,7 +34,8 @@ function ZundfolgeArticle(props) {
     .url()
   return (
     <article>
-      <Flex sx={{
+      <ContentContainer sx={{
+        display: "flex",
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         pt: ["6.5rem","6.5rem","10rem","10rem"],
@@ -66,7 +68,7 @@ function ZundfolgeArticle(props) {
             </div>
           )}
           <BannerAd {...randomizedBanner} />
-          {_rawBody && <PortableText body={_rawBody} />}
+          {_rawBody && <PortableText body={_rawBody} boxed />}
         </Flex>
         <div sx={next || prev ? {
           display: ["none", "none", "flex", "flex"],
@@ -81,7 +83,7 @@ function ZundfolgeArticle(props) {
             {relatedPosts && relatedPosts.slice(0, 3).map((post) => (<RelatedContent {...post} />))}
           </div>
         </div>  
-      </Flex>
+      </ContentContainer>
     </article>
   );
 }

@@ -31,10 +31,12 @@ import hero from './objects/hero'
 import simpleBlockContent from './objects/simpleBlockContent'
 import advertisement from './objects/advertisement'
 import otherStories from './objects/otherStories'
+import upcomingEvents from './objects/upcomingEvents'
 import article from './objects/article'
 import ctaPlug from './objects/ctaPlug'
 import headerBar from './objects/headerBar'
 import topStories from './objects/topStories'
+import zundfolgeLatest from './objects/zundfolgeLatest'
 import pageContent from './objects/pageContent'
 import uiComponent from './objects/uiComponent'
 import homepageSponsors from './objects/homepageSponsors'
@@ -70,10 +72,12 @@ export default [
     hero,
     advertisement,
     otherStories,
+    upcomingEvents,
     article,
     ctaPlug,
     headerBar,
     topStories,
+    zundfolgeLatest,
     pageContent,
     uiComponent,
     homepageSponsors,

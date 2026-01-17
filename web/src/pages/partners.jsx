@@ -2,10 +2,12 @@
 import React from "react";
 import { graphql } from "gatsby";
 import SponsorPageGrid from "../components/sponsor-page-grid";
-import { Container, Heading } from "@theme-ui/components";
+import { Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
+import ContentContainer from "../components/content-container";
+import { BoxIcon } from "../components/box-icons";
 
 export const query = graphql`
 query SponsorPageQuery {
@@ -72,16 +74,26 @@ const IndexPage = props => {
         description="Partners and Discounts offered to club members"
         keywords={site.keywords || []}
       /> */}
-      <Container sx ={{
+      <ContentContainer sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         pt: ["6.5rem","6.5rem","10rem","10rem"],
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Our Partners</Heading>
+        <Heading as="h1" sx={{ variant: "styles.h1", pb: "1rem" }}>
+          Our Partners
+          <BoxIcon
+            as="span"
+            sx={{
+              display: "inline-grid",
+              ml: "0.5rem",
+              verticalAlign: "middle"
+            }}
+          />
+        </Heading>
         {ads && <SponsorPageGrid {...ads} />}
-      </Container>
+      </ContentContainer>
     </Layout>
   );
 };

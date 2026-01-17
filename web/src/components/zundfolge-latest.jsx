@@ -3,10 +3,11 @@ import React from 'react';
 import { getZundfolgeUrl } from "../lib/helpers";
 import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Card, Container, Heading, Text, Flex, Avatar} from '@theme-ui/components';
+import { Box, Card, Container, Heading, Text, Flex, Avatar} from '@theme-ui/components';
 import { Link } from "gatsby";
 import { imageUrlFor } from "../lib/image-url";
-import BoxHeader from './BoxHeader';
+import { BoxIcon } from "./box-icons";
+import { outline } from "./event-slider";
 
 var style = {
     textDecoration: "none",
@@ -148,14 +149,42 @@ function StoryRowFlipped(props) {
 	);
 };
 
-function TopStories(props) {
+function ZundfolgeLatest(props) {
 	return (
 		<Container
 			sx={{
 				py: '1.5rem',
 			}}
 		>
-			<BoxHeader title='Top Stories'/>
+			<Box sx={{ maxWidth: "1000px", mx: "auto", mb: "1.5rem" }}>
+				<Heading
+					as="h2"
+					sx={{
+						variant: "styles.h2",
+						mb: 0
+					}}
+				>
+					Zundfolge
+					<BoxIcon
+						as="span"
+						sx={{
+							display: "inline-grid",
+							ml: "0.5rem",
+							verticalAlign: "middle"
+						}}
+					/>
+				</Heading>
+				<Box
+					as="hr"
+					sx={{
+						border: "none",
+						borderTop: "3px solid",
+						borderColor: "text",
+						mt: "0.75rem",
+						mb: 0
+					}}
+				/>
+			</Box>
 
 			{props.edges.slice(0, 3).map((c, i) => (
 				<Card
@@ -168,11 +197,16 @@ function TopStories(props) {
 					{i % 2 === 0 ? <StoryRow {...c} /> : <StoryRowFlipped {...c} />}
 				</Card>
 			))}
+			<Box sx={{ maxWidth: "1000px", mx: "auto", mt: "1.5rem", textAlign: "center" }}>
+				<Link to="/zundfolge/" sx={outline}>
+					More Articles
+				</Link>
+			</Box>
 		</Container>
 	);
 };
 
-TopStories.defaultProps = {
+ZundfolgeLatest.defaultProps = {
 	edges: [
 		{
 			title: '',
@@ -208,4 +242,4 @@ TopStories.defaultProps = {
 		}
 	]
 }
-export default TopStories;
+export default ZundfolgeLatest;

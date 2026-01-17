@@ -1,0 +1,8 @@
+html,
+body {
+  overscroll-behavior: none;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
