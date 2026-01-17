@@ -18,6 +18,7 @@ import { BannerAd, BoxAd } from "../components/ads";
 import { randomGenerator } from "../lib/helpers";
 import BoxHeader from '../components/BoxHeader';
 import PortableText from '../components/portableText';
+import ContentContainer from "../components/content-container";
  
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -115,15 +116,18 @@ function Page(props) {
             }
             break;
           case "pageContent":
-            el = <Flex sx={{
-              mx: "auto",
-              my: "20px",
-              px: ["16px","16px","50px","100px"],
-              maxWidth: ["100%", "100%", "1040px", "1040px"],
-              width: "100%",
-              }}>
-                <PortableText key={c._key} {...c} color={'text'} boxed />
-              </Flex>
+            el = (
+              <ContentContainer
+                sx={{
+                  mx: "auto",
+                  my: "20px",
+                  px: ["16px", "16px", "50px", "100px"],
+                  width: "100%",
+                }}
+              >
+                <PortableText key={c._key} {...c} color={"text"} boxed />
+              </ContentContainer>
+            );
             break;
           case "uiComponentRef":
             switch (c.name) {

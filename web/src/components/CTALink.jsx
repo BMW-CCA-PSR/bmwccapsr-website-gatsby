@@ -7,20 +7,20 @@ import { OutboundLink } from "gatsby-plugin-google-gtag"
 var style = {
   textTransform: "uppercase",
   textDecoration: "none",
-  maxWidth: "200px",
   fontSize: 15,
   backgroundColor: "primary",
   border: "none",
-  wordWrap: "break-word",
   color: "white",
-  py: "8px",
-  px: "20px",
+  py: "10px",
+  px: "22px",
   borderRadius: "4px",
-  transition: "background-color 0.5s ease-out",
-  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+  letterSpacing: "0.08em",
+  transition: "background-color 0.3s ease-out, transform 0.3s ease-out",
+  boxShadow: "0 10px 18px -6px rgba(0, 0, 0, 0.25)",
   "&:hover":{
     color: "white",
     bg: "highlight",
+    transform: "translateY(-1px)"
   }
 }
 

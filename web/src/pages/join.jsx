@@ -17,6 +17,7 @@ import ContentContainer from "../components/content-container";
 
 const baseJoinUrl = "https://www.bmwcca.org/join";
 const heroImage = "/images/bmw-join-image.jpg";
+const heroSlant = "16%";
 
 const cleanParams = (params) =>
   Object.fromEntries(Object.entries(params).filter(([, value]) => value));
@@ -305,7 +306,7 @@ const QrLandingPage = (props) => {
                 clipPath: [
                   "none",
                   "none",
-                  "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
+                  `polygon(${heroSlant} 0, 100% 0, 100% 100%, 0 100%)`
                 ],
                 borderTopRightRadius: "18px",
                 borderBottomRightRadius: "18px",
@@ -352,9 +353,6 @@ const QrLandingPage = (props) => {
               <Heading sx={{ variant: "styles.h2" }}>
                 Event highlights for 2026
               </Heading>
-              <Link to="/events" sx={{ textDecoration: "none" }}>
-                <Button sx={calendarButton}>Full Calendar</Button>
-              </Link>
             </Flex>
             <Text sx={{ mt: "0.5rem", maxWidth: "42rem" }}>
               A persistent snapshot of event types you can expect throughout the
@@ -382,7 +380,7 @@ const QrLandingPage = (props) => {
               >
                 <Heading
                   as="h3"
-                  sx={{ variant: "styles.h3", color: "secondary" }}
+                  sx={{ variant: "styles.h3", color: "text" }}
                 >
                   High Performance Driving Events & Clinics
                 </Heading>
@@ -527,7 +525,7 @@ const QrLandingPage = (props) => {
               >
                 <Heading
                   as="h3"
-                  sx={{ variant: "styles.h3", color: "secondary" }}
+                  sx={{ variant: "styles.h3", color: "text" }}
                 >
                   Social Events & Tours
                 </Heading>
