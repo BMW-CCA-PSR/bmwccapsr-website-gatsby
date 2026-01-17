@@ -19,10 +19,10 @@ const Footer = ({ siteTitle }) => (
     <Container
       sx={{
         display: "grid",
-        gridTemplateColumns: ["1fr", "1fr", "auto 1fr"],
+        gridTemplateColumns: ["1fr", "1fr", "auto 1fr auto"],
         gap: "1.5rem",
         alignItems: "start",
-        maxWidth: "1000px",
+        maxWidth: "1200px",
         mx: "auto",
         px: ["16px", "16px", "50px", "100px"],
         py: "2rem",
@@ -37,12 +37,19 @@ const Footer = ({ siteTitle }) => (
             width={120}
             sx={{
               objectFit: "contain",
-              width: "120px"
+              width: "120px",
+              filter: "grayscale(100%)"
             }}
           />
         </Link>
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: ["1fr", "1fr", "1fr 1fr"],
+          gap: "0.6rem 2rem"
+        }}
+      >
         <Link to="/zundfolge/" sx={{ textDecoration: "none", color: "gray" }}>
           Zündfolge
         </Link>
@@ -52,13 +59,40 @@ const Footer = ({ siteTitle }) => (
         <Link to="/partners" sx={{ textDecoration: "none", color: "gray" }}>
           Partners
         </Link>
+        <Link to="/volunteer" sx={{ textDecoration: "none", color: "gray" }}>
+          Volunteer
+        </Link>
         <OutboundLink
-          href="https://www.bmwcca.org/"
+          href="http://bmw-cca-puget-sound-chapter.square.site/"
           rel="noopener noreferrer"
           target="_blank"
           sx={{ textDecoration: "none", color: "gray" }}
         >
-          BMW CCA National
+          Shop
+        </OutboundLink>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: ["flex-start", "flex-start", "flex-end"],
+          alignItems: "flex-start",
+        }}
+      >
+        <OutboundLink
+          href="https://www.bmwcca.org/"
+          rel="noopener noreferrer"
+          target="_blank"
+          sx={{ display: "inline-flex" }}
+        >
+          <img
+            src="/images/bmwcca.png"
+            alt="BMW CCA"
+            sx={{
+              width: "230px",
+              height: "auto",
+              filter: "grayscale(100%)",
+            }}
+          />
         </OutboundLink>
       </Box>
       <Box sx={{ gridColumn: ["1", "1", "1 / -1"], mt: "0.5rem" }}>

@@ -15,6 +15,30 @@ import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
 import { Client } from "../services/FetchClient";
 
+const buildPaginationItems = (current, total, delta = 2) => {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => ({
+      type: "page",
+      value: i + 1
+    }));
+  }
+  const items = [{ type: "page", value: 1 }];
+  const left = Math.max(2, current - delta);
+  const right = Math.min(total - 1, current + delta);
+
+  if (left > 2) {
+    items.push({ type: "ellipsis", key: "left" });
+  }
+  for (let i = left; i <= right; i += 1) {
+    items.push({ type: "page", value: i });
+  }
+  if (right < total - 1) {
+    items.push({ type: "ellipsis", key: "right" });
+  }
+  items.push({ type: "page", value: total });
+  return items;
+};
+
 export const query = graphql`
 query EventPageQuery($skip: Int!, $limit: Int!) {
     site: sanitySiteSettings(_id: {regex: "/(drafts.|)siteSettings/"}) {
@@ -197,6 +221,7 @@ const IndexPage = props => {
     (safePageIndex - 1) * pageSize,
     safePageIndex * pageSize
   );
+  const paginationItems = buildPaginationItems(safePageIndex, totalPages);
 
   if (errors) {
     return (
@@ -423,13 +448,27 @@ const IndexPage = props => {
               >
                 Prev
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => {
-                const page = i + 1;
-                const isActive = page === safePageIndex;
+              {paginationItems.map((item, index) => {
+                if (item.type === "ellipsis") {
+                  return (
+                    <Box
+                      key={`pagination-ellipsis-${item.key}-${index}`}
+                      sx={{
+                        px: "0.6rem",
+                        py: "0.4rem",
+                        color: "gray",
+                        alignSelf: "center"
+                      }}
+                    >
+                      ...
+                    </Box>
+                  );
+                }
+                const isActive = item.value === safePageIndex;
                 return (
                   <Button
-                    key={`pagination-number-${page}`}
-                    onClick={() => setPageIndex(page)}
+                    key={`pagination-number-${item.value}`}
+                    onClick={() => setPageIndex(item.value)}
                     sx={{
                       variant: "buttons.primary",
                       bg: isActive ? "primary" : "background",
@@ -445,7 +484,7 @@ const IndexPage = props => {
                       }
                     }}
                   >
-                    {page}
+                    {item.value}
                   </Button>
                 );
               })}

@@ -1,9 +1,25 @@
 /** @jsxImportSource theme-ui */
 import NavLink from "./navLink";
 import React from "react";
+import { useLocation } from "@reach/router";
 
 const Dropdown = props => {
     const link = props.navigationItemUrl
+    const location = useLocation();
+    const getPath = (item) =>
+        item.landingPageRoute
+            ? `/${item.landingPageRoute.slug.current}`
+            : item.route
+                ? item.route
+                : "/";
+    const isChildActive = link?.items?.some((subLink) => {
+        const path = getPath(subLink);
+        if (path === "/") return location.pathname === "/";
+        return location.pathname.startsWith(path);
+    });
+    const activeLinkStyles = isChildActive
+        ? { backgroundColor: "primary", color: "background" }
+        : {};
     return (
         <ul
             sx={{
@@ -18,16 +34,14 @@ const Dropdown = props => {
         >
             <li
                 sx={{
-                    textTransform: "uppercase",
-                    position: "relative",
-                    height: "100%",
-                    textAlign: "center",
-                    ":hover": {
-                        backgroundColor: "primary",
-                        cursor: "pointer",
-                        color: "background",
-                        display: "block",
-                    },
+                textTransform: "uppercase",
+                position: "relative",
+                height: "100%",
+                textAlign: "center",
+                ":hover > a, :focus-within > a": {
+                    backgroundColor: "primary",
+                    color: "background"
+                },
                     ":hover > ul, :focus-within > ul ": {
                         visibility: "visible",
                         opacity: "1",
@@ -40,14 +54,17 @@ const Dropdown = props => {
                         textDecoration: "none",
                         px: "2rem",
                         cursor: "pointer",
-                        display: "flex",
-                        height: "100%",
-                        alignItems: "center",
-                        textAlign: "center",
-                        justifyContent: "center"
-                    }}
-                    aria-haspopup={link.items && link.items.length > 0 ? true : false}
-                >
+                    display: "flex",
+                    height: "100%",
+                    alignItems: "center",
+                    textAlign: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    color: isChildActive ? "background" : "darkgray",
+                    ...activeLinkStyles
+                }}
+                aria-haspopup={link.items && link.items.length > 0 ? true : false}
+            >
                     {props.title}
                 </a>
                 {link.items && link.items.length > 0 ? (
@@ -63,6 +80,8 @@ const Dropdown = props => {
                             opacity: "0",
                             position: "absolute",
                             marginTop: "0px",
+                            top: "100%",
+                            left: 0,
                             //borderRadius: "6px",
                             textAlign: "center",
                             right: "0",

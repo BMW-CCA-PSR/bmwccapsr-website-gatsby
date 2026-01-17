@@ -278,7 +278,7 @@ const QrLandingPage = (props) => {
                   maxWidth: "40rem"
                 }}
               >
-                Thanks for scanning. Welcome to the club.
+                Thanks for scanning. Welcome to the Club.
               </Heading>
               <Text
                 sx={{
@@ -350,11 +350,11 @@ const QrLandingPage = (props) => {
                 gap: "0.75rem"
               }}
             >
-              <Heading sx={{ variant: "styles.h2" }}>
+              <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
                 Event highlights for 2026
               </Heading>
             </Flex>
-            <Text sx={{ mt: "0.5rem", maxWidth: "42rem" }}>
+            <Text sx={{ mt: "0.75rem", maxWidth: "42rem" }}>
               A persistent snapshot of event types you can expect throughout the
               year. Dates listed are representative for CY2026.
             </Text>
@@ -380,14 +380,14 @@ const QrLandingPage = (props) => {
               >
                 <Heading
                   as="h3"
-                  sx={{ variant: "styles.h3", color: "text" }}
+                  sx={{ variant: "styles.h3", color: "text", mb: "0.5rem" }}
                 >
                   High Performance Driving Events & Clinics
                 </Heading>
-                <Text sx={{ mt: "0.5rem", fontWeight: "700" }}>
+                <Text sx={{ mt: "0.75rem", fontWeight: "700" }}>
                   Drive More. Learn More. Belong More.
                 </Text>
-                <Text sx={{ mt: "0.5rem", color: "darkgray" }}>
+                <Text sx={{ mt: "0.75rem", color: "darkgray" }}>
                   Experience your BMW as it was engineered to be driven, with
                   professional instruction and a supportive community. Every
                   event builds skill, confidence, and control.
@@ -396,22 +396,22 @@ const QrLandingPage = (props) => {
                   sx={{
                     listStyleType: "disc",
                     pl: "1.5rem",
-                    mt: "1rem",
+                    mt: "1.5rem",
                     mb: 0
                   }}
                 >
                   {hpdeEvents.map((event) => (
-                    <li key={event.title} sx={{ mb: "0.75rem" }}>
+                    <li key={event.title} sx={{ mb: "1rem" }}>
                       <Text sx={{ fontWeight: "700", color: "text" }}>
                         {event.title}
                       </Text>
-                      <Text sx={{ display: "block", color: "darkgray" }}>
+                      <Text sx={{ display: "block", color: "darkgray", mt: "0.35rem" }}>
                         {event.details}
                       </Text>
                     </li>
                   ))}
                 </ul>
-                <Text sx={{ mt: "0.75rem", fontSize: "xxs", color: "darkgray" }}>
+                <Text sx={{ mt: "1rem", fontSize: "xxs", color: "darkgray" }}>
                   * concurrent HPDE & Car Control Clinics
                 </Text>
               </Box>
@@ -525,14 +525,14 @@ const QrLandingPage = (props) => {
               >
                 <Heading
                   as="h3"
-                  sx={{ variant: "styles.h3", color: "text" }}
+                  sx={{ variant: "styles.h3", color: "text", mb: "0.5rem" }}
                 >
                   Social Events & Tours
                 </Heading>
-                <Text sx={{ mt: "0.5rem", fontWeight: "700" }}>
+                <Text sx={{ mt: "0.75rem", fontWeight: "700" }}>
                   Not just cars — community.
                 </Text>
-                <Text sx={{ mt: "0.5rem", color: "darkgray" }}>
+                <Text sx={{ mt: "0.75rem", color: "darkgray" }}>
                   From scenic drives to automotive gatherings, these events
                   connect BMW owners who share a passion for driving,
                   craftsmanship, and great company.
@@ -541,7 +541,7 @@ const QrLandingPage = (props) => {
                   sx={{
                     listStyleType: "disc",
                     pl: "1.5rem",
-                    mt: "1rem",
+                    mt: "1.5rem",
                     mb: 0,
                     columnCount: [1, 1, 2],
                     columnGap: "1.5rem"
@@ -550,12 +550,12 @@ const QrLandingPage = (props) => {
                   {socialEvents.map((event) => (
                     <li
                       key={event.title}
-                      sx={{ mb: "0.75rem", breakInside: "avoid" }}
+                      sx={{ mb: "1rem", breakInside: "avoid" }}
                     >
                       <Text sx={{ fontWeight: "700", color: "text" }}>
                         {event.title}
                       </Text>
-                      <Text sx={{ display: "block", color: "darkgray" }}>
+                      <Text sx={{ display: "block", color: "darkgray", mt: "0.35rem" }}>
                         {event.details}
                       </Text>
                     </li>
@@ -731,8 +731,10 @@ const QrLandingPage = (props) => {
               pr: ["16px", "16px", "50px", "100px"]
             }}
           >
-            <Heading sx={{ variant: "styles.h2" }}>Member benefits</Heading>
-            <Text sx={{ mt: "0.5rem", maxWidth: "40rem", color: "darkgray" }}>
+            <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
+              Member benefits
+            </Heading>
+            <Text sx={{ mt: "0.75rem", maxWidth: "40rem", color: "darkgray" }}>
               Membership opens the door to local experiences, trusted knowledge,
               and a national community built around driving passion.
             </Text>

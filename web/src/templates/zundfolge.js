@@ -7,7 +7,7 @@ import {
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
-import { Heading, Text, Card, Box } from "@theme-ui/components";
+import { Heading, Text, Card, Box, Button } from "@theme-ui/components";
 import { FiArchive } from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
@@ -17,6 +17,29 @@ import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
 
 const zundfolgeRed = "#B5322E";
+const buildPaginationItems = (current, total, delta = 2) => {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => ({
+      type: "page",
+      value: i + 1
+    }));
+  }
+  const items = [{ type: "page", value: 1 }];
+  const left = Math.max(2, current - delta);
+  const right = Math.min(total - 1, current + delta);
+
+  if (left > 2) {
+    items.push({ type: "ellipsis", key: "left" });
+  }
+  for (let i = left; i <= right; i += 1) {
+    items.push({ type: "page", value: i });
+  }
+  if (right < total - 1) {
+    items.push({ type: "ellipsis", key: "right" });
+  }
+  items.push({ type: "page", value: total });
+  return items;
+};
 
 export const query = graphql`
   query ZundfolgePageQuery($skip: Int!, $limit: Int!) {
@@ -90,6 +113,7 @@ const IndexPage = props => {
   const isLast = currentPage === numPages
   const prevPage = currentPage - 1 === 1 ? "/zundfolge" : `/zundfolge/page/${(currentPage - 1).toString()}`
   const nextPage =  `/zundfolge/page/${(currentPage + 1).toString()}`
+  const paginationItems = buildPaginationItems(currentPage, numPages);
 
   if (errors) {
     return (
@@ -181,7 +205,17 @@ const IndexPage = props => {
             </Link>
           </div>
         </div>
-        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Latest Stories</Heading>
+        <Heading
+          sx={{
+            variant: "styles.h3",
+            borderBottomStyle: "solid",
+            pb: "3px",
+            borderBottomWidth: "3px",
+            my: "0.5rem"
+          }}
+        >
+          {isFirst ? "Latest Stories" : "Older Stories"}
+        </Heading>
         <div>
           {isFirst && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
           <ul sx={{
@@ -200,62 +234,111 @@ const IndexPage = props => {
                 </li>
               })}
           </ul>
-          <div>
-            <ul
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                alignItems: 'center',
-                listStyle: 'none',
-                padding: 0,
+          {numPages > 1 && (
+            <Box
+              sx={{
+                mt: "1.5rem",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "0.4rem"
               }}
             >
-              {!isFirst && (
-                <Link to={prevPage} rel="prev" sx={{
-                  marginTop: '0.1rem', 
+              <Button
+                as={isFirst ? "span" : Link}
+                to={isFirst ? undefined : prevPage}
+                rel="prev"
+                disabled={isFirst}
+                sx={{
+                  variant: "buttons.primary",
+                  bg: isFirst ? "lightgray" : "background",
+                  color: isFirst ? "darkgray" : "text",
+                  border: "1px solid",
+                  borderColor: "gray",
+                  px: "0.9rem",
+                  py: "0.4rem",
+                  cursor: isFirst ? "not-allowed" : "pointer",
                   textDecoration: "none",
-                  marginBottom: '0.1rem', 
-                  padding: '0.5rem', 
-                  color: 'text'
-                  }}>
-                  {"<< Prev"}
-                </Link>
-              )}
-              {Array.from({ length: numPages }, (_, i) => (
-                <li
-                  key={`pagination-number${i + 1}`}
-                  style={{
-                    margin: 0,
-                  }}
-                >
-                  <Link
-                    to={`/zundfolge/${i === 0 ? '' : 'page/' + (i + 1)}`}
+                  "&:hover": {
+                    bg: isFirst ? "lightgray" : "highlight",
+                    color: isFirst ? "darkgray" : "text"
+                  }
+                }}
+              >
+                Prev
+              </Button>
+              {paginationItems.map((item, index) => {
+                if (item.type === "ellipsis") {
+                  return (
+                    <Box
+                      key={`pagination-ellipsis-${item.key}-${index}`}
+                      sx={{
+                        px: "0.6rem",
+                        py: "0.4rem",
+                        color: "gray",
+                        alignSelf: "center"
+                      }}
+                    >
+                      ...
+                    </Box>
+                  );
+                }
+                const isActive = item.value === currentPage;
+                const path =
+                  item.value === 1
+                    ? "/zundfolge"
+                    : `/zundfolge/page/${item.value}`;
+                return (
+                  <Button
+                    key={`pagination-number-${item.value}`}
+                    as={isActive ? "span" : Link}
+                    to={isActive ? undefined : path}
+                    aria-current={isActive ? "page" : undefined}
                     sx={{
-                      marginTop: '0.1rem',
-                      marginBottom: '0.1rem',
-                      padding: '0.5rem',
-                      textDecoration: 'none',
-                      color: i + 1 === currentPage ? '#ffffff' : 'black',
-                      background: i + 1 === currentPage ? 'primary' : '',
+                      variant: "buttons.primary",
+                      bg: isActive ? "primary" : "background",
+                      color: isActive ? "white" : "text",
+                      border: "1px solid",
+                      borderColor: "gray",
+                      px: "0.8rem",
+                      py: "0.4rem",
+                      minWidth: "42px",
+                      textDecoration: "none",
+                      "&:hover": {
+                        bg: isActive ? "primary" : "highlight",
+                        color: isActive ? "white" : "text"
+                      }
                     }}
                   >
-                    {i + 1}
-                  </Link>
-                </li>
-              ))}
-              {!isLast && (
-                <Link to={nextPage} rel="next" sx={{ 
-                  marginTop: '0.1rem', 
+                    {item.value}
+                  </Button>
+                );
+              })}
+              <Button
+                as={isLast ? "span" : Link}
+                to={isLast ? undefined : nextPage}
+                rel="next"
+                disabled={isLast}
+                sx={{
+                  variant: "buttons.primary",
+                  bg: isLast ? "lightgray" : "background",
+                  color: isLast ? "darkgray" : "text",
+                  border: "1px solid",
+                  borderColor: "gray",
+                  px: "0.9rem",
+                  py: "0.4rem",
+                  cursor: isLast ? "not-allowed" : "pointer",
                   textDecoration: "none",
-                  marginBottom: '0.1rem', 
-                  padding: '0.5rem', 
-                  color: 'text' }}>
-                  {"Next >>"}
-                </Link>
-              )}
-            </ul>
-          </div>
+                  "&:hover": {
+                    bg: isLast ? "lightgray" : "highlight",
+                    color: isLast ? "darkgray" : "text"
+                  }
+                }}
+              >
+                Next
+              </Button>
+            </Box>
+          )}
         </div>
       </ContentContainer>
     </Layout>
