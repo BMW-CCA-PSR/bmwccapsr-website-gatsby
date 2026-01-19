@@ -20,6 +20,26 @@ export default {
         validation: Rule => Rule.max(32).error(`A title cannot exceed 32 characters.`).required(),
       },
       {
+        name: 'featured',
+        type: 'boolean',
+        title: 'Featured article',
+        description: 'Only one article can be featured at a time.',
+        validation: Rule =>
+          Rule.custom(async (value, context) => {
+            if (!value) return true;
+            const docId = context?.document?._id;
+            if (!docId || !context?.getClient) return true;
+            const client = context.getClient({ apiVersion: '2023-10-01' });
+            const publishedId = docId.replace(/^drafts\./, '');
+            const draftId = `drafts.${publishedId}`;
+            const count = await client.fetch(
+              'count(*[_type == "post" && featured == true && !(_id in [$draftId, $publishedId])])',
+              { draftId, publishedId }
+            );
+            return count > 0 ? 'Only one article can be featured at a time.' : true;
+          })
+      },
+      {
         name: 'publishedAt',
         type: 'datetime',
         title: 'Published at',
@@ -32,7 +52,6 @@ export default {
         title: 'Slug',
         description: 'The unique address that the article will live at. (e.g. "/zundfolge/<year>/<month>/your-article")',
         options: {
-          source: 'title',
           maxLength: 96,
           slugify: input => input
           .toLowerCase()

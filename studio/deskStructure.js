@@ -36,25 +36,6 @@ export default (S) =>
   S.list()
     .title('Content')
     .items([
-      S.listItem()
-        .id('siteSettings')
-        .title('Site Settings')
-        .icon(Settings)
-        .child(
-          S.document()
-            .schemaType('siteSettings')
-            .documentId('siteSettings')
-      ),
-      S.listItem()
-        .id('frontpage')
-        .title('Homepage Settings')
-        .icon(GoHome)
-        .child(
-          S.document()
-            .schemaType('page')
-            .documentId('frontpage')
-            .title('Homepage Settings')
-      ),
       // zundfolge
       S.listItem()
         .title('Zundfolge')
@@ -211,7 +192,7 @@ export default (S) =>
                   S.documentTypeList('advertiserCategory')
                     .title('Advertisers by category')
                     .child(catId =>
-                      S.documentTypeList('advertisers')
+                      S.documentTypeList('advertiser')
                         .title('Advertisers')
                         .filter(
                           '_type == "advertiser" && $catId == category._ref'
@@ -225,7 +206,7 @@ export default (S) =>
                   S.documentTypeList('tier')
                     .title('Advertisers by tier')
                     .child(tierId =>
-                      S.documentTypeList('advertisers')
+                      S.documentTypeList('advertiser')
                         .title('Advertisers')
                         .filter(
                           '_type == "advertiser" && $tierId == tier._ref'
@@ -241,6 +222,60 @@ export default (S) =>
                 .title('Categories')
             ])
         ),
+        S.divider(),
+        // site settings
+        S.listItem()
+          .id('siteSettings')
+          .title('Site Settings')
+          .icon(Settings)
+          .child(
+            S.document()
+              .schemaType('siteSettings')
+              .documentId('siteSettings')
+        ),
+        // page settings
+        S.listItem()
+          .id('pageSettings')
+          .title('Page Settings')
+          .icon(PageIcon)
+          .child(
+            S.list()
+              .title('Page Settings')
+              .items([
+                S.listItem()
+                  .id('frontpage')
+                  .title('Homepage Settings')
+                  .icon(GoHome)
+                  .child(
+                    S.document()
+                      .schemaType('page')
+                      .documentId('frontpage')
+                      .title('Homepage Settings')
+                  ),
+                S.listItem()
+                  .id('joinPage')
+                  .title('Join Page Settings')
+                  .icon(PageIcon)
+                  .child(
+                    S.document()
+                      .schemaType('page')
+                      .documentId('join')
+                      .title('Join Page Settings')
+                  ),
+                S.divider(),
+                S.listItem()
+                  .title('All Pages')
+                  .icon(PageIcon)
+                  .child(
+                    S.documentList('page')
+                      .title('All Pages')
+                      .menuItems(S.documentTypeList('page').getMenuItems())
+                      .filter(
+                        '_type == "page" && !(_id in ["frontpage","join","drafts.frontpage","drafts.join"])'
+                      )
+                  )
+              ])
+          ),
         // page builder
         S.listItem()
           .title('Page Builder')

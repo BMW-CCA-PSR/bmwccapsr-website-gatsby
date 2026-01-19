@@ -6,7 +6,7 @@ import {
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import { Box, Button, Heading } from "@theme-ui/components";
+import { Box, Button, Heading, Text } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
@@ -38,6 +38,22 @@ const buildPaginationItems = (current, total, delta = 2) => {
   items.push({ type: "page", value: total });
   return items;
 };
+
+const monthOptions = [
+  { value: "all", label: "All months" },
+  { value: "0", label: "January" },
+  { value: "1", label: "February" },
+  { value: "2", label: "March" },
+  { value: "3", label: "April" },
+  { value: "4", label: "May" },
+  { value: "5", label: "June" },
+  { value: "6", label: "July" },
+  { value: "7", label: "August" },
+  { value: "8", label: "September" },
+  { value: "9", label: "October" },
+  { value: "10", label: "November" },
+  { value: "11", label: "December" }
+];
 
 export const query = graphql`
 query EventPageQuery($skip: Int!, $limit: Int!) {
@@ -80,9 +96,14 @@ query EventPageQuery($skip: Int!, $limit: Int!) {
           #  lng
           #}
           address {
+            line1
+            line2
             city
             state
           }
+          venueName
+          onlineEvent
+          onlineLink
         }
       }
     }
@@ -109,21 +130,12 @@ const IndexPage = props => {
   const [liveEvents, setLiveEvents] = useState(eventNodes);
   const currentYear = new Date().getFullYear();
   const categories = useMemo(() => {
-    const preferred = [
-      "Tech Session",
-      "Tour",
-      "Non-Club Events",
-      "Racing Events",
-      "Tech Events",
-      "Car Show",
-      "Driver Education",
-      "Social Events"
-    ];
-    const unique = new Set(preferred);
+    const unique = new Set();
     liveEvents.forEach((event) => {
       if (event?.category?.title) unique.add(event.category.title);
     });
-    return ["All", ...Array.from(unique)];
+    const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
+    return ["All", ...sorted];
   }, [liveEvents]);
   const years = useMemo(() => {
     const unique = new Set();
@@ -133,10 +145,13 @@ const IndexPage = props => {
     });
     return Array.from(unique).sort((a, b) => b - a);
   }, [liveEvents]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
+  const [excludeBoardMeetings, setExcludeBoardMeetings] = useState(false);
   const [pageIndex, setPageIndex] = useState(currentPage || 1);
+  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
+  const locationSearch = props.location?.search || "";
   useEffect(() => {
     let isMounted = true;
     sanity
@@ -157,6 +172,39 @@ const IndexPage = props => {
   }, [sanity]);
 
   useEffect(() => {
+    if (hasInitializedFilters) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(locationSearch);
+    const categoryParam = params.get("category");
+    const monthParam = params.get("month");
+    const yearParam = params.get("year");
+    const excludeParam = params.get("excludeBoard");
+    if (categoryParam) {
+      const validCategories = categories.filter((category) => category !== "All");
+      const requestedCategories = categoryParam
+        .split(",")
+        .map((category) => category.trim())
+        .filter(Boolean);
+      const normalizedCategories = requestedCategories.filter((category) =>
+        validCategories.includes(category)
+      );
+      if (normalizedCategories.length) {
+        setSelectedCategories(normalizedCategories);
+      }
+    }
+    if (monthParam && monthOptions.some((option) => option.value === monthParam)) {
+      setSelectedMonth(monthParam);
+    }
+    if (yearParam && years.includes(Number(yearParam))) {
+      setSelectedYear(yearParam);
+    }
+    if (excludeParam === "1" || excludeParam === "true") {
+      setExcludeBoardMeetings(true);
+    }
+    setHasInitializedFilters(true);
+  }, [hasInitializedFilters, locationSearch, categories, years]);
+
+  useEffect(() => {
     if (!years.length) return;
     const yearStrings = years.map((year) => String(year));
     if (!yearStrings.includes(selectedYear)) {
@@ -169,34 +217,61 @@ const IndexPage = props => {
   }, [years, selectedYear, currentYear]);
   useEffect(() => {
     setPageIndex(1);
-  }, [selectedCategory, selectedMonth, selectedYear]);
+  }, [selectedCategories, selectedMonth, selectedYear, excludeBoardMeetings]);
 
-  const monthOptions = [
-    { value: "all", label: "All months" },
-    { value: "0", label: "January" },
-    { value: "1", label: "February" },
-    { value: "2", label: "March" },
-    { value: "3", label: "April" },
-    { value: "4", label: "May" },
-    { value: "5", label: "June" },
-    { value: "6", label: "July" },
-    { value: "7", label: "August" },
-    { value: "8", label: "September" },
-    { value: "9", label: "October" },
-    { value: "10", label: "November" },
-    { value: "11", label: "December" }
-  ];
+  useEffect(() => {
+    if (!hasInitializedFilters) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(locationSearch);
+    if (selectedCategories.length) {
+      params.set("category", selectedCategories.join(","));
+    } else {
+      params.delete("category");
+    }
+    if (selectedMonth !== "all") {
+      params.set("month", selectedMonth);
+    } else {
+      params.delete("month");
+    }
+    if (selectedYear !== String(currentYear)) {
+      params.set("year", selectedYear);
+    } else {
+      params.delete("year");
+    }
+    if (excludeBoardMeetings) {
+      params.set("excludeBoard", "1");
+    } else {
+      params.delete("excludeBoard");
+    }
+    const nextSearch = params.toString();
+    const nextUrl = nextSearch
+      ? `${window.location.pathname}?${nextSearch}`
+      : window.location.pathname;
+    window.history.replaceState({}, "", nextUrl);
+  }, [
+    hasInitializedFilters,
+    locationSearch,
+    selectedCategories,
+    selectedMonth,
+    selectedYear,
+    excludeBoardMeetings,
+    currentYear
+  ]);
   const hasActiveFilters =
-    selectedCategory !== "All" ||
+    selectedCategories.length > 0 ||
     selectedMonth !== "all" ||
-    selectedYear !== String(currentYear);
+    selectedYear !== String(currentYear) ||
+    excludeBoardMeetings;
   const selectedMonthLabel =
     monthOptions.find((option) => option.value === selectedMonth)?.label ||
     "All months";
   const filterLabelParts = [];
-  if (selectedCategory !== "All") filterLabelParts.push(selectedCategory);
+  if (selectedCategories.length) {
+    filterLabelParts.push(selectedCategories.join(", "));
+  }
   if (selectedMonth !== "all") filterLabelParts.push(selectedMonthLabel);
   if (selectedYear !== "all") filterLabelParts.push(selectedYear);
+  if (excludeBoardMeetings) filterLabelParts.push("Excluding Board Meetings");
   const filterLabel = filterLabelParts.length
     ? filterLabelParts.join(" · ")
     : "All";
@@ -205,9 +280,12 @@ const IndexPage = props => {
     const eventDate = new Date(event.startTime);
     const eventYear = eventDate.getFullYear();
     const eventMonth = eventDate.getMonth();
+    const title = (event?.title || "").toLowerCase();
+    const isBoardMeeting = title.includes("board meeting");
+    if (excludeBoardMeetings && isBoardMeeting) return false;
     const matchesCategory =
-      selectedCategory === "All" ||
-      event?.category?.title === selectedCategory;
+      selectedCategories.length === 0 ||
+      selectedCategories.includes(event?.category?.title);
     const matchesYear =
       selectedYear === "all" || eventYear === Number(selectedYear);
     const matchesMonth =
@@ -266,18 +344,37 @@ const IndexPage = props => {
         >
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
             {categories.map((category) => {
-              const isActive = category === selectedCategory;
+              const isActive =
+                category === "All"
+                  ? selectedCategories.length === 0
+                  : selectedCategories.includes(category);
               return (
                 <Button
                   key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => {
+                    if (category === "All") {
+                      setSelectedCategories([]);
+                      return;
+                    }
+                    setSelectedCategories((prev) => {
+                      if (prev.includes(category)) {
+                        return prev.filter((item) => item !== category);
+                      }
+                      return [...prev, category];
+                    });
+                  }}
                   sx={{
                     variant: "buttons.primary",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     bg: isActive ? "primary" : "background",
                     color: isActive ? "white" : "text",
                     borderRadius: "999px",
                     px: "1rem",
-                    py: "0.35rem",
+                    py: 0,
+                    height: "34px",
+                    lineHeight: 1,
                     fontSize: "xs",
                     textTransform: "uppercase",
                     letterSpacing: "0.08em",
@@ -291,6 +388,42 @@ const IndexPage = props => {
                 </Button>
               );
             })}
+            <Text
+              sx={{
+                variant: "text.label",
+                color: "darkgray",
+                px: "0.25rem",
+                alignSelf: "center",
+                display: ["none", "inline-flex"]
+              }}
+            >
+              |
+            </Text>
+            <Button
+              onClick={() => setExcludeBoardMeetings((prev) => !prev)}
+              sx={{
+                variant: "buttons.primary",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                bg: excludeBoardMeetings ? "secondary" : "background",
+                color: excludeBoardMeetings ? "white" : "text",
+                borderRadius: "999px",
+                px: "1rem",
+                py: 0,
+                height: "34px",
+                lineHeight: 1,
+                fontSize: "xs",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                "&:hover": {
+                  bg: excludeBoardMeetings ? "primary" : "highlight",
+                  color: excludeBoardMeetings ? "white" : "text"
+                }
+              }}
+            >
+              Exclude Board Meetings
+            </Button>
           </Box>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
             <Box>
@@ -352,9 +485,10 @@ const IndexPage = props => {
             <Box sx={{ alignSelf: "flex-end" }}>
               <Button
                 onClick={() => {
-                  setSelectedCategory("All");
+                  setSelectedCategories([]);
                   setSelectedMonth("all");
                   setSelectedYear(String(currentYear));
+                  setExcludeBoardMeetings(false);
                 }}
                 disabled={!hasActiveFilters}
                 sx={{
@@ -401,7 +535,6 @@ const IndexPage = props => {
               "repeat(2, minmax(0, 1fr))",
               "repeat(2, minmax(0, 1fr))"
             ],
-            gridAutoRows: "minmax(50px, 325px)",
             m: 0,
             p: 0
           }}>

@@ -3,7 +3,7 @@ import React, { useCallback } from "react"
 import { set, unset } from "sanity"
 
 export function colorHexValidator(value) {
-  let data = value.value ? value.value : value;
+  const data = typeof value === "string" ? value : value?.value
   if (data && !data.match(/^#[a-fA-f0-9]{6}$/)) {
     return "Color must be a valid hex (e.g. #A4F23B)"
   }
@@ -55,6 +55,8 @@ const ColorSelector = ({
   withHexInput,
   withColorNames
 }) => {
+  const normalizedValue =
+    typeof value === "string" ? value : value?.value || ""
   // Removes non-hex chars from the string, trims to 6 chars,
   // adds a # at the beginning and upper cases it
   const preprocessValue = str => {
@@ -83,8 +85,11 @@ const ColorSelector = ({
   )
 
   const handleSelect = useCallback(
-    hex => onChange(hex && hex !== value ? set(preprocessValue(hex)) : unset()),
-    [onChange, value]
+    hex =>
+      onChange(
+        hex && hex !== normalizedValue ? set(preprocessValue(hex)) : unset()
+      ),
+    [onChange, normalizedValue]
   )
 
   return (
@@ -102,7 +107,7 @@ const ColorSelector = ({
             <Avatar
               size={1}
               style={{
-                backgroundColor: value,
+                backgroundColor: normalizedValue,
                 border: "1px solid var(--card-hairline-soft-color)"
               }}
             />
@@ -112,7 +117,7 @@ const ColorSelector = ({
               padding={3}
               placeholder={"#FFFFFF"}
               onChange={handleChange}
-              value={value}
+              value={normalizedValue}
             />
           </Grid>
         </>
@@ -137,7 +142,7 @@ const ColorSelector = ({
                   key={colorItem.value}
                   colorName={colorItem.title}
                   hex={colorItem.value}
-                  active={colorItem.value === value}
+                  active={colorItem.value === normalizedValue}
                   withColorName={!!withColorNames}
                   onClickHandler={handleSelect}
                 />

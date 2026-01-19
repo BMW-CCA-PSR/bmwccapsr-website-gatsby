@@ -1,13 +1,11 @@
 /** @jsxImportSource theme-ui */
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "gatsby";
-import { Box, Card, Container, Heading, Text } from "@theme-ui/components";
-import { format, parseISO } from "date-fns";
-import { getEventsUrl } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import { Box, Container, Heading } from "@theme-ui/components";
 import { BoxIcon } from "./box-icons";
 import { outline } from "./event-slider";
 import { Client } from "../services/FetchClient";
+import EventCard from "./event-card";
 
 const UpcomingEvents = (props) => {
   const limit = props.limit || 2;
@@ -94,108 +92,11 @@ const UpcomingEvents = (props) => {
             p: 0
           }}
         >
-          {events.map((event, index) => {
-            const cityState =
-              event?.address?.city && event?.address?.state
-                ? `${event.address.city}, ${event.address.state}`
-                : "";
-            const imageUrl = event?.mainImage
-              ? imageUrlFor(event.mainImage)
-                  .width(800)
-                  .height(440)
-                  .fit("crop")
-                  .auto("format")
-                  .url()
-              : null;
-            return (
-              <li key={event?._id || index}>
-                <Link to={getEventsUrl(event.slug.current)} sx={{ textDecoration: "none" }}>
-                  <Card
-                    sx={{
-                      textDecoration: "none",
-                      color: "text",
-                      backgroundColor: "white",
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: "9px",
-                      display: "flex",
-                      flexDirection: "column",
-                      borderStyle: "solid",
-                      borderWidth: "1px",
-                    }}
-                  >
-                    {imageUrl && (
-                      <Box sx={{ position: "relative" }}>
-                        <Box
-                          as="img"
-                          src={imageUrl}
-                          alt={event?.mainImage?.alt || event?.title || "Event"}
-                          sx={{
-                            width: "100%",
-                            height: "100%",
-                            maxHeight: "220px",
-                            minHeight: "220px",
-                            objectFit: "cover",
-                            borderTopRightRadius: "8px",
-                            borderTopLeftRadius: "8px",
-                          }}
-                        />
-                        {event?.startTime && (
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              backgroundColor: "white",
-                              height: "65px",
-                              width: "60px",
-                              alignContent: "center",
-                              bottom: "20px",
-                              right: "20px",
-                              m: "auto",
-                              borderBottom: "5px",
-                              borderBottomStyle: "solid",
-                              borderBottomColor: "highlight"
-                            }}
-                          >
-                            <div sx={{ justifyContent: "center", textAlign: "center", pt: "5px" }}>
-                              <Text sx={{ variant: "styles.h4", display: "block" }}>
-                                {format(parseISO(event.startTime), "MMM")}
-                              </Text>
-                              <Text sx={{ variant: "styles.h3" }}>
-                                {format(parseISO(event.startTime), "d")}
-                              </Text>
-                            </div>
-                          </Box>
-                        )}
-                      </Box>
-                    )}
-                    <Box
-                      sx={{
-                        py: "5px",
-                        px: "10px",
-                        display: "flex",
-                        justifyContent: "center",
-                        flexDirection: "column"
-                      }}
-                    >
-                      {event?.category?.title && (
-                        <Text sx={{ variant: "text.label", color: "black" }}>
-                          {event.category.title}
-                        </Text>
-                      )}
-                      <Heading sx={{ textDecoration: "none", variant: "styles.h3" }}>
-                        {event.title}
-                      </Heading>
-                      {cityState && (
-                        <Text sx={{ variant: "styles.h5", textTransform: "capitalize" }}>
-                          {cityState}
-                        </Text>
-                      )}
-                    </Box>
-                  </Card>
-                </Link>
-              </li>
-            );
-          })}
+          {events.map((event, index) => (
+            <li key={event?._id || index}>
+              <EventCard event={event} />
+            </li>
+          ))}
         </ul>
         <Box sx={{ mt: "1.5rem", mb: "2rem", textAlign: "center" }}>
           <Link to="/events" sx={{ ...outline, bg: "background" }}>

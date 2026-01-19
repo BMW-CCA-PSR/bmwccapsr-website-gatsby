@@ -15,6 +15,7 @@ import Layout from "../containers/layout";
 import ZundfolgeArticlePreview from "../components/zundfolge-article-preview";
 import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
+import ZundfolgeFeatured from "../components/zundfolge-featured";
 
 const zundfolgeRed = "#B5322E";
 const buildPaginationItems = (current, total, delta = 2) => {
@@ -53,7 +54,11 @@ export const query = graphql`
       limit: $limit
       skip: $skip
       sort: { fields: [publishedAt], order: DESC }
-      filter: { slug: { current: { ne: null } }, publishedAt: { ne: null } }
+      filter: {
+        slug: { current: { ne: null } }
+        publishedAt: { ne: null }
+        featured: { ne: true }
+      }
     ) {
       edges {
         node {
@@ -103,6 +108,34 @@ export const query = graphql`
         }
       }
     }
+    featured: allSanityPost(
+      limit: 1
+      sort: { fields: [publishedAt], order: DESC }
+      filter: {
+        featured: { eq: true }
+        slug: { current: { ne: null } }
+        publishedAt: { ne: null }
+      }
+    ) {
+      edges {
+        node {
+          id
+          publishedAt
+          mainImage {
+            ...SanityImage
+            alt
+          }
+          title
+          _rawExcerpt
+          slug {
+            current
+          }
+          category {
+            title
+          }
+        }
+      }
+    }
   }
 `;
 
@@ -129,6 +162,11 @@ const IndexPage = props => {
         .filter(filterOutDocsWithoutSlugs)
         .filter(filterOutDocsPublishedInTheFuture)
     : [];
+  const featuredPost = (data || {}).featured
+    ? mapEdgesToNodes(data.featured)
+        .filter(filterOutDocsWithoutSlugs)
+        .filter(filterOutDocsPublishedInTheFuture)[0]
+    : null;
   if (!site) {
     console.warn(
       'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
@@ -186,7 +224,7 @@ const IndexPage = props => {
                   width: '100%',
                   height: '100%',
                   mx: 'auto',
-                  borderRadius: '8px',
+                  borderRadius: '18px',
                   borderStyle: 'solid',
                   borderColor: 'black',
                   borderWidth: '1px',
@@ -205,6 +243,11 @@ const IndexPage = props => {
             </Link>
           </div>
         </div>
+        {isFirst && featuredPost && (
+          <Box sx={{ mt: "1.5rem", mb: "2rem" }}>
+            <ZundfolgeFeatured post={featuredPost} />
+          </Box>
+        )}
         <Heading
           sx={{
             variant: "styles.h3",

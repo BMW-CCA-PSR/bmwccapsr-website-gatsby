@@ -20,6 +20,8 @@ export const query = graphql`
       startTime
       endTime
       cost
+      onlineEvent
+      onlineLink
       website
       venueName
       address {
@@ -66,7 +68,12 @@ export const query = graphql`
       slug {
         current
       }
+      onlineEvent
+      onlineLink
+      venueName
       address {
+        line1
+        line2
         city
         state
       }
@@ -86,7 +93,12 @@ export const query = graphql`
       slug {
         current
       }
+      onlineEvent
+      onlineLink
+      venueName
       address {
+        line1
+        line2
         city
         state
       }

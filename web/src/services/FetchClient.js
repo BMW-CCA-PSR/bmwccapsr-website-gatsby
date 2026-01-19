@@ -28,6 +28,9 @@ export class Client {
       `*[_type == "event" && dateTime(startTime) > dateTime(now()) && !(lower(title) match "*board meeting*")] | order(startTime asc)[0...${limit}]{
         _id,
         title,
+        onlineEvent,
+        onlineLink,
+        venueName,
         slug { current },
         startTime,
         mainImage{
@@ -35,7 +38,7 @@ export class Client {
           asset->{_id, url}
         },
         category->{title},
-        address{city, state}
+        address{line1, line2, city, state}
       }`
     );
   }
@@ -48,6 +51,9 @@ export class Client {
         )] | order(startTime asc){
         _id,
         title,
+        onlineEvent,
+        onlineLink,
+        venueName,
         slug { current },
         startTime,
         endTime,
@@ -56,7 +62,7 @@ export class Client {
           asset->{_id, url}
         },
         category->{title},
-        address{city, state}
+        address{line1, line2, city, state}
       }`
     );
   }

@@ -3,30 +3,15 @@ import React from 'react';
 import { getZundfolgeUrl } from "../lib/helpers";
 import PortableText from './portableText';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { Box, Card, Container, Heading, Text, Flex, Avatar} from '@theme-ui/components';
+import { Box, Card, Container, Heading, Text, Flex, Avatar, Badge} from '@theme-ui/components';
 import { Link } from "gatsby";
 import { imageUrlFor } from "../lib/image-url";
 import { BoxIcon } from "./box-icons";
 import { outline } from "./event-slider";
+import { differenceInDays, format, parseISO } from "date-fns";
 
-var style = {
-    textDecoration: "none",
-    textTransform: "uppercase",
-    fontSize: 15,
-    backgroundColor: "primary",
-    border: "none",
-    color: "white",
-    py: "8px",
-    px: "20px",
-    position: "relative",
-    borderRadius: "4px",
-	transition: "background-color 0.5s ease-out",
-    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-    "&:hover":{
-      color: "white",
-      bg: "highlight",
-    }
-  }
+const slantLeftClip = "polygon(12% 0, 100% 0, 100% 100%, 0 100%)";
+const slantRightClip = "polygon(0 0, 100% 0, 88% 100%, 0 100%)";
 
 const StoryImg = (props) => {
 	return (
@@ -34,18 +19,41 @@ const StoryImg = (props) => {
 			{...props}
 			width={600}
 			sx={{
-				// borderStyle: "solid",
-				// borderWidth: "1px",
+				position: 'absolute',
+				inset: 0,
 				width: '100%',
 				height: '100%',
-				minHeight: '300px',
-				maxHeight: '300px',
 				objectFit: 'cover',
-                borderRadius: "6px"
+                borderRadius: 0
 			}}
 		/>
 	);
 };
+
+const SlantedStoryImg = ({ image, slant = "left", flex }) => (
+	<Box
+		sx={{
+			position: "relative",
+			width: "100%",
+			minHeight: ["240px", "280px", "auto"],
+			alignSelf: "stretch",
+			flex: flex || ["0 0 auto", "0 0 auto", "1 1 42%"],
+			borderRadius: [
+				"18px",
+				"18px",
+				slant === "left" ? "0 18px 18px 0" : "18px 0 0 18px"
+			],
+			overflow: "hidden",
+			clipPath: [
+				"none",
+				"none",
+				slant === "left" ? slantLeftClip : slantRightClip
+			]
+		}}
+	>
+		<StoryImg {...image} />
+	</Box>
+);
 
 function StoryRow(props) {
 	const authors = props.node.authors;
@@ -58,14 +66,53 @@ function StoryRow(props) {
 		.url() : null
 	const img = props.node._rawMainImage;
 	const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
+	const isNew = (() => {
+		try {
+			if (!props.node.publishedAt) return false;
+			const days = differenceInDays(new Date(), parseISO(props.node.publishedAt));
+			return days <= 14;
+		} catch (_) {
+			return false;
+		}
+	})();
 	return (
 		<Flex
 			sx={{
-				flexDirection: [ 'column', 'column', 'row', 'row' ]
+				flexDirection: [ 'column', 'column', 'row', 'row' ],
+				alignItems: [ 'stretch', 'stretch', 'stretch', 'stretch' ]
 			}}
 		>
-			<div sx={{ px: '1rem'}}>
-				{props.node.category && <Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>}
+			<Box
+				sx={{
+					px: '1.5rem',
+					py: '1.5rem',
+					flex: ['1 1 100%', '1 1 100%', '1 1 60%']
+				}}
+			>
+				{props.node.category && (
+					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+						<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>
+						{isNew && (
+							<Badge
+								sx={{
+									bg: 'transparent',
+									color: 'white',
+									px: 2,
+									py: 1,
+									borderRadius: 9999,
+									fontWeight: 700,
+									fontSize: 'xxs',
+									letterSpacing: 'wide',
+									textTransform: 'uppercase',
+									backgroundImage: 'linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)',
+									boxShadow: '0 2px 6px rgba(0,0,0,0.25)'
+								}}
+							>
+								NEW
+							</Badge>
+						)}
+					</Box>
+				)}
 				<Heading
 					sx={{
 						variant: 'styles.h3',
@@ -75,9 +122,17 @@ function StoryRow(props) {
 				>
 					{props.node.title}
 				</Heading>
-				<Flex sx={{py:"0.5rem", pb: "0px"}}>
+				<Flex sx={{py:"0.5rem", pb: "0px", alignItems: "center", flexWrap: "wrap"}}>
 					{avatarImg && <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>}
-					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
+					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>
+						{authorString}
+						{props.node.publishedAt ? " | " : ""}
+					</Text>
+					{props.node.publishedAt && (
+						<Text sx={{variant: "stypes.p", py: "1rem", color: "black"}}>
+							{format(parseISO(props.node.publishedAt), "MMM d, yyyy")}
+						</Text>
+					)}
 				</Flex>
 				<Text
 					sx={{
@@ -87,13 +142,14 @@ function StoryRow(props) {
 				>
 					{text ? <PortableText body={text} /> : null}
 				</Text>
-                <div sx={{my: "1.5rem"}}>
-                    <Link to={getZundfolgeUrl(props.node.slug.current)} sx={style}>
-                        Read More
-                    </Link>
-                </div>
-			</div>
-			{img && <StoryImg {...img} />}
+			</Box>
+			{img && (
+				<SlantedStoryImg
+					image={img}
+					slant="left"
+					flex={['1 1 100%', '1 1 100%', '1 1 40%']}
+				/>
+			)}
 		</Flex>
 	);
 };
@@ -109,15 +165,60 @@ function StoryRowFlipped(props) {
 		.url() : null
 	const img = props.node._rawMainImage;
 	const text = props.node._rawExcerpt ? props.node._rawExcerpt : null;
+	const isNew = (() => {
+		try {
+			if (!props.node.publishedAt) return false;
+			const days = differenceInDays(new Date(), parseISO(props.node.publishedAt));
+			return days <= 14;
+		} catch (_) {
+			return false;
+		}
+	})();
 	return (
 		<Flex
 			sx={{
-				flexDirection: [ 'column-reverse', 'column-reverse', 'row', 'row' ]
+				flexDirection: [ 'column-reverse', 'column-reverse', 'row', 'row' ],
+				alignItems: [ 'stretch', 'stretch', 'stretch', 'stretch' ]
 			}}
 		>
-			{img && <StoryImg {...img} />}
-			<div sx={{ px: '1rem' }}>
-				{props.node.category && <Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>}
+			{img && (
+				<SlantedStoryImg
+					image={img}
+					slant="right"
+					flex={['1 1 100%', '1 1 100%', '1 1 40%']}
+				/>
+			)}
+			<Box
+				sx={{
+					px: '1.5rem',
+					py: '1.5rem',
+					flex: ['1 1 100%', '1 1 100%', '1 1 60%']
+				}}
+			>
+				{props.node.category && (
+					<Box sx={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+						<Text sx={{ variant: 'text.label', color: 'black'}}>{props.node.category.title}</Text>
+						{isNew && (
+							<Badge
+								sx={{
+									bg: 'transparent',
+									color: 'white',
+									px: 2,
+									py: 1,
+									borderRadius: 9999,
+									fontWeight: 700,
+									fontSize: 'xxs',
+									letterSpacing: 'wide',
+									textTransform: 'uppercase',
+									backgroundImage: 'linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)',
+									boxShadow: '0 2px 6px rgba(0,0,0,0.25)'
+								}}
+							>
+								NEW
+							</Badge>
+						)}
+					</Box>
+				)}
 				<Heading
 					sx={{
 						variant: 'styles.h3',
@@ -127,9 +228,17 @@ function StoryRowFlipped(props) {
 				>
 					{props.node.title}
 				</Heading>
-				<Flex sx={{py:"0.5rem", pb: "0px"}}>
+				<Flex sx={{py:"0.5rem", pb: "0px", alignItems: "center", flexWrap: "wrap"}}>
 					{avatarImg && <Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>}
-					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>{authorString}</Text>
+					<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: `black`}}>
+						{authorString}
+						{props.node.publishedAt ? " | " : ""}
+					</Text>
+					{props.node.publishedAt && (
+						<Text sx={{variant: "stypes.p", py: "1rem", color: "black"}}>
+							{format(parseISO(props.node.publishedAt), "MMM d, yyyy")}
+						</Text>
+					)}
 				</Flex>
 				<Text
 					sx={{
@@ -139,12 +248,7 @@ function StoryRowFlipped(props) {
 				>
 					{text ? <PortableText body={text} /> : null}
 				</Text>
-                <div sx={{my: "1.5rem"}}>
-                    <Link to={getZundfolgeUrl(props.node.slug.current)} sx={style}>
-                        Read More
-                    </Link>
-                </div>
-			</div>
+			</Box>
 		</Flex>
 	);
 };
@@ -186,17 +290,35 @@ function ZundfolgeLatest(props) {
 				/>
 			</Box>
 
-			{props.edges.slice(0, 3).map((c, i) => (
-				<Card
-					sx={{
-						maxWidth: '1000px',
-						mx: 'auto',
-						padding: '1.5rem'
-					}}
-				>
-					{i % 2 === 0 ? <StoryRow {...c} /> : <StoryRowFlipped {...c} />}
-				</Card>
-			))}
+			{props.edges.slice(0, 3).map((c, i) => {
+				const href = getZundfolgeUrl(c.node.slug.current);
+				return (
+					<Link
+						key={c.node.id || href}
+						to={href}
+						sx={{
+							textDecoration: "none",
+							color: "inherit",
+							display: "block",
+							maxWidth: '1000px',
+							mx: 'auto',
+							mb: '1.5rem'
+						}}
+					>
+						<Card
+							sx={{
+								width: '100%',
+								borderRadius: '18px',
+								border: '1px solid',
+								borderColor: 'black',
+								overflow: 'hidden'
+							}}
+						>
+							{i % 2 === 0 ? <StoryRow {...c} /> : <StoryRowFlipped {...c} />}
+						</Card>
+					</Link>
+				);
+			})}
 			<Box sx={{ maxWidth: "1000px", mx: "auto", mt: "1.5rem", textAlign: "center" }}>
 				<Link to="/zundfolge/" sx={outline}>
 					More Articles

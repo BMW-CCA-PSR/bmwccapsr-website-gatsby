@@ -6,14 +6,18 @@ import { useLocation } from "@reach/router";
 const Dropdown = props => {
     const link = props.navigationItemUrl
     const location = useLocation();
-    const getPath = (item) =>
-        item.landingPageRoute
-            ? `/${item.landingPageRoute.slug.current}`
-            : item.route
-                ? item.route
-                : "/";
+    const getPath = (item) => {
+        if (item?.landingPageRoute?.slug?.current) {
+            return `/${item.landingPageRoute.slug.current}`;
+        }
+        if (item?.route) {
+            return item.route;
+        }
+        return null;
+    };
     const isChildActive = link?.items?.some((subLink) => {
         const path = getPath(subLink);
+        if (!path) return false;
         if (path === "/") return location.pathname === "/";
         return location.pathname.startsWith(path);
     });

@@ -15,7 +15,7 @@ import UpcomingEvents from "../components/upcoming-events";
 import EventSlider from "../components/event-slider";
 import HomepageSponsors from "../components/home-page-sponsors";
 import { BannerAd, BoxAd } from "../components/ads";
-import { randomGenerator } from "../lib/helpers";
+import { getZundfolgeUrl, randomGenerator, toPlainText } from "../lib/helpers";
 import BoxHeader from '../components/BoxHeader';
 import PortableText from '../components/portableText';
 import ContentContainer from "../components/content-container";
@@ -73,6 +73,30 @@ function Page(props) {
     const banners = data.banners
     const boxes = data.boxes
     const slideAds = data.slideAds
+    const featuredNode = data.featuredPost?.edges?.[0]?.node || null
+    const featuredTaglineBase = featuredNode?._rawExcerpt
+      ? toPlainText(featuredNode._rawExcerpt)
+      : ""
+    const featuredTagline = featuredTaglineBase
+      ? `${featuredTaglineBase.slice(0, 120).trim()}${featuredTaglineBase.length > 120 ? "..." : ""}`
+      : "Discover the latest featured Zundfolge article."
+    const featuredHeroSlides = isFrontpage && featuredNode
+      ? [
+          {
+            _key: `featured-${featuredNode.id}`,
+            _type: "hero",
+            label: "Featured Story",
+            heading: featuredNode.title,
+            tagline: featuredTagline,
+            colors: "#FFFFFF",
+            image: featuredNode.mainImage,
+            cta: {
+              title: "Read Story",
+              route: getZundfolgeUrl(featuredNode.slug.current)
+            }
+          }
+        ]
+      : []
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
@@ -90,6 +114,7 @@ function Page(props) {
                 key={c._key}
                 {...c}
                 {...slideAds}
+                featuredSlides={featuredHeroSlides}
                 isHomepage={isFrontpage}
               />
             );

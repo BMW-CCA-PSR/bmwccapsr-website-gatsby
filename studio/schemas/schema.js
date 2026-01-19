@@ -41,6 +41,10 @@ import pageContent from './objects/pageContent'
 import uiComponent from './objects/uiComponent'
 import homepageSponsors from './objects/homepageSponsors'
 import heroCarousel from './objects/heroCarousel'
+import joinEventItem from './objects/joinEventItem'
+import joinEventSection from './objects/joinEventSection'
+import joinBenefitItem from './objects/joinBenefitItem'
+import joinHero from './objects/joinHero'
 
 export default [
     variation,
@@ -82,5 +86,9 @@ export default [
     uiComponent,
     homepageSponsors,
     heroCarousel,
+    joinEventItem,
+    joinEventSection,
+    joinBenefitItem,
+    joinHero,
     pdfUpload
 ]

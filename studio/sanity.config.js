@@ -10,11 +10,11 @@ import { netlifyWidget } from "sanity-plugin-dashboard-widget-netlify";
 
 const vars = {
   apiId:
-    (import.meta && import.meta.env && import.meta.env.VITE_NETLIFY_API_ID) ||
-    process.env.SANITY_STUDIO_NETLIFY_API_ID,
+    process.env.SANITY_STUDIO_NETLIFY_API_ID ||
+    process.env.VITE_NETLIFY_API_ID,
   buildHookId:
-    (import.meta && import.meta.env && import.meta.env.VITE_NETLIFY_BUILD_HOOK_ID) ||
-    process.env.SANITY_STUDIO_NETLIFY_BUILD_HOOK_ID
+    process.env.SANITY_STUDIO_NETLIFY_BUILD_HOOK_ID ||
+    process.env.VITE_NETLIFY_BUILD_HOOK_ID
 };
 
 const StudioIcon = () =>

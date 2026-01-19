@@ -14,6 +14,7 @@ import Layout from "../containers/layout";
 import Seo from "../components/seo";
 import GraphQLErrorList from "../components/graphql-error-list";
 import ContentContainer from "../components/content-container";
+import PortableText from "../components/portableText";
 
 const baseJoinUrl = "https://www.bmwcca.org/join";
 const heroImage = "/images/bmw-join-image.jpg";
@@ -177,6 +178,67 @@ const socialEvents = [
 
 const QrLandingPage = (props) => {
   const { data, errors, location } = props;
+  const joinPage = data?.joinPage;
+  const joinHero = joinPage?.joinHero || {};
+  const hpdeSection = joinPage?.joinHpdeSection || {};
+  const socialSection = joinPage?.joinSocialSection || {};
+  const defaultHpdeSubheading =
+    "Drive More. Learn More. Belong More.\nExperience your BMW as it was engineered to be driven, with professional instruction and a supportive community. Every event builds skill, confidence, and control.";
+  const defaultSocialSubheading =
+    "Not just cars — community.\nFrom scenic drives to automotive gatherings, these events connect BMW owners who share a passion for driving, craftsmanship, and great company.";
+  const hpdeItems =
+    hpdeSection?.items && hpdeSection.items.length > 0
+      ? hpdeSection.items
+      : hpdeEvents;
+  const socialItems =
+    socialSection?.items && socialSection.items.length > 0
+      ? socialSection.items
+      : socialEvents;
+  const hpdeSubtext =
+    hpdeSection?.subtext !== undefined
+      ? hpdeSection.subtext
+      : "* concurrent HPDE & Car Control Clinics";
+  const socialColumns = socialSection?.columns || 2;
+  const benefitsPrimaryList =
+    joinPage?.joinBenefitsPrimary && joinPage.joinBenefitsPrimary.length > 0
+      ? joinPage.joinBenefitsPrimary
+      : benefitsPrimary;
+  const benefitsSecondaryList =
+    joinPage?.joinBenefitsSecondary && joinPage.joinBenefitsSecondary.length > 0
+      ? joinPage.joinBenefitsSecondary
+      : benefitsSecondary;
+
+  const renderSubheadingText = (value) => {
+    const parts = value
+      .split("\n")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (parts.length <= 1) {
+      return <Text sx={{ mt: "0.75rem", color: "darkgray" }}>{value}</Text>;
+    }
+    return (
+      <>
+        <Text sx={{ mt: "0.75rem", fontWeight: "700" }}>{parts[0]}</Text>
+        <Text sx={{ mt: "0.75rem", color: "darkgray" }}>
+          {parts.slice(1).join(" ")}
+        </Text>
+      </>
+    );
+  };
+
+  const renderSubheading = (blocks, fallback) => {
+    if (Array.isArray(blocks) && blocks.length > 0) {
+      return (
+        <PortableText
+          body={blocks}
+          boxedSx={{
+            "& p": { mt: "0.75rem", mb: 0, color: "darkgray" },
+          }}
+        />
+      );
+    }
+    return renderSubheadingText(fallback);
+  };
 
   const [joinHref, setJoinHref] = useState(baseJoinUrl);
   const [trackingParams, setTrackingParams] = useState({});
@@ -267,7 +329,7 @@ const QrLandingPage = (props) => {
                   letterSpacing: "wide"
                 }}
               >
-                BMW CCA Puget Sound Region
+                {joinHero.label || "BMW CCA Puget Sound Region"}
               </Text>
               <Heading
                 as="h1"
@@ -278,7 +340,7 @@ const QrLandingPage = (props) => {
                   maxWidth: "40rem"
                 }}
               >
-                Thanks for scanning. Welcome to the Club.
+                {joinHero.heading || "Thanks for scanning. Welcome to the Club."}
               </Heading>
               <Text
                 sx={{
@@ -288,10 +350,8 @@ const QrLandingPage = (props) => {
                   lineHeight: "1.5"
                 }}
               >
-                We are a community of BMW enthusiasts who host driving events,
-                social meetups, and technical sessions across the Pacific
-                Northwest. Here is a quick look at what is coming up and why
-                members love PSR.
+                {joinHero.subheading ||
+                  "We are a community of BMW enthusiasts who host driving events, social meetups, and technical sessions across the Pacific Northwest. Here is a quick look at what is coming up and why members love PSR."}
               </Text>
             </Box>
             <Box
@@ -353,7 +413,39 @@ const QrLandingPage = (props) => {
               <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
                 Event highlights for 2026
               </Heading>
+              <Link
+                to="/events"
+                sx={{
+                  display: "inline-block",
+                  px: "1.25rem",
+                  py: "0.55rem",
+                  borderRadius: "4px",
+                  backgroundColor: "primary",
+                  color: "white",
+                  textDecoration: "none",
+                  fontSize: "xs",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  "&:hover": {
+                    bg: "highlight",
+                    color: "white"
+                  }
+                }}
+              >
+                All Events
+              </Link>
             </Flex>
+            <Box
+              as="hr"
+              sx={{
+                border: "none",
+                borderTop: "2px solid",
+                borderColor: "text",
+                mt: "0.75rem",
+                mb: "1.25rem"
+              }}
+            />
             <Text sx={{ mt: "0.75rem", maxWidth: "42rem" }}>
               A persistent snapshot of event types you can expect throughout the
               year. Dates listed are representative for CY2026.
@@ -382,16 +474,13 @@ const QrLandingPage = (props) => {
                   as="h3"
                   sx={{ variant: "styles.h3", color: "text", mb: "0.5rem" }}
                 >
-                  High Performance Driving Events & Clinics
+                  {hpdeSection.heading ||
+                    "High Performance Driving Events & Clinics"}
                 </Heading>
-                <Text sx={{ mt: "0.75rem", fontWeight: "700" }}>
-                  Drive More. Learn More. Belong More.
-                </Text>
-                <Text sx={{ mt: "0.75rem", color: "darkgray" }}>
-                  Experience your BMW as it was engineered to be driven, with
-                  professional instruction and a supportive community. Every
-                  event builds skill, confidence, and control.
-                </Text>
+                {renderSubheading(
+                  hpdeSection?.subheading,
+                  defaultHpdeSubheading
+                )}
                 <ul
                   sx={{
                     listStyleType: "disc",
@@ -400,20 +489,54 @@ const QrLandingPage = (props) => {
                     mb: 0
                   }}
                 >
-                  {hpdeEvents.map((event) => (
-                    <li key={event.title} sx={{ mb: "1rem" }}>
+                  {hpdeItems.map((event) => (
+                    <li key={event._key || event.title} sx={{ mb: "1rem" }}>
                       <Text sx={{ fontWeight: "700", color: "text" }}>
                         {event.title}
                       </Text>
-                      <Text sx={{ display: "block", color: "darkgray", mt: "0.35rem" }}>
-                        {event.details}
-                      </Text>
+                      {event.details && (
+                        <Text
+                          sx={{
+                            display: "block",
+                            color: "darkgray",
+                            mt: "0.35rem"
+                          }}
+                        >
+                          {event.details}
+                        </Text>
+                      )}
                     </li>
                   ))}
                 </ul>
-                <Text sx={{ mt: "1rem", fontSize: "xxs", color: "darkgray" }}>
-                  * concurrent HPDE & Car Control Clinics
-                </Text>
+                {hpdeSubtext ? (
+                  <Text sx={{ mt: "1rem", fontSize: "xxs", color: "darkgray" }}>
+                    {hpdeSubtext}
+                  </Text>
+                ) : null}
+                <Link
+                  to="/events?category=Driver+Education&excludeBoard=1"
+                  sx={{
+                    display: "inline-block",
+                    mt: "1.25rem",
+                    px: "1.25rem",
+                    py: "0.5rem",
+                    borderRadius: "4px",
+                    border: "1px solid",
+                    borderColor: "primary",
+                    color: "primary",
+                    textDecoration: "none",
+                    fontSize: "xs",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    "&:hover": {
+                      bg: "primary",
+                      color: "white"
+                    }
+                  }}
+                >
+                  View All Driver Education Events
+                </Link>
               </Box>
 
               <Box
@@ -527,40 +650,73 @@ const QrLandingPage = (props) => {
                   as="h3"
                   sx={{ variant: "styles.h3", color: "text", mb: "0.5rem" }}
                 >
-                  Social Events & Tours
+                  {socialSection.heading || "Social Events & Tours"}
                 </Heading>
-                <Text sx={{ mt: "0.75rem", fontWeight: "700" }}>
-                  Not just cars — community.
-                </Text>
-                <Text sx={{ mt: "0.75rem", color: "darkgray" }}>
-                  From scenic drives to automotive gatherings, these events
-                  connect BMW owners who share a passion for driving,
-                  craftsmanship, and great company.
-                </Text>
+                {renderSubheading(
+                  socialSection?.subheading,
+                  defaultSocialSubheading
+                )}
                 <ul
                   sx={{
                     listStyleType: "disc",
                     pl: "1.5rem",
                     mt: "1.5rem",
                     mb: 0,
-                    columnCount: [1, 1, 2],
+                    columnCount: [1, 1, socialColumns],
                     columnGap: "1.5rem"
                   }}
                 >
-                  {socialEvents.map((event) => (
+                  {socialItems.map((event) => (
                     <li
-                      key={event.title}
+                      key={event._key || event.title}
                       sx={{ mb: "1rem", breakInside: "avoid" }}
                     >
                       <Text sx={{ fontWeight: "700", color: "text" }}>
                         {event.title}
                       </Text>
-                      <Text sx={{ display: "block", color: "darkgray", mt: "0.35rem" }}>
-                        {event.details}
-                      </Text>
+                      {event.details ? (
+                        <Text
+                          sx={{
+                            display: "block",
+                            color: "darkgray",
+                            mt: "0.35rem"
+                          }}
+                        >
+                          {event.details}
+                        </Text>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
+                {socialSection.subtext ? (
+                  <Text sx={{ mt: "1rem", fontSize: "xxs", color: "darkgray" }}>
+                    {socialSection.subtext}
+                  </Text>
+                ) : null}
+                <Link
+                  to="/events?category=Social+Events&excludeBoard=1"
+                  sx={{
+                    display: "inline-block",
+                    mt: "1.25rem",
+                    px: "1.25rem",
+                    py: "0.5rem",
+                    borderRadius: "4px",
+                    border: "1px solid",
+                    borderColor: "primary",
+                    color: "primary",
+                    textDecoration: "none",
+                    fontSize: "xs",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    "&:hover": {
+                      bg: "primary",
+                      color: "white"
+                    }
+                  }}
+                >
+                  View All Social Events
+                </Link>
               </Box>
 
               <Box
@@ -734,6 +890,16 @@ const QrLandingPage = (props) => {
             <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
               Member benefits
             </Heading>
+            <Box
+              as="hr"
+              sx={{
+                border: "none",
+                borderTop: "2px solid",
+                borderColor: "text",
+                mt: "0.75rem",
+                mb: "1.25rem"
+              }}
+            />
             <Text sx={{ mt: "0.75rem", maxWidth: "40rem", color: "darkgray" }}>
               Membership opens the door to local experiences, trusted knowledge,
               and a national community built around driving passion.
@@ -767,8 +933,8 @@ const QrLandingPage = (props) => {
                     mb: 0
                   }}
                 >
-                  {benefitsPrimary.map((benefit) => (
-                    <li key={benefit.title} sx={{ mb: "1rem" }}>
+                  {benefitsPrimaryList.map((benefit) => (
+                    <li key={benefit._key || benefit.title} sx={{ mb: "1rem" }}>
                       <Text
                         as="span"
                         sx={{
@@ -779,9 +945,11 @@ const QrLandingPage = (props) => {
                       >
                         {benefit.title}
                       </Text>
-                      <Text as="span" sx={{ color: "darkgray" }}>
-                        {` — ${benefit.description}`}
-                      </Text>
+                      {benefit.description ? (
+                        <Text as="span" sx={{ color: "darkgray" }}>
+                          {` — ${benefit.description}`}
+                        </Text>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -962,8 +1130,8 @@ const QrLandingPage = (props) => {
                     mb: 0
                   }}
                 >
-                  {benefitsSecondary.map((benefit) => (
-                    <li key={benefit.title} sx={{ mb: "1rem" }}>
+                  {benefitsSecondaryList.map((benefit) => (
+                    <li key={benefit._key || benefit.title} sx={{ mb: "1rem" }}>
                       <Text
                         as="span"
                         sx={{
@@ -974,9 +1142,11 @@ const QrLandingPage = (props) => {
                       >
                         {benefit.title}
                       </Text>
-                      <Text as="span" sx={{ color: "darkgray" }}>
-                        {` — ${benefit.description}`}
-                      </Text>
+                      {benefit.description ? (
+                        <Text as="span" sx={{ color: "darkgray" }}>
+                          {` — ${benefit.description}`}
+                        </Text>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -1026,6 +1196,41 @@ export const query = graphql`
       title
       navMenu {
         ...NavMenu
+      }
+    }
+    joinPage: sanityPage(_id: { regex: "/(drafts.|)join/" }) {
+      joinHero {
+        label
+        heading
+        subheading
+      }
+      joinHpdeSection {
+        heading
+        subheading
+        subtext
+        columns
+        items {
+          title
+          details
+        }
+      }
+      joinSocialSection {
+        heading
+        subheading
+        subtext
+        columns
+        items {
+          title
+          details
+        }
+      }
+      joinBenefitsPrimary {
+        title
+        description
+      }
+      joinBenefitsSecondary {
+        title
+        description
       }
     }
   }

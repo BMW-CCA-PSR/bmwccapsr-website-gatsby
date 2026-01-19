@@ -59,7 +59,8 @@ function Hero(props) {
             sx={{
               fontSize: ["50px", "xl"],
               color: `${fontColor}`,
-              lineHeight: ["40px", "60px"]
+              lineHeight: ["40px", "60px"],
+              textTransform: "none"
             }}
           >
             {props.heading}

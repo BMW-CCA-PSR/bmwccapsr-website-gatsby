@@ -8,7 +8,7 @@ export default {
       {
         name: 'label',
         type: 'string',
-        validation: Rule => Rule.max(16).error(`A label cannot exceed 16 characters.`)
+        validation: Rule => Rule.max(20).error(`A label cannot exceed 20 characters.`)
       },
       {
         name: 'heading',

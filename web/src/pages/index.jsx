@@ -180,6 +180,34 @@ export const query = graphql`
         }
       }
     }
+    featuredPost: allSanityPost(
+      limit: 1
+      sort: { fields: [publishedAt], order: DESC }
+      filter: {
+        featured: { eq: true }
+        slug: { current: { ne: null } }
+        isPublished: { eq: true }
+      }
+    ) {
+      edges {
+        node {
+          id
+          publishedAt
+          title
+          _rawExcerpt(resolveReferences: { maxDepth: 1 })
+          slug {
+            current
+          }
+          mainImage {
+            ...SanityImage
+            alt
+          }
+          category {
+            title
+          }
+        }
+      }
+    }
   }
 `;
 

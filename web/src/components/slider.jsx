@@ -20,12 +20,15 @@ SwiperCore.use([Autoplay,Pagination,Navigation]);
 function HeroSlider(props) {
 
     const baseSlides = Array.isArray(props.slides) ? props.slides : [];
+    const featuredSlides = Array.isArray(props.featuredSlides)
+      ? props.featuredSlides
+      : [];
     const adSlides = Array.isArray(props.edges)
       ? props.edges
           .map((slideAd) => slideAd?.node?._rawSlideAd)
           .filter(Boolean)
       : [];
-    const slides = [...baseSlides, ...adSlides];
+    const slides = [...baseSlides, ...featuredSlides, ...adSlides];
     const seenKeys = new Set();
     const uniqueSlides = slides.filter((slide, index) => {
         const key = slide?._key || slide?._id || slide?.heading || slide?.title || `slide-${index}`;

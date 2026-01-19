@@ -36,7 +36,7 @@ const PartnerCard = (props) => {
       color: "text",
       width: '100%',
       height: '100%',
-      borderRadius: "9px",
+      borderRadius: "18px",
       display: "flex",
       flexDirection: "column",
       borderStyle: "solid",
@@ -55,8 +55,8 @@ const PartnerCard = (props) => {
           maxHeight: '200px',
           minHeight: '200px',
           objectFit: 'contain',
-          borderTopRightRadius: "8px",
-          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "18px",
+          borderTopLeftRadius: "18px",
         }}
       />
     )}
@@ -76,7 +76,7 @@ const DiscountCard = (props) => {
       color: "text",
       width: '100%',
       height: '100%',
-      borderRadius: "9px",
+      borderRadius: "18px",
       display: "flex",
       flexDirection: "column",
       borderStyle: "solid",
@@ -98,8 +98,8 @@ const DiscountCard = (props) => {
             minHeight: '100px',
             maxWidth: '100px',
             objectFit: 'contain',
-            borderTopRightRadius: "8px",
-            borderTopLeftRadius: "8px",
+            borderTopRightRadius: "18px",
+            borderTopLeftRadius: "18px",
           }}
         />
       )}
@@ -193,7 +193,8 @@ function SponsorPageGrid(props) {
           "repeat(2, minmax(0, 1fr))"
         ],
         m: 0,
-        p: 0
+        p: 0,
+        mb: "5rem"
       }}>
         {partners &&
           partners

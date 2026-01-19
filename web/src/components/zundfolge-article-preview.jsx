@@ -3,28 +3,16 @@ import { format, parseISO, differenceInDays } from 'date-fns';
 import { Badge } from 'theme-ui';
 import { Link } from 'gatsby';
 import React, { useEffect, useState } from 'react';
-import { Card, Box, Text, Heading, Flex, Avatar } from 'theme-ui';
+import { Card, Box, Text, Heading, Flex } from 'theme-ui';
 import { getZundfolgeUrl } from '../lib/helpers';
 import SanityImage from 'gatsby-plugin-sanity-image';
-import { imageUrlFor } from "../lib/image-url";
 
 function ZundfolgeArticlePreview(props) {
 	const authorString = String(props.authors.map((author) => (` ${author.author.name}`)))
 	const cat = props.category ? props.category.title : 'null'
-	const avatarImg = props.authors[0].author && imageUrlFor(props.authors[0].author.image)
-		.width(48)
-		.height(48)
-		.fit("fill")
-		.auto("format")
-		.url()
-	const bg =
-			props.mainImage
-			? props.mainImage.asset.metadata.palette.dominant.background
-			: 'lightgrey';
-	const fg =
-		props.mainImage
-		? props.mainImage.asset.metadata.palette.dominant.foreground 
-		: 'black';
+	const publishedDate = props.publishedAt
+		? format(parseISO(props.publishedAt), 'MMM d, yyyy')
+		: '';
 	const [isNew, setIsNew] = useState(false);
 	useEffect(() => {
 		try {
@@ -41,11 +29,12 @@ function ZundfolgeArticlePreview(props) {
 			<Card
 				sx={{
 					textDecoration: 'none',
-					background: `linear-gradient(to top, transparent 50%, black 100%)`,
+					background:
+						"linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%)",
 					width: '100%',
 					height: '100%',
 					mx: 'auto',
-					borderRadius: '8px',
+					borderRadius: '18px',
 					borderStyle: "solid",
 					borderColor: "black",
 					borderWidth: "1px",
@@ -63,7 +52,7 @@ function ZundfolgeArticlePreview(props) {
 							width: '100%',
 							height: '100%',
 							objectFit: 'cover',
-							borderRadius: '8px',
+							borderRadius: '18px',
 							zIndex: '-1'
 						}}
 					/>
@@ -93,9 +82,16 @@ function ZundfolgeArticlePreview(props) {
 					</div>
 					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: "white" }}>{props.title}</Heading>
 					{/* <Text sx={{color: `${fg}`}}>{format(parseISO(props.publishedAt), 'MMMM do, yyyy')}</Text> */}
-					<Flex sx={{py:"0.5rem"}}>
-						<Avatar src={avatarImg} sx={{minWidth: "48px", maxHeight: "48px"}}/>
-						<Text sx={{variant: "stypes.p", py: "1rem", px: "0.5rem", color: "white"}}>{authorString}</Text>
+					<Flex sx={{ py: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+						<Text sx={{variant: "stypes.p", py: "0.35rem", color: "white"}}>
+							{authorString}
+							{publishedDate ? " |" : ""}
+						</Text>
+						{publishedDate && (
+							<Text sx={{variant: "stypes.p", py: "0.35rem", color: "white", ml: "0.35rem"}}>
+								{publishedDate}
+							</Text>
+						)}
 					</Flex>
 				</Box>
 			</Card>
