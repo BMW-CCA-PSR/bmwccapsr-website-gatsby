@@ -100,7 +100,7 @@ const UpcomingEvents = (props) => {
         </ul>
         <Box sx={{ mt: "1.5rem", mb: "2rem", textAlign: "center" }}>
           <Link to="/events" sx={{ ...outline, bg: "background" }}>
-            All Events
+            More Events
           </Link>
         </Box>
       </Box>

@@ -8,9 +8,8 @@ import {
 } from "../lib/helpers";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
 import { Heading, Text, Card, Box, Button } from "@theme-ui/components";
-import { FiArchive } from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import ZundfolgeArticlePreview from "../components/zundfolge-article-preview";
 import ContentContainer from "../components/content-container";
@@ -141,7 +140,7 @@ export const query = graphql`
 
 const IndexPage = props => {
   const { data, errors, pageContext } = props;
-  const { numPages, limit, skip, currentPage } = pageContext
+  const { numPages, currentPage } = pageContext
   const isFirst = currentPage === 1
   const isLast = currentPage === numPages
   const prevPage = currentPage - 1 === 1 ? "/zundfolge" : `/zundfolge/page/${(currentPage - 1).toString()}`
@@ -181,7 +180,7 @@ const IndexPage = props => {
   }
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
-      <SEO
+      <Seo
         title={site.title || "Missing title"}
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
@@ -214,7 +213,7 @@ const IndexPage = props => {
             </div>
           </div>
           <div sx={{ display: ["none", "none", "block"], minHeight: 220 }}>
-            <Link to="/archive/" sx={{ textDecoration: 'none' }} aria-label="Open the Zündfolge archive">
+            <Link to="/zundfolge/archive/" sx={{ textDecoration: 'none' }} aria-label="Open the Zündfolge archive">
               <Card
                 sx={{
                   backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%), url(${withPrefix('/images/zundfolge-archive-collage.png')})`,

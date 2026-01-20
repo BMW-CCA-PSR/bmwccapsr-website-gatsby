@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import { Link } from "gatsby";
 import React from "react";
-import { Box, Container, Flex } from "@theme-ui/components";
+import { Box, Container } from "@theme-ui/components";
 import { StaticImage } from "gatsby-plugin-image";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
 
@@ -58,9 +58,6 @@ const Footer = ({ siteTitle }) => (
         </Link>
         <Link to="/partners" sx={{ textDecoration: "none", color: "gray" }}>
           Partners
-        </Link>
-        <Link to="/volunteer" sx={{ textDecoration: "none", color: "gray" }}>
-          Volunteer
         </Link>
         <OutboundLink
           href="http://bmw-cca-puget-sound-chapter.square.site/"

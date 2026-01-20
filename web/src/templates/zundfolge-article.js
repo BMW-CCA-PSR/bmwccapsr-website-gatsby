@@ -2,7 +2,7 @@ import React from "react";
 import { graphql } from "gatsby";
 import GraphQLErrorList from "../components/graphql-error-list";
 import ZundfolgeArticle from "../components/zundfolge-article";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
 import { toPlainText } from "../lib/helpers";
@@ -227,13 +227,13 @@ const ZundfolgePostTemplate = props => {
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems} >
-      {errors && <SEO title="GraphQL Error" />}
+      {errors && <Seo title="GraphQL Error" />}
       {post && (
-        <SEO
-          title={post.title || "Untitled"}
-          description={toPlainText(post._rawExcerpt)}
-          image={post.mainImage}
-        />
+      <Seo
+        title={post.title || "Untitled"}
+        description={toPlainText(post._rawExcerpt)}
+        image={post.mainImage}
+      />
       )}
 
       {errors && (

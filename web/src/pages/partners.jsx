@@ -4,7 +4,6 @@ import { graphql } from "gatsby";
 import SponsorPageGrid from "../components/sponsor-page-grid";
 import { Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
 import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
@@ -82,7 +81,7 @@ const IndexPage = props => {
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
         <Heading as="h1" sx={{ variant: "styles.h1", pb: "1rem" }}>
-          Our Partners
+          Partners
           <BoxIcon
             as="span"
             sx={{

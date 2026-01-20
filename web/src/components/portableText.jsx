@@ -9,7 +9,6 @@ import { Box } from "@theme-ui/components";
 function PortableText(props){
   const blocks = props.body
   const color = props.color
-  const boxed = props.boxed
   const boxedSx = props.boxedSx
   const dropCapKey = props.enableDropCap ? (() => {
     if (!Array.isArray(blocks)) return null;

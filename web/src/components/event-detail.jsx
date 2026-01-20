@@ -1,8 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { format, formatDistance, differenceInHours } from "date-fns";
-import { Container, Heading, Text, Flex, Box, Divider, Link } from "@theme-ui/components";
-import EventMap from "./event-map";
+import { format, differenceInHours } from "date-fns";
+import { Heading, Text, Flex, Box } from "@theme-ui/components";
 
 function EventDetails(props) {
     const { startTime, endTime } = props;
@@ -43,7 +42,7 @@ function EventDetails(props) {
                     <Heading variant="styles.h4">Length</Heading>
                     <Text variant="styles.p">{numHours} hours</Text>
                     <Heading variant="styles.h4">Cost</Heading>
-                    <Text variant="styles.p">{!props.cost || props.cost == 0 ? "Free" : `$${props.cost}`}</Text>
+                    <Text variant="styles.p">{!props.cost || props.cost === 0 ? "Free" : `$${props.cost}`}</Text>
                     {props.poc && <Heading variant="styles.h4">Point of Contact</Heading>}
                     {props.poc ? props.poc.name && <Text variant="styles.p">{props.poc.name}</Text> : null}
                     {props.poc ? props.poc.contact && <Text variant="styles.p">{props.poc.contact}</Text> : null}

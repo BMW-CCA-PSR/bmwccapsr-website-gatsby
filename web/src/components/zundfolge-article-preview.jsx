@@ -3,12 +3,11 @@ import { format, parseISO, differenceInDays } from 'date-fns';
 import { Badge } from 'theme-ui';
 import { Link } from 'gatsby';
 import React, { useEffect, useState } from 'react';
-import { Card, Box, Text, Heading, Flex } from 'theme-ui';
+import { Card, Box, Text, Heading } from 'theme-ui';
 import { getZundfolgeUrl } from '../lib/helpers';
 import SanityImage from 'gatsby-plugin-sanity-image';
 
 function ZundfolgeArticlePreview(props) {
-	const authorString = String(props.authors.map((author) => (` ${author.author.name}`)))
 	const cat = props.category ? props.category.title : 'null'
 	const publishedDate = props.publishedAt
 		? format(parseISO(props.publishedAt), 'MMM d, yyyy')
@@ -30,7 +29,7 @@ function ZundfolgeArticlePreview(props) {
 				sx={{
 					textDecoration: 'none',
 					background:
-						"linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0) 100%)",
+						"linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0) 100%)",
 					width: '100%',
 					height: '100%',
 					mx: 'auto',
@@ -82,17 +81,11 @@ function ZundfolgeArticlePreview(props) {
 					</div>
 					<Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: "white" }}>{props.title}</Heading>
 					{/* <Text sx={{color: `${fg}`}}>{format(parseISO(props.publishedAt), 'MMMM do, yyyy')}</Text> */}
-					<Flex sx={{ py: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+					{publishedDate && (
 						<Text sx={{variant: "stypes.p", py: "0.35rem", color: "white"}}>
-							{authorString}
-							{publishedDate ? " |" : ""}
+							{publishedDate}
 						</Text>
-						{publishedDate && (
-							<Text sx={{variant: "stypes.p", py: "0.35rem", color: "white", ml: "0.35rem"}}>
-								{publishedDate}
-							</Text>
-						)}
-					</Flex>
+					)}
 				</Box>
 			</Card>
 		</Link>

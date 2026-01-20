@@ -1,12 +1,12 @@
 /** @jsxImportSource theme-ui */
-import { Link } from "gatsby";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
-import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
+import { Card, Box, Text, Heading, Flex } from "theme-ui"
+import { BoxIcon } from "./box-icons";
 import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const PartnerCard = (props) => {
-  const tier = props.tier == null ? "" : props.tier.title;
+  const tier = props.tier === null ? "" : props.tier.title;
   const tierStyles = {
     platinum: {
       borderColor: "#e5e4e2",
@@ -68,7 +68,6 @@ const PartnerCard = (props) => {
 )}
 
 const DiscountCard = (props) => {
-  const tier = props.tier == null ? "" : props.tier.title;
   return (
     <Card
     sx={{
@@ -130,7 +129,7 @@ function SponsorPageGrid(props) {
       }}>
         {advertisers &&
           advertisers
-            .filter(ad => ad.node.tier.title == 'Platinum')
+            .filter(ad => ad.node.tier.title === 'Platinum')
             .map(ad => (
               <OutboundLink
                 target="_blank"
@@ -153,7 +152,7 @@ function SponsorPageGrid(props) {
       }}>
         {advertisers &&
           advertisers
-            .filter(ad => ad.node.tier.title != 'Platinum')
+            .filter(ad => ad.node.tier.title !== 'Platinum')
             .map(ad => (
               <OutboundLink
                 target="_blank"
@@ -165,21 +164,29 @@ function SponsorPageGrid(props) {
               </OutboundLink>
             ))}
       </ul>
-      {partners.length != 0 ? (
+      {partners.length !== 0 ? (
         <>
-          <Heading
-            sx={{
-              variant: "styles.h3",
-              borderBottomStyle: "solid",
-              pt: "1rem",
-              pb: "3px",
-              borderBottomWidth: "3px",
-              my: "0.5rem"
-            }}
-          ></Heading>
           <Heading sx={{ variant: "styles.h2", mt: "1rem", mb: "1rem" }}>
             Partner Discounts
+            <BoxIcon
+              as="span"
+              sx={{
+                display: "inline-grid",
+                ml: "0.5rem",
+                verticalAlign: "middle"
+              }}
+            />
           </Heading>
+          <Box
+            as="hr"
+            sx={{
+              border: "none",
+              borderTop: "3px solid",
+              borderColor: "text",
+              mt: "0.75rem",
+              mb: "1.5rem"
+            }}
+          />
         </>
       ) : null}
       <ul sx={{

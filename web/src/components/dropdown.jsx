@@ -42,7 +42,7 @@ const Dropdown = props => {
                 position: "relative",
                 height: "100%",
                 textAlign: "center",
-                ":hover > a, :focus-within > a": {
+                ":hover > button, :focus-within > button": {
                     backgroundColor: "primary",
                     color: "background"
                 },
@@ -53,7 +53,8 @@ const Dropdown = props => {
                     },
                 }}
             >
-                <a
+                <button
+                    type="button"
                     sx={{
                         textDecoration: "none",
                         px: "2rem",
@@ -65,12 +66,15 @@ const Dropdown = props => {
                     justifyContent: "center",
                     width: "100%",
                     color: isChildActive ? "background" : "darkgray",
+                    background: "none",
+                    border: "none",
+                    font: "inherit",
                     ...activeLinkStyles
                 }}
                 aria-haspopup={link.items && link.items.length > 0 ? true : false}
             >
                     {props.title}
-                </a>
+                </button>
                 {link.items && link.items.length > 0 ? (
                     <ul
                         sx={{

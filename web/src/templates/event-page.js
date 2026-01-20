@@ -1,7 +1,7 @@
 import React from "react";
 import { graphql } from "gatsby";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import EventPage from "../components/event-page";
 import ContentContainer from "../components/content-container";
@@ -126,9 +126,9 @@ const EventPageTemplate = props => {
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems}>
-      {errors && <SEO title="GraphQL Error" />}
+      {errors && <Seo title="GraphQL Error" />}
       {event && (
-        <SEO
+        <Seo
           title={event.title || "Untitled"}
           description={toPlainText(event._rawExcerpt)}
           image={event.mainImage}

@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { Container, Text, Flex, Box, Button} from '@theme-ui/components';
+import { Container, Text, Flex } from '@theme-ui/components';
 import { getEventsUrl } from "../lib/helpers";
 import React, { Fragment, useState, useEffect } from 'react';
 import { Link } from "gatsby";

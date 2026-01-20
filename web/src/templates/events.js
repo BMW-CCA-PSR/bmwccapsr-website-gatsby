@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import React, { useEffect, useMemo, useState } from "react";
-import { graphql, Link } from "gatsby";
+import { graphql } from "gatsby";
 import {
   mapEdgesToNodes,
   filterOutDocsWithoutSlugs,
@@ -8,7 +8,7 @@ import {
 } from "../lib/helpers";
 import { Box, Button, Heading, Text } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import EventPagePreview from "../components/event-page-preview";
 import ContentContainer from "../components/content-container";
@@ -310,7 +310,7 @@ const IndexPage = props => {
   }
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
-      <SEO
+      <Seo
         title={site.title || "Missing title"}
         description="BMW CCA PSR Upcoming Events"
         keywords={site.keywords || []}

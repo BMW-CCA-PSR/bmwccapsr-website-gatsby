@@ -54,15 +54,15 @@ function HeroSlider(props) {
                 navigation={false} 
             >
             {uniqueSlides.map((i, index) => {
-                if (i._type == "hero") {
+                if (i._type === "hero") {
                     return (
                         <SwiperSlide key={i._key || i._id || `slide-${index}`}>
                             <Hero {...i} isHomepage={props.isHomepage} />
                         </SwiperSlide>
-                        )
-                    }
-                })
-            }
+                    );
+                }
+                return null;
+            })}
             </Swiper>
         </div>
     );

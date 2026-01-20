@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { graphql } from "gatsby";
 import Errors from "../components/errors";
 import Page from "../templates/page";
@@ -172,7 +172,7 @@ export const query = graphql`
       }
     }
     slideAds: allSanityAdvertiser(
-      filter: {slideAd: {_type: {ne: null}, disabled: {ne: true}}, tier: {title: {eq: "Platinum"}}}
+      filter: {slideAd: {_type: {ne: null}}, tier: {title: {eq: "Platinum"}}}
     ) {
       edges {
         node {

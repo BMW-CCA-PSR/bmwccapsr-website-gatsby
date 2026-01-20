@@ -1,7 +1,6 @@
 /** @jsxImportSource theme-ui */
-import React, { useState } from "react";
+import React from "react";
 import { graphql } from "gatsby";
-import { Flex } from '@theme-ui/components';
 
 import Hero from "../components/hero";
 import Cta from "../components/cta";
@@ -133,11 +132,11 @@ function Page(props) {
             el = <BoxHeader key={c._key} title={c.title} />;
             break;
           case "advertisement":
-            const adType = c.type ? c.type == "banner" ? banners : boxes : null
+            const adType = c.type ? c.type === "banner" ? banners : boxes : null
             if(adType && adType.edges){
               const randomAdPosition = randomGenerator(0, adType.edges.length - 1)
               const randomizedAd = adType.edges.length > 0 ? adType.edges[randomAdPosition].node : null
-              el = c.type == "banner" && randomizedAd ? <BannerAd {...randomizedAd} /> : <BoxAd {...randomizedAd} />
+              el = c.type === "banner" && randomizedAd ? <BannerAd {...randomizedAd} /> : <BoxAd {...randomizedAd} />
             }
             break;
           case "pageContent":

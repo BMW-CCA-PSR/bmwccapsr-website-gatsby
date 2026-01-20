@@ -4,7 +4,6 @@ import { graphql, Link } from "gatsby";
 import {
   Box,
   Flex,
-  Grid,
   Heading,
   Text,
   Button
@@ -70,34 +69,6 @@ const primaryButton = {
   }
 };
 
-const outlineButton = {
-  textTransform: "uppercase",
-  textDecoration: "none",
-  fontSize: 14,
-  border: "1px solid",
-  borderColor: "primary",
-  color: "primary",
-  py: "8px",
-  px: "18px",
-  borderRadius: "4px",
-  letterSpacing: "0.08em",
-  transition: "background-color 0.3s ease-out, color 0.3s ease-out",
-  "&:hover": {
-    color: "white",
-    bg: "primary"
-  }
-};
-
-const calendarButton = {
-  ...outlineButton,
-  color: "secondary",
-  borderColor: "secondary",
-  bg: "white",
-  "&:hover": {
-    color: "white",
-    bg: "secondary"
-  }
-};
 
 const QrLandingPage = (props) => {
   const { data, errors, location } = props;
@@ -256,13 +227,13 @@ const QrLandingPage = (props) => {
                 bottom: ["auto", "auto", 0],
                 width: ["100%", "100%", "44%"],
                 height: ["200px", "240px", "100%"],
-                mt: ["1.5rem", "1.5rem", 0],
+                mt: ["1rem", "1rem", 0],
                 clipPath: [
                   "none",
                   "none",
                   `polygon(${heroSlant} 0, 100% 0, 100% 100%, 0 100%)`
                 ],
-                borderTopRightRadius: "18px",
+                borderTopRightRadius: ["0", "0", "18px"],
                 borderBottomRightRadius: "18px",
                 overflow: "hidden"
               }}
@@ -440,7 +411,7 @@ const QrLandingPage = (props) => {
                     "none",
                     "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
                   ],
-                  borderTopRightRadius: "18px",
+                  borderTopRightRadius: ["0", "0", "18px"],
                   borderBottomRightRadius: "18px",
                   overflow: "hidden"
                 }}
@@ -617,7 +588,7 @@ const QrLandingPage = (props) => {
                     "none",
                     "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
                   ],
-                  borderTopRightRadius: "18px",
+                  borderTopRightRadius: ["0", "0", "18px"],
                   borderBottomRightRadius: "18px",
                   overflow: "hidden",
                   display: "flex",

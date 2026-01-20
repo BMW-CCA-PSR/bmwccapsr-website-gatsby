@@ -3,16 +3,14 @@ import React from "react";
 import { format, parseISO } from "date-fns";
 import { getEventsUrl, getZundfolgeUrl } from "../lib/helpers";
 import { Link } from "gatsby";
-import { Heading, Text, Box, Card, Avatar, Flex } from "@theme-ui/components";
+import { Heading, Text, Box, Card, Flex } from "@theme-ui/components";
 import SanityImage from 'gatsby-plugin-sanity-image';
 
 
 function RelatedContent(props) {
-    const { title, mainImage, slug, publishedAt, authors, category, startTime, address, venueName, onlineEvent } = props;
+    const { title, mainImage, slug, publishedAt, category, startTime, address, venueName, onlineEvent } = props;
     const isArticle = publishedAt ? true : false;
-    var avatarImg = null
     const cat = category.title
-    var authorString = null
     var cityState = null
     const locationText = [venueName, address?.line1, address?.line2, address?.city, address?.state]
         .filter(Boolean)
@@ -21,15 +19,7 @@ function RelatedContent(props) {
     const hasOnlineKeyword = /(zoom|online|remote)/i.test(locationText);
     const isOnline = Boolean(onlineEvent) || hasOnlineKeyword;
     if (isArticle){
-        authorString = String(authors.map((author) => ` ${author.author.name}`));
-        // commenting out author avatar on related content for now - 1/24/22
-        //
-        // avatarImg = authors[0].author.image && imageUrlFor(authors[0].author.image)
-        //     .width(48)
-        //     .height(48)
-        //     .fit("fill")
-        //     .auto("format")
-        //     .url()
+        // commenting out author data on related content for now - 1/24/22
     } else {
         cityState = address && address.city && address.state ? `${address.city}, ${address.state}` : "TBD"
     }

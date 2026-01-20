@@ -8,7 +8,6 @@ import PortableText from "./portableText";
 import { getZundfolgeUrl } from "../lib/helpers";
 import { differenceInDays, parseISO } from "date-fns";
 
-const zundfolgeRed = "#B5322E";
 const slantInset = "12%";
 const slantClip = `polygon(0 0, 100% 0, calc(100% - ${slantInset}) 100%, 0 100%)`;
 
