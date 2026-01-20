@@ -39,8 +39,8 @@ const SlantedStoryImg = ({ image, slant = "left", flex }) => (
 			alignSelf: "stretch",
 			flex: flex || ["0 0 auto", "0 0 auto", "1 1 42%"],
 			borderRadius: [
-				"18px",
-				"18px",
+				"0 0 18px 18px",
+				"0 0 18px 18px",
 				slant === "left" ? "0 18px 18px 0" : "18px 0 0 18px"
 			],
 			overflow: "hidden",
@@ -258,6 +258,7 @@ function ZundfolgeLatest(props) {
 		<Container
 			sx={{
 				py: '1.5rem',
+				px: ['16px', '20px', '24px']
 			}}
 		>
 			<Box sx={{ maxWidth: "1000px", mx: "auto", mb: "1.5rem" }}>

@@ -48,6 +48,8 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         joinSocialSection: { type: "SanityJoinEventSection" },
         joinBenefitsPrimary: { type: "[SanityJoinBenefitItem]" },
         joinBenefitsSecondary: { type: "[SanityJoinBenefitItem]" },
+        joinEventHighlightsIntro: { type: "String" },
+        joinBenefitsIntro: { type: "String" },
       },
     }),
     schema.buildObjectType({

@@ -46,7 +46,7 @@ const UpcomingEvents = (props) => {
   }
 
   return (
-    <Container sx={{ py: "1.5rem", bg: "lightgray" }}>
+    <Container sx={{ py: "1.5rem", px: ["16px", "20px", "24px"], bg: "lightgray" }}>
       <Box sx={{ maxWidth: "1000px", mx: "auto", mb: "1.5rem" }}>
         <Heading
           as="h2"

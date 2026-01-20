@@ -34,25 +34,39 @@ export default {
     {
       name: 'joinHero',
       type: 'joinHero',
-      title: 'Join Page Hero',
+      title: 'Hero',
       hidden: ({ document }) => !isJoinPage(document)
     },
     {
       name: 'joinHpdeSection',
       type: 'joinEventSection',
-      title: 'Join Page Driver Education Section',
+      title: 'Driver Education Section',
+      hidden: ({ document }) => !isJoinPage(document)
+    },
+    {
+      name: 'joinEventHighlightsIntro',
+      type: 'text',
+      title: 'Event Highlights Intro',
+      rows: 3,
       hidden: ({ document }) => !isJoinPage(document)
     },
     {
       name: 'joinSocialSection',
       type: 'joinEventSection',
-      title: 'Join Page Social Section',
+      title: 'Social Section',
+      hidden: ({ document }) => !isJoinPage(document)
+    },
+    {
+      name: 'joinBenefitsIntro',
+      type: 'text',
+      title: 'Benefits Intro',
+      rows: 3,
       hidden: ({ document }) => !isJoinPage(document)
     },
     {
       name: 'joinBenefitsPrimary',
       type: 'array',
-      title: 'Join Page Benefits (Group 1)',
+      title: 'Benefits (Group 1)',
       description: 'Up to 5 items.',
       of: [{ type: 'joinBenefitItem' }],
       validation: (Rule) => Rule.max(5),
@@ -61,7 +75,7 @@ export default {
     {
       name: 'joinBenefitsSecondary',
       type: 'array',
-      title: 'Join Page Benefits (Group 2)',
+      title: 'Benefits (Group 2)',
       description: 'Up to 5 items.',
       of: [{ type: 'joinBenefitItem' }],
       validation: (Rule) => Rule.max(5),

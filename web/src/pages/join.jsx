@@ -99,134 +99,23 @@ const calendarButton = {
   }
 };
 
-const benefits = [
-  {
-    title: "Driving events, tours, and meetups",
-    description: "From scenic drives to track days and tech sessions."
-  },
-  {
-    title: "Meet other BMW owners",
-    description: "Talk cars, learn more about your Bimmer, and build community."
-  },
-  {
-    title: "Parts, service, and insurance discounts",
-    description: "Savings from participating dealers and vendors."
-  },
-  {
-    title: "Award-winning BMW magazines",
-    description: "Roundel and BimmerLife included with membership."
-  },
-  {
-    title: "15% off BMW Performance Center programs",
-    description: "Includes M Schools and driver programs."
-  },
-  {
-    title: "Rebates up to $1,000 new / $500 CPO",
-    description:
-      "Eligible after one year or 6 months with a 3-year membership."
-  },
-  {
-    title: "500+ member-only events each year",
-    description: "National calendar plus your local chapter."
-  },
-  {
-    title: "Local BMW CCA chapter membership",
-    description: "Access to your regional community and programs."
-  }
-];
-
-const benefitsPrimary = benefits.slice(0, 4);
-const benefitsSecondary = benefits.slice(4);
-
-const hpdeEvents = [
-  {
-    title: "Ridge Motorsports Park — Shelton",
-    details: "Jul 16"
-  },
-  {
-    title: "Pacific Raceways — Kent",
-    details: "Mar 8*, Apr 16*, May 21, Jun 24, Aug 21, Sep 24*"
-  }
-];
-
-const socialEvents = [
-  {
-    title: "Burgers & BMWs",
-    details: "May 9 — Woodinville"
-  },
-  {
-    title: "BMW Seattle M-Car Day",
-    details: "Jun 28 — Seattle"
-  },
-  {
-    title: "Deutsche Marque at LeMay’s",
-    details: "Jul 18 — Tacoma"
-  },
-  {
-    title: "Griot’s M-Car Day",
-    details: "Aug 22 — Tacoma"
-  },
-  {
-    title: "Leavenworth Wine Tour",
-    details: "Sep 12 — Plain"
-  },
-  {
-    title: "Chelan Wine Tour",
-    details: "Oct 13-14 — Chelan"
-  }
-];
-
 const QrLandingPage = (props) => {
   const { data, errors, location } = props;
+  const eventYear = new Date().getFullYear();
   const joinPage = data?.joinPage;
   const joinHero = joinPage?.joinHero || {};
   const hpdeSection = joinPage?.joinHpdeSection || {};
   const socialSection = joinPage?.joinSocialSection || {};
-  const defaultHpdeSubheading =
-    "Drive More. Learn More. Belong More.\nExperience your BMW as it was engineered to be driven, with professional instruction and a supportive community. Every event builds skill, confidence, and control.";
-  const defaultSocialSubheading =
-    "Not just cars — community.\nFrom scenic drives to automotive gatherings, these events connect BMW owners who share a passion for driving, craftsmanship, and great company.";
-  const hpdeItems =
-    hpdeSection?.items && hpdeSection.items.length > 0
-      ? hpdeSection.items
-      : hpdeEvents;
-  const socialItems =
-    socialSection?.items && socialSection.items.length > 0
-      ? socialSection.items
-      : socialEvents;
-  const hpdeSubtext =
-    hpdeSection?.subtext !== undefined
-      ? hpdeSection.subtext
-      : "* concurrent HPDE & Car Control Clinics";
+  const highlightsIntro = joinPage?.joinEventHighlightsIntro;
+  const benefitsIntro = joinPage?.joinBenefitsIntro;
+  const hpdeItems = hpdeSection?.items || [];
+  const socialItems = socialSection?.items || [];
+  const hpdeSubtext = hpdeSection?.subtext;
   const socialColumns = socialSection?.columns || 2;
-  const benefitsPrimaryList =
-    joinPage?.joinBenefitsPrimary && joinPage.joinBenefitsPrimary.length > 0
-      ? joinPage.joinBenefitsPrimary
-      : benefitsPrimary;
-  const benefitsSecondaryList =
-    joinPage?.joinBenefitsSecondary && joinPage.joinBenefitsSecondary.length > 0
-      ? joinPage.joinBenefitsSecondary
-      : benefitsSecondary;
+  const benefitsPrimaryList = joinPage?.joinBenefitsPrimary || [];
+  const benefitsSecondaryList = joinPage?.joinBenefitsSecondary || [];
 
-  const renderSubheadingText = (value) => {
-    const parts = value
-      .split("\n")
-      .map((part) => part.trim())
-      .filter(Boolean);
-    if (parts.length <= 1) {
-      return <Text sx={{ mt: "0.75rem", color: "darkgray" }}>{value}</Text>;
-    }
-    return (
-      <>
-        <Text sx={{ mt: "0.75rem", fontWeight: "700" }}>{parts[0]}</Text>
-        <Text sx={{ mt: "0.75rem", color: "darkgray" }}>
-          {parts.slice(1).join(" ")}
-        </Text>
-      </>
-    );
-  };
-
-  const renderSubheading = (blocks, fallback) => {
+  const renderSubheading = (blocks) => {
     if (Array.isArray(blocks) && blocks.length > 0) {
       return (
         <PortableText
@@ -237,7 +126,7 @@ const QrLandingPage = (props) => {
         />
       );
     }
-    return renderSubheadingText(fallback);
+    return null;
   };
 
   const [joinHref, setJoinHref] = useState(baseJoinUrl);
@@ -322,37 +211,42 @@ const QrLandingPage = (props) => {
                 pr: ["1.5rem", "2rem", "2.5rem"]
               }}
             >
-              <Text
-                sx={{
-                  variant: "text.label",
-                  color: "white",
-                  letterSpacing: "wide"
-                }}
-              >
-                {joinHero.label || "BMW CCA Puget Sound Region"}
-              </Text>
-              <Heading
-                as="h1"
-                sx={{
-                  variant: "styles.h1",
-                  color: "white",
-                  mt: "0.75rem",
-                  maxWidth: "40rem"
-                }}
-              >
-                {joinHero.heading || "Thanks for scanning. Welcome to the Club."}
-              </Heading>
-              <Text
-                sx={{
-                  fontSize: ["18px", "20px", "24px"],
-                  maxWidth: "36rem",
-                  mt: "1rem",
-                  lineHeight: "1.5"
-                }}
-              >
-                {joinHero.subheading ||
-                  "We are a community of BMW enthusiasts who host driving events, social meetups, and technical sessions across the Pacific Northwest. Here is a quick look at what is coming up and why members love PSR."}
-              </Text>
+              {joinHero.label ? (
+                <Text
+                  sx={{
+                    variant: "text.label",
+                    color: "white",
+                    letterSpacing: "wide"
+                  }}
+                >
+                  {joinHero.label}
+                </Text>
+              ) : null}
+              {joinHero.heading ? (
+                <Heading
+                  as="h1"
+                  sx={{
+                    variant: "styles.h1",
+                    color: "white",
+                    mt: "0.75rem",
+                    maxWidth: "40rem"
+                  }}
+                >
+                  {joinHero.heading}
+                </Heading>
+              ) : null}
+              {joinHero.subheading ? (
+                <Text
+                  sx={{
+                    fontSize: ["18px", "20px", "24px"],
+                    maxWidth: "36rem",
+                    mt: "1rem",
+                    lineHeight: "1.5"
+                  }}
+                >
+                  {joinHero.subheading}
+                </Text>
+              ) : null}
             </Box>
             <Box
               sx={{
@@ -411,7 +305,7 @@ const QrLandingPage = (props) => {
               }}
             >
               <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
-                Event highlights for 2026
+                Event highlights for {eventYear}
               </Heading>
               <Link
                 to="/events"
@@ -446,10 +340,11 @@ const QrLandingPage = (props) => {
                 mb: "1.25rem"
               }}
             />
-            <Text sx={{ mt: "0.75rem", maxWidth: "42rem" }}>
-              A persistent snapshot of event types you can expect throughout the
-              year. Dates listed are representative for CY2026.
-            </Text>
+            {highlightsIntro ? (
+              <Text sx={{ mt: "0.75rem", maxWidth: "42rem" }}>
+                {highlightsIntro}
+              </Text>
+            ) : null}
 
             <Box
               sx={{
@@ -474,13 +369,9 @@ const QrLandingPage = (props) => {
                   as="h3"
                   sx={{ variant: "styles.h3", color: "text", mb: "0.5rem" }}
                 >
-                  {hpdeSection.heading ||
-                    "High Performance Driving Events & Clinics"}
+                  {hpdeSection.heading}
                 </Heading>
-                {renderSubheading(
-                  hpdeSection?.subheading,
-                  defaultHpdeSubheading
-                )}
+                {renderSubheading(hpdeSection?.subheading)}
                 <ul
                   sx={{
                     listStyleType: "disc",
@@ -650,12 +541,9 @@ const QrLandingPage = (props) => {
                   as="h3"
                   sx={{ variant: "styles.h3", color: "text", mb: "0.5rem" }}
                 >
-                  {socialSection.heading || "Social Events & Tours"}
+                  {socialSection.heading}
                 </Heading>
-                {renderSubheading(
-                  socialSection?.subheading,
-                  defaultSocialSubheading
-                )}
+                {renderSubheading(socialSection?.subheading)}
                 <ul
                   sx={{
                     listStyleType: "disc",
@@ -900,10 +788,11 @@ const QrLandingPage = (props) => {
                 mb: "1.25rem"
               }}
             />
-            <Text sx={{ mt: "0.75rem", maxWidth: "40rem", color: "darkgray" }}>
-              Membership opens the door to local experiences, trusted knowledge,
-              and a national community built around driving passion.
-            </Text>
+            {benefitsIntro ? (
+              <Text sx={{ mt: "0.75rem", maxWidth: "40rem", color: "darkgray" }}>
+                {benefitsIntro}
+              </Text>
+            ) : null}
             <Box
               sx={{
                 mt: "1.5rem",
@@ -1204,6 +1093,7 @@ export const query = graphql`
         heading
         subheading
       }
+      joinEventHighlightsIntro
       joinHpdeSection {
         heading
         subheading
@@ -1232,6 +1122,7 @@ export const query = graphql`
         title
         description
       }
+      joinBenefitsIntro
     }
   }
 `;

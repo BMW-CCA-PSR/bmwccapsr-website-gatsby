@@ -7,7 +7,7 @@ import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const HomepageSponsors = (props) => {
     return (
-        <div sx={{ py: '1.5rem', width: '100%' }}> {/* Ensure full width */}
+        <div sx={{ py: '1.5rem', px: ['16px', '20px', '24px'], width: '100%' }}> {/* Ensure full width */}
             <Box sx={{ maxWidth: "1000px", mx: "auto", mb: "1.5rem" }}>
                 <Heading
                     as="h2"
