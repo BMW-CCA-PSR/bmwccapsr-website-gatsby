@@ -56,7 +56,7 @@ function EventDetails(props) {
                     {isOnline ? (
                         <>
                             <Heading variant="styles.h3" sx={{ pb: 3 }}>Online Event</Heading>
-                            <Text variant="styles.p">
+                            <Text variant="styles.p" sx={{ textAlign: "left" }}>
                                 This event is held online. Please reach out to the event organizer for joining information.
                             </Text>
                             {props.onlineLink && <Heading variant="styles.h4">Link</Heading>}
