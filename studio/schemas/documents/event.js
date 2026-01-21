@@ -44,12 +44,25 @@ export default {
             validation: Rule => Rule.error('End time must be later than start time.').required().min(Rule.valueOfField('startTime'))
         },
         {
+            name: 'onlineEvent',
+            type: 'boolean',
+            title: 'Online meeting/event',
+            description: 'Check for Zoom, remote, or online-only events.',
+            initialValue: false
+        },
+        {
+            name: 'onlineLink',
+            type: 'url',
+            title: 'Online link',
+            description: 'Meeting link (Zoom, Teams, etc.).',
+            hidden: ({ document }) => !document?.onlineEvent,
+        },
+        {
             name: 'slug',
             type: 'slug',
             title: 'Slug',
             description: 'The unique address that the event will live at. (e.g. "/events/<year>/<month>/your-event")',
             options: {
-                source: 'title',
                 maxLength: 96,
                 slugify: input => input
                 .toLowerCase()
@@ -82,14 +95,21 @@ export default {
             title: 'Name',
             fieldset: 'venue',
             description: 'The name of the venue.',
+            hidden: ({ document }) => !!document?.onlineEvent
         },
         {
             name: 'address',
             type: 'address',
-            validation: Rule => Rule.error('Must enter address line1.').required(),
+            validation: Rule =>
+              Rule.custom((value, context) => {
+                if (context?.document?.onlineEvent) return true;
+                if (!value || !value.line1) return 'Must enter address line1.';
+                return true;
+              }),
             title: 'Address',
             fieldset: 'venue',
             description: 'The address of the venue.',
+            hidden: ({ document }) => !!document?.onlineEvent
         },
         // {
         //     name: 'location',
@@ -104,6 +124,7 @@ export default {
             title: 'Website',
             fieldset: 'venue',
             description: 'The website for the venue.',
+            hidden: ({ document }) => !!document?.onlineEvent
         },
         {
             name: 'mainImage',

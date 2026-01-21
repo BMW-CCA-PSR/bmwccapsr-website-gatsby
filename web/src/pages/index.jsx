@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { graphql } from "gatsby";
 import Errors from "../components/errors";
 import Page from "../templates/page";
@@ -115,9 +115,27 @@ export const query = graphql`
     ) {
       edges {
         node {
+          id
+          startTime
+          mainImage {
+            ...SanityImage
+            alt
+            asset {
+              metadata {
+                lqip
+              }
+            }
+          }
           title
           slug {
             current
+          }
+          category {
+            title
+          }
+          address {
+            city
+            state
           }
         }
       }
@@ -154,11 +172,39 @@ export const query = graphql`
       }
     }
     slideAds: allSanityAdvertiser(
-      filter: {slideAd: {_type: {ne: null}, disabled: {ne: true}}, tier: {title: {eq: "Platinum"}}}
+      filter: {slideAd: {_type: {ne: null}}, tier: {title: {eq: "Platinum"}}}
     ) {
       edges {
         node {
           _rawSlideAd(resolveReferences: {maxDepth: 10})
+        }
+      }
+    }
+    featuredPost: allSanityPost(
+      limit: 1
+      sort: { fields: [publishedAt], order: DESC }
+      filter: {
+        featured: { eq: true }
+        slug: { current: { ne: null } }
+        isPublished: { eq: true }
+      }
+    ) {
+      edges {
+        node {
+          id
+          publishedAt
+          title
+          _rawExcerpt(resolveReferences: { maxDepth: 1 })
+          slug {
+            current
+          }
+          mainImage {
+            ...SanityImage
+            alt
+          }
+          category {
+            title
+          }
         }
       }
     }

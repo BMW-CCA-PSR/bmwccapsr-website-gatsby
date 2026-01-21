@@ -29,40 +29,76 @@ var style = {
   }
 }
 
+const headingSx = {
+  mt: 4,
+  mb: 3,
+  letterSpacing: "tight",
+};
+
+const paragraphSx = {
+  mb: 3,
+  lineHeight: "body",
+};
+
+const listSx = {
+  pl: 4,
+  my: 3,
+  lineHeight: "body",
+};
+
 const AuthorReference = ({ node }) => {
   if (node && node.author && node.author.name) {
     return <span>{node.author.name}</span>;
   }
   return <></>;
 };
+
+const ImageBlock = ({ node }) => {
+  const caption = node?.caption || node?.alt;
+  return (
+    <Box
+      sx={{
+        backgroundColor: "#e0e0e0",
+        padding: "0.75rem",
+        borderRadius: "10px",
+        my: 4,
+        boxShadow: "0 16px 30px -20px rgba(0, 0, 0, 0.35)",
+      }}
+    >
+      <SanityImage
+        {...node}
+        width={900}
+        alt={node?.alt || ""}
+        sx={{
+          width: "100%",
+          objectFit: "cover",
+          borderRadius: "8px",
+        }}
+      />
+      {caption ? (
+        <Text
+          sx={{
+            variant: "styles.p",
+            pt: "0.75rem",
+            px: "0.25rem",
+            color: "darkgray",
+            fontStyle: "italic",
+          }}
+        >
+          {caption}
+        </Text>
+      ) : null}
+    </Box>
+  );
+};
+
 const serializers = {
   types: {
     authorReference: AuthorReference,
-    mainImage: ({ node }) => 
-      <Box sx={{
-          backgroundColor: "lightgray",
-          padding: '0.5rem',
-          borderRadius: "6px"
-        }}>
-          <SanityImage
-          {...node}
-          width={300}
-          alt={node.alt}
-          sx={{
-            width: "100%",
-            objectFit: "cover",
-            borderRadius: "6px"
-          }}
-        />
-        <Text sx={{
-          variant: "styles.p", 
-          py: "1rem", 
-          px: "0.5rem", 
-          color: `black`
-        }}>{node.caption}</Text>
-      </Box>,
+    mainImage: ImageBlock,
+    image: ImageBlock,
     videoEmbed: ({ node }) => 
-    <div sx={{mx: "auto", display: "flex", position: "relative", paddingTop: "56.25%", width: ["92vw", "92vw", "50vw", "50vw"]}}>
+    <div sx={{mx: "auto", my: 4, display: "flex", position: "relative", paddingTop: "56.25%", width: ["92vw", "92vw", "50vw", "50vw"]}}>
       <ReactPlayer sx={{position: "absolute", top: 0}} url={node.url} width="100%" height="100%" controls />
     </div>,
     instagram: ({ node }) => {
@@ -92,27 +128,100 @@ const serializers = {
     block(props) {
       switch (props.node.style) {
         case "h1":
-          return <Themed.h1>{props.children}</Themed.h1>
+          return <Themed.h1 sx={headingSx}>{props.children}</Themed.h1>
         case "h2":
-          return <Themed.h2>{props.children}</Themed.h2>
+          return <Themed.h2 sx={headingSx}>{props.children}</Themed.h2>
         case "h3":
-          return <Themed.h3>{props.children}</Themed.h3>
+          return <Themed.h3 sx={headingSx}>{props.children}</Themed.h3>
         case "h4":
-          return <Themed.h4>{props.children}</Themed.h4>
+          return <Themed.h4 sx={headingSx}>{props.children}</Themed.h4>
         case "h5":
-          return <Themed.h5>{props.children}</Themed.h5>
+          return <Themed.h5 sx={headingSx}>{props.children}</Themed.h5>
         case "h6":
-          return <Themed.h6>{props.children}</Themed.h6>
+          return <Themed.h6 sx={headingSx}>{props.children}</Themed.h6>
         case "blockquote":
-          return <Themed.blockquote>{props.children}</Themed.blockquote>
+          return (
+            <Themed.blockquote
+              sx={{
+                my: 4,
+                px: 3,
+                py: 3,
+                borderLeft: "4px solid",
+                borderColor: "primary",
+                backgroundColor: "lightgray",
+                borderRadius: "8px",
+                color: "darkgray",
+                fontStyle: "italic",
+              }}
+            >
+              {props.children}
+            </Themed.blockquote>
+          )
         default:
-          return <Themed.p>{props.children}</Themed.p>
+          return <Themed.p sx={paragraphSx}>{props.children}</Themed.p>
       }
     }
   },
+  list: ({ type, children }) => {
+    const as = type === "number" ? "ol" : "ul";
+    return (
+      <Box as={as} sx={{ ...listSx, listStyleType: type === "number" ? "decimal" : "disc" }}>
+        {children}
+      </Box>
+    );
+  },
+  listItem: ({ children }) => (
+    <Box as="li" sx={{ mb: 2, pl: 1 }}>
+      {children}
+    </Box>
+  ),
   marks: {
     link: ({ children, mark }) => (
-      <Themed.a href={mark.href}>{children}</Themed.a>
+      <Themed.a
+        href={mark.href}
+        sx={{
+          color: "primary",
+          textDecoration: "none",
+          borderBottom: "2px solid",
+          borderColor: "primary",
+          transition: "color 0.2s ease, border-color 0.2s ease",
+          "&:hover": {
+            color: "secondary",
+            borderColor: "secondary",
+          },
+        }}
+      >
+        {children}
+      </Themed.a>
+    ),
+    code: ({ children }) => (
+      <Box
+        as="code"
+        sx={{
+          fontFamily: "monospace",
+          fontSize: "0.95em",
+          backgroundColor: "lightgray",
+          px: "0.35em",
+          py: "0.1em",
+          borderRadius: "4px",
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    highlight: ({ children }) => (
+      <Box
+        as="mark"
+        sx={{
+          backgroundColor: "highlight",
+          color: "black",
+          px: "0.25em",
+          py: "0.1em",
+          borderRadius: "4px",
+        }}
+      >
+        {children}
+      </Box>
     ),
   }
 };

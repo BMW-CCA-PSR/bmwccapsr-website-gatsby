@@ -1,12 +1,34 @@
 /** @jsxImportSource theme-ui */
-import { Link } from "gatsby";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
-import { Card, Box, Text, Heading, Flex, Badge } from "theme-ui"
+import { Card, Box, Text, Heading, Flex } from "theme-ui"
+import { BoxIcon } from "./box-icons";
 import { OutboundLink } from "gatsby-plugin-google-gtag"
 
 const PartnerCard = (props) => {
-  const tier = props.tier == null ? "" : props.tier.title;
+  const tier = props.tier === null ? "" : props.tier.title;
+  const tierStyles = {
+    platinum: {
+      borderColor: "#e5e4e2",
+      borderWidth: "4px",
+      boxShadow:
+        "0 0 0 2px rgba(229, 228, 226, 0.7), 0 0 26px rgba(255, 255, 255, 0.65)"
+    },
+    gold: {
+      borderColor: "#d4af37",
+      borderWidth: "4px",
+      boxShadow:
+        "0 0 0 1px rgba(212, 175, 55, 0.6), 0 0 20px rgba(212, 175, 55, 0.35)"
+    },
+    silver: {
+      borderColor: "#c0c0c0",
+      borderWidth: "4px",
+      boxShadow:
+        "0 0 0 1px rgba(192, 192, 192, 0.55), 0 0 18px rgba(192, 192, 192, 0.3)"
+    }
+  };
+  const tierKey = tier.toLowerCase();
+  const tierStyle = tierStyles[tierKey] || {};
   return (
     <Card
     sx={{
@@ -14,12 +36,13 @@ const PartnerCard = (props) => {
       color: "text",
       width: '100%',
       height: '100%',
-      maxWidth: ["","","50vw","50vw"],
-      borderRadius: "9px",
+      borderRadius: "18px",
       display: "flex",
       flexDirection: "column",
       borderStyle: "solid",
-      borderWidth: "1px",
+      borderWidth: tierStyle.borderWidth || "1px",
+      borderColor: tierStyle.borderColor,
+      boxShadow: tierStyle.boxShadow,
     }}
   >
   {props._rawLogo && props._rawLogo.asset && (
@@ -32,8 +55,8 @@ const PartnerCard = (props) => {
           maxHeight: '200px',
           minHeight: '200px',
           objectFit: 'contain',
-          borderTopRightRadius: "8px",
-          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "18px",
+          borderTopLeftRadius: "18px",
         }}
       />
     )}
@@ -45,7 +68,6 @@ const PartnerCard = (props) => {
 )}
 
 const DiscountCard = (props) => {
-  const tier = props.tier == null ? "" : props.tier.title;
   return (
     <Card
     sx={{
@@ -53,8 +75,7 @@ const DiscountCard = (props) => {
       color: "text",
       width: '100%',
       height: '100%',
-      maxWidth: ["","","50vw","50vw"],
-      borderRadius: "9px",
+      borderRadius: "18px",
       display: "flex",
       flexDirection: "column",
       borderStyle: "solid",
@@ -76,8 +97,8 @@ const DiscountCard = (props) => {
             minHeight: '100px',
             maxWidth: '100px',
             objectFit: 'contain',
-            borderTopRightRadius: "8px",
-            borderTopLeftRadius: "8px",
+            borderTopRightRadius: "18px",
+            borderTopLeftRadius: "18px",
           }}
         />
       )}
@@ -108,7 +129,7 @@ function SponsorPageGrid(props) {
       }}>
         {advertisers &&
           advertisers
-            .filter(ad => ad.node.tier.title == 'Platinum')
+            .filter(ad => ad.node.tier.title === 'Platinum')
             .map(ad => (
               <OutboundLink
                 target="_blank"
@@ -131,7 +152,7 @@ function SponsorPageGrid(props) {
       }}>
         {advertisers &&
           advertisers
-            .filter(ad => ad.node.tier.title != 'Platinum')
+            .filter(ad => ad.node.tier.title !== 'Platinum')
             .map(ad => (
               <OutboundLink
                 target="_blank"
@@ -143,14 +164,44 @@ function SponsorPageGrid(props) {
               </OutboundLink>
             ))}
       </ul>
-      {partners.length != 0 ? <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pt: "1rem", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}></Heading> : null}
+      {partners.length !== 0 ? (
+        <>
+          <Heading sx={{ variant: "styles.h2", mt: "1rem", mb: "1rem" }}>
+            Partner Discounts
+            <BoxIcon
+              as="span"
+              sx={{
+                display: "inline-grid",
+                ml: "0.5rem",
+                verticalAlign: "middle"
+              }}
+            />
+          </Heading>
+          <Box
+            as="hr"
+            sx={{
+              border: "none",
+              borderTop: "3px solid",
+              borderColor: "text",
+              mt: "0.75rem",
+              mb: "1.5rem"
+            }}
+          />
+        </>
+      ) : null}
       <ul sx={{
         listStyle: 'none',
         display: 'grid',
         gridGap: 3,
-        gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
+        gridTemplateColumns: [
+          "1fr",
+          "1fr",
+          "repeat(2, minmax(0, 1fr))",
+          "repeat(2, minmax(0, 1fr))"
+        ],
         m: 0,
-        p: 0
+        p: 0,
+        mb: "5rem"
       }}>
         {partners &&
           partners

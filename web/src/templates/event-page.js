@@ -1,10 +1,10 @@
 import React from "react";
 import { graphql } from "gatsby";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import EventPage from "../components/event-page";
-import { Container } from "@theme-ui/components";
+import ContentContainer from "../components/content-container";
 import { toPlainText } from "../lib/helpers";
 
 export const query = graphql`
@@ -20,6 +20,8 @@ export const query = graphql`
       startTime
       endTime
       cost
+      onlineEvent
+      onlineLink
       website
       venueName
       address {
@@ -66,7 +68,12 @@ export const query = graphql`
       slug {
         current
       }
+      onlineEvent
+      onlineLink
+      venueName
       address {
+        line1
+        line2
         city
         state
       }
@@ -86,7 +93,12 @@ export const query = graphql`
       slug {
         current
       }
+      onlineEvent
+      onlineLink
+      venueName
       address {
+        line1
+        line2
         city
         state
       }
@@ -114,9 +126,9 @@ const EventPageTemplate = props => {
   const menuItems = site.navMenu && (site.navMenu.items || []);
   return (
     <Layout textWhite={true} navMenuItems={menuItems}>
-      {errors && <SEO title="GraphQL Error" />}
+      {errors && <Seo title="GraphQL Error" />}
       {event && (
-        <SEO
+        <Seo
           title={event.title || "Untitled"}
           description={toPlainText(event._rawExcerpt)}
           image={event.mainImage}
@@ -124,9 +136,9 @@ const EventPageTemplate = props => {
       )}
 
       {errors && (
-        <Container>
+        <ContentContainer>
           <GraphQLErrorList errors={errors} />
-        </Container>
+        </ContentContainer>
       )}
 
       {event && <EventPage {...pageData} />}

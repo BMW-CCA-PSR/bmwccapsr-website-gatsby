@@ -4,7 +4,6 @@ import {BoxIcon, BoxIconFlipped} from './box-icons';
 import { Heading, Flex} from '@theme-ui/components';
 
 function BoxHeader(props) {
-    const title = props.title
     return (
         <Flex sx={{
             flexDirection: "row", 

@@ -8,12 +8,60 @@ const { isFuture, parseISO } = require("date-fns");
 exports.createSchemaCustomization = ({ actions, schema }) => {
   actions.createTypes([
     schema.buildObjectType({
+      name: "SanityJoinHero",
+      fields: {
+        label: { type: "String" },
+        heading: { type: "String" },
+        subheading: { type: "String" },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityJoinEventItem",
+      fields: {
+        title: { type: "String" },
+        details: { type: "String" },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityJoinEventSection",
+      fields: {
+        heading: { type: "String" },
+        subheading: { type: "JSON" },
+        subtext: { type: "String" },
+        columns: { type: "Int" },
+        items: { type: "[SanityJoinEventItem]" },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityJoinBenefitItem",
+      fields: {
+        title: { type: "String" },
+        description: { type: "String" },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityPage",
+      interfaces: ["Node"],
+      fields: {
+        joinHero: { type: "SanityJoinHero" },
+        joinHpdeSection: { type: "SanityJoinEventSection" },
+        joinSocialSection: { type: "SanityJoinEventSection" },
+        joinBenefitsPrimary: { type: "[SanityJoinBenefitItem]" },
+        joinBenefitsSecondary: { type: "[SanityJoinBenefitItem]" },
+        joinEventHighlightsIntro: { type: "String" },
+        joinBenefitsIntro: { type: "String" },
+      },
+    }),
+    schema.buildObjectType({
       name: "SanityPost",
       interfaces: ["Node"],
       fields: {
         isPublished: {
           type: "Boolean!",
           resolve: (source) => new Date(source.publishedAt) <= new Date(),
+        },
+        featured: {
+          type: "Boolean",
         },
         relatedPosts: {
           type: "[SanityPost]",
@@ -32,7 +80,26 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
                 },
               }
             })
-            const posts = entries.filter(post => post._rawDataCategory._ref == category && post._id != source._id)
+            const now = new Date();
+            const posts = entries.filter((post) => {
+              if (!post || !post._rawDataCategory || post._id === source._id) {
+                return false;
+              }
+              if (post._rawDataCategory._ref !== category) {
+                return false;
+              }
+              if (!post.slug || !post.slug.current) {
+                return false;
+              }
+              if (!post.publishedAt) {
+                return false;
+              }
+              const publishedAt = new Date(post.publishedAt);
+              if (Number.isNaN(publishedAt.getTime())) {
+                return false;
+              }
+              return publishedAt <= now;
+            });
             return Array.from(posts)
           },
         },
@@ -45,6 +112,12 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         isActive: {
           type: "Boolean!",
           resolve: (source) => new Date(source.startTime) >= new Date(),
+        },
+        onlineEvent: {
+          type: "Boolean",
+        },
+        onlineLink: {
+          type: "String",
         },
       },
     }),
@@ -228,7 +301,7 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
 
 // ARCHIVE PAGE
 
-async function createArchivePages(pathPrefix = "/archive", graphql, actions, reporter) {
+async function createArchivePages(pathPrefix = "/zundfolge/archive", graphql, actions, reporter) {
   const { createPage } = actions;
   const archiveTemplate = require.resolve("./src/templates/archive.js");
 
@@ -245,7 +318,7 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
   await createZundfolgePages("/zundfolge", graphql, actions, reporter);
   await createEventPages("/events", graphql, actions, reporter);
-  await createArchivePages("/archive", graphql, actions, reporter);
+  await createArchivePages("/zundfolge/archive", graphql, actions, reporter);
 };
 
 const path = require("path")

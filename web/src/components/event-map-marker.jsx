@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import ReactMapGL, { Marker } from 'react-map-gl';
+import { Marker } from 'react-map-gl';
 import { StaticImage } from "gatsby-plugin-image"
 
 function Icon() {
@@ -25,12 +25,21 @@ function Pin(props) {
             draggable={false}
             offsetTop={-30}
             offsetLeft={-15}>
-            <div sx={{}}
+            <button
+                type="button"
+                aria-label="Open event details"
+                sx={{
+                    background: "none",
+                    border: "none",
+                    p: 0,
+                    cursor: "pointer"
+                }}
                 onClick={() => {
                     props.openPopup(props.data);
-                }}>
+                }}
+            >
                 {Icon()}
-            </div>
+            </button>
         </Marker>
     );
 }

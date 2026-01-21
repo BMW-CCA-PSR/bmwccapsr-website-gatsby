@@ -1,9 +1,29 @@
 /** @jsxImportSource theme-ui */
 import NavLink from "./navLink";
 import React from "react";
+import { useLocation } from "@reach/router";
 
 const Dropdown = props => {
     const link = props.navigationItemUrl
+    const location = useLocation();
+    const getPath = (item) => {
+        if (item?.landingPageRoute?.slug?.current) {
+            return `/${item.landingPageRoute.slug.current}`;
+        }
+        if (item?.route) {
+            return item.route;
+        }
+        return null;
+    };
+    const isChildActive = link?.items?.some((subLink) => {
+        const path = getPath(subLink);
+        if (!path) return false;
+        if (path === "/") return location.pathname === "/";
+        return location.pathname.startsWith(path);
+    });
+    const activeLinkStyles = isChildActive
+        ? { backgroundColor: "primary", color: "background" }
+        : {};
     return (
         <ul
             sx={{
@@ -18,16 +38,14 @@ const Dropdown = props => {
         >
             <li
                 sx={{
-                    textTransform: "uppercase",
-                    position: "relative",
-                    height: "100%",
-                    textAlign: "center",
-                    ":hover": {
-                        backgroundColor: "primary",
-                        cursor: "pointer",
-                        color: "background",
-                        display: "block",
-                    },
+                textTransform: "uppercase",
+                position: "relative",
+                height: "100%",
+                textAlign: "center",
+                ":hover > button, :focus-within > button": {
+                    backgroundColor: "primary",
+                    color: "background"
+                },
                     ":hover > ul, :focus-within > ul ": {
                         visibility: "visible",
                         opacity: "1",
@@ -35,21 +53,28 @@ const Dropdown = props => {
                     },
                 }}
             >
-                <a
+                <button
+                    type="button"
                     sx={{
                         textDecoration: "none",
                         px: "2rem",
                         cursor: "pointer",
-                        display: "flex",
-                        height: "100%",
-                        alignItems: "center",
-                        textAlign: "center",
-                        justifyContent: "center"
-                    }}
-                    aria-haspopup={link.items && link.items.length > 0 ? true : false}
-                >
+                    display: "flex",
+                    height: "100%",
+                    alignItems: "center",
+                    textAlign: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    color: isChildActive ? "background" : "darkgray",
+                    background: "none",
+                    border: "none",
+                    font: "inherit",
+                    ...activeLinkStyles
+                }}
+                aria-haspopup={link.items && link.items.length > 0 ? true : false}
+            >
                     {props.title}
-                </a>
+                </button>
                 {link.items && link.items.length > 0 ? (
                     <ul
                         sx={{
@@ -63,6 +88,8 @@ const Dropdown = props => {
                             opacity: "0",
                             position: "absolute",
                             marginTop: "0px",
+                            top: "100%",
+                            left: 0,
                             //borderRadius: "6px",
                             textAlign: "center",
                             right: "0",

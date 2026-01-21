@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "gatsby";
 import { Box } from "@theme-ui/components";
 import { OutboundLink } from "gatsby-plugin-google-gtag"
+import { useLocation } from "@reach/router";
 
 const styleWithSubMenu = {
   textDecoration: "none",
@@ -28,12 +29,30 @@ const style = {
 }
 
 const NavLink = props => {
+  const location = useLocation();
   let subMenu = props.subMenu;
   // Internal
   if (props.landingPageRoute || props.route) {
     let path = props.landingPageRoute ? `/${props.landingPageRoute.slug.current}` : props.route ? props.route : "/"
+    const isActive =
+      !subMenu &&
+      (path === "/"
+        ? location.pathname === "/"
+        : location.pathname.startsWith(path));
+    const activeStyle = isActive
+      ? { backgroundColor: "primary", color: "background" }
+      : {};
+    const linkStyle = subMenu
+      ? { ...styleWithSubMenu, display: "block", width: "100%" }
+      : style;
     return (
-      <Link to={path} sx={subMenu ? styleWithSubMenu : style }>
+      <Link
+        to={path}
+        sx={{
+          ...linkStyle,
+          ...activeStyle
+        }}
+      >
         <Box>
           {props.title}
         </Box>

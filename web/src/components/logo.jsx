@@ -1,7 +1,6 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { Heading, Container, Flex, Divider, Button, Box } from "theme-ui"
-import { Link } from 'gatsby'
+import { Flex } from "theme-ui"
 import { StaticImage } from "gatsby-plugin-image"
 
 function Logo() {

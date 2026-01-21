@@ -83,9 +83,11 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 									{navMenuItems.map((i) => {
 										if (i.navigationItemUrl) {
 											return <Dropdown key={i._key} {...i} />;
-										} else if (i._type == 'link') {
+										}
+										if (i._type === 'link') {
 											return <NavLink key={i._key} {...i} sx={{height: "100%"}} />;
 										}
+										return null;
 									})}
 								</ul>
 							) : (
@@ -163,25 +165,30 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 														cursor: 'pointer'
 													}}
 												>
-													{link.items.map((subLink) => <MobileNavLink {...subLink} />)}
+													{link.items.map((subLink) => (
+														<MobileNavLink key={subLink._key} {...subLink} />
+													))}
 												</div>
 											) : null}
 										</li>
 									</ul>
 								);
-							} else if (i._type == 'link') {
+							}
+							if (i._type === 'link') {
 								return (
-									<div>
+									<div key={i._key}>
 										<Divider sx={{ color: 'darkgray' }} />
 										<MobileNavLink key={i._key} {...i} />
 									</div>)
-							} else if (i._type == 'cta') {
+							}
+							if (i._type === 'cta') {
 								return (
-								<div>
+								<div key={i._key}>
 									<Divider sx={{ color: 'darkgray' }} />
 									<MobileCTALink key={i._key} {...i} />
 								</div>)
 							}
+							return null;
 						})}
 					</ul>
 					</div>

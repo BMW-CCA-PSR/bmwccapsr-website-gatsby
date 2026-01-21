@@ -31,14 +31,20 @@ import hero from './objects/hero'
 import simpleBlockContent from './objects/simpleBlockContent'
 import advertisement from './objects/advertisement'
 import otherStories from './objects/otherStories'
+import upcomingEvents from './objects/upcomingEvents'
 import article from './objects/article'
 import ctaPlug from './objects/ctaPlug'
 import headerBar from './objects/headerBar'
 import topStories from './objects/topStories'
+import zundfolgeLatest from './objects/zundfolgeLatest'
 import pageContent from './objects/pageContent'
 import uiComponent from './objects/uiComponent'
 import homepageSponsors from './objects/homepageSponsors'
 import heroCarousel from './objects/heroCarousel'
+import joinEventItem from './objects/joinEventItem'
+import joinEventSection from './objects/joinEventSection'
+import joinBenefitItem from './objects/joinBenefitItem'
+import joinHero from './objects/joinHero'
 
 export default [
     variation,
@@ -70,13 +76,19 @@ export default [
     hero,
     advertisement,
     otherStories,
+    upcomingEvents,
     article,
     ctaPlug,
     headerBar,
     topStories,
+    zundfolgeLatest,
     pageContent,
     uiComponent,
     homepageSponsors,
     heroCarousel,
+    joinEventItem,
+    joinEventSection,
+    joinBenefitItem,
+    joinHero,
     pdfUpload
 ]

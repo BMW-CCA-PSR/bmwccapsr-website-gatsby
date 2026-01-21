@@ -1,7 +1,8 @@
 export default {
     type: 'object',
     name: 'otherStories',
-    title: 'Other Stories',
+    title: 'DEPRECATED - otherStories',
+    hidden: true,
     fields: [
       {
         type: 'string',

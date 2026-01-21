@@ -1,7 +1,6 @@
 /** @jsxImportSource theme-ui */
-import React, { useState } from "react";
+import React from "react";
 import { graphql } from "gatsby";
-import { Flex } from '@theme-ui/components';
 
 import Hero from "../components/hero";
 import Cta from "../components/cta";
@@ -10,14 +9,15 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import HeroSlider from "../components/slider";
-import TopStories from "../components/topStories";
-import OtherStories from "../components/other-stories";
+import ZundfolgeLatest from "../components/zundfolge-latest";
+import UpcomingEvents from "../components/upcoming-events";
 import EventSlider from "../components/event-slider";
 import HomepageSponsors from "../components/home-page-sponsors";
 import { BannerAd, BoxAd } from "../components/ads";
-import { randomGenerator } from "../lib/helpers";
+import { getZundfolgeUrl, randomGenerator, toPlainText } from "../lib/helpers";
 import BoxHeader from '../components/BoxHeader';
 import PortableText from '../components/portableText';
+import ContentContainer from "../components/content-container";
  
 export const query = graphql`
   query PageTemplateQuery($id: String!) {
@@ -64,31 +64,66 @@ function Page(props) {
       );
     }
     const page = data.page || data.route.page;
+    const isFrontpage =
+      page && (page._id === "frontpage" || page._id === "drafts.frontpage");
     const post = data.post
     const event = data.event
     const ads = data.ads
     const banners = data.banners
     const boxes = data.boxes
     const slideAds = data.slideAds
+    const featuredNode = data.featuredPost?.edges?.[0]?.node || null
+    const featuredTaglineBase = featuredNode?._rawExcerpt
+      ? toPlainText(featuredNode._rawExcerpt)
+      : ""
+    const featuredTagline = featuredTaglineBase
+      ? `${featuredTaglineBase.slice(0, 120).trim()}${featuredTaglineBase.length > 120 ? "..." : ""}`
+      : "Discover the latest featured Zundfolge article."
+    const featuredHeroSlides = isFrontpage && featuredNode
+      ? [
+          {
+            _key: `featured-${featuredNode.id}`,
+            _type: "hero",
+            label: "Featured Story",
+            heading: featuredNode.title,
+            tagline: featuredTagline,
+            colors: "#FFFFFF",
+            image: featuredNode.mainImage,
+            cta: {
+              title: "Read Story",
+              route: getZundfolgeUrl(featuredNode.slug.current)
+            }
+          }
+        ]
+      : []
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
       .map((c) => {
         let el = null;
         switch (c._type) {
           case "hero":
-            el = <Hero key={c._key} {...c} />;
+            el = <Hero key={c._key} {...c} isHomepage={isFrontpage} />;
             break;
           case "ctaPlug":
             el = <Cta key={c._key} {...c} />;
             break;
           case "heroCarousel":
-            el = <HeroSlider key={c._key} {...c} {...slideAds} />;
+            el = (
+              <HeroSlider
+                key={c._key}
+                {...c}
+                {...slideAds}
+                featuredSlides={featuredHeroSlides}
+                isHomepage={isFrontpage}
+              />
+            );
             break;
           case "topStories":
-            el = <TopStories key={c._key} {...c} {...post} />;
+          case "zundfolgeLatest":
+            el = <ZundfolgeLatest key={c._key} {...c} {...post} />;
             break;
-          case "otherStories":
-            el = <OtherStories key={c._key} {...c} {...post} />;
+          case "upcomingEvents":
+            el = <UpcomingEvents key={c._key} {...c} {...event} />;
             break;
           case "homepageSponsors":
             el = <HomepageSponsors key={c._key} {...c} {...ads} />;
@@ -97,21 +132,26 @@ function Page(props) {
             el = <BoxHeader key={c._key} title={c.title} />;
             break;
           case "advertisement":
-            const adType = c.type ? c.type == "banner" ? banners : boxes : null
+            const adType = c.type ? c.type === "banner" ? banners : boxes : null
             if(adType && adType.edges){
               const randomAdPosition = randomGenerator(0, adType.edges.length - 1)
               const randomizedAd = adType.edges.length > 0 ? adType.edges[randomAdPosition].node : null
-              el = c.type == "banner" && randomizedAd ? <BannerAd {...randomizedAd} /> : <BoxAd {...randomizedAd} />
+              el = c.type === "banner" && randomizedAd ? <BannerAd {...randomizedAd} /> : <BoxAd {...randomizedAd} />
             }
             break;
           case "pageContent":
-            el = <Flex sx={{
-              mx: "auto",
-              my: "20px",
-              px: ["16px","16px","50px","100px"],
-              }}>
-                <PortableText key={c._key} {...c} color={'text'} />
-              </Flex>
+            el = (
+              <ContentContainer
+                sx={{
+                  mx: "auto",
+                  my: "20px",
+                  px: ["16px", "16px", "50px", "100px"],
+                  width: "100%",
+                }}
+              >
+                <PortableText key={c._key} {...c} color={"text"} boxed />
+              </ContentContainer>
+            );
             break;
           case "uiComponentRef":
             switch (c.name) {

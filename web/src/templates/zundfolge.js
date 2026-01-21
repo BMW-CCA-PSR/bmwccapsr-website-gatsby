@@ -7,12 +7,39 @@ import {
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
-import { Container, Heading, Text, Card, Box } from "@theme-ui/components";
-import { FiArchive } from "react-icons/fi";
+import { Heading, Text, Card, Box, Button } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import ZundfolgeArticlePreview from "../components/zundfolge-article-preview";
+import ContentContainer from "../components/content-container";
+import { BoxIcon } from "../components/box-icons";
+import ZundfolgeFeatured from "../components/zundfolge-featured";
+
+const zundfolgeRed = "#B5322E";
+const buildPaginationItems = (current, total, delta = 2) => {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => ({
+      type: "page",
+      value: i + 1
+    }));
+  }
+  const items = [{ type: "page", value: 1 }];
+  const left = Math.max(2, current - delta);
+  const right = Math.min(total - 1, current + delta);
+
+  if (left > 2) {
+    items.push({ type: "ellipsis", key: "left" });
+  }
+  for (let i = left; i <= right; i += 1) {
+    items.push({ type: "page", value: i });
+  }
+  if (right < total - 1) {
+    items.push({ type: "ellipsis", key: "right" });
+  }
+  items.push({ type: "page", value: total });
+  return items;
+};
 
 export const query = graphql`
   query ZundfolgePageQuery($skip: Int!, $limit: Int!) {
@@ -26,7 +53,11 @@ export const query = graphql`
       limit: $limit
       skip: $skip
       sort: { fields: [publishedAt], order: DESC }
-      filter: { slug: { current: { ne: null } }, publishedAt: { ne: null } }
+      filter: {
+        slug: { current: { ne: null } }
+        publishedAt: { ne: null }
+        featured: { ne: true }
+      }
     ) {
       edges {
         node {
@@ -76,16 +107,45 @@ export const query = graphql`
         }
       }
     }
+    featured: allSanityPost(
+      limit: 1
+      sort: { fields: [publishedAt], order: DESC }
+      filter: {
+        featured: { eq: true }
+        slug: { current: { ne: null } }
+        publishedAt: { ne: null }
+      }
+    ) {
+      edges {
+        node {
+          id
+          publishedAt
+          mainImage {
+            ...SanityImage
+            alt
+          }
+          title
+          _rawExcerpt
+          slug {
+            current
+          }
+          category {
+            title
+          }
+        }
+      }
+    }
   }
 `;
 
 const IndexPage = props => {
   const { data, errors, pageContext } = props;
-  const { numPages, limit, skip, currentPage } = pageContext
+  const { numPages, currentPage } = pageContext
   const isFirst = currentPage === 1
   const isLast = currentPage === numPages
   const prevPage = currentPage - 1 === 1 ? "/zundfolge" : `/zundfolge/page/${(currentPage - 1).toString()}`
   const nextPage =  `/zundfolge/page/${(currentPage + 1).toString()}`
+  const paginationItems = buildPaginationItems(currentPage, numPages);
 
   if (errors) {
     return (
@@ -101,6 +161,11 @@ const IndexPage = props => {
         .filter(filterOutDocsWithoutSlugs)
         .filter(filterOutDocsPublishedInTheFuture)
     : [];
+  const featuredPost = (data || {}).featured
+    ? mapEdgesToNodes(data.featured)
+        .filter(filterOutDocsWithoutSlugs)
+        .filter(filterOutDocsPublishedInTheFuture)[0]
+    : null;
   if (!site) {
     console.warn(
       'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
@@ -115,12 +180,12 @@ const IndexPage = props => {
   }
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
-      <SEO
+      <Seo
         title={site.title || "Missing title"}
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
       />
-      <Container sx ={{
+      <ContentContainer sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         //pr: "16px",
@@ -138,14 +203,17 @@ const IndexPage = props => {
           }}
         >
           <div>
-            <Heading sx={{variant: "styles.h1", mb: 2}}>Zündfolge</Heading>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "0.75rem", mb: 2 }}>
+              <Heading sx={{ variant: "styles.h1", mb: 0, color: zundfolgeRed }}>Zündfolge</Heading>
+              <BoxIcon />
+            </Box>
             <div sx={{display: "flex", flexDirection: "column"}}>
               <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
               <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1975.</div>
             </div>
           </div>
           <div sx={{ display: ["none", "none", "block"], minHeight: 220 }}>
-            <Link to="/archive/" sx={{ textDecoration: 'none' }} aria-label="Open the Zündfolge archive">
+            <Link to="/zundfolge/archive/" sx={{ textDecoration: 'none' }} aria-label="Open the Zündfolge archive">
               <Card
                 sx={{
                   backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%), url(${withPrefix('/images/zundfolge-archive-collage.png')})`,
@@ -155,7 +223,7 @@ const IndexPage = props => {
                   width: '100%',
                   height: '100%',
                   mx: 'auto',
-                  borderRadius: '8px',
+                  borderRadius: '18px',
                   borderStyle: 'solid',
                   borderColor: 'black',
                   borderWidth: '1px',
@@ -174,7 +242,22 @@ const IndexPage = props => {
             </Link>
           </div>
         </div>
-        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Latest Stories</Heading>
+        {isFirst && featuredPost && (
+          <Box sx={{ mt: "1.5rem", mb: "2rem" }}>
+            <ZundfolgeFeatured post={featuredPost} />
+          </Box>
+        )}
+        <Heading
+          sx={{
+            variant: "styles.h3",
+            borderBottomStyle: "solid",
+            pb: "3px",
+            borderBottomWidth: "3px",
+            my: "0.5rem"
+          }}
+        >
+          {isFirst ? "Latest Stories" : "Older Stories"}
+        </Heading>
         <div>
           {isFirst && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
           <ul sx={{
@@ -193,64 +276,113 @@ const IndexPage = props => {
                 </li>
               })}
           </ul>
-          <div>
-            <ul
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                alignItems: 'center',
-                listStyle: 'none',
-                padding: 0,
+          {numPages > 1 && (
+            <Box
+              sx={{
+                mt: "1.5rem",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "0.4rem"
               }}
             >
-              {!isFirst && (
-                <Link to={prevPage} rel="prev" sx={{
-                  marginTop: '0.1rem', 
+              <Button
+                as={isFirst ? "span" : Link}
+                to={isFirst ? undefined : prevPage}
+                rel="prev"
+                disabled={isFirst}
+                sx={{
+                  variant: "buttons.primary",
+                  bg: isFirst ? "lightgray" : "background",
+                  color: isFirst ? "darkgray" : "text",
+                  border: "1px solid",
+                  borderColor: "gray",
+                  px: "0.9rem",
+                  py: "0.4rem",
+                  cursor: isFirst ? "not-allowed" : "pointer",
                   textDecoration: "none",
-                  marginBottom: '0.1rem', 
-                  padding: '0.5rem', 
-                  color: 'text'
-                  }}>
-                  {"<< Prev"}
-                </Link>
-              )}
-              {Array.from({ length: numPages }, (_, i) => (
-                <li
-                  key={`pagination-number${i + 1}`}
-                  style={{
-                    margin: 0,
-                  }}
-                >
-                  <Link
-                    to={`/zundfolge/${i === 0 ? '' : 'page/' + (i + 1)}`}
+                  "&:hover": {
+                    bg: isFirst ? "lightgray" : "highlight",
+                    color: isFirst ? "darkgray" : "text"
+                  }
+                }}
+              >
+                Prev
+              </Button>
+              {paginationItems.map((item, index) => {
+                if (item.type === "ellipsis") {
+                  return (
+                    <Box
+                      key={`pagination-ellipsis-${item.key}-${index}`}
+                      sx={{
+                        px: "0.6rem",
+                        py: "0.4rem",
+                        color: "gray",
+                        alignSelf: "center"
+                      }}
+                    >
+                      ...
+                    </Box>
+                  );
+                }
+                const isActive = item.value === currentPage;
+                const path =
+                  item.value === 1
+                    ? "/zundfolge"
+                    : `/zundfolge/page/${item.value}`;
+                return (
+                  <Button
+                    key={`pagination-number-${item.value}`}
+                    as={isActive ? "span" : Link}
+                    to={isActive ? undefined : path}
+                    aria-current={isActive ? "page" : undefined}
                     sx={{
-                      marginTop: '0.1rem',
-                      marginBottom: '0.1rem',
-                      padding: '0.5rem',
-                      textDecoration: 'none',
-                      color: i + 1 === currentPage ? '#ffffff' : 'black',
-                      background: i + 1 === currentPage ? 'primary' : '',
+                      variant: "buttons.primary",
+                      bg: isActive ? "primary" : "background",
+                      color: isActive ? "white" : "text",
+                      border: "1px solid",
+                      borderColor: "gray",
+                      px: "0.8rem",
+                      py: "0.4rem",
+                      minWidth: "42px",
+                      textDecoration: "none",
+                      "&:hover": {
+                        bg: isActive ? "primary" : "highlight",
+                        color: isActive ? "white" : "text"
+                      }
                     }}
                   >
-                    {i + 1}
-                  </Link>
-                </li>
-              ))}
-              {!isLast && (
-                <Link to={nextPage} rel="next" sx={{ 
-                  marginTop: '0.1rem', 
+                    {item.value}
+                  </Button>
+                );
+              })}
+              <Button
+                as={isLast ? "span" : Link}
+                to={isLast ? undefined : nextPage}
+                rel="next"
+                disabled={isLast}
+                sx={{
+                  variant: "buttons.primary",
+                  bg: isLast ? "lightgray" : "background",
+                  color: isLast ? "darkgray" : "text",
+                  border: "1px solid",
+                  borderColor: "gray",
+                  px: "0.9rem",
+                  py: "0.4rem",
+                  cursor: isLast ? "not-allowed" : "pointer",
                   textDecoration: "none",
-                  marginBottom: '0.1rem', 
-                  padding: '0.5rem', 
-                  color: 'text' }}>
-                  {"Next >>"}
-                </Link>
-              )}
-            </ul>
-          </div>
+                  "&:hover": {
+                    bg: isLast ? "lightgray" : "highlight",
+                    color: isLast ? "darkgray" : "text"
+                  }
+                }}
+              >
+                Next
+              </Button>
+            </Box>
+          )}
         </div>
-      </Container>
+      </ContentContainer>
     </Layout>
   );
 };

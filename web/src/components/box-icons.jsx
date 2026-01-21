@@ -2,15 +2,19 @@
 import React from 'react';
 import { Box } from '@theme-ui/components';
 
-const BoxIcon = (props) => {
+const BoxIcon = ({ sx, ...props }) => {
 	return (
-        <Box sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 16px)",
-            gridTemplateRows: "repeat(2, 16px)",
-            gridColumnGap: "0px",
-            gridRowGap: "0px",
-        }}>
+        <Box
+            {...props}
+            sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 16px)",
+                gridTemplateRows: "repeat(2, 16px)",
+                gridColumnGap: "0px",
+                gridRowGap: "0px",
+                ...sx,
+            }}
+        >
             <Box sx={{
                 backgroundColor: "primary"
             }} />
@@ -23,15 +27,19 @@ const BoxIcon = (props) => {
     )
 }
 
-const BoxIconFlipped = (props) => {
+const BoxIconFlipped = ({ sx, ...props }) => {
 	return (
-        <Box sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 16px)",
-            gridTemplateRows: "repeat(2, 16px)",
-            gridColumnGap: "0px",
-            gridRowGap: "0px",
-        }}>
+        <Box
+            {...props}
+            sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 16px)",
+                gridTemplateRows: "repeat(2, 16px)",
+                gridColumnGap: "0px",
+                gridRowGap: "0px",
+                ...sx,
+            }}
+        >
             <Box />
             <Box sx={{
                 backgroundColor: "primary"

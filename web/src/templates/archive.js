@@ -1,11 +1,15 @@
 /** @jsxImportSource theme-ui */
 import React, { useState, useEffect } from "react";
-import { Link, graphql } from "gatsby";
+import { graphql } from "gatsby";
 
-import { Container, Heading, Text, Card, Box } from "@theme-ui/components";
+import { Heading, Text, Box } from "@theme-ui/components";
+import { BoxIcon } from "../components/box-icons";
 import GraphQLErrorList from "../components/graphql-error-list";
-import SEO from "../components/seo";
+import Seo from "../components/seo";
 import Layout from "../containers/layout";
+import ContentContainer from "../components/content-container";
+
+const zundfolgeRed = "#B5322E";
 
 export const query = graphql`
   query ArchivePageQuery {
@@ -19,7 +23,7 @@ export const query = graphql`
 `;
 
 const IndexPage = props => {
-  const { data, errors, pageContext } = props;
+  const { data, errors } = props;
 
   const site = (data || {}).site;
 
@@ -27,15 +31,6 @@ const IndexPage = props => {
   const [issues, setIssues] = useState([]);
   const [years, setYears] = useState([]);
   const [manifest, setManifest] = useState(null);
-
-  // Configure decades and manual enable/disable toggles here
-  const DECADES = [
-    { key: '1970s', start: 1970, end: 1979, enabled: true },
-    { key: '1980s', start: 1980, end: 1989, enabled: true },
-    { key: '1990s', start: 1990, end: 1999, enabled: true },
-    { key: "2000s", start: 2000, end: 2009, enabled: true },
-    { key: "2010s", start: 2010, end: 2019, enabled: true },
-  ];
 
   // Load manifest once, derive years and default selected year
   useEffect(() => {
@@ -48,8 +43,8 @@ const IndexPage = props => {
           .filter((n) => !isNaN(n))
           .sort((a, b) => b - a);
         setYears(parsedYears);
-        if (!selectedYear && parsedYears.length > 0) {
-          setSelectedYear(parsedYears[0]);
+        if (parsedYears.length > 0) {
+          setSelectedYear((prev) => prev ?? parsedYears[0]);
         }
       })
       .catch(err => {
@@ -166,12 +161,12 @@ const IndexPage = props => {
 
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
-      <SEO
+      <Seo
         title={site.title || "Missing title"}
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
       />
-      <Container sx ={{
+      <ContentContainer sx ={{
         pl: ["16px", "16px", "50px", "100px"],
         pr: ["16px", "16px", "50px", "100px"],
         //pr: "16px",
@@ -179,9 +174,23 @@ const IndexPage = props => {
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Heading sx={{variant: "styles.h1", pb: "1rem"}}>Zündfolge Archive</Heading>
+        <Heading sx={{ variant: "styles.h1", pb: "1rem" }}>
+          <Box as="span" sx={{ color: zundfolgeRed }}>Zündfolge</Box> Archive
+          <BoxIcon
+            as="span"
+            sx={{
+              display: "inline-grid",
+              ml: "0.5rem",
+              verticalAlign: "middle"
+            }}
+          />
+        </Heading>
         <Text>
-          Since its founding, the Puget Sound chapter of the BMW CCA has published <em>Zündfolge</em>—a printed newsletter dedicated to informing members about upcoming events, technical tips, club news, and shared experiences with the marque. From 1970 through 2021, <em>Zündfolge</em> chronicled the life and passion of our BMW community in the Pacific Northwest. This archive serves as a curated digital record of that legacy, preserving over five decades of enthusiasm, expertise, and camaraderie.
+          Since its founding, the Puget Sound chapter of the BMW CCA has published{" "}
+          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>Zündfolge</Box>
+          —a printed newsletter dedicated to informing members about upcoming events, technical tips, club news, and shared experiences with the marque. From 1970 through 2021,{" "}
+          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>Zündfolge</Box>{" "}
+          chronicled the life and passion of our BMW community in the Pacific Northwest. This archive serves as a curated digital record of that legacy, preserving over five decades of enthusiasm, expertise, and camaraderie.
         </Text>
         <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Issues</Heading>
         {/*
@@ -292,7 +301,7 @@ const IndexPage = props => {
             </div>
           </div>
         )}
-      </Container>
+      </ContentContainer>
     </Layout>
   );
 };

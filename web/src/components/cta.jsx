@@ -2,42 +2,57 @@
 import React from "react";
 import PortableText from "../components/portableText";
 import CTALink from "./CTALink";
-import { Container, Flex, Heading } from "@theme-ui/components";
+import ContentContainer from "./content-container";
+import { Box, Flex, Heading } from "@theme-ui/components";
 
 const Cta = ({ label, title, body, ctas }) => (
-  <Container sx={{
-    mx: "auto",
-    textAlign:"center",
-    py: "1.5rem",
-  }}>
-    <Heading sx={{
-      width: "100%",
-      my: "0.5rem",
-      variant: "styles.h2",
-      textAlign: "center",
-    }}>{title}</Heading>
-    <div sx={{
-      variant: "styles.h3"
-    }}>
-      <PortableText body={body} />
-    </div>
-
-    <Flex>
-      {(ctas || []).map((c) => (
-        <div sx={{
-          flex: "1 1 0%",
-          flexDirection: "column",
-          py: "0.5rem",
-          mx: "10px",
-          textAlign: "center"
-        }}>
-          <CTALink
-            key={c._key}
-            {...c}
-          />
+  <Box sx={{ py: ["1.5rem", "2rem"], my: 4 }}>
+    <ContentContainer sx={{ px: ["16px", "16px", "50px", "100px"] }}>
+      <Box
+        sx={{
+          backgroundColor: "secondary",
+          color: "white",
+          borderRadius: "16px",
+          p: ["1.5rem", "2rem", "2.5rem"],
+          textAlign: "center",
+          width: "100%",
+        }}
+      >
+        <Heading
+          sx={{
+            width: "100%",
+            my: "0.5rem",
+            variant: "styles.h2",
+            color: "white",
+            textAlign: "center",
+          }}
+        >
+          {title}
+        </Heading>
+        <div sx={{ variant: "styles.h3" }}>
+          <PortableText body={body} color="white" />
         </div>
-      ))}
-    </Flex>
-  </Container>
+
+        <Flex sx={{ justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
+          {(ctas || []).map((c) => (
+            <div
+              key={c._key}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flex: "0 1 auto",
+                py: "0.5rem",
+                mx: "10px",
+                textAlign: "center",
+              }}
+            >
+              <CTALink {...c} />
+            </div>
+          ))}
+        </Flex>
+      </Box>
+    </ContentContainer>
+  </Box>
 );
 export default Cta;

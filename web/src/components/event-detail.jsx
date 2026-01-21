@@ -1,18 +1,21 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { format, formatDistance, differenceInHours } from "date-fns";
-import { Container, Heading, Text, Flex, Box, Divider, Link } from "@theme-ui/components";
-import EventMap from "./event-map";
+import { format, differenceInHours } from "date-fns";
+import { Heading, Text, Flex, Box } from "@theme-ui/components";
 
 function EventDetails(props) {
-    const { startTime, endTime, address } = props;
+    const { startTime, endTime } = props;
+    const address = props.address || {};
     var start = startTime && (format(new Date(startTime), "eeee MMMM do, yyyy"))
     var numHours = startTime && endTime && (differenceInHours(new Date(endTime), new Date(startTime)))
+    const isOnline = Boolean(props.onlineEvent)
     return (
     <Box sx={{
         backgroundColor: "lightgray",
         width: "100%",
         mx: "auto",
+        borderRadius: "18px",
+        overflow: "hidden",
     }}>
         <Flex sx={{
         flexDirection: ["column", "column", "row"],
@@ -39,7 +42,7 @@ function EventDetails(props) {
                     <Heading variant="styles.h4">Length</Heading>
                     <Text variant="styles.p">{numHours} hours</Text>
                     <Heading variant="styles.h4">Cost</Heading>
-                    <Text variant="styles.p">{!props.cost || props.cost == 0 ? "Free" : `$${props.cost}`}</Text>
+                    <Text variant="styles.p">{!props.cost || props.cost === 0 ? "Free" : `$${props.cost}`}</Text>
                     {props.poc && <Heading variant="styles.h4">Point of Contact</Heading>}
                     {props.poc ? props.poc.name && <Text variant="styles.p">{props.poc.name}</Text> : null}
                     {props.poc ? props.poc.contact && <Text variant="styles.p">{props.poc.contact}</Text> : null}
@@ -50,15 +53,46 @@ function EventDetails(props) {
                     alignItems: "flex-start",
                     p: 3
                 }}>
-                    <Heading variant="styles.h3"  sx={{pb: 3}}>Venue</Heading>
-                    {props.venueName &&<Heading variant="styles.h4">Name</Heading>}
-                    {props.venueName &&<Text variant="styles.p">{props.venueName}</Text>}
-                    <Heading variant="styles.h4">Address</Heading>
-                    {address.line1 &&<Text variant="styles.p">{address.line1}</Text>}
-                    {address.line2 &&<Text variant="styles.p">{address.line2}</Text>}
-                    {address.city && address.state && <Text variant="styles.p" sx={{textTransform: "capitalize"}}>{address.city}, {address.state}</Text>}
-                    {props.website && <Heading variant="styles.h4">Website</Heading>}
-                    {props.website && <Text variant="styles.p" sx={{textAlign: "left", width: "100%", wordWrap: "break-word"}}><a href={props.website}>Link</a></Text>}
+                    {isOnline ? (
+                        <>
+                            <Heading variant="styles.h3" sx={{ pb: 3 }}>Online Event</Heading>
+                            <Text variant="styles.p" sx={{ textAlign: "left" }}>
+                                This event is held online. Please reach out to the event organizer for joining information.
+                            </Text>
+                            {props.onlineLink && <Heading variant="styles.h4">Link</Heading>}
+                            {props.onlineLink && (
+                                <Text
+                                    variant="styles.p"
+                                    sx={{ textAlign: "left", width: "100%", wordWrap: "break-word" }}
+                                >
+                                    <a href={props.onlineLink}>Join online</a>
+                                </Text>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <Heading variant="styles.h3" sx={{ pb: 3 }}>Venue</Heading>
+                            {props.venueName && <Heading variant="styles.h4">Name</Heading>}
+                            {props.venueName && <Text variant="styles.p">{props.venueName}</Text>}
+                            <Heading variant="styles.h4">Address</Heading>
+                            {address.line1 && <Text variant="styles.p">{address.line1}</Text>}
+                            {address.line2 && <Text variant="styles.p">{address.line2}</Text>}
+                            {address.city && address.state && (
+                                <Text variant="styles.p" sx={{ textTransform: "capitalize" }}>
+                                    {address.city}, {address.state}
+                                </Text>
+                            )}
+                            {props.website && <Heading variant="styles.h4">Website</Heading>}
+                            {props.website && (
+                                <Text
+                                    variant="styles.p"
+                                    sx={{ textAlign: "left", width: "100%", wordWrap: "break-word" }}
+                                >
+                                    <a href={props.website}>Link</a>
+                                </Text>
+                            )}
+                        </>
+                    )}
                 </Flex>
             </Flex>
             {/* Right col (map) */}
