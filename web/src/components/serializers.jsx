@@ -1,10 +1,11 @@
 /** @jsxImportSource theme-ui */
 import { Themed } from "theme-ui"
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "gatsby";
 import ReactPlayer from "react-player";
 import InstagramEmbed from "react-instagram-embed";
 import SanityImage from "gatsby-plugin-sanity-image"
+import { FiMaximize2, FiX } from "react-icons/fi";
 import { Box, Text } from '@theme-ui/components';
 
 var style = {
@@ -55,39 +56,147 @@ const AuthorReference = ({ node }) => {
 
 const ImageBlock = ({ node }) => {
   const caption = node?.caption || node?.alt;
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   return (
     <Box
       sx={{
         backgroundColor: "#e0e0e0",
-        padding: "0.75rem",
-        borderRadius: "10px",
+        padding: 0,
+        borderRadius: "18px",
+        overflow: "hidden",
         my: 4,
         boxShadow: "0 16px 30px -20px rgba(0, 0, 0, 0.35)",
       }}
     >
-      <SanityImage
-        {...node}
-        width={900}
-        alt={node?.alt || ""}
-        sx={{
-          width: "100%",
-          objectFit: "cover",
-          borderRadius: "8px",
-        }}
-      />
-      {caption ? (
-        <Text
+      <Box sx={{ position: "relative" }}>
+        <SanityImage
+          {...node}
+          width={900}
+          alt={node?.alt || ""}
           sx={{
-            variant: "styles.p",
-            pt: "0.75rem",
-            px: "0.25rem",
-            color: "darkgray",
-            fontStyle: "italic",
+            width: "100%",
+            objectFit: "cover",
+            display: "block",
+            borderRadius: "18px 18px 0 0",
+          }}
+        />
+        <Box
+          as="button"
+          type="button"
+          aria-label="Expand image"
+          onClick={() => setIsOpen(true)}
+          sx={{
+            position: "absolute",
+            right: "0.75rem",
+            bottom: "0.75rem",
+            width: "36px",
+            height: "36px",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "999px",
+            border: "none",
+            cursor: "pointer",
+            bg: "rgba(0,0,0,0.65)",
+            color: "white",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.35)",
+            "&:hover": {
+              bg: "rgba(0,0,0,0.85)"
+            }
           }}
         >
-          {caption}
-        </Text>
+          <FiMaximize2 size={16} />
+        </Box>
+      </Box>
+      {caption ? (
+        <Box sx={{ px: "0.75rem", py: "0.75rem" }}>
+          <Text
+            sx={{
+              variant: "styles.p",
+              color: "darkgray",
+              fontStyle: "italic",
+            }}
+          >
+            {caption}
+          </Text>
+        </Box>
       ) : null}
+      {isOpen && (
+        <Box
+          sx={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 2000,
+            bg: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: ["1rem", "1.5rem"],
+          }}
+          onClick={() => setIsOpen(false)}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              maxWidth: "1200px",
+              width: "100%",
+              maxHeight: "90vh",
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <SanityImage
+              {...node}
+              width={1600}
+              alt={node?.alt || ""}
+              sx={{
+                width: "100%",
+                maxHeight: "90vh",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+            <Box
+              as="button"
+              type="button"
+              aria-label="Close image"
+              onClick={() => setIsOpen(false)}
+              sx={{
+                position: "absolute",
+                top: "-0.5rem",
+                right: "-0.5rem",
+                width: "36px",
+                height: "36px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "999px",
+                border: "none",
+                cursor: "pointer",
+                bg: "white",
+                color: "black",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.35)",
+                "&:hover": {
+                  bg: "lightgray"
+                }
+              }}
+            >
+              <FiX size={18} />
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

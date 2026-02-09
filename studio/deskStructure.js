@@ -14,9 +14,11 @@ import {
 import {
   RiCalendarCheckLine as ActiveIcon,
   RiCalendar2Line as AllEventIcon,
-  RiCalendarEventLine as CatIcon,
+  RiFolder2Line as CatIcon,
   RiAdvertisementLine as AdIcon,
   RiAdvertisementFill as AdIconFill,
+  RiHeartLine as HeartIcon,
+  RiHeartFill as HeartFillIcon,
 } from 'react-icons/ri'
 import { 
   ImStatsBars2 as TierIcon 
@@ -222,6 +224,56 @@ export default (S) =>
                 .title('Categories')
             ])
         ),
+        // volunteers
+        S.listItem()
+        .title('Volunteers')
+        .icon(HeartIcon)
+        .child(
+          S.list()
+            .title('Volunteers')
+            .items([
+              S.listItem()
+                .title('Active roles')
+                .schemaType('volunteerRole')
+                .icon(HeartFillIcon)
+                .child(
+                  S.documentList('volunteerRole')
+                    .title('Active roles')
+                    .menuItems(S.documentTypeList('volunteerRole').getMenuItems())
+                    .filter('_type == "volunteerRole" && active && !(_id in path("drafts.**"))')
+                    .child((documentId) =>
+                      S.document()
+                        .documentId(documentId)
+                        .schemaType('volunteerRole')
+                    )
+                ),
+              S.documentTypeListItem('volunteerRole')
+                .title('All roles')
+                .icon(HeartIcon),
+              S.listItem()
+                .title('Roles by category')
+                .child(
+                  S.documentTypeList('volunteerCategory')
+                    .title('Roles by category')
+                    .child(catId =>
+                      S.documentTypeList('volunteerRole')
+                        .title('Roles')
+                        .filter(
+                          '_type == "volunteerRole" && $catId == category._ref'
+                        )
+                        .params({ catId })
+                        .child((documentId) =>
+                          S.document()
+                            .documentId(documentId)
+                            .schemaType('volunteerRole')
+                        )
+                    )
+                ),
+              S.divider(),
+              S.documentTypeListItem('volunteerCategory')
+                .title('Categories')
+            ])
+        ),
         S.divider(),
         // site settings
         S.listItem()
@@ -311,11 +363,5 @@ export default (S) =>
                       .filter('_type == "page" && _id != "frontpage"')
                   ),
               ])
-          ),
-      S.divider(),
-      //...workflowListItems,
-      // This returns an array of all the document types
-      // defined in schema.js. We filter out those that we have
-      // defined the structure above
-      //...S.documentTypeListItems().filter(hiddenDocTypes),
+          )
     ])

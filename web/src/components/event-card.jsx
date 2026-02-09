@@ -133,7 +133,13 @@ const EventCard = ({ event, href }) => {
           {event.title}
         </Heading>
         {cityState && !isOnline && (
-          <Text sx={{ variant: "styles.h5", textTransform: "capitalize" }}>
+          <Text
+            sx={{
+              variant: "styles.h5",
+              fontWeight: "body",
+              textTransform: "capitalize"
+            }}
+          >
             {cityState}
           </Text>
         )}

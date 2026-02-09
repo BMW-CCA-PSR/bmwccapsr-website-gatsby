@@ -37,7 +37,7 @@ function RelatedContent(props) {
                         width: "100%",
                         mx: "auto",
                         mb: "1rem",
-                        borderRadius: "8px",
+                        borderRadius: "18px",
                         borderStyle: "solid",
                         borderColor: "black",
                         borderWidth: "1px",
@@ -55,7 +55,7 @@ function RelatedContent(props) {
                                 width: "100%",
                                 height: "100%",
                                 objectFit: "cover",
-                                borderRadius: "8px",
+                                borderRadius: "18px",
                                 zIndex: "-1"
                             }}
                         />
@@ -156,7 +156,13 @@ function RelatedContent(props) {
                         {title}
                     </Heading>
                     {!isOnline && (
-                        <Text sx={{ variant: "styles.h5", textTransform: "capitalize" }}>
+                        <Text
+                            sx={{
+                                variant: "styles.h5",
+                                textTransform: "capitalize",
+                                fontWeight: "body"
+                            }}
+                        >
                             {cityState}
                         </Text>
                     )}

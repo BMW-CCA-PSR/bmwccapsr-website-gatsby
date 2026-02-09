@@ -61,6 +61,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 							display: 'flex',
 							position: 'absolute',
 							zIndex: 1250
+							, left: ['16px', '16px', '24px', '32px']
 						}}
 					>
 						<Logo />
@@ -114,7 +115,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
 						display: 'block',
 						my: "-60px",
 						py: "40px",
-						z: 5
+						zIndex: 1400
 						
 					}}>
 					<div sx={{ my: "-20px",textAlign: "right"}}>

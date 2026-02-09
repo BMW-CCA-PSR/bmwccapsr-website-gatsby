@@ -14,6 +14,7 @@ import Seo from "../components/seo";
 import GraphQLErrorList from "../components/graphql-error-list";
 import ContentContainer from "../components/content-container";
 import PortableText from "../components/portableText";
+import { BoxIcon } from "../components/box-icons";
 
 const baseJoinUrl = "https://www.bmwcca.org/join";
 const heroImage = "/images/bmw-join-image.jpg";
@@ -275,8 +276,16 @@ const QrLandingPage = (props) => {
                 gap: "0.75rem"
               }}
             >
-              <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
+              <Heading as="h2" sx={{ variant: "styles.h2", mb: "0.25rem" }}>
                 Event highlights for {eventYear}
+                <BoxIcon
+                  as="span"
+                  sx={{
+                    display: "inline-grid",
+                    ml: "0.5rem",
+                    verticalAlign: "middle"
+                  }}
+                />
               </Heading>
               <Link
                 to="/events"
@@ -746,8 +755,16 @@ const QrLandingPage = (props) => {
               pr: ["16px", "16px", "50px", "100px"]
             }}
           >
-            <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
+            <Heading as="h2" sx={{ variant: "styles.h2", mb: "0.25rem" }}>
               Member benefits
+              <BoxIcon
+                as="span"
+                sx={{
+                  display: "inline-grid",
+                  ml: "0.5rem",
+                  verticalAlign: "middle"
+                }}
+              />
             </Heading>
             <Box
               as="hr"
@@ -1023,10 +1040,10 @@ const QrLandingPage = (props) => {
                 textAlign: "center"
               }}
             >
-              <Heading sx={{ variant: "styles.h2", color: "white" }}>
+              <Heading as="h2" sx={{ variant: "styles.h2", color: "white" }}>
                 Ready to join?
               </Heading>
-              <Text sx={{ mt: "0.75rem", maxWidth: "38rem", mx: "auto" }}>
+              <Text sx={{ mt: "1.25rem", maxWidth: "38rem", mx: "auto" }}>
                 Membership gets you access to local events, the national BMW CCA
                 community, and a full calendar of experiences.
               </Text>

@@ -11,6 +11,8 @@ import eventCategory from './documents/eventCategory'
 import tier from './documents/tier'
 import advertiser from './documents/advertiser'
 import advertiserCategory from './documents/advertiserCategory'
+import volunteerRole from './documents/volunteerRole'
+import volunteerCategory from './documents/volunteerCategory'
 import workflow from './documents/workflow'
 
 // Object types
@@ -45,6 +47,7 @@ import joinEventItem from './objects/joinEventItem'
 import joinEventSection from './objects/joinEventSection'
 import joinBenefitItem from './objects/joinBenefitItem'
 import joinHero from './objects/joinHero'
+import motorsportRegEvent from './objects/motorsportRegEvent'
 
 export default [
     variation,
@@ -70,6 +73,8 @@ export default [
     tier,
     advertiser,
     advertiserCategory,
+    volunteerRole,
+    volunteerCategory,
     address,
     workflow,
     poc,
@@ -90,5 +95,6 @@ export default [
     joinEventSection,
     joinBenefitItem,
     joinHero,
-    pdfUpload
+    pdfUpload,
+    motorsportRegEvent
 ]

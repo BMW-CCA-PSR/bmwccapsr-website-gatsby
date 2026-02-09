@@ -4,6 +4,7 @@ import React from "react";
 import { Box, Container } from "@theme-ui/components";
 import { StaticImage } from "gatsby-plugin-image";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
+import { FiExternalLink } from "react-icons/fi";
 
 const Footer = ({ siteTitle }) => (
   <div
@@ -59,13 +60,38 @@ const Footer = ({ siteTitle }) => (
         <Link to="/partners" sx={{ textDecoration: "none", color: "gray" }}>
           Partners
         </Link>
+        <Link to="/volunteer" sx={{ textDecoration: "none", color: "gray" }}>
+          Volunteer
+        </Link>
+        <OutboundLink
+          href="https://cdn.bmwcca.org/static/join/index.html"
+          rel="noopener noreferrer"
+          target="_blank"
+          sx={{
+            textDecoration: "none",
+            color: "gray",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.35rem"
+          }}
+        >
+          Join
+          <FiExternalLink size={14} aria-hidden="true" />
+        </OutboundLink>
         <OutboundLink
           href="http://bmw-cca-puget-sound-chapter.square.site/"
           rel="noopener noreferrer"
           target="_blank"
-          sx={{ textDecoration: "none", color: "gray" }}
+          sx={{
+            textDecoration: "none",
+            color: "gray",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.35rem"
+          }}
         >
           Shop
+          <FiExternalLink size={14} aria-hidden="true" />
         </OutboundLink>
       </Box>
       <Box

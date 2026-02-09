@@ -5,7 +5,23 @@ const { isFuture, parseISO } = require("date-fns");
  * See: https://www.gatsbyjs.org/docs/node-apis/
  */
 
+const normalizeVolunteerPath = (slugValue, pathPrefix = "/volunteer") => {
+  const trimmed = String(slugValue || "").trim();
+  if (!trimmed) return pathPrefix;
+  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  if (withSlash === pathPrefix || withSlash.startsWith(`${pathPrefix}/`)) {
+    return withSlash.replace(/\/+$/, "");
+  }
+  return `${pathPrefix}${withSlash}`.replace(/\/+$/, "");
+};
+
 exports.createSchemaCustomization = ({ actions, schema }) => {
+  actions.createTypes(`
+    extend type SanityVolunteerRole {
+      skillLevel: String
+      membershipRequired: Boolean
+    }
+  `);
   actions.createTypes([
     schema.buildObjectType({
       name: "SanityJoinHero",
@@ -119,6 +135,55 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         onlineLink: {
           type: "String",
         },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityVolunteerCategory",
+      interfaces: ["Node"],
+      fields: {
+        title: { type: "String" },
+        description: { type: "String" },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityMotorsportRegEvent",
+      fields: {
+        eventId: { type: "String" },
+        name: { type: "String" },
+        start: { type: "Date" },
+        end: { type: "Date" },
+        url: { type: "String" },
+        imageUrl: { type: "String" },
+        venueName: { type: "String" },
+        venueCity: { type: "String" },
+        venueRegion: { type: "String" },
+        organizationId: { type: "String" },
+      },
+    }),
+    schema.buildObjectType({
+      name: "SanityVolunteerRole",
+      interfaces: ["Node"],
+      extensions: {
+        infer: false,
+      },
+      fields: {
+        title: { type: "String" },
+        slug: { type: "SanitySlug" },
+        active: { type: "Boolean" },
+        isActive: {
+          type: "Boolean!",
+          resolve: (source) => Boolean(source.active),
+        },
+        workDescription: { type: "String" },
+        date: { type: "Date" },
+        duration: { type: "String" },
+        compensation: { type: "String" },
+        volunteerPoints: { type: "Int" },
+        skillLevel: { type: "String" },
+        membershipRequired: { type: "Boolean" },
+        descriptionPdf: { type: "SanityFile" },
+        category: { type: "SanityVolunteerCategory" },
+        motorsportRegEvent: { type: "SanityMotorsportRegEvent" },
       },
     }),
   ]);
@@ -237,7 +302,7 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
   await graphql(`
     {
       allSanityEvent(
-        filter: { slug: { current: { ne: null } }, isActive: { eq: true } }
+        filter: { slug: { current: { ne: null } } }
         sort: { fields: [startTime], order: ASC }
         ) {
         edges {
@@ -261,23 +326,21 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
     }
   `).then(result => {
     const eventEdges = (result.data.allSanityEvent || {}).edges || [];
-    eventEdges
-      .filter((edge) => isFuture(parseISO(edge.node.startTime)))
-      .forEach((edge) => {
-        const { id, slug = {} } = edge.node;
-        const { next, previous } = edge;
-        const path = `${pathPrefix}/${slug.current}/`;
-        reporter.info(`Creating events page: ${path}`);
-        createPage({
-          path,
-          component: eventPageTemplate,
-          context: { 
-            id,
-            next: next ? next.id : null, 
-            prev: previous ? previous.id : null
-          },
-        });
+    eventEdges.forEach((edge) => {
+      const { id, slug = {} } = edge.node;
+      const { next, previous } = edge;
+      const path = `${pathPrefix}/${slug.current}/`;
+      reporter.info(`Creating events page: ${path}`);
+      createPage({
+        path,
+        component: eventPageTemplate,
+        context: {
+          id,
+          next: next ? next.id : null,
+          prev: previous ? previous.id : null,
+        },
       });
+    });
       const eventPerPage = 6
       const numPages = Math.ceil(eventEdges.length / eventPerPage)
   
@@ -314,10 +377,45 @@ async function createArchivePages(pathPrefix = "/zundfolge/archive", graphql, ac
   });
 }
 
+// VOLUNTEER ROLE PAGES
+
+async function createVolunteerRolePages(pathPrefix = "/volunteer", graphql, actions, reporter) {
+  const { createPage } = actions;
+  const volunteerRoleTemplate = require.resolve("./src/templates/volunteer-role.js");
+  await graphql(`
+    {
+      allSanityVolunteerRole(filter: { slug: { current: { ne: null } } }) {
+        edges {
+          node {
+            id
+            slug {
+              current
+            }
+          }
+        }
+      }
+    }
+  `).then((result) => {
+    const roleEdges = (result.data.allSanityVolunteerRole || {}).edges || [];
+    roleEdges.forEach((edge) => {
+      const { id, slug = {} } = edge.node;
+      const normalizedPath = normalizeVolunteerPath(slug.current, pathPrefix);
+      const path = normalizedPath.endsWith("/") ? normalizedPath : `${normalizedPath}/`;
+      reporter.info(`Creating volunteer role page: ${path}`);
+      createPage({
+        path,
+        component: volunteerRoleTemplate,
+        context: { id },
+      });
+    });
+  });
+}
+
 exports.createPages = async ({ graphql, actions, reporter }) => {
   await createLandingPages("/", graphql, actions, reporter);
   await createZundfolgePages("/zundfolge", graphql, actions, reporter);
   await createEventPages("/events", graphql, actions, reporter);
+  await createVolunteerRolePages("/volunteer", graphql, actions, reporter);
   await createArchivePages("/zundfolge/archive", graphql, actions, reporter);
 };
 

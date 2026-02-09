@@ -6,7 +6,7 @@ import {
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import { Box, Button, Heading, Text } from "@theme-ui/components";
+import { Box, Button, Heading } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
@@ -14,6 +14,7 @@ import EventPagePreview from "../components/event-page-preview";
 import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
 import { Client } from "../services/FetchClient";
+import CategoryFilterButtons from "../components/category-filter-buttons";
 
 const buildPaginationItems = (current, total, delta = 2) => {
   if (total <= 7) {
@@ -257,11 +258,6 @@ const IndexPage = props => {
     excludeBoardMeetings,
     currentYear
   ]);
-  const hasActiveFilters =
-    selectedCategories.length > 0 ||
-    selectedMonth !== "all" ||
-    selectedYear !== String(currentYear) ||
-    excludeBoardMeetings;
   const selectedMonthLabel =
     monthOptions.find((option) => option.value === selectedMonth)?.label ||
     "All months";
@@ -342,63 +338,12 @@ const IndexPage = props => {
             gap: "0.75rem"
           }}
         >
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-            {categories.map((category) => {
-              const isActive =
-                category === "All"
-                  ? selectedCategories.length === 0
-                  : selectedCategories.includes(category);
-              return (
-                <Button
-                  key={category}
-                  onClick={() => {
-                    if (category === "All") {
-                      setSelectedCategories([]);
-                      return;
-                    }
-                    setSelectedCategories((prev) => {
-                      if (prev.includes(category)) {
-                        return prev.filter((item) => item !== category);
-                      }
-                      return [...prev, category];
-                    });
-                  }}
-                  sx={{
-                    variant: "buttons.primary",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    bg: isActive ? "primary" : "background",
-                    color: isActive ? "white" : "text",
-                    borderRadius: "999px",
-                    px: "1rem",
-                    py: 0,
-                    height: "34px",
-                    lineHeight: 1,
-                    fontSize: "xs",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    "&:hover": {
-                      bg: isActive ? "primary" : "highlight",
-                      color: isActive ? "white" : "text"
-                    }
-                  }}
-                >
-                  {category}
-                </Button>
-              );
-            })}
-            <Text
-              sx={{
-                variant: "text.label",
-                color: "darkgray",
-                px: "0.25rem",
-                alignSelf: "center",
-                display: ["none", "inline-flex"]
-              }}
-            >
-              |
-            </Text>
+          <CategoryFilterButtons
+            categories={categories}
+            selectedCategories={selectedCategories}
+            onChange={setSelectedCategories}
+            showDivider
+          >
             <Button
               onClick={() => setExcludeBoardMeetings((prev) => !prev)}
               sx={{
@@ -418,13 +363,13 @@ const IndexPage = props => {
                 letterSpacing: "0.08em",
                 "&:hover": {
                   bg: excludeBoardMeetings ? "primary" : "highlight",
-                  color: excludeBoardMeetings ? "white" : "text"
+                  color: "white"
                 }
               }}
             >
               Exclude Board Meetings
             </Button>
-          </Box>
+          </CategoryFilterButtons>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
             <Box>
               <label htmlFor="event-month" sx={{ variant: "text.label" }}>
@@ -481,35 +426,6 @@ const IndexPage = props => {
                   </option>
                 ))}
               </select>
-            </Box>
-            <Box sx={{ alignSelf: "flex-end" }}>
-              <Button
-                onClick={() => {
-                  setSelectedCategories([]);
-                  setSelectedMonth("all");
-                  setSelectedYear(String(currentYear));
-                  setExcludeBoardMeetings(false);
-                }}
-                disabled={!hasActiveFilters}
-                sx={{
-                  variant: "buttons.primary",
-                  bg: hasActiveFilters ? "secondary" : "background",
-                  color: hasActiveFilters ? "white" : "darkgray",
-                  borderRadius: "999px",
-                  px: "1.25rem",
-                  py: "0.5rem",
-                  fontSize: "xs",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  cursor: hasActiveFilters ? "pointer" : "not-allowed",
-                  "&:hover": {
-                    bg: hasActiveFilters ? "primary" : "background",
-                    color: hasActiveFilters ? "white" : "darkgray"
-                  }
-                }}
-              >
-                Reset
-              </Button>
             </Box>
           </Box>
         </Box>

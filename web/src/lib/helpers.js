@@ -25,6 +25,22 @@ export function getEventsUrl(slug) {
   return `/events/${slug.current || slug}/`;
 }
 
+export function normalizeVolunteerPath(slug) {
+  const value = (slug && slug.current) || slug || "";
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "/volunteer";
+  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  if (withSlash === "/volunteer" || withSlash.startsWith("/volunteer/")) {
+    return withSlash.replace(/\/+$/, "");
+  }
+  return `/volunteer${withSlash}`.replace(/\/+$/, "");
+}
+
+export function getVolunteerRoleUrl(slug) {
+  const normalized = normalizeVolunteerPath(slug);
+  return normalized.endsWith("/") ? normalized : `${normalized}/`;
+}
+
 export function buildImageObj(source = { asset: {} }) {
   const imageObj = {
     asset: { _ref: source.asset._ref || source.asset._id }

@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { format, formatDistance } from "date-fns";
+import { format, formatDistanceStrict } from "date-fns";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image"
 import PortableText from "./portableText";
@@ -11,10 +11,14 @@ import EventDetails from "./event-detail";
 import { randomGenerator } from "../lib/helpers"
 import { BoxAd } from "./ads";
 import ContentContainer from "./content-container";
+import { BoxIcon } from "./box-icons";
 
 function EventPage(props) {
   const { _rawBody, _updatedAt, category, title, mainImage, startTime, next, prev, boxes } = props;
-  var startInDays = startTime && (formatDistance(new Date(startTime), new Date()))
+  const isPast = startTime ? new Date(startTime) < new Date() : false;
+  const startInDays = startTime
+    ? formatDistanceStrict(new Date(startTime), new Date(), { addSuffix: true })
+    : null;
   var start = startTime && (format(new Date(startTime), "MMMM do, yyyy"))
   var updated = _updatedAt && (format(new Date(_updatedAt), "MMMM do, yyyy"))
   const cat = category.title
@@ -37,12 +41,28 @@ function EventPage(props) {
           flexDirection: "column",
         }}>
           <Text variant="text.label"><Link to="/events/" sx={{textDecoration:"none", color: "text"}}>Events</Link> / {cat}</Text>
-          <Heading variant="styles.h1">{title}</Heading>
-          <Text sx={{variant: "styles.h3", py: "1rem"}}>{start} | {startInDays}</Text>
+          <Heading variant="styles.h1">
+            {title}
+            {isPast ? " (past)" : ""}
+            <BoxIcon
+              as="span"
+              sx={{
+                display: "inline-grid",
+                ml: "0.5rem",
+                verticalAlign: "middle"
+              }}
+            />
+          </Heading>
+          <Text sx={{variant: "styles.h3", py: "1rem"}}>
+            {start}
+            {startInDays ? ` | ${startInDays}` : ""}
+          </Text>
           <Text sx={{variant: "styles.p"}}>Last updated: {updated}</Text>
           {mainImage && mainImage.asset && (
             <div sx={{
               maxHeight: "500px",
+              overflow: "hidden",
+              borderRadius: "18px",
             }}>
               <SanityImage {...mainImage} width={1440}
                 sx={{
@@ -53,7 +73,7 @@ function EventPage(props) {
             </div>
           )}
           {_rawBody && <PortableText body={_rawBody} boxed />}
-          <EventDetails {...props}/>
+          <EventDetails {...props} isPast={isPast} />
         </Flex>
         <div sx={next || prev ? {
           display: ["none", "none", "flex"],

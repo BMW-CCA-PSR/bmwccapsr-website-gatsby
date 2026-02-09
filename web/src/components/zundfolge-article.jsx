@@ -13,6 +13,7 @@ import { Avatar } from 'theme-ui'
 import { imageUrlFor } from "../lib/image-url";
 import ContentContainer from "./content-container";
 import { getZundfolgeUrl } from "../lib/helpers";
+import { BoxIcon } from "./box-icons";
 
 const ArticleNavCard = ({ post, label }) => {
   if (!post) return null;
@@ -23,7 +24,7 @@ const ArticleNavCard = ({ post, label }) => {
         sx={{
           position: "relative",
           overflow: "hidden",
-          borderRadius: "12px",
+          borderRadius: "18px",
           border: "1px solid",
           borderColor: "black",
           minHeight: ["220px", "240px", "260px"],
@@ -40,6 +41,7 @@ const ArticleNavCard = ({ post, label }) => {
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              borderRadius: "18px",
             }}
           />
         )}
@@ -122,7 +124,16 @@ function ZundfolgeArticle(props) {
           //pr: "16px",
           flexDirection: "column",
         }}>
-          <Text variant="text.label">
+          <Text
+            variant="text.label"
+            sx={{
+              position: "relative",
+              zIndex: 2,
+              display: "inline-flex",
+              alignItems: "center",
+              mb: "0.25rem"
+            }}
+          >
             <Link
               to="/zundfolge/"
               sx={{
@@ -132,7 +143,9 @@ function ZundfolgeArticle(props) {
                 alignItems: "center",
                 cursor: "pointer",
                 px: "0.15em",
-                mx: "-0.15em"
+                mx: "-0.15em",
+                position: "relative",
+                zIndex: 3
               }}
             >
               Zundfolge
@@ -142,7 +155,17 @@ function ZundfolgeArticle(props) {
             </Text>
             {cat}
           </Text>
-          <Heading variant="styles.h1">{title}</Heading>
+          <Heading variant="styles.h1" sx={{ position: "relative", zIndex: 1 }}>
+            {title}
+            <BoxIcon
+              as="span"
+              sx={{
+                display: "inline-grid",
+                ml: "0.5rem",
+                verticalAlign: "middle"
+              }}
+            />
+          </Heading>
           <Flex sx={{py:"0.5rem", width: "100%", alignItems: "center", gap: "0.75rem"}}>
             {avatarUrls.length > 0 && (
               <Box
@@ -178,6 +201,8 @@ function ZundfolgeArticle(props) {
           {mainImage && mainImage.asset && (
             <div sx={{
               maxHeight: "500px",
+              overflow: "hidden",
+              borderRadius: "18px",
             }}>
               <SanityImage {...mainImage} width={1440}
                 sx={{

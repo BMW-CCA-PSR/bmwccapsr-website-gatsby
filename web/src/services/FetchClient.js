@@ -43,6 +43,48 @@ export class Client {
     );
   }
 
+  fetchVolunteerRoles = () => {
+    return this.client.fetch(
+      `*[_type == "volunteerRole" && active == true] | order(motorsportRegEvent.start asc, _createdAt desc){
+        _id,
+        title,
+        slug,
+        active,
+        workDescription,
+        date,
+        duration,
+        compensation,
+        volunteerPoints,
+        skillLevel,
+        membershipRequired,
+        descriptionPdf{
+          asset->{url}
+        },
+        category->{title},
+        motorsportRegEvent{
+          eventId,
+          name,
+          start,
+          end,
+          url,
+          imageUrl,
+          venueName,
+          venueCity,
+          venueRegion
+        }
+      }`
+    );
+  }
+
+  fetchVolunteerCategories = () => {
+    return this.client.fetch(
+      `*[_type == "volunteerCategory"] | order(title asc){
+        _id,
+        title
+      }`
+    );
+  }
+
   fetchEvents = () => {
     return this.client.fetch(
       `*[_type == "event" && (

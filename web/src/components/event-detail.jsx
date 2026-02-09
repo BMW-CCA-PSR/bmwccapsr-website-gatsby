@@ -4,7 +4,7 @@ import { format, differenceInHours } from "date-fns";
 import { Heading, Text, Flex, Box } from "@theme-ui/components";
 
 function EventDetails(props) {
-    const { startTime, endTime } = props;
+    const { startTime, endTime, isPast } = props;
     const address = props.address || {};
     var start = startTime && (format(new Date(startTime), "eeee MMMM do, yyyy"))
     var numHours = startTime && endTime && (differenceInHours(new Date(endTime), new Date(startTime)))
@@ -17,6 +17,23 @@ function EventDetails(props) {
         borderRadius: "18px",
         overflow: "hidden",
     }}>
+        {isPast && (
+            <Box
+                sx={{
+                    width: "100%",
+                    px: 3,
+                    py: "0.75rem",
+                    backgroundColor: "#f5d76e",
+                    color: "black",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    fontSize: "xs",
+                    fontWeight: "heading",
+                }}
+            >
+                This event has already passed
+            </Box>
+        )}
         <Flex sx={{
         flexDirection: ["column", "column", "row"],
         }}>
