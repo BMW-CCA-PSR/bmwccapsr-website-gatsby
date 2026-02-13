@@ -63,51 +63,91 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           </Text>
           Overview
         </Text>
-        <Heading as="h1" sx={{ variant: "styles.h1", mt: "1rem", mb: "0.75rem" }}>
-          Volunteering Overview
-          <BoxIcon
-            as="span"
+        <Flex
+          sx={{
+            flexDirection: ["column", "column", "row", "row"],
+            alignItems: ["flex-start", "flex-start", "flex-start", "flex-start"],
+            justifyContent: "space-between",
+            gap: ["1rem", "1rem", "2.5rem", "2.5rem"]
+          }}
+        >
+          <Box sx={{ flex: "1 1 auto", minWidth: 0, maxWidth: "900px" }}>
+            <Heading as="h1" sx={{ variant: "styles.h1", mt: "1rem", mb: "0.75rem" }}>
+              Volunteering Overview
+              <BoxIcon
+                as="span"
+                sx={{
+                  display: "inline-grid",
+                  ml: "0.5rem",
+                  verticalAlign: "middle"
+                }}
+              />
+            </Heading>
+            <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
+              Volunteering is how PSR delivers safe, memorable events and builds a
+              strong community. From first-time helpers to experienced leaders,
+              there are roles matched to your time, interests, and skill level.
+              Use this overview to understand how roles are structured and how to
+              get started.
+            </Text>
+          </Box>
+          <Box
+            as="img"
+            src="/images/volunteer1.jpg"
+            alt="Volunteers supporting BMW CCA events"
             sx={{
-              display: "inline-grid",
-              ml: "0.5rem",
-              verticalAlign: "middle"
+              width: ["100%", "100%", "320px", "360px"],
+              height: ["230px", "260px", "220px", "240px"],
+              objectFit: "cover",
+              borderRadius: "18px",
+              flex: "0 0 auto"
             }}
           />
-        </Heading>
-        <Box sx={{ maxWidth: "900px" }}>
-          <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
-            Volunteering is how PSR delivers safe, memorable events and builds a
-            strong community. From first-time helpers to experienced leaders,
-            there are roles matched to your time, interests, and skill level.
-            Use this overview to understand how roles are structured and how to
-            get started.
-          </Text>
-
+        </Flex>
+        <Box>
           <Heading as="h2" sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}>
             Skill Level Guide
           </Heading>
           <Box
             sx={{
-              border: "1px solid",
-              borderColor: "lightgray",
-              borderRadius: "16px",
+              border: "2px solid",
+              borderColor: "black",
+              borderRadius: "18px",
               overflow: "hidden",
               display: "grid",
               gridTemplateColumns: ["1fr", "1fr", "repeat(3, minmax(0, 1fr))"],
-              mb: "1.5rem"
+              mb: "1.75rem"
             }}
           >
             <Box
               sx={{
                 backgroundColor: "#e8f7ec",
-                p: "1rem"
+                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
+                minHeight: ["auto", "auto", "180px", "200px"],
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                transition: "background-color 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "#d4f1dd"
+                }
               }}
             >
-              <Flex sx={{ alignItems: "center", gap: "0.5rem" }}>
-                <FiArrowDownRight size={18} />
-                <Text sx={{ fontWeight: "heading" }}>Entry</Text>
+              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+                <FiArrowDownRight size={32} />
+                <Heading
+                  as="h3"
+                  sx={{
+                    variant: "styles.h3",
+                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
+                    my: 0
+                  }}
+                >
+                  Entry
+                </Heading>
               </Flex>
-              <Text sx={{ variant: "styles.p", mt: "0.35rem" }}>
+              <Text sx={{ variant: "styles.p", fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"], mt: "0.5rem" }}>
                 Great for first-time volunteers
                 <Box as="span" sx={{ display: "block" }}>
                   and limited availability.
@@ -116,17 +156,37 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             </Box>
             <Box
               sx={{
-                borderLeft: "1px solid",
-                borderLeftColor: "lightgray",
+                borderLeft: ["none", "none", "2px solid", "2px solid"],
+                borderLeftColor: "black",
+                borderTop: ["2px solid", "2px solid", "none", "none"],
+                borderTopColor: "black",
                 backgroundColor: "#fff6d5",
-                p: "1rem"
+                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
+                minHeight: ["auto", "auto", "180px", "200px"],
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                transition: "background-color 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "#ffe9a6"
+                }
               }}
             >
-              <Flex sx={{ alignItems: "center", gap: "0.5rem" }}>
-                <FiArrowRight size={18} />
-                <Text sx={{ fontWeight: "heading" }}>Medium</Text>
+              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+                <FiArrowRight size={32} />
+                <Heading
+                  as="h3"
+                  sx={{
+                    variant: "styles.h3",
+                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
+                    my: 0
+                  }}
+                >
+                  Medium
+                </Heading>
               </Flex>
-              <Text sx={{ variant: "styles.p", mt: "0.35rem" }}>
+              <Text sx={{ variant: "styles.p", fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"], mt: "0.5rem" }}>
                 Ideal for members ready
                 <Box as="span" sx={{ display: "block" }}>
                   to take on more responsibility.
@@ -135,17 +195,37 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             </Box>
             <Box
               sx={{
-                borderLeft: "1px solid",
-                borderLeftColor: "lightgray",
+                borderLeft: ["none", "none", "2px solid", "2px solid"],
+                borderLeftColor: "black",
+                borderTop: ["2px solid", "2px solid", "none", "none"],
+                borderTopColor: "black",
                 backgroundColor: "#ffe6e6",
-                p: "1rem"
+                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
+                minHeight: ["auto", "auto", "180px", "200px"],
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                transition: "background-color 0.2s ease",
+                "&:hover": {
+                  backgroundColor: "#ffd1d1"
+                }
               }}
             >
-              <Flex sx={{ alignItems: "center", gap: "0.5rem" }}>
-                <FiArrowUpRight size={18} />
-                <Text sx={{ fontWeight: "heading" }}>Hard</Text>
+              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+                <FiArrowUpRight size={32} />
+                <Heading
+                  as="h3"
+                  sx={{
+                    variant: "styles.h3",
+                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
+                    my: 0
+                  }}
+                >
+                  Hard
+                </Heading>
               </Flex>
-              <Text sx={{ variant: "styles.p", mt: "0.35rem" }}>
+              <Text sx={{ variant: "styles.p", fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"], mt: "0.5rem" }}>
                 Best for experienced volunteers
                 <Box as="span" sx={{ display: "block" }}>
                   with specialized skills.

@@ -6,7 +6,7 @@ import {
   filterOutDocsWithoutSlugs,
   filterOutDocsPublishedInTheFuture
 } from "../lib/helpers";
-import { Box, Button, Heading } from "@theme-ui/components";
+import { Box, Button, Heading, Text } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
@@ -319,10 +319,14 @@ const IndexPage = props => {
         pb: "1rem",
       }}>
         <h1 hidden>Welcome to {site.title}</h1>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "0.75rem", pb: "1rem" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "0.75rem", pb: "0.35rem" }}>
           <Heading sx={{ variant: "styles.h1", mb: 0 }}>Events</Heading>
           <BoxIcon />
         </Box>
+        <Text sx={{ variant: "styles.p", color: "text", maxWidth: "760px", mb: "0.75rem" }}>
+          Discover upcoming drives, clinics, social gatherings, and club meetings across the region.
+          Use the filters below to find events that fit your interests and schedule.
+        </Text>
         <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>
           Filter
         </Heading>
@@ -389,7 +393,9 @@ const IndexPage = props => {
                   borderStyle: "solid",
                   borderWidth: "1px",
                   minWidth: "180px",
-                  backgroundColor: "background"
+                  backgroundColor: "background",
+                  fontSize: "xs",
+                  color: "text"
                 }}
               >
                 {monthOptions.map((option) => (
@@ -417,7 +423,9 @@ const IndexPage = props => {
                   borderStyle: "solid",
                   borderWidth: "1px",
                   minWidth: "140px",
-                  backgroundColor: "background"
+                  backgroundColor: "background",
+                  fontSize: "xs",
+                  color: "text"
                 }}
               >
                 {years.map((year) => (
