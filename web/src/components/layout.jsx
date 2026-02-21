@@ -51,7 +51,7 @@ class Layout extends React.Component {
           scrolled={scrolled}
         />
         <>{children}</>
-        <Footer siteTitle={siteTitle} />
+        <Footer siteTitle={siteTitle} navMenuItems={navMenuItems} />
       </>
     );
   }

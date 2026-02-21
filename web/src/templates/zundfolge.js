@@ -4,7 +4,7 @@ import { Link, graphql, withPrefix } from "gatsby";
 import {
   mapEdgesToNodes,
   filterOutDocsWithoutSlugs,
-  filterOutDocsPublishedInTheFuture
+  filterOutDocsPublishedInTheFuture,
 } from "../lib/helpers";
 import ZundfolgeArticleGallery from "../components/zundfolge-article-gallery";
 import { Heading, Text, Card, Box, Button } from "@theme-ui/components";
@@ -21,7 +21,7 @@ const buildPaginationItems = (current, total, delta = 2) => {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => ({
       type: "page",
-      value: i + 1
+      value: i + 1,
     }));
   }
   const items = [{ type: "page", value: 1 }];
@@ -138,13 +138,16 @@ export const query = graphql`
   }
 `;
 
-const IndexPage = props => {
+const IndexPage = (props) => {
   const { data, errors, pageContext } = props;
-  const { numPages, currentPage } = pageContext
-  const isFirst = currentPage === 1
-  const isLast = currentPage === numPages
-  const prevPage = currentPage - 1 === 1 ? "/zundfolge" : `/zundfolge/page/${(currentPage - 1).toString()}`
-  const nextPage =  `/zundfolge/page/${(currentPage + 1).toString()}`
+  const { numPages, currentPage } = pageContext;
+  const isFirst = currentPage === 1;
+  const isLast = currentPage === numPages;
+  const prevPage =
+    currentPage - 1 === 1
+      ? "/zundfolge"
+      : `/zundfolge/page/${(currentPage - 1).toString()}`;
+  const nextPage = `/zundfolge/page/${(currentPage + 1).toString()}`;
   const paginationItems = buildPaginationItems(currentPage, numPages);
 
   if (errors) {
@@ -174,8 +177,8 @@ const IndexPage = props => {
   const menuItems = site.navMenu && (site.navMenu.items || []);
   const indexToRemove = 0;
   const numberToRemove = 4;
-  var galleryNodes = []
-  if (isFirst){
+  var galleryNodes = [];
+  if (isFirst) {
     galleryNodes = postNodes.splice(indexToRemove, numberToRemove);
   }
   return (
@@ -185,13 +188,15 @@ const IndexPage = props => {
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
       />
-      <ContentContainer sx ={{
-        pl: ["16px", "16px", "50px", "100px"],
-        pr: ["16px", "16px", "50px", "100px"],
-        //pr: "16px",
-        pt: ["6.5rem","6.5rem","10rem","10rem"],
-        pb: "1rem",
-      }}>
+      <ContentContainer
+        sx={{
+          pl: ["16px", "16px", "50px", "100px"],
+          pr: ["16px", "16px", "50px", "100px"],
+          //pr: "16px",
+          pt: ["6.5rem", "6.5rem", "10rem", "10rem"],
+          pb: "1rem",
+        }}
+      >
         <h1 hidden>Welcome to {site.title}</h1>
         <div
           sx={{
@@ -203,40 +208,103 @@ const IndexPage = props => {
           }}
         >
           <div>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "0.75rem", mb: 2 }}>
-              <Heading sx={{ variant: "styles.h1", mb: 0, color: zundfolgeRed }}>Zündfolge</Heading>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                mb: 2,
+              }}
+            >
+              <Heading
+                sx={{ variant: "styles.h1", mb: 0, color: zundfolgeRed }}
+              >
+                Zündfolge
+              </Heading>
               <BoxIcon />
             </Box>
-            <div sx={{display: "flex", flexDirection: "column"}}>
-              <div sx={{pb: "0.5rem"}}><Text sx={{variant: "styles.h5", color: "highlight"}}>1</Text> — German for <i>"firing order"</i>.</div>
-              <div><Text sx={{variant: "styles.h5", color: "highlight"}}>2</Text> — The official newsletter of the Puget Sound Chapter CCA Since 1975.</div>
+            <div
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                fontSize: "16pt",
+                lineHeight: 1.4,
+              }}
+            >
+              <div sx={{ pb: "0.5rem" }}>
+                <Text
+                  as="span"
+                  sx={{
+                    color: "highlight",
+                    fontWeight: "heading",
+                    fontSize: "inherit",
+                    lineHeight: "inherit",
+                  }}
+                >
+                  1
+                </Text>{" "}
+                — German for <i>"firing order"</i>.
+              </div>
+              <div>
+                <Text
+                  as="span"
+                  sx={{
+                    color: "highlight",
+                    fontWeight: "heading",
+                    fontSize: "inherit",
+                    lineHeight: "inherit",
+                  }}
+                >
+                  2
+                </Text>{" "}
+                — The official newsletter of the Puget Sound Chapter CCA Since
+                1975.
+              </div>
             </div>
           </div>
           <div sx={{ display: ["none", "none", "block"], minHeight: 220 }}>
-            <Link to="/zundfolge/archive/" sx={{ textDecoration: 'none' }} aria-label="Open the Zündfolge archive">
+            <Link
+              to="/zundfolge/archive/"
+              sx={{ textDecoration: "none" }}
+              aria-label="Open the Zündfolge archive"
+            >
               <Card
                 sx={{
-                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%), url(${withPrefix('/images/zundfolge-archive-collage.png')})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  width: '100%',
-                  height: '100%',
-                  mx: 'auto',
-                  borderRadius: '18px',
-                  borderStyle: 'solid',
-                  borderColor: 'black',
-                  borderWidth: '1px',
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
+                  backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%), url(${withPrefix(
+                    "/images/zundfolge-archive-collage.png"
+                  )})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  width: "100%",
+                  height: "100%",
+                  mx: "auto",
+                  borderRadius: "18px",
+                  borderStyle: "solid",
+                  borderColor: "black",
+                  borderWidth: "1px",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
                 }}
               >
                 <Box p={3}>
-                  <Text sx={{ variant: 'text.label', color: 'white' }}>Archive</Text>
-                  <Heading sx={{ textDecoration: 'none', variant: 'styles.h3', color: 'white' }}>Zündfolge Archive</Heading>
-                  <Text sx={{ color: 'white', opacity: 0.9 }}>Browse decades of issues, covers, and stories.</Text>
+                  <Text sx={{ variant: "text.label", color: "white" }}>
+                    Archive
+                  </Text>
+                  <Heading
+                    sx={{
+                      textDecoration: "none",
+                      variant: "styles.h3",
+                      color: "white",
+                    }}
+                  >
+                    Zündfolge Archive
+                  </Heading>
+                  <Text sx={{ color: "white", opacity: 0.9 }}>
+                    Browse decades of issues, covers, and stories.
+                  </Text>
                 </Box>
               </Card>
             </Link>
@@ -253,28 +321,32 @@ const IndexPage = props => {
             borderBottomStyle: "solid",
             pb: "3px",
             borderBottomWidth: "3px",
-            my: "0.5rem"
+            my: "0.5rem",
           }}
         >
           {isFirst ? "Latest Stories" : "Older Stories"}
         </Heading>
         <div>
-          {isFirst && <ZundfolgeArticleGallery nodes={galleryNodes}/>}
-          <ul sx={{
-            listStyle: 'none',
-            display: 'grid',
-            gridGap: 3,
-            gridTemplateColumns: 'repeat(auto-fit, minmax(max(250px, 35vw), 1fr))',
-            gridAutoRows: "minmax(50px, 300px)",
-            m: 0,
-            p: 0
-          }}>
+          {isFirst && <ZundfolgeArticleGallery nodes={galleryNodes} />}
+          <ul
+            sx={{
+              listStyle: "none",
+              display: "grid",
+              gridGap: 3,
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(max(250px, 35vw), 1fr))",
+              gridAutoRows: "minmax(50px, 300px)",
+              m: 0,
+              p: 0,
+            }}
+          >
             {postNodes.map((node, index) => {
-                return <li
-                  key={index}>
+              return (
+                <li key={index}>
                   <ZundfolgeArticlePreview {...node} />
                 </li>
-              })}
+              );
+            })}
           </ul>
           {numPages > 1 && (
             <Box
@@ -283,7 +355,7 @@ const IndexPage = props => {
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "center",
-                gap: "0.4rem"
+                gap: "0.4rem",
               }}
             >
               <Button
@@ -303,8 +375,8 @@ const IndexPage = props => {
                   textDecoration: "none",
                   "&:hover": {
                     bg: isFirst ? "lightgray" : "highlight",
-                    color: isFirst ? "darkgray" : "text"
-                  }
+                    color: isFirst ? "darkgray" : "text",
+                  },
                 }}
               >
                 Prev
@@ -318,7 +390,7 @@ const IndexPage = props => {
                         px: "0.6rem",
                         py: "0.4rem",
                         color: "gray",
-                        alignSelf: "center"
+                        alignSelf: "center",
                       }}
                     >
                       ...
@@ -348,8 +420,8 @@ const IndexPage = props => {
                       textDecoration: "none",
                       "&:hover": {
                         bg: isActive ? "primary" : "highlight",
-                        color: isActive ? "white" : "text"
-                      }
+                        color: isActive ? "white" : "text",
+                      },
                     }}
                   >
                     {item.value}
@@ -373,8 +445,8 @@ const IndexPage = props => {
                   textDecoration: "none",
                   "&:hover": {
                     bg: isLast ? "lightgray" : "highlight",
-                    color: isLast ? "darkgray" : "text"
-                  }
+                    color: isLast ? "darkgray" : "text",
+                  },
                 }}
               >
                 Next

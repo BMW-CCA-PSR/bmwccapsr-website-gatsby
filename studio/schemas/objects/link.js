@@ -44,18 +44,27 @@ export default {
       select: {
         title: 'title',
         landingPage: 'landingPageRoute.slug.current',
+        route: 'route',
         link: 'href'
       },
-      prepare ({title, landingPage, link}) {
-        let subtitle = 'Not set'
+      prepare ({title, landingPage, route, link}) {
+        const normalizedRoute = route
+          ? (route.startsWith('/') ? route : `/${route}`)
+          : null
+
+        let subtitle = 'No destination set'
         if (landingPage) {
           subtitle = `Route: /${landingPage}`
-        }
-        if (link) {
+        } else if (normalizedRoute) {
+          subtitle = `Path: ${normalizedRoute}`
+        } else if (link) {
           subtitle = `External: ${link}`
         }
+
+        const previewTitle = title || normalizedRoute || (landingPage ? `/${landingPage}` : link) || 'Untitled link'
+
         return {
-          title,
+          title: previewTitle,
           subtitle
         }
       }

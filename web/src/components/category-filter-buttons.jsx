@@ -22,7 +22,10 @@ const CategoryFilterButtons = ({
   onChange,
   showDivider = false,
   showAll = true,
+  allValue = "All",
+  allLabel = "All",
   allSelected,
+  onAllToggle,
   onSelectAll,
   layout = "wrap",
   children
@@ -30,7 +33,11 @@ const CategoryFilterButtons = ({
   const handleToggle = (category) => {
     if (!onChange) return;
     const value = normalizeCategoryValue(category);
-    if (value === "All") {
+    if (value === allValue) {
+      if (onAllToggle) {
+        onAllToggle();
+        return;
+      }
       if (onSelectAll) {
         onSelectAll();
         return;
@@ -54,12 +61,13 @@ const CategoryFilterButtons = ({
     <Box sx={containerStyles}>
       {categories.map((category) => {
         const value = normalizeCategoryValue(category);
-        const label = normalizeCategoryLabel(category);
-        if (!showAll && value === "All") {
+        const rawLabel = normalizeCategoryLabel(category);
+        const label = value === allValue ? allLabel : rawLabel;
+        if (!showAll && value === allValue) {
           return null;
         }
         const isActive =
-          value === "All"
+          value === allValue
             ? typeof allSelected === "boolean"
               ? allSelected
               : selectedCategories.length === 0

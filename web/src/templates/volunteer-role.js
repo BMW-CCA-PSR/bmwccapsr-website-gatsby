@@ -11,6 +11,11 @@ import { OutboundLink } from "gatsby-plugin-google-gtag";
 import { BoxIcon } from "../components/box-icons";
 import { FiHelpCircle } from "react-icons/fi";
 import { getVolunteerRoleUrl, mapEdgesToNodes } from "../lib/helpers";
+import { Client } from "../services/FetchClient";
+import {
+  nonDraggableImageProps,
+  nonDraggableImageSx,
+} from "../lib/nonDraggableImage";
 
 const normalizeImageUrl = (value) => {
   if (!value) return null;
@@ -39,26 +44,41 @@ const formatSkillLevel = (value) => {
   if (!value) return null;
   const normalized = String(value).toLowerCase();
   if (normalized === "entry") return "Entry";
-  if (normalized === "medium") return "Medium";
-  if (normalized === "high") return "High";
+  if (normalized === "medium" || normalized === "intermediate")
+    return "Intermediate";
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return "Advanced";
   return value;
 };
 
 const getSkillTone = (value) => {
   const normalized = String(value || "").toLowerCase();
   if (normalized === "entry") return { bg: "lightgray", color: "text" };
-  if (normalized === "medium") return { bg: "secondary", color: "white" };
-  if (normalized === "high") return { bg: "primary", color: "white" };
+  if (normalized === "medium" || normalized === "intermediate")
+    return { bg: "secondary", color: "white" };
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return { bg: "primary", color: "white" };
   return { bg: "lightgray", color: "text" };
 };
 
 const formatVolunteerPoints = (value) => {
   if (value === undefined || value === null) return null;
-  const count = Math.max(0, Math.min(5, Number(value)));
-  const stars = count > 0 ? "★".repeat(count) : "";
+  const count = Math.max(0, Math.min(10, Number(value)));
+  const stars = count > 0 && count <= 5 ? "★".repeat(count) : "";
   const label = `${count} Point${count === 1 ? "" : "s"}`;
   return stars ? `${stars} ${label}` : label;
 };
+
+const getPositionTitle = (position) =>
+  position?.role?.name?.trim() || "Untitled role";
 
 export const query = graphql`
   query VolunteerRoleTemplateQuery($id: String!) {
@@ -70,25 +90,25 @@ export const query = graphql`
     }
     role: sanityVolunteerRole(id: { eq: $id }) {
       id
-      title
+      role {
+        name
+        description
+        detail
+        pointValue
+      }
       slug {
         current
       }
       active
-      workDescription
       date
       duration
       compensation
-      volunteerPoints
       skillLevel
       membershipRequired
       descriptionPdf {
         asset {
           url
         }
-      }
-      category {
-        title
       }
       motorsportRegEvent {
         eventId
@@ -114,7 +134,10 @@ export const query = graphql`
       edges {
         node {
           id
-          title
+          role {
+            name
+            pointValue
+          }
           slug {
             current
           }
@@ -136,6 +159,33 @@ const VolunteerRoleTemplate = (props) => {
   const role = data?.role;
   const otherRoles = data?.otherRoles ? mapEdgesToNodes(data.otherRoles) : [];
   const menuItems = site?.navMenu?.items || [];
+  const sanity = React.useMemo(() => new Client(), []);
+  const [resolvedRole, setResolvedRole] = React.useState(role?.role || null);
+  const roleSlug = role?.slug?.current;
+
+  React.useEffect(() => {
+    setResolvedRole(role?.role || null);
+  }, [role?.role]);
+
+  React.useEffect(() => {
+    if (!roleSlug) return;
+    if (resolvedRole?.name) return;
+    let isMounted = true;
+    sanity
+      .fetchVolunteerPositionBySlug(roleSlug)
+      .then((result) => {
+        if (!isMounted) return;
+        if (result?.role) {
+          setResolvedRole(result.role);
+        }
+      })
+      .catch(() => {
+        if (!isMounted) return;
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [sanity, roleSlug, resolvedRole?.name]);
 
   if (errors) {
     return (
@@ -150,13 +200,13 @@ const VolunteerRoleTemplate = (props) => {
       <Layout navMenuItems={menuItems}>
         <ContentContainer sx={{ pt: "8rem", pb: "3rem" }}>
           <Heading as="h1" sx={{ variant: "styles.h2" }}>
-            Volunteer role not found
+            Volunteer position not found
           </Heading>
           <Text sx={{ color: "darkgray", mt: "0.5rem" }}>
-            This volunteer role is no longer available.
+            This volunteer position is no longer available.
           </Text>
           <Link to="/volunteer" sx={{ mt: "1rem", display: "inline-block" }}>
-            Back to volunteer roles
+            Back to volunteer positions
           </Link>
         </ContentContainer>
       </Layout>
@@ -164,6 +214,8 @@ const VolunteerRoleTemplate = (props) => {
   }
 
   const event = role?.motorsportRegEvent;
+  const roleReference = resolvedRole || role?.role || null;
+  const positionTitle = roleReference?.name?.trim() || "Untitled role";
   const eventDateRange = formatDateRange(event?.start, event?.end);
   const roleDate = formatDate(role?.date);
   const imageUrl = normalizeImageUrl(event?.imageUrl);
@@ -173,12 +225,19 @@ const VolunteerRoleTemplate = (props) => {
   const showOtherRoles = otherRoles.length > 0;
   const skillLevelLabel = formatSkillLevel(role?.skillLevel);
   const skillTone = getSkillTone(role?.skillLevel);
-  const pointsLabel = formatVolunteerPoints(role?.volunteerPoints);
+  const pointsLabel = formatVolunteerPoints(roleReference?.pointValue);
+  const roleDetails =
+    roleReference?.detail?.trim() || roleReference?.description?.trim() || "";
+  const positionDescription =
+    roleReference?.description || roleReference?.detail || "";
   const valueTextSize = "xs";
 
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
-      <Seo title={role.title || "Volunteer role"} description={role.workDescription || ""} />
+      <Seo
+        title={positionTitle || "Volunteer position"}
+        description={positionDescription}
+      />
       <ContentContainer
         sx={{
           pl: ["16px", "16px", "50px", "100px"],
@@ -187,17 +246,45 @@ const VolunteerRoleTemplate = (props) => {
           pb: "2rem",
         }}
       >
-        <Link to="/volunteer" sx={{ color: "text", textDecoration: "none" }}>
-          ← Back to volunteer roles
-        </Link>
-        <Heading as="h1" sx={{ variant: "styles.h1", mt: "1rem", mb: "0.5rem" }}>
-          {role.title}
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            mb: "0.5rem",
+            width: "fit-content",
+          }}
+        >
+          <Link
+            to="/volunteer"
+            sx={{
+              color: "text",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              px: "0.15em",
+              mx: "-0.15em",
+            }}
+          >
+            ← Back to volunteer positions
+          </Link>
+        </Box>
+        <Heading
+          as="h1"
+          sx={{
+            variant: "styles.h1",
+            mt: 0,
+            mb: "0.5rem",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {positionTitle}
           <BoxIcon
             as="span"
             sx={{
               display: "inline-grid",
               ml: "0.5rem",
-              verticalAlign: "middle"
+              verticalAlign: "middle",
             }}
           />
         </Heading>
@@ -208,7 +295,7 @@ const VolunteerRoleTemplate = (props) => {
           sx={{
             mt: "2rem",
             gap: "1.5rem",
-            flexDirection: ["column", "column", "row", "row"]
+            flexDirection: ["column", "column", "row", "row"],
           }}
         >
           <Box sx={{ flex: ["1 1 100%", "1 1 100%", "1 1 45%"] }}>
@@ -216,28 +303,40 @@ const VolunteerRoleTemplate = (props) => {
               <Box
                 as="img"
                 src={imageUrl}
-                alt={event?.name || role.title}
+                alt={event?.name || positionTitle}
+                {...nonDraggableImageProps}
                 sx={{
                   width: "100%",
                   height: ["220px", "260px", "320px"],
                   objectFit: "cover",
                   borderRadius: "18px",
-                  mb: "1rem"
+                  mb: "1rem",
+                  ...nonDraggableImageSx,
                 }}
               />
             )}
-            <Card sx={{ p: "1.25rem", borderRadius: "18px", border: "1px solid" }}>
-              <Text sx={{ variant: "text.label", color: "darkgray" }}>Event details</Text>
+            <Card
+              sx={{ p: "1.25rem", borderRadius: "18px", border: "1px solid" }}
+            >
+              <Text sx={{ variant: "text.label", color: "darkgray" }}>
+                Event details
+              </Text>
               <Heading as="h2" sx={{ variant: "styles.h3", mt: "0.5rem" }}>
                 {event?.name || "MotorsportReg event"}
               </Heading>
               {eventDateRange && (
-                <Text as="div" sx={{ fontSize: "sm", color: "gray", mt: "0.5rem" }}>
+                <Text
+                  as="div"
+                  sx={{ fontSize: "sm", color: "gray", mt: "0.5rem" }}
+                >
                   {eventDateRange}
                 </Text>
               )}
               {venueLine && (
-                <Text as="div" sx={{ fontSize: "sm", color: "gray", mt: "0.25rem" }}>
+                <Text
+                  as="div"
+                  sx={{ fontSize: "sm", color: "gray", mt: "0.25rem" }}
+                >
                   {venueLine}
                 </Text>
               )}
@@ -252,7 +351,7 @@ const VolunteerRoleTemplate = (props) => {
                     textDecoration: "none",
                     color: "primary",
                     fontWeight: 600,
-                    fontSize: "sm"
+                    fontSize: "sm",
                   }}
                 >
                   Open event in MSR →
@@ -265,11 +364,11 @@ const VolunteerRoleTemplate = (props) => {
               flex: ["1 1 100%", "1 1 100%", "1 1 55%"],
               p: "1.5rem",
               borderRadius: "18px",
-              border: "1px solid"
+              border: "1px solid",
             }}
           >
             <Heading as="h2" sx={{ variant: "styles.h3" }}>
-              Role details
+              Position details
             </Heading>
             <Box
               as="dl"
@@ -284,21 +383,15 @@ const VolunteerRoleTemplate = (props) => {
                   fontSize: "xs",
                   color: "darkgray",
                   letterSpacing: "0.04em",
-                  textTransform: "uppercase"
+                  textTransform: "uppercase",
                 },
                 "& dd": {
                   m: 0,
                   fontSize: valueTextSize,
-                  color: "text"
-                }
+                  color: "text",
+                },
               }}
             >
-              {role?.category?.title && (
-                <>
-                  <Box as="dt">Category</Box>
-                  <Box as="dd">{role.category.title}</Box>
-                </>
-              )}
               {skillLevelLabel && (
                 <>
                   <Box as="dt">
@@ -318,8 +411,8 @@ const VolunteerRoleTemplate = (props) => {
                         backgroundColor: "primary",
                         "&:hover": {
                           backgroundColor: "secondary",
-                          color: "white"
-                        }
+                          color: "white",
+                        },
                       }}
                     >
                       <FiHelpCircle size={16} />
@@ -337,7 +430,7 @@ const VolunteerRoleTemplate = (props) => {
                         fontSize: valueTextSize,
                         fontWeight: "heading",
                         bg: skillTone.bg,
-                        color: skillTone.color
+                        color: skillTone.color,
                       }}
                     >
                       {skillLevelLabel}
@@ -345,12 +438,13 @@ const VolunteerRoleTemplate = (props) => {
                   </Box>
                 </>
               )}
-              {role?.membershipRequired !== undefined && role?.membershipRequired !== null && (
-                <>
-                  <Box as="dt">Membership required</Box>
-                  <Box as="dd">{role.membershipRequired ? "Yes" : "No"}</Box>
-                </>
-              )}
+              {role?.membershipRequired !== undefined &&
+                role?.membershipRequired !== null && (
+                  <>
+                    <Box as="dt">Membership required</Box>
+                    <Box as="dd">{role.membershipRequired ? "Yes" : "No"}</Box>
+                  </>
+                )}
               {pointsLabel && (
                 <>
                   <Box as="dt">
@@ -370,8 +464,8 @@ const VolunteerRoleTemplate = (props) => {
                         backgroundColor: "primary",
                         "&:hover": {
                           backgroundColor: "secondary",
-                          color: "white"
-                        }
+                          color: "white",
+                        },
                       }}
                     >
                       <FiHelpCircle size={16} />
@@ -389,7 +483,7 @@ const VolunteerRoleTemplate = (props) => {
                         fontSize: valueTextSize,
                         fontWeight: "heading",
                         bg: "lightgray",
-                        color: "text"
+                        color: "text",
                       }}
                     >
                       {pointsLabel}
@@ -415,11 +509,16 @@ const VolunteerRoleTemplate = (props) => {
                   <Box as="dd">{role.compensation}</Box>
                 </>
               )}
-              {role?.workDescription && (
+              {roleDetails && (
                 <>
-                  <Box as="dt">Description</Box>
-                  <Box as="dd" sx={{ lineHeight: "body" }}>
-                    {role.workDescription}
+                  <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
+                    Details
+                  </Box>
+                  <Box
+                    as="dd"
+                    sx={{ gridColumn: "1 / -1", lineHeight: "body" }}
+                  >
+                    {roleDetails}
                   </Box>
                 </>
               )}
@@ -427,11 +526,11 @@ const VolunteerRoleTemplate = (props) => {
             {role?.descriptionPdf?.asset?.url && (
               <Box sx={{ mt: "1.5rem" }}>
                 <Text sx={{ variant: "text.label", color: "darkgray" }}>
-                  Role PDF
+                  Position PDF
                 </Text>
                 <Box
                   as="iframe"
-                  title="Volunteer role PDF"
+                  title="Volunteer position PDF"
                   src={role.descriptionPdf.asset.url}
                   sx={{
                     width: "100%",
@@ -439,7 +538,7 @@ const VolunteerRoleTemplate = (props) => {
                     border: "1px solid",
                     borderColor: "lightgray",
                     borderRadius: "12px",
-                    mt: "0.75rem"
+                    mt: "0.75rem",
                   }}
                 />
                 <OutboundLink
@@ -452,7 +551,7 @@ const VolunteerRoleTemplate = (props) => {
                     textDecoration: "none",
                     color: "primary",
                     fontWeight: 600,
-                    fontSize: "sm"
+                    fontSize: "sm",
                   }}
                 >
                   Open PDF in new tab →
@@ -463,28 +562,37 @@ const VolunteerRoleTemplate = (props) => {
         </Flex>
       </ContentContainer>
       {showOtherRoles && (
-        <Box sx={{ backgroundColor: "lightgray", py: ["2rem", "2.5rem", "3rem"], mt: ["2rem", "2.5rem", "3rem"] }}>
+        <Box
+          sx={{
+            backgroundColor: "lightgray",
+            py: ["2rem", "2.5rem", "3rem"],
+            mt: ["2rem", "2.5rem", "3rem"],
+          }}
+        >
           <ContentContainer
             sx={{
               pl: ["16px", "16px", "50px", "100px"],
               pr: ["16px", "16px", "50px", "100px"],
-              pb: ["2rem", "2.5rem", "3rem"]
+              pb: ["2rem", "2.5rem", "3rem"],
             }}
           >
             <Heading sx={{ variant: "styles.h3", mb: "1.25rem" }}>
-              Other Roles
+              Other Positions
             </Heading>
             <Box
               sx={{
                 display: "grid",
                 gridTemplateColumns: ["1fr", "repeat(2, minmax(0, 1fr))"],
-                gap: "1.5rem"
+                gap: "1.5rem",
               }}
             >
               {otherRoles.map((otherRole) => {
+                const otherPositionTitle = getPositionTitle(otherRole);
                 const otherDate = otherRole?.motorsportRegEvent?.start;
                 const otherDateLabel = otherDate ? formatDate(otherDate) : null;
-                const otherImage = normalizeImageUrl(otherRole?.motorsportRegEvent?.imageUrl);
+                const otherImage = normalizeImageUrl(
+                  otherRole?.motorsportRegEvent?.imageUrl
+                );
                 const otherEventName = otherRole?.motorsportRegEvent?.name;
                 const roleUrl = otherRole?.slug?.current
                   ? getVolunteerRoleUrl(otherRole.slug.current)
@@ -503,25 +611,30 @@ const VolunteerRoleTemplate = (props) => {
                       overflow: "hidden",
                       backgroundColor: "background",
                       display: "block",
-                      boxShadow: "0 14px 30px rgba(0,0,0,0.18)"
+                      boxShadow: "0 14px 30px rgba(0,0,0,0.18)",
                     }}
                   >
                     {otherImage && (
                       <Box
                         as="img"
                         src={otherImage}
-                        alt={otherRole.title}
+                        alt={otherPositionTitle}
+                        {...nonDraggableImageProps}
                         sx={{
                           width: "100%",
                           height: "180px",
                           objectFit: "cover",
-                          display: "block"
+                          display: "block",
+                          ...nonDraggableImageSx,
                         }}
                       />
                     )}
                     <Box sx={{ p: "1rem" }}>
-                      <Heading as="h3" sx={{ variant: "styles.h4", mt: "0.35rem" }}>
-                        {otherRole.title}
+                      <Heading
+                        as="h3"
+                        sx={{ variant: "styles.h4", mt: "0.35rem" }}
+                      >
+                        {otherPositionTitle}
                       </Heading>
                       {otherEventName && (
                         <Text
@@ -534,7 +647,11 @@ const VolunteerRoleTemplate = (props) => {
                       {otherDateLabel && (
                         <Text
                           as="div"
-                          sx={{ fontSize: "xs", color: "darkgray", mt: "0.35rem" }}
+                          sx={{
+                            fontSize: "xs",
+                            color: "darkgray",
+                            mt: "0.35rem",
+                          }}
                         >
                           {otherDateLabel}
                         </Text>

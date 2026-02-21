@@ -11,7 +11,12 @@ import { BoxIcon } from "../components/box-icons";
 import CategoryFilterButtons from "../components/category-filter-buttons";
 import { Client } from "../services/FetchClient";
 import { getVolunteerRoleUrl, mapEdgesToNodes } from "../lib/helpers";
+import {
+  nonDraggableImageProps,
+  nonDraggableImageSx,
+} from "../lib/nonDraggableImage";
 import { FiArrowRight } from "react-icons/fi";
+import { FaClipboardList, FaAward, FaUsers } from "react-icons/fa";
 
 export const query = graphql`
   query VolunteerPageQuery {
@@ -25,25 +30,25 @@ export const query = graphql`
       edges {
         node {
           id
-          title
+          role {
+            name
+            description
+            detail
+            pointValue
+          }
           slug {
             current
           }
           active
-          workDescription
           date
           duration
           compensation
-          volunteerPoints
           skillLevel
           membershipRequired
           descriptionPdf {
             asset {
               url
             }
-          }
-          category {
-            title
           }
           motorsportRegEvent {
             eventId
@@ -66,7 +71,7 @@ const buildPaginationItems = (current, total, delta = 2) => {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => ({
       type: "page",
-      value: i + 1
+      value: i + 1,
     }));
   }
   const items = [{ type: "page", value: 1 }];
@@ -93,7 +98,7 @@ const normalizeImageUrl = (value) => {
 };
 
 const sortVolunteerRoles = (items) => {
-  const list = Array.isArray(items) ? [ ...items ] : [];
+  const list = Array.isArray(items) ? [...items] : [];
   const getSortValue = (role) => {
     const value = role?.date || role?.motorsportRegEvent?.start;
     if (!value) return null;
@@ -118,55 +123,94 @@ const sortVolunteerRoles = (items) => {
   });
 };
 
+const getPositionTitle = (position) =>
+  position?.role?.name || position?.title || "Volunteer position";
+
 const VolunteerPage = (props) => {
   const { data, errors } = props;
   const roleNodes = useMemo(
     () =>
-      ((data || {}).roles ? sortVolunteerRoles(mapEdgesToNodes(data.roles)) : []),
+      (data || {}).roles ? sortVolunteerRoles(mapEdgesToNodes(data.roles)) : [],
     [data]
   );
   const sanity = useMemo(() => new Client(), []);
   const [roles, setRoles] = useState(roleNodes);
   const [isLoading, setIsLoading] = useState(roleNodes.length === 0);
   const [pageIndex, setPageIndex] = useState(1);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [activeOnly, setActiveOnly] = useState(true);
+  const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedVenues, setSelectedVenues] = useState([]);
   const [selectedPoints, setSelectedPoints] = useState([]);
+  const [hasInitializedPagination, setHasInitializedPagination] =
+    useState(false);
+  const locationSearch = props.location?.search || "";
 
   const site = (data || {}).site;
   const menuItems = site?.navMenu?.items || [];
-  const activeRoles = roles.filter((role) => role?.active !== false);
-  const categories = useMemo(() => {
+  const activeRoles = useMemo(
+    () => roles.filter((role) => role?.active !== false),
+    [roles]
+  );
+  const rolesByActivity = useMemo(() => {
+    if (!activeOnly) return roles;
+    const now = Date.now();
+    return activeRoles.filter((role) => {
+      const eventDate = role?.motorsportRegEvent?.start || role?.date;
+      if (!eventDate) return false;
+      const timestamp = Date.parse(eventDate);
+      if (!Number.isFinite(timestamp)) return false;
+      return timestamp >= now;
+    });
+  }, [activeRoles, activeOnly, roles]);
+  const roleFilters = useMemo(() => {
     const unique = new Set();
-    activeRoles.forEach((role) => {
-      if (role?.category?.title) unique.add(role.category.title);
+    rolesByActivity.forEach((role) => {
+      const roleName = role?.role?.name;
+      if (roleName) unique.add(roleName);
     });
     const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
     return ["All", ...sorted];
-  }, [activeRoles]);
+  }, [rolesByActivity]);
   const venues = useMemo(() => {
     const unique = new Set();
-    activeRoles.forEach((role) => {
+    rolesByActivity.forEach((role) => {
       const venueName = role?.motorsportRegEvent?.venueName;
       if (venueName) unique.add(venueName);
     });
     const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
     return ["All", ...sorted];
-  }, [activeRoles]);
+  }, [rolesByActivity]);
   const pointOptions = useMemo(() => {
     const unique = new Set();
-    activeRoles.forEach((role) => {
-      if (role?.volunteerPoints !== undefined && role?.volunteerPoints !== null) {
-        unique.add(role.volunteerPoints);
+    rolesByActivity.forEach((role) => {
+      if (
+        role?.role?.pointValue !== undefined &&
+        role?.role?.pointValue !== null
+      ) {
+        unique.add(role.role.pointValue);
       }
     });
     const sorted = Array.from(unique).sort((a, b) => a - b);
     const labeled = sorted.map((value) => ({
       value,
-      label: `${value} pt${value === 1 ? "" : "s"}`
+      label: `${value} pt${value === 1 ? "" : "s"}`,
     }));
     return ["All", ...labeled];
-  }, [activeRoles]);
+  }, [rolesByActivity]);
+  const hasVenueFilterOptions = useMemo(
+    () => venues.some((venue) => venue !== "All"),
+    [venues]
+  );
+  const hasPointFilterOptions = useMemo(
+    () =>
+      pointOptions.some((option) => {
+        if (typeof option === "object" && option !== null) {
+          return option.value !== "All";
+        }
+        return option !== "All";
+      }),
+    [pointOptions]
+  );
   const pointLabels = useMemo(() => {
     const map = new Map();
     pointOptions.forEach((option) => {
@@ -177,8 +221,11 @@ const VolunteerPage = (props) => {
     return map;
   }, [pointOptions]);
   const filterLabelParts = [];
-  if (selectedCategories.length) {
-    filterLabelParts.push(selectedCategories.join(", "));
+  if (activeOnly) {
+    filterLabelParts.push("Active");
+  }
+  if (selectedRoles.length) {
+    filterLabelParts.push(selectedRoles.join(", "));
   }
   if (selectedVenues.length) {
     filterLabelParts.push(selectedVenues.join(", "));
@@ -191,19 +238,17 @@ const VolunteerPage = (props) => {
   }
   const combinedFilterLabel = filterLabelParts.length
     ? filterLabelParts.join(" · ")
+    : activeOnly
+    ? "Active"
     : "All";
-  const allFiltersActive =
-    selectedCategories.length === 0 &&
-    selectedVenues.length === 0 &&
-    selectedPoints.length === 0;
   const handleSelectAllFilters = () => {
-    setSelectedCategories([]);
+    setSelectedRoles([]);
     setSelectedVenues([]);
     setSelectedPoints([]);
   };
-  const filteredRoles = activeRoles.filter((role) => {
-    if (selectedCategories.length === 0) return true;
-    return selectedCategories.includes(role?.category?.title);
+  const filteredRoles = rolesByActivity.filter((role) => {
+    if (selectedRoles.length === 0) return true;
+    return selectedRoles.includes(role?.role?.name);
   });
   const filteredByVenue = filteredRoles.filter((role) => {
     if (selectedVenues.length === 0) return true;
@@ -211,7 +256,7 @@ const VolunteerPage = (props) => {
   });
   const filteredByPoints = filteredByVenue.filter((role) => {
     if (selectedPoints.length === 0) return true;
-    return selectedPoints.includes(role?.volunteerPoints);
+    return selectedPoints.includes(role?.role?.pointValue);
   });
   const pageSize = 6;
   const totalPages = Math.max(1, Math.ceil(filteredByPoints.length / pageSize));
@@ -221,6 +266,29 @@ const VolunteerPage = (props) => {
     safePageIndex * pageSize
   );
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
+  const pointFilters = hasPointFilterOptions ? (
+    <CategoryFilterButtons
+      categories={pointOptions}
+      selectedCategories={selectedPoints}
+      onChange={setSelectedPoints}
+      showAll={false}
+      layout={hasVenueFilterOptions ? "inline" : "wrap"}
+    />
+  ) : null;
+  const secondaryFilters = hasVenueFilterOptions ? (
+    <CategoryFilterButtons
+      categories={venues}
+      selectedCategories={selectedVenues}
+      onChange={setSelectedVenues}
+      showAll={false}
+      showDivider={hasPointFilterOptions}
+      layout="inline"
+    >
+      {pointFilters}
+    </CategoryFilterButtons>
+  ) : (
+    pointFilters
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -250,7 +318,34 @@ const VolunteerPage = (props) => {
 
   useEffect(() => {
     setPageIndex(1);
-  }, [roles.length, selectedCategories, selectedVenues, selectedPoints]);
+  }, [roles.length, selectedRoles, selectedVenues, selectedPoints, activeOnly]);
+
+  useEffect(() => {
+    if (hasInitializedPagination) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(locationSearch);
+    const requestedPage = Number(params.get("page"));
+    if (Number.isInteger(requestedPage) && requestedPage >= 1) {
+      setPageIndex(requestedPage);
+    }
+    setHasInitializedPagination(true);
+  }, [hasInitializedPagination, locationSearch]);
+
+  useEffect(() => {
+    if (!hasInitializedPagination) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(locationSearch);
+    if (safePageIndex > 1) {
+      params.set("page", String(safePageIndex));
+    } else {
+      params.delete("page");
+    }
+    const nextSearch = params.toString();
+    const nextUrl = nextSearch
+      ? `${window.location.pathname}?${nextSearch}`
+      : window.location.pathname;
+    window.history.replaceState({}, "", nextUrl);
+  }, [hasInitializedPagination, locationSearch, safePageIndex]);
 
   if (errors) {
     return (
@@ -278,35 +373,51 @@ const VolunteerPage = (props) => {
           sx={{
             alignItems: ["flex-start", "flex-start", "flex-start"],
             justifyContent: "space-between",
-            flexWrap: ["wrap", "wrap", "nowrap"],
+            flexWrap: ["wrap", "wrap", "wrap", "nowrap"],
             gap: "1rem",
-            pb: "0.75rem"
+            pb: "0.75rem",
           }}
         >
-          <Box sx={{ maxWidth: "760px" }}>
-            <Heading as="h1" sx={{ variant: "styles.h1", mb: "0.35rem", mt: 0 }}>
+          <Box
+            sx={{
+              flex: "1 1 auto",
+              minWidth: 0,
+              maxWidth: ["100%", "100%", "100%", "calc(100% - 316px)"],
+            }}
+          >
+            <Heading
+              as="h1"
+              sx={{ variant: "styles.h1", mb: "0.35rem", mt: 0 }}
+            >
               Volunteer
               <BoxIcon
                 as="span"
                 sx={{
                   display: "inline-grid",
                   ml: "0.5rem",
-                  verticalAlign: "middle"
+                  verticalAlign: "middle",
                 }}
               />
             </Heading>
-            <Text sx={{ variant: "styles.p" }}>
-              Volunteers are core to our club and critical to running and hosting
-              large events. Explore open roles below and learn how to get involved.
+            <Text sx={{ variant: "styles.p", fontSize: "16pt" }}>
+              Volunteers are the foundation of the Club’s success. Every event
+              we host, experience we deliver, and community we build is made
+              possible by members who choose to contribute their time, skills,
+              and enthusiasm. Explore open positions below and learn how to get
+              involved.
             </Text>
           </Box>
           <Box
             sx={{
               display: "grid",
               gap: "0.5rem",
-              width: ["100%", "100%", "300px"],
-              justifyItems: ["start", "start", "end"],
-              alignSelf: ["stretch", "stretch", "flex-start"]
+              width: ["100%", "100%", "100%", "300px"],
+              flex: ["1 1 100%", "1 1 100%", "1 1 100%", "0 0 300px"],
+              justifyItems: ["stretch", "stretch", "stretch", "end"],
+              alignSelf: ["stretch", "stretch", "stretch", "flex-start"],
+              backgroundColor: "lightgray",
+              borderRadius: "12px",
+              p: ["0.75rem", "0.85rem", "0.95rem"],
             }}
           >
             <Link
@@ -320,8 +431,8 @@ const VolunteerPage = (props) => {
                   py: "0.65rem",
                   borderRadius: "12px",
                   border: "1px solid",
-                  borderColor: "primary",
-                  backgroundColor: "primary",
+                  borderColor: "secondary",
+                  backgroundColor: "secondary",
                   color: "white",
                   display: "inline-flex",
                   alignItems: "center",
@@ -331,15 +442,25 @@ const VolunteerPage = (props) => {
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
                   "&:hover": {
-                    backgroundColor: "secondary",
-                    borderColor: "secondary",
-                    color: "white"
-                  }
+                    backgroundColor: "primary",
+                    borderColor: "primary",
+                    color: "white",
+                  },
                 }}
               >
-                <Text sx={{ fontSize: "xs", color: "inherit" }}>
-                  Volunteering Overview
-                </Text>
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <FaClipboardList size={30} />
+                  <Text as="span" sx={{ fontSize: "xs", color: "inherit" }}>
+                    Volunteering Overview
+                  </Text>
+                </Box>
                 <Box
                   as="span"
                   sx={{
@@ -348,7 +469,7 @@ const VolunteerPage = (props) => {
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    flex: "0 0 20px"
+                    flex: "0 0 20px",
                   }}
                 >
                   <FiArrowRight size={20} />
@@ -366,8 +487,8 @@ const VolunteerPage = (props) => {
                   py: "0.65rem",
                   borderRadius: "12px",
                   border: "1px solid",
-                  borderColor: "primary",
-                  backgroundColor: "primary",
+                  borderColor: "secondary",
+                  backgroundColor: "secondary",
                   color: "white",
                   display: "inline-flex",
                   alignItems: "center",
@@ -377,15 +498,25 @@ const VolunteerPage = (props) => {
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
                   "&:hover": {
-                    backgroundColor: "secondary",
-                    borderColor: "secondary",
-                    color: "white"
-                  }
+                    backgroundColor: "primary",
+                    borderColor: "primary",
+                    color: "white",
+                  },
                 }}
               >
-                <Text sx={{ fontSize: "xs", color: "inherit" }}>
-                  Rewards Program
-                </Text>
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <FaAward size={30} />
+                  <Text as="span" sx={{ fontSize: "xs", color: "inherit" }}>
+                    Rewards Program
+                  </Text>
+                </Box>
                 <Box
                   as="span"
                   sx={{
@@ -394,7 +525,63 @@ const VolunteerPage = (props) => {
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    flex: "0 0 20px"
+                    flex: "0 0 20px",
+                  }}
+                >
+                  <FiArrowRight size={20} />
+                </Box>
+              </Card>
+            </Link>
+            <Link
+              to="/volunteer/roles"
+              sx={{ textDecoration: "none", width: "100%", display: "block" }}
+            >
+              <Card
+                sx={{
+                  width: "100%",
+                  px: "1rem",
+                  py: "0.65rem",
+                  borderRadius: "12px",
+                  border: "1px solid",
+                  borderColor: "secondary",
+                  backgroundColor: "secondary",
+                  color: "white",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.75rem",
+                  fontSize: "xs",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  "&:hover": {
+                    backgroundColor: "primary",
+                    borderColor: "primary",
+                    color: "white",
+                  },
+                }}
+              >
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <FaUsers size={30} />
+                  <Text as="span" sx={{ fontSize: "xs", color: "inherit" }}>
+                    Volunteer Roles
+                  </Text>
+                </Box>
+                <Box
+                  as="span"
+                  sx={{
+                    width: "20px",
+                    height: "20px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: "0 0 20px",
                   }}
                 >
                   <FiArrowRight size={20} />
@@ -403,9 +590,7 @@ const VolunteerPage = (props) => {
             </Link>
           </Box>
         </Flex>
-        <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>
-          Filter
-        </Heading>
+        <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>Filter</Heading>
         <Box
           sx={{
             mt: "1rem",
@@ -416,57 +601,59 @@ const VolunteerPage = (props) => {
             display: "flex",
             flexWrap: "wrap",
             gap: "0.75rem",
-            alignItems: "flex-start"
+            alignItems: "flex-start",
           }}
         >
           <Box sx={{ flex: "1 1 100%" }}>
             <CategoryFilterButtons
-              categories={categories}
-              selectedCategories={selectedCategories}
-              onChange={setSelectedCategories}
-              allSelected={allFiltersActive}
+              categories={roleFilters}
+              selectedCategories={selectedRoles}
+              onChange={setSelectedRoles}
+              allLabel="Active"
+              allSelected={activeOnly}
+              onAllToggle={() => setActiveOnly((prev) => !prev)}
               onSelectAll={handleSelectAllFilters}
-              showDivider
+              showDivider={Boolean(secondaryFilters)}
             >
-              <CategoryFilterButtons
-                categories={venues}
-                selectedCategories={selectedVenues}
-                onChange={setSelectedVenues}
-                showAll={false}
-                showDivider
-                layout="inline"
-              >
-                <CategoryFilterButtons
-                  categories={pointOptions}
-                  selectedCategories={selectedPoints}
-                  onChange={setSelectedPoints}
-                  showAll={false}
-                  layout="inline"
-                />
-              </CategoryFilterButtons>
+              {secondaryFilters}
             </CategoryFilterButtons>
           </Box>
         </Box>
-        <Flex
+        <Box
           sx={{
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "0.75rem",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) auto",
+            columnGap: "0.75rem",
+            rowGap: "0.25rem",
+            alignItems: "end",
             borderBottomStyle: "solid",
             pb: "3px",
             borderBottomWidth: "3px",
-            my: "0.5rem"
+            my: "0.5rem",
           }}
         >
-          <Heading sx={{ variant: "styles.h3", mb: 0 }}>
-            Available roles — {combinedFilterLabel}
+          <Heading
+            sx={{
+              variant: "styles.h3",
+              mb: 0,
+              minWidth: 0,
+              overflowWrap: "anywhere",
+              lineHeight: 1.2,
+            }}
+          >
+            Positions — {combinedFilterLabel}
           </Heading>
           <a
             href="https://motorsportreg.com"
             target="_blank"
             rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", padding: 6 }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: 6,
+              justifySelf: "end",
+              alignSelf: "end",
+            }}
           >
             <img
               src="https://msr-hotlink.s3.amazonaws.com/dark/msr-logo-dark@2x.png"
@@ -475,7 +662,7 @@ const VolunteerPage = (props) => {
               style={{ width: 200, height: 31, display: "block" }}
             />
           </a>
-        </Flex>
+        </Box>
         {paginatedRoles.length > 0 && (
           <Box sx={{ display: "grid", gap: "1.25rem" }}>
             {paginatedRoles.map((role) => {
@@ -489,15 +676,13 @@ const VolunteerPage = (props) => {
               const venueParts = [
                 role?.motorsportRegEvent?.venueName,
                 role?.motorsportRegEvent?.venueCity,
-                role?.motorsportRegEvent?.venueRegion
+                role?.motorsportRegEvent?.venueRegion,
               ].filter(Boolean);
               const venueLabel = venueParts.join(", ");
               const roleUrl = role?.slug?.current
                 ? getVolunteerRoleUrl(role.slug.current)
                 : null;
-              const cardProps = roleUrl
-                ? { as: Link, to: roleUrl }
-                : {};
+              const cardProps = roleUrl ? { as: Link, to: roleUrl } : {};
               return (
                 <Card
                   key={role._id || role.id}
@@ -517,7 +702,7 @@ const VolunteerPage = (props) => {
                   <Flex
                     sx={{
                       flexDirection: ["column", "column", "row", "row"],
-                      alignItems: ["stretch", "stretch", "stretch", "stretch"]
+                      alignItems: ["stretch", "stretch", "stretch", "stretch"],
                     }}
                   >
                     <Box
@@ -530,22 +715,31 @@ const VolunteerPage = (props) => {
                         flex: ["0 0 auto", "0 0 auto", "1 1 42%"],
                         borderRadius: ["0", "0", "18px 0 0 18px"],
                         overflow: "hidden",
-                        clipPath: ["none", "none", "polygon(0 0, 100% 0, 88% 100%, 0 100%)"],
-                        backgroundColor: "lightgray"
+                        clipPath: [
+                          "none",
+                          "none",
+                          "polygon(0 0, 100% 0, 88% 100%, 0 100%)",
+                        ],
+                        backgroundColor: "lightgray",
                       }}
                     >
                       {imageUrl && (
                         <Box
                           as="img"
                           src={imageUrl}
-                          alt={role?.motorsportRegEvent?.name || role?.title || "Volunteer role"}
+                          alt={
+                            role?.motorsportRegEvent?.name ||
+                            getPositionTitle(role)
+                          }
+                          {...nonDraggableImageProps}
                           sx={{
                             position: "absolute",
                             inset: 0,
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
-                            display: "block"
+                            display: "block",
+                            ...nonDraggableImageSx,
                           }}
                         />
                       )}
@@ -557,17 +751,18 @@ const VolunteerPage = (props) => {
                         flex: ["1 1 100%", "1 1 100%", "1 1 60%"],
                         display: "flex",
                         flexDirection: "column",
-                        gap: "0.5rem"
+                        gap: "0.5rem",
                       }}
                     >
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-                        {role?.category?.title && (
-                          <Text sx={{ variant: "text.label", color: "black" }}>
-                            {role.category.title}
-                          </Text>
-                        )}
-                        {role?.volunteerPoints !== undefined &&
-                          role?.volunteerPoints !== null && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        {role?.role?.pointValue !== undefined &&
+                          role?.role?.pointValue !== null && (
                             <Text
                               sx={{
                                 variant: "text.label",
@@ -575,15 +770,15 @@ const VolunteerPage = (props) => {
                                 bg: "primary",
                                 px: 2,
                                 py: 1,
-                                borderRadius: 9999
+                                borderRadius: 9999,
                               }}
                             >
-                              {role.volunteerPoints} pts
+                              {role.role.pointValue} pts
                             </Text>
                           )}
                       </Box>
                       <Heading as="h3" sx={{ variant: "styles.h3", mb: 0 }}>
-                        {role.title}
+                        {getPositionTitle(role)}
                       </Heading>
                       {role?.motorsportRegEvent?.name && (
                         <Text sx={{ fontSize: "sm", color: "darkgray" }}>
@@ -597,15 +792,19 @@ const VolunteerPage = (props) => {
                             alignItems: ["flex-start", "flex-start", "center"],
                             gap: ["0.15rem", "0.15rem", "0.5rem"],
                             color: "gray",
-                            fontSize: "xs"
+                            fontSize: "xs",
                           }}
                         >
-                          {venueLabel && <Text sx={{ fontSize: "inherit" }}>{venueLabel}</Text>}
+                          {venueLabel && (
+                            <Text sx={{ fontSize: "inherit" }}>
+                              {venueLabel}
+                            </Text>
+                          )}
                           {venueLabel && (formattedDate || role?.duration) && (
                             <Text
                               sx={{
                                 fontSize: "inherit",
-                                display: ["none", "none", "inline"]
+                                display: ["none", "none", "inline"],
                               }}
                             >
                               |
@@ -613,7 +812,12 @@ const VolunteerPage = (props) => {
                           )}
                           {(formattedDate || role?.duration) && (
                             <Text sx={{ fontSize: "inherit" }}>
-                              {[formattedDate, role?.duration ? `${role.duration} hours` : null]
+                              {[
+                                formattedDate,
+                                role?.duration
+                                  ? `${role.duration} hours`
+                                  : null,
+                              ]
                                 .filter(Boolean)
                                 .join(" · ")}
                             </Text>
@@ -627,19 +831,23 @@ const VolunteerPage = (props) => {
             })}
           </Box>
         )}
-        {!isLoading && activeRoles.length === 0 && (
+        {!isLoading && rolesByActivity.length === 0 && (
           <Box sx={{ mt: "1.5rem", color: "darkgray" }}>
-            No volunteer roles are active right now.
+            {activeOnly
+              ? "No volunteer positions are active right now."
+              : "No volunteer positions are available yet."}
           </Box>
         )}
-        {!isLoading && activeRoles.length > 0 && paginatedRoles.length === 0 && (
-          <Box sx={{ mt: "1.5rem", color: "darkgray" }}>
-            No volunteer roles match those filters yet.
-          </Box>
-        )}
+        {!isLoading &&
+          rolesByActivity.length > 0 &&
+          paginatedRoles.length === 0 && (
+            <Box sx={{ mt: "1.5rem", color: "darkgray" }}>
+              No volunteer positions match those filters yet.
+            </Box>
+          )}
         {isLoading && (
           <Box sx={{ mt: "1.5rem", color: "darkgray" }}>
-            Loading volunteer roles...
+            Loading volunteer positions...
           </Box>
         )}
         {totalPages > 1 && (
@@ -649,7 +857,7 @@ const VolunteerPage = (props) => {
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "center",
-              gap: "0.4rem"
+              gap: "0.4rem",
             }}
           >
             <Button
@@ -666,8 +874,8 @@ const VolunteerPage = (props) => {
                 cursor: safePageIndex === 1 ? "not-allowed" : "pointer",
                 "&:hover": {
                   bg: safePageIndex === 1 ? "lightgray" : "highlight",
-                  color: safePageIndex === 1 ? "darkgray" : "text"
-                }
+                  color: safePageIndex === 1 ? "darkgray" : "text",
+                },
               }}
             >
               Prev
@@ -681,7 +889,7 @@ const VolunteerPage = (props) => {
                       px: "0.6rem",
                       py: "0.4rem",
                       color: "gray",
-                      alignSelf: "center"
+                      alignSelf: "center",
                     }}
                   >
                     ...
@@ -704,8 +912,8 @@ const VolunteerPage = (props) => {
                     minWidth: "42px",
                     "&:hover": {
                       bg: isActive ? "primary" : "highlight",
-                      color: isActive ? "white" : "text"
-                    }
+                      color: isActive ? "white" : "text",
+                    },
                   }}
                 >
                   {item.value}
@@ -713,7 +921,9 @@ const VolunteerPage = (props) => {
               );
             })}
             <Button
-              onClick={() => setPageIndex(Math.min(totalPages, safePageIndex + 1))}
+              onClick={() =>
+                setPageIndex(Math.min(totalPages, safePageIndex + 1))
+              }
               disabled={safePageIndex === totalPages}
               sx={{
                 variant: "buttons.primary",
@@ -723,11 +933,12 @@ const VolunteerPage = (props) => {
                 borderColor: "gray",
                 px: "0.9rem",
                 py: "0.4rem",
-                cursor: safePageIndex === totalPages ? "not-allowed" : "pointer",
+                cursor:
+                  safePageIndex === totalPages ? "not-allowed" : "pointer",
                 "&:hover": {
                   bg: safePageIndex === totalPages ? "lightgray" : "highlight",
-                  color: safePageIndex === totalPages ? "darkgray" : "text"
-                }
+                  color: safePageIndex === totalPages ? "darkgray" : "text",
+                },
               }}
             >
               Next

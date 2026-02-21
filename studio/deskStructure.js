@@ -233,12 +233,12 @@ export default (S) =>
             .title('Volunteers')
             .items([
               S.listItem()
-                .title('Active roles')
+                .title('Active positions')
                 .schemaType('volunteerRole')
                 .icon(HeartFillIcon)
                 .child(
                   S.documentList('volunteerRole')
-                    .title('Active roles')
+                    .title('Active positions')
                     .menuItems(S.documentTypeList('volunteerRole').getMenuItems())
                     .filter('_type == "volunteerRole" && active && !(_id in path("drafts.**"))')
                     .child((documentId) =>
@@ -248,20 +248,21 @@ export default (S) =>
                     )
                 ),
               S.documentTypeListItem('volunteerRole')
-                .title('All roles')
+                .title('All positions')
                 .icon(HeartIcon),
               S.listItem()
-                .title('Roles by category')
+                .title('Positions by role')
+                .icon(HeartIcon)
                 .child(
-                  S.documentTypeList('volunteerCategory')
-                    .title('Roles by category')
-                    .child(catId =>
+                  S.documentTypeList('volunteerFixedRole')
+                    .title('Positions by role')
+                    .child(roleId =>
                       S.documentTypeList('volunteerRole')
-                        .title('Roles')
+                        .title('Positions')
                         .filter(
-                          '_type == "volunteerRole" && $catId == category._ref'
+                          '_type == "volunteerRole" && $roleId == role._ref'
                         )
-                        .params({ catId })
+                        .params({ roleId })
                         .child((documentId) =>
                           S.document()
                             .documentId(documentId)
@@ -270,8 +271,27 @@ export default (S) =>
                     )
                 ),
               S.divider(),
-              S.documentTypeListItem('volunteerCategory')
-                .title('Categories')
+              S.documentTypeListItem('volunteerFixedRole')
+                .title('Roles'),
+              S.listItem()
+                .title('Roles by point value')
+                .child(
+                  S.list()
+                    .title('Roles by point value')
+                    .items(
+                      [1, 2, 3, 4, 5, 10].map((pointValue) =>
+                        S.listItem()
+                          .id(`volunteer-roles-point-${pointValue}`)
+                          .title(`${pointValue} point${pointValue === 1 ? '' : 's'}`)
+                          .child(
+                            S.documentTypeList('volunteerFixedRole')
+                              .title(`${pointValue} point${pointValue === 1 ? '' : 's'}`)
+                              .filter('_type == "volunteerFixedRole" && pointValue == $pointValue')
+                              .params({ pointValue })
+                          )
+                      )
+                    )
+                )
             ])
         ),
         S.divider(),

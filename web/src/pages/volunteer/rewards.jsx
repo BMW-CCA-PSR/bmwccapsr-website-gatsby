@@ -34,11 +34,11 @@ const VolunteerRewardsPage = ({ data, errors }) => {
         "Capturing event photos or video",
         "Assisting with food and beverages",
         "Supporting music, logistics, or general event operations",
-        "Typically short in duration and require minimal training"
-      ]
+        "Typically short in duration and require minimal training",
+      ],
     },
     {
-      points: "3–4",
+      points: "3   \n4",
       heading: "Operational & Event Leadership",
       lead: "For members interested in taking on increased responsibility.",
       bullets: [
@@ -47,8 +47,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
         "Serving as a tour sweeper or tour leader",
         "Organizing social, technical, or driving tour events",
         "Writing articles for Z-Mail or BimmerLife",
-        "May require prior experience, training, or coordination with event leadership"
-      ]
+        "May require prior experience, training, or coordination with event leadership",
+      ],
     },
     {
       points: "5",
@@ -58,8 +58,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
         "Car Control Clinic (CCC) or High-Performance Driving Education (HPDE) Instructor",
         "Graphic Designer",
         "Event Co-Chair",
-        "Advanced preparation, credentialing, or unique skill sets required"
-      ]
+        "Advanced preparation, credentialing, or unique skill sets required",
+      ],
     },
     {
       points: "10",
@@ -71,9 +71,9 @@ const VolunteerRewardsPage = ({ data, errors }) => {
         "Marketing Coordinator",
         "Tour, Social, or Tech Event Chair",
         "Club Partner or Sponsor Coordinator",
-        "Often involves Board collaboration and year-long commitment"
-      ]
-    }
+        "Often involves Board collaboration and year-long commitment",
+      ],
+    },
   ];
 
   if (errors) {
@@ -95,40 +95,106 @@ const VolunteerRewardsPage = ({ data, errors }) => {
           pb: "2rem",
         }}
       >
-        <Text variant="text.label">
-          <Link
-            to="/volunteer"
-            sx={{
-              textDecoration: "none",
-              color: "text",
-              display: "inline-flex",
-              alignItems: "center",
-              cursor: "pointer",
-              px: "0.15em",
-              mx: "-0.15em"
-            }}
-          >
-            VOLUNTEER
-          </Link>
-          <Text as="span" sx={{ px: "0.35em" }}>
-            /
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            mb: "0.5rem",
+            width: "fit-content",
+          }}
+        >
+          <Text variant="text.label" sx={{ display: "inline-block" }}>
+            <Link
+              to="/volunteer"
+              sx={{
+                textDecoration: "none",
+                color: "text",
+                display: "inline-flex",
+                alignItems: "center",
+                cursor: "pointer",
+                px: "0.15em",
+                mx: "-0.15em",
+              }}
+            >
+              VOLUNTEER
+            </Link>
+            <Text as="span" sx={{ px: "0.35em" }}>
+              /
+            </Text>
+            REWARDS
           </Text>
-          REWARDS
-        </Text>
-        <Heading as="h1" sx={{ variant: "styles.h1", mt: "1rem", mb: "0.75rem" }}>
+        </Box>
+        <Heading
+          as="h1"
+          sx={{
+            variant: "styles.h1",
+            mt: 0,
+            mb: "0.75rem",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
           Volunteer Rewards Program
           <BoxIcon
             as="span"
             sx={{
               display: "inline-grid",
               ml: "0.5rem",
-              verticalAlign: "middle"
+              verticalAlign: "middle",
             }}
           />
         </Heading>
-        <Box sx={{ maxWidth: "900px" }}>
-          <Heading as="h2" sx={{ variant: "styles.h2", mt: "1rem", mb: "0.5rem" }}>
-            Your Time. Your Impact. Your Rewards.
+        <Box>
+          <Heading
+            as="h2"
+            sx={{ variant: "styles.h2", mt: "1rem", mb: "0.5rem" }}
+          >
+            Your{" "}
+            <Box
+              as="span"
+              sx={{
+                bg: "primary",
+                color: "white",
+                px: "0.35em",
+                py: "0.05em",
+                borderRadius: "6px",
+                display: "inline-block",
+                lineHeight: 1.05,
+              }}
+            >
+              Time
+            </Box>
+            . Your{" "}
+            <Box
+              as="span"
+              sx={{
+                bg: "primary",
+                color: "white",
+                px: "0.35em",
+                py: "0.05em",
+                borderRadius: "6px",
+                display: "inline-block",
+                lineHeight: 1.05,
+              }}
+            >
+              Impact
+            </Box>
+            . Your{" "}
+            <Box
+              as="span"
+              sx={{
+                bg: "primary",
+                color: "white",
+                px: "0.35em",
+                py: "0.05em",
+                borderRadius: "6px",
+                display: "inline-block",
+                lineHeight: 1.05,
+              }}
+            >
+              Rewards
+            </Box>
+            .
           </Heading>
           <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
             Our Club thrives because of members who step up and get involved.
@@ -138,7 +204,10 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             on a leadership role, your contribution matters.
           </Text>
 
-          <Heading as="h3" sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}>
+          <Heading
+            as="h2"
+            sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
+          >
             How the Program Works
           </Heading>
           <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
@@ -146,21 +215,36 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             are awarded based on the skill level, responsibility, and time
             commitment of each volunteer role. Points accumulate throughout the
             year and may be redeemed for recognition, rewards, and special
-            benefits, as defined by the PSR Board.
+            benefits, as defined by the PSR Board. Role information and
+            descriptions can be found{" "}
+            <Link
+              to="/volunteer/roles"
+              sx={{
+                color: "primary",
+                textDecoration: "none",
+                "&:hover": { color: "secondary" },
+              }}
+            >
+              here
+            </Link>
+            .
           </Text>
 
-          <Heading as="h3" sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}>
+          <Heading
+            as="h3"
+            sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}
+          >
             Volunteer Point Levels
           </Heading>
           <Box
             sx={{
               mt: "0.75rem",
               mb: "1.5rem",
-              border: "1px solid",
-              borderColor: "lightgray",
-              borderRadius: "16px",
+              border: "2px solid",
+              borderColor: "black",
+              borderRadius: "18px",
               overflow: "hidden",
-              backgroundColor: "background"
+              backgroundColor: "background",
             }}
           >
             {pointLevels.map((level, index) => (
@@ -177,27 +261,58 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                   borderTopColor: "lightgray",
                   transition: "background-color 0.2s ease",
                   "&:hover": {
-                    backgroundColor: "#f5f8ff"
-                  }
+                    backgroundColor: "#f5f8ff",
+                    ".point-value": {
+                      opacity: 1,
+                    },
+                  },
                 }}
               >
                 <Box
                   sx={{
                     flex: ["0 0 auto", "0 0 25%"],
-                    fontSize: ["lg", "xl"],
-                    fontWeight: "heading",
-                    letterSpacing: "tight",
-                    color: "primary",
-                    lineHeight: "heading"
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textAlign: "center",
+                    minHeight: ["90px", "100%", "100%"],
+                    px: ["0.5rem", "0.75rem"],
                   }}
                 >
-                  {level.points}
+                  <Text
+                    as="span"
+                    className="point-value"
+                    sx={{
+                      fontSize: ["88px", "112px", "160px"],
+                      fontStyle: "italic",
+                      fontWeight: "heading",
+                      letterSpacing: "-0.03em",
+                      lineHeight: 0.9,
+                      whiteSpace: "pre-wrap",
+                      color: "primary",
+                      opacity: 0.24,
+                      transition: "opacity 0.2s ease",
+                    }}
+                  >
+                    {level.points}
+                  </Text>
                 </Box>
                 <Box>
-                  <Text sx={{ fontWeight: "heading", color: "text" }}>
+                  <Heading
+                    as="h4"
+                    sx={{
+                      variant: "styles.h4",
+                      color: "text",
+                      mt: 0,
+                      mb: 0,
+                    }}
+                  >
                     {level.heading}
-                  </Text>
-                  <Text as="strong" sx={{ display: "block", mt: "0.35rem", color: "text" }}>
+                  </Heading>
+                  <Text
+                    as="strong"
+                    sx={{ display: "block", mt: "0.35rem", color: "text" }}
+                  >
                     {level.lead}
                   </Text>
                   <Box
@@ -206,7 +321,7 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                       pl: "1.25rem",
                       mt: "0.5rem",
                       lineHeight: "body",
-                      listStyleType: "disc"
+                      listStyleType: "disc",
                     }}
                   >
                     {level.bullets.map((item) => (
@@ -220,7 +335,10 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             ))}
           </Box>
 
-          <Heading as="h3" sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}>
+          <Heading
+            as="h2"
+            sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
+          >
             Eligibility & Requirements
           </Heading>
           <Box
@@ -229,7 +347,7 @@ const VolunteerRewardsPage = ({ data, errors }) => {
               pl: "1.25rem",
               mb: "0.5rem",
               lineHeight: "body",
-              listStyleType: "disc"
+              listStyleType: "disc",
             }}
           >
             <Box as="li" sx={{ mb: "0.5rem" }}>
@@ -246,13 +364,15 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             </Box>
             <Box as="li" sx={{ mb: "0.5rem" }}>
               <Text as="strong">Points are awarded</Text>
-              <Text as="span"> per event or per term, depending on the role.</Text>
+              <Text as="span">
+                {" "}
+                per event or per term, depending on the role.
+              </Text>
             </Box>
           </Box>
           <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
             All requirements are communicated clearly before volunteering.
           </Text>
-
         </Box>
       </ContentContainer>
     </Layout>

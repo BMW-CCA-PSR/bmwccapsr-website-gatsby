@@ -5,6 +5,10 @@ import { Box, Card, Heading, Text } from "@theme-ui/components";
 import { format, parseISO } from "date-fns";
 import { buildImageObj, getEventsUrl } from "../lib/helpers";
 import { imageUrlFor } from "../lib/image-url";
+import {
+  nonDraggableImageProps,
+  nonDraggableImageSx,
+} from "../lib/nonDraggableImage";
 
 const EventCard = ({ event, href }) => {
   if (!event) return null;
@@ -18,7 +22,7 @@ const EventCard = ({ event, href }) => {
     event?.address?.line2,
     event?.address?.city,
     event?.address?.state,
-    event?.website
+    event?.website,
   ]
     .filter(Boolean)
     .join(" ")
@@ -27,7 +31,12 @@ const EventCard = ({ event, href }) => {
   const isOnline = Boolean(event?.onlineEvent) || hasOnlineKeyword;
   const imageSource = event?.mainImage ? buildImageObj(event.mainImage) : null;
   const imageUrl = imageSource
-    ? imageUrlFor(imageSource).width(800).height(440).fit("crop").auto("format").url()
+    ? imageUrlFor(imageSource)
+        .width(800)
+        .height(440)
+        .fit("crop")
+        .auto("format")
+        .url()
     : null;
   const url =
     href || (event?.slug?.current ? getEventsUrl(event.slug.current) : null);
@@ -54,6 +63,7 @@ const EventCard = ({ event, href }) => {
             as="img"
             src={imageUrl}
             alt={event?.mainImage?.alt || event?.title || "Event"}
+            {...nonDraggableImageProps}
             sx={{
               width: "100%",
               height: "100%",
@@ -62,6 +72,7 @@ const EventCard = ({ event, href }) => {
               objectFit: "cover",
               borderTopRightRadius: "15px",
               borderTopLeftRadius: "15px",
+              ...nonDraggableImageSx,
             }}
           />
           {event?.startTime && (
@@ -80,7 +91,13 @@ const EventCard = ({ event, href }) => {
                 borderBottomColor: "highlight",
               }}
             >
-              <div sx={{ justifyContent: "center", textAlign: "center", pt: "5px" }}>
+              <div
+                sx={{
+                  justifyContent: "center",
+                  textAlign: "center",
+                  pt: "5px",
+                }}
+              >
                 <Text sx={{ variant: "styles.h4", display: "block" }}>
                   {format(parseISO(event.startTime), "MMM")}
                 </Text>
@@ -102,7 +119,14 @@ const EventCard = ({ event, href }) => {
           flexDirection: "column",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            flexWrap: "wrap",
+          }}
+        >
           {event?.category?.title && (
             <Text sx={{ variant: "text.label", color: "black" }}>
               {event.category.title}
@@ -121,7 +145,8 @@ const EventCard = ({ event, href }) => {
                 fontSize: "xxs",
                 letterSpacing: "wide",
                 textTransform: "uppercase",
-                backgroundImage: "linear-gradient(135deg, #1e94ff 0%, #0653b6 100%)",
+                backgroundImage:
+                  "linear-gradient(135deg, #1e94ff 0%, #0653b6 100%)",
                 boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
               }}
             >
@@ -137,7 +162,7 @@ const EventCard = ({ event, href }) => {
             sx={{
               variant: "styles.h5",
               fontWeight: "body",
-              textTransform: "capitalize"
+              textTransform: "capitalize",
             }}
           >
             {cityState}

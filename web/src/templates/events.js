@@ -3,8 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { graphql } from "gatsby";
 import {
   mapEdgesToNodes,
-  filterOutDocsWithoutSlugs,
-  filterOutDocsPublishedInTheFuture
+  filterOutDocsWithoutSlugs
 } from "../lib/helpers";
 import { Box, Button, Heading, Text } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
@@ -68,7 +67,7 @@ query EventPageQuery($skip: Int!, $limit: Int!) {
       limit: $limit
       skip: $skip
       sort: {fields: [startTime], order: ASC}
-      filter: {slug: {current: {ne: null}}, isActive: {eq: true}}
+      filter: {slug: {current: {ne: null}}}
     ) {
       edges {
         node {
@@ -119,7 +118,6 @@ const IndexPage = props => {
   const eventNodes = (data || {}).events
     ? mapEdgesToNodes(data.events)
         .filter(filterOutDocsWithoutSlugs)
-        .filter(filterOutDocsPublishedInTheFuture)
     : [];
   if (!site && !errors) {
     console.warn(
@@ -130,7 +128,24 @@ const IndexPage = props => {
   const sanity = useMemo(() => new Client(), []);
   const [liveEvents, setLiveEvents] = useState(eventNodes);
   const currentYear = new Date().getFullYear();
-  const categories = useMemo(() => {
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState("all");
+  const [selectedYear, setSelectedYear] = useState(String(currentYear));
+  const [excludeBoardMeetings, setExcludeBoardMeetings] = useState(false);
+  const [activeOnly, setActiveOnly] = useState(true);
+  const [pageIndex, setPageIndex] = useState(currentPage || 1);
+  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
+  const locationSearch = props.location?.search || "";
+  const activeLiveEvents = useMemo(() => {
+    const now = Date.now();
+    return liveEvents.filter((event) => {
+      if (!event?.startTime) return false;
+      const timestamp = Date.parse(event.startTime);
+      return Number.isFinite(timestamp) && timestamp >= now;
+    });
+  }, [liveEvents]);
+  const scopedEvents = activeOnly ? activeLiveEvents : liveEvents;
+  const allCategories = useMemo(() => {
     const unique = new Set();
     liveEvents.forEach((event) => {
       if (event?.category?.title) unique.add(event.category.title);
@@ -138,7 +153,15 @@ const IndexPage = props => {
     const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
     return ["All", ...sorted];
   }, [liveEvents]);
-  const years = useMemo(() => {
+  const categories = useMemo(() => {
+    const unique = new Set();
+    scopedEvents.forEach((event) => {
+      if (event?.category?.title) unique.add(event.category.title);
+    });
+    const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
+    return ["All", ...sorted];
+  }, [scopedEvents]);
+  const allYears = useMemo(() => {
     const unique = new Set();
     liveEvents.forEach((event) => {
       if (!event?.startTime) return;
@@ -146,17 +169,18 @@ const IndexPage = props => {
     });
     return Array.from(unique).sort((a, b) => b - a);
   }, [liveEvents]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState("all");
-  const [selectedYear, setSelectedYear] = useState(String(currentYear));
-  const [excludeBoardMeetings, setExcludeBoardMeetings] = useState(false);
-  const [pageIndex, setPageIndex] = useState(currentPage || 1);
-  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
-  const locationSearch = props.location?.search || "";
+  const years = useMemo(() => {
+    const unique = new Set();
+    scopedEvents.forEach((event) => {
+      if (!event?.startTime) return;
+      unique.add(new Date(event.startTime).getFullYear());
+    });
+    return Array.from(unique).sort((a, b) => b - a);
+  }, [scopedEvents]);
   useEffect(() => {
     let isMounted = true;
     sanity
-      .fetchEvents()
+      .fetchAllEvents()
       .then((data) => {
         if (!isMounted) return;
         const normalized = Array.isArray(data)
@@ -180,8 +204,15 @@ const IndexPage = props => {
     const monthParam = params.get("month");
     const yearParam = params.get("year");
     const excludeParam = params.get("excludeBoard");
+    const activeParam = params.get("active");
+    const requestActiveOnly = !(activeParam === "0" || activeParam === "false");
+    if (!requestActiveOnly) {
+      setActiveOnly(false);
+    }
     if (categoryParam) {
-      const validCategories = categories.filter((category) => category !== "All");
+      const validCategories = (requestActiveOnly ? categories : allCategories).filter(
+        (category) => category !== "All"
+      );
       const requestedCategories = categoryParam
         .split(",")
         .map((category) => category.trim())
@@ -196,16 +227,18 @@ const IndexPage = props => {
     if (monthParam && monthOptions.some((option) => option.value === monthParam)) {
       setSelectedMonth(monthParam);
     }
-    if (yearParam && years.includes(Number(yearParam))) {
+    const validYears = requestActiveOnly ? years : allYears;
+    if (yearParam && validYears.includes(Number(yearParam))) {
       setSelectedYear(yearParam);
     }
     if (excludeParam === "1" || excludeParam === "true") {
       setExcludeBoardMeetings(true);
     }
     setHasInitializedFilters(true);
-  }, [hasInitializedFilters, locationSearch, categories, years]);
+  }, [hasInitializedFilters, locationSearch, categories, years, allCategories, allYears]);
 
   useEffect(() => {
+    if (selectedYear === "all") return;
     if (!years.length) return;
     const yearStrings = years.map((year) => String(year));
     if (!yearStrings.includes(selectedYear)) {
@@ -218,7 +251,7 @@ const IndexPage = props => {
   }, [years, selectedYear, currentYear]);
   useEffect(() => {
     setPageIndex(1);
-  }, [selectedCategories, selectedMonth, selectedYear, excludeBoardMeetings]);
+  }, [selectedCategories, selectedMonth, selectedYear, excludeBoardMeetings, activeOnly]);
 
   useEffect(() => {
     if (!hasInitializedFilters) return;
@@ -244,6 +277,11 @@ const IndexPage = props => {
     } else {
       params.delete("excludeBoard");
     }
+    if (!activeOnly) {
+      params.set("active", "0");
+    } else {
+      params.delete("active");
+    }
     const nextSearch = params.toString();
     const nextUrl = nextSearch
       ? `${window.location.pathname}?${nextSearch}`
@@ -256,6 +294,7 @@ const IndexPage = props => {
     selectedMonth,
     selectedYear,
     excludeBoardMeetings,
+    activeOnly,
     currentYear
   ]);
   const selectedMonthLabel =
@@ -271,7 +310,10 @@ const IndexPage = props => {
   const filterLabel = filterLabelParts.length
     ? filterLabelParts.join(" · ")
     : "All";
-  const filteredEvents = liveEvents.filter((event) => {
+  const eventsHeading = activeOnly
+    ? "Upcoming events"
+    : "All events (including historical)";
+  const filteredEvents = scopedEvents.filter((event) => {
     if (!event?.startTime) return false;
     const eventDate = new Date(event.startTime);
     const eventYear = eventDate.getFullYear();
@@ -323,7 +365,7 @@ const IndexPage = props => {
           <Heading sx={{ variant: "styles.h1", mb: 0 }}>Events</Heading>
           <BoxIcon />
         </Box>
-        <Text sx={{ variant: "styles.p", color: "text", maxWidth: "760px", mb: "0.75rem" }}>
+        <Text sx={{ variant: "styles.p", fontSize: "16pt", color: "text", maxWidth: "760px", mb: "0.75rem" }}>
           Discover upcoming drives, clinics, social gatherings, and club meetings across the region.
           Use the filters below to find events that fit your interests and schedule.
         </Text>
@@ -346,6 +388,17 @@ const IndexPage = props => {
             categories={categories}
             selectedCategories={selectedCategories}
             onChange={setSelectedCategories}
+            allLabel="Active"
+            allSelected={activeOnly}
+            onAllToggle={() =>
+              setActiveOnly((prev) => {
+                const next = !prev;
+                if (!next) {
+                  setSelectedYear("all");
+                }
+                return next;
+              })
+            }
             showDivider
           >
             <Button
@@ -428,6 +481,7 @@ const IndexPage = props => {
                   color: "text"
                 }}
               >
+                <option value="all">All years</option>
                 {years.map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -446,7 +500,7 @@ const IndexPage = props => {
             my: "0.5rem"
           }}
         >
-          Events — {filterLabel}
+          {eventsHeading} — {filterLabel}
         </Heading>
         <div>
           <ul sx={{

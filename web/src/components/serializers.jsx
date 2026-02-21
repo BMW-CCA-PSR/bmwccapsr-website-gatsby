@@ -1,12 +1,16 @@
 /** @jsxImportSource theme-ui */
-import { Themed } from "theme-ui"
+import { Themed } from "theme-ui";
 import React, { useEffect, useState } from "react";
 import { Link } from "gatsby";
 import ReactPlayer from "react-player";
 import InstagramEmbed from "react-instagram-embed";
-import SanityImage from "gatsby-plugin-sanity-image"
+import SanityImage from "gatsby-plugin-sanity-image";
 import { FiMaximize2, FiX } from "react-icons/fi";
-import { Box, Text } from '@theme-ui/components';
+import { Box, Text } from "@theme-ui/components";
+import {
+  nonDraggableImageProps,
+  nonDraggableImageSx,
+} from "../lib/nonDraggableImage";
 
 var style = {
   textDecoration: "none",
@@ -15,7 +19,7 @@ var style = {
   backgroundColor: "primary",
   border: "none",
   color: "white",
-  mx: [0,0,"1rem","1rem"],
+  mx: [0, 0, "1rem", "1rem"],
   py: "8px",
   my: "5px",
   px: "20px",
@@ -23,12 +27,13 @@ var style = {
   textAlign: "center",
   borderRadius: "4px",
   transition: "background-color 0.5s ease-out",
-  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-  "&:hover":{
+  boxShadow:
+    "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+  "&:hover": {
     color: "white",
     bg: "highlight",
-  }
-}
+  },
+};
 
 const headingSx = {
   mt: 4,
@@ -83,6 +88,7 @@ const ImageBlock = ({ node }) => {
       <Box sx={{ position: "relative" }}>
         <SanityImage
           {...node}
+          {...nonDraggableImageProps}
           width={900}
           alt={node?.alt || ""}
           sx={{
@@ -90,6 +96,7 @@ const ImageBlock = ({ node }) => {
             objectFit: "cover",
             display: "block",
             borderRadius: "18px 18px 0 0",
+            ...nonDraggableImageSx,
           }}
         />
         <Box
@@ -113,8 +120,8 @@ const ImageBlock = ({ node }) => {
             color: "white",
             boxShadow: "0 6px 16px rgba(0,0,0,0.35)",
             "&:hover": {
-              bg: "rgba(0,0,0,0.85)"
-            }
+              bg: "rgba(0,0,0,0.85)",
+            },
           }}
         >
           <FiMaximize2 size={16} />
@@ -158,6 +165,7 @@ const ImageBlock = ({ node }) => {
           >
             <SanityImage
               {...node}
+              {...nonDraggableImageProps}
               width={1600}
               alt={node?.alt || ""}
               sx={{
@@ -165,6 +173,7 @@ const ImageBlock = ({ node }) => {
                 maxHeight: "90vh",
                 objectFit: "contain",
                 display: "block",
+                ...nonDraggableImageSx,
               }}
             />
             <Box
@@ -188,8 +197,8 @@ const ImageBlock = ({ node }) => {
                 color: "black",
                 boxShadow: "0 6px 16px rgba(0,0,0,0.35)",
                 "&:hover": {
-                  bg: "lightgray"
-                }
+                  bg: "lightgray",
+                },
               }}
             >
               <FiX size={18} />
@@ -206,48 +215,66 @@ const serializers = {
     authorReference: AuthorReference,
     mainImage: ImageBlock,
     image: ImageBlock,
-    videoEmbed: ({ node }) => 
-    <div sx={{mx: "auto", my: 4, display: "flex", position: "relative", paddingTop: "56.25%", width: ["92vw", "92vw", "50vw", "50vw"]}}>
-      <ReactPlayer sx={{position: "absolute", top: 0}} url={node.url} width="100%" height="100%" controls />
-    </div>,
+    videoEmbed: ({ node }) => (
+      <div
+        sx={{
+          mx: "auto",
+          my: 4,
+          display: "flex",
+          position: "relative",
+          paddingTop: "56.25%",
+          width: ["92vw", "92vw", "50vw", "50vw"],
+        }}
+      >
+        <ReactPlayer
+          sx={{ position: "absolute", top: 0 }}
+          url={node.url}
+          width="100%"
+          height="100%"
+          controls
+        />
+      </div>
+    ),
     instagram: ({ node }) => {
       if (!node.url) return null;
       return <InstagramEmbed url={node.url} />;
     },
     file: ({ node }) => {
-      console.log(node.asset.filename.split('.')[0])
+      console.log(node.asset.filename.split(".")[0]);
       if (node.asset) {
         return (
-          <div style={{ display: 'flex', justifyContent: 'center' }}> {/* This div will act as a flex container */}
-          <Link 
-            target="_blank"
-            to={node.asset.url} 
-            sx={style}
-            rel="noopener noreferrer"
-            download
-          >
-            {node.asset.filename.split('.')[0]}
-          </Link>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            {" "}
+            {/* This div will act as a flex container */}
+            <Link
+              target="_blank"
+              to={node.asset.url}
+              sx={style}
+              rel="noopener noreferrer"
+              download
+            >
+              {node.asset.filename.split(".")[0]}
+            </Link>
           </div>
         );
       }
-    
+
       return null;
     },
     block(props) {
       switch (props.node.style) {
         case "h1":
-          return <Themed.h1 sx={headingSx}>{props.children}</Themed.h1>
+          return <Themed.h1 sx={headingSx}>{props.children}</Themed.h1>;
         case "h2":
-          return <Themed.h2 sx={headingSx}>{props.children}</Themed.h2>
+          return <Themed.h2 sx={headingSx}>{props.children}</Themed.h2>;
         case "h3":
-          return <Themed.h3 sx={headingSx}>{props.children}</Themed.h3>
+          return <Themed.h3 sx={headingSx}>{props.children}</Themed.h3>;
         case "h4":
-          return <Themed.h4 sx={headingSx}>{props.children}</Themed.h4>
+          return <Themed.h4 sx={headingSx}>{props.children}</Themed.h4>;
         case "h5":
-          return <Themed.h5 sx={headingSx}>{props.children}</Themed.h5>
+          return <Themed.h5 sx={headingSx}>{props.children}</Themed.h5>;
         case "h6":
-          return <Themed.h6 sx={headingSx}>{props.children}</Themed.h6>
+          return <Themed.h6 sx={headingSx}>{props.children}</Themed.h6>;
         case "blockquote":
           return (
             <Themed.blockquote
@@ -265,16 +292,22 @@ const serializers = {
             >
               {props.children}
             </Themed.blockquote>
-          )
+          );
         default:
-          return <Themed.p sx={paragraphSx}>{props.children}</Themed.p>
+          return <Themed.p sx={paragraphSx}>{props.children}</Themed.p>;
       }
-    }
+    },
   },
   list: ({ type, children }) => {
     const as = type === "number" ? "ol" : "ul";
     return (
-      <Box as={as} sx={{ ...listSx, listStyleType: type === "number" ? "decimal" : "disc" }}>
+      <Box
+        as={as}
+        sx={{
+          ...listSx,
+          listStyleType: type === "number" ? "decimal" : "disc",
+        }}
+      >
         {children}
       </Box>
     );
@@ -319,20 +352,21 @@ const serializers = {
       </Box>
     ),
     highlight: ({ children }) => (
-      <Box
-        as="mark"
+      <mark
         sx={{
-          backgroundColor: "highlight",
-          color: "black",
-          px: "0.25em",
-          py: "0.1em",
-          borderRadius: "4px",
+          backgroundColor: "#fff176",
+          color: "#1f1f1f",
+          px: "0.2em",
+          py: "0.05em",
+          borderRadius: "0.2em",
+          boxDecorationBreak: "clone",
+          WebkitBoxDecorationBreak: "clone",
         }}
       >
         {children}
-      </Box>
+      </mark>
     ),
-  }
+  },
 };
 
 export default serializers;

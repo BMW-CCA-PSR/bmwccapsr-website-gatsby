@@ -1,23 +1,25 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { Flex } from "theme-ui"
-import { StaticImage } from "gatsby-plugin-image"
+import { Flex } from "theme-ui";
+import { StaticImage } from "gatsby-plugin-image";
 
 function Logo() {
   return (
-    <Flex sx={{flexDirection: "row"}}>
+    <Flex sx={{ flexDirection: "row" }}>
       {/* <div sx={{minWidth: 75, width: 75, height: 36, display: "flex", flexDirection: "column", justifyContent: "center",}}> */}
       <div>
         <StaticImage
           alt="BMW CCA PSR"
-          //src="../images/psr_sig.png"
           src="../images/new-logo.png"
           placeholder="blurred"
           layout="constrained"
-          sx={{
-            objectFit: "cover",
-            width: ["130px", "130px", "175px", "175px"],
-            boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 4px 5px 0 rgba(0, 0, 0, 0.14)",
+          width={175}
+          imgStyle={{ objectFit: "cover" }}
+          style={{
+            width: "clamp(130px, 14vw, 175px)",
+            display: "block",
+            boxShadow:
+              "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 4px 5px 0 rgba(0, 0, 0, 0.14)",
           }}
         />
       </div>
@@ -26,7 +28,7 @@ function Logo() {
         <Heading sx={{fontSize: [16, 20], letterSpacing: "-.025em", lineHeight: "0.9", color: "grey"}} >Puget Sound Region</Heading>
       </Flex> */}
     </Flex>
-  )
+  );
 }
 
-export default Logo
+export default Logo;

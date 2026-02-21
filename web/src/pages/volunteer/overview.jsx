@@ -43,52 +43,75 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           pb: "2rem",
         }}
       >
-        <Text variant="text.label">
-          <Link
-            to="/volunteer"
-            sx={{
-              textDecoration: "none",
-              color: "text",
-              display: "inline-flex",
-              alignItems: "center",
-              cursor: "pointer",
-              px: "0.15em",
-              mx: "-0.15em"
-            }}
-          >
-            Volunteer
-          </Link>
-          <Text as="span" sx={{ px: "0.35em" }}>
-            /
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            mb: "0.5rem",
+            width: "fit-content",
+          }}
+        >
+          <Text variant="text.label" sx={{ display: "inline-block" }}>
+            <Link
+              to="/volunteer"
+              sx={{
+                textDecoration: "none",
+                color: "text",
+                display: "inline-flex",
+                alignItems: "center",
+                cursor: "pointer",
+                px: "0.15em",
+                mx: "-0.15em",
+              }}
+            >
+              Volunteer
+            </Link>
+            <Text as="span" sx={{ px: "0.35em" }}>
+              /
+            </Text>
+            Overview
           </Text>
-          Overview
-        </Text>
+        </Box>
         <Flex
           sx={{
             flexDirection: ["column", "column", "row", "row"],
-            alignItems: ["flex-start", "flex-start", "flex-start", "flex-start"],
+            alignItems: [
+              "flex-start",
+              "flex-start",
+              "flex-start",
+              "flex-start",
+            ],
             justifyContent: "space-between",
-            gap: ["1rem", "1rem", "2.5rem", "2.5rem"]
+            gap: ["1rem", "1rem", "2.5rem", "2.5rem"],
           }}
         >
           <Box sx={{ flex: "1 1 auto", minWidth: 0, maxWidth: "900px" }}>
-            <Heading as="h1" sx={{ variant: "styles.h1", mt: "1rem", mb: "0.75rem" }}>
+            <Heading
+              as="h1"
+              sx={{
+                variant: "styles.h1",
+                mt: 0,
+                mb: "0.75rem",
+                position: "relative",
+                zIndex: 1,
+              }}
+            >
               Volunteering Overview
               <BoxIcon
                 as="span"
                 sx={{
                   display: "inline-grid",
                   ml: "0.5rem",
-                  verticalAlign: "middle"
+                  verticalAlign: "middle",
                 }}
               />
             </Heading>
             <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
-              Volunteering is how PSR delivers safe, memorable events and builds a
-              strong community. From first-time helpers to experienced leaders,
-              there are roles matched to your time, interests, and skill level.
-              Use this overview to understand how roles are structured and how to
-              get started.
+              Volunteering is how PSR delivers safe, memorable events and builds
+              a strong community. From first-time helpers to experienced
+              leaders, there are roles matched to your time, interests, and
+              skill level. Use this overview to understand how roles are
+              structured and how to get started.
             </Text>
           </Box>
           <Box
@@ -100,12 +123,15 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               height: ["230px", "260px", "220px", "240px"],
               objectFit: "cover",
               borderRadius: "18px",
-              flex: "0 0 auto"
+              flex: "0 0 auto",
             }}
           />
         </Flex>
         <Box>
-          <Heading as="h2" sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}>
+          <Heading
+            as="h2"
+            sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
+          >
             Skill Level Guide
           </Heading>
           <Box
@@ -116,7 +142,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               overflow: "hidden",
               display: "grid",
               gridTemplateColumns: ["1fr", "1fr", "repeat(3, minmax(0, 1fr))"],
-              mb: "1.75rem"
+              mb: "1.75rem",
             }}
           >
             <Box
@@ -130,8 +156,8 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 alignItems: "flex-start",
                 transition: "background-color 0.2s ease",
                 "&:hover": {
-                  backgroundColor: "#d4f1dd"
-                }
+                  backgroundColor: "#d4f1dd",
+                },
               }}
             >
               <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
@@ -141,13 +167,19 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                   sx={{
                     variant: "styles.h3",
                     fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0
+                    my: 0,
                   }}
                 >
                   Entry
                 </Heading>
               </Flex>
-              <Text sx={{ variant: "styles.p", fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"], mt: "0.5rem" }}>
+              <Text
+                sx={{
+                  variant: "styles.p",
+                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
+                  mt: "0.5rem",
+                }}
+              >
                 Great for first-time volunteers
                 <Box as="span" sx={{ display: "block" }}>
                   and limited availability.
@@ -169,8 +201,8 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 alignItems: "flex-start",
                 transition: "background-color 0.2s ease",
                 "&:hover": {
-                  backgroundColor: "#ffe9a6"
-                }
+                  backgroundColor: "#ffe9a6",
+                },
               }}
             >
               <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
@@ -180,13 +212,19 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                   sx={{
                     variant: "styles.h3",
                     fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0
+                    my: 0,
                   }}
                 >
-                  Medium
+                  Intermediate
                 </Heading>
               </Flex>
-              <Text sx={{ variant: "styles.p", fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"], mt: "0.5rem" }}>
+              <Text
+                sx={{
+                  variant: "styles.p",
+                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
+                  mt: "0.5rem",
+                }}
+              >
                 Ideal for members ready
                 <Box as="span" sx={{ display: "block" }}>
                   to take on more responsibility.
@@ -208,8 +246,8 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 alignItems: "flex-start",
                 transition: "background-color 0.2s ease",
                 "&:hover": {
-                  backgroundColor: "#ffd1d1"
-                }
+                  backgroundColor: "#ffd1d1",
+                },
               }}
             >
               <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
@@ -219,13 +257,19 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                   sx={{
                     variant: "styles.h3",
                     fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0
+                    my: 0,
                   }}
                 >
-                  Hard
+                  Advanced
                 </Heading>
               </Flex>
-              <Text sx={{ variant: "styles.p", fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"], mt: "0.5rem" }}>
+              <Text
+                sx={{
+                  variant: "styles.p",
+                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
+                  mt: "0.5rem",
+                }}
+              >
                 Best for experienced volunteers
                 <Box as="span" sx={{ display: "block" }}>
                   with specialized skills.
@@ -234,7 +278,10 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             </Box>
           </Box>
 
-          <Heading as="h3" sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}>
+          <Heading
+            as="h2"
+            sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
+          >
             Why Volunteer?
           </Heading>
           <Box
@@ -243,7 +290,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               pl: "1.25rem",
               mb: "1rem",
               lineHeight: "body",
-              listStyleType: "disc"
+              listStyleType: "disc",
             }}
           >
             <Box as="li" sx={{ mb: "0.5rem" }}>
@@ -263,7 +310,10 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             </Box>
           </Box>
 
-          <Heading as="h3" sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}>
+          <Heading
+            as="h2"
+            sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
+          >
             Getting Started
           </Heading>
           <Box
@@ -272,7 +322,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               pl: "1.25rem",
               mb: "1rem",
               lineHeight: "body",
-              listStyleType: "decimal"
+              listStyleType: "decimal",
             }}
           >
             <Box as="li" sx={{ mb: "0.5rem" }}>

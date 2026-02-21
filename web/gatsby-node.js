@@ -15,6 +15,15 @@ const normalizeVolunteerPath = (slugValue, pathPrefix = "/volunteer") => {
   return `${pathPrefix}${withSlash}`.replace(/\/+$/, "");
 };
 
+const buildVolunteerFallbackPath = (id, pathPrefix = "/volunteer") => {
+  const safeId = String(id || "position")
+    .replace(/^drafts\./, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${pathPrefix}/${safeId || "position"}`;
+};
+
 exports.createSchemaCustomization = ({ actions, schema }) => {
   actions.createTypes(`
     extend type SanityVolunteerRole {
@@ -138,11 +147,13 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
       },
     }),
     schema.buildObjectType({
-      name: "SanityVolunteerCategory",
+      name: "SanityVolunteerFixedRole",
       interfaces: ["Node"],
       fields: {
-        title: { type: "String" },
+        name: { type: "String" },
         description: { type: "String" },
+        detail: { type: "String" },
+        pointValue: { type: "Int" },
       },
     }),
     schema.buildObjectType({
@@ -167,22 +178,19 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         infer: false,
       },
       fields: {
-        title: { type: "String" },
+        role: { type: "SanityVolunteerFixedRole" },
         slug: { type: "SanitySlug" },
         active: { type: "Boolean" },
         isActive: {
           type: "Boolean!",
           resolve: (source) => Boolean(source.active),
         },
-        workDescription: { type: "String" },
         date: { type: "Date" },
-        duration: { type: "String" },
+        duration: { type: "Float" },
         compensation: { type: "String" },
-        volunteerPoints: { type: "Int" },
         skillLevel: { type: "String" },
         membershipRequired: { type: "Boolean" },
         descriptionPdf: { type: "SanityFile" },
-        category: { type: "SanityVolunteerCategory" },
         motorsportRegEvent: { type: "SanityMotorsportRegEvent" },
       },
     }),
@@ -384,7 +392,7 @@ async function createVolunteerRolePages(pathPrefix = "/volunteer", graphql, acti
   const volunteerRoleTemplate = require.resolve("./src/templates/volunteer-role.js");
   await graphql(`
     {
-      allSanityVolunteerRole(filter: { slug: { current: { ne: null } } }) {
+      allSanityVolunteerRole {
         edges {
           node {
             id
@@ -396,12 +404,21 @@ async function createVolunteerRolePages(pathPrefix = "/volunteer", graphql, acti
       }
     }
   `).then((result) => {
-    const roleEdges = (result.data.allSanityVolunteerRole || {}).edges || [];
+    if (result.errors) {
+      throw result.errors;
+    }
+    const roleEdges = (result?.data?.allSanityVolunteerRole || {}).edges || [];
+    if (roleEdges.length === 0) {
+      reporter.info("No volunteer positions found; skipping position page creation.");
+      return;
+    }
     roleEdges.forEach((edge) => {
       const { id, slug = {} } = edge.node;
-      const normalizedPath = normalizeVolunteerPath(slug.current, pathPrefix);
+      const normalizedPath = slug?.current
+        ? normalizeVolunteerPath(slug.current, pathPrefix)
+        : buildVolunteerFallbackPath(id, pathPrefix);
       const path = normalizedPath.endsWith("/") ? normalizedPath : `${normalizedPath}/`;
-      reporter.info(`Creating volunteer role page: ${path}`);
+      reporter.info(`Creating volunteer position page: ${path}`);
       createPage({
         path,
         component: volunteerRoleTemplate,

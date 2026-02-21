@@ -45,22 +45,24 @@ export class Client {
 
   fetchVolunteerRoles = () => {
     return this.client.fetch(
-      `*[_type == "volunteerRole" && active == true] | order(motorsportRegEvent.start asc, _createdAt desc){
+      `*[_type == "volunteerRole"] | order(motorsportRegEvent.start asc, _createdAt desc){
         _id,
-        title,
+        role->{
+          name,
+          description,
+          detail,
+          pointValue
+        },
         slug,
         active,
-        workDescription,
         date,
         duration,
         compensation,
-        volunteerPoints,
         skillLevel,
         membershipRequired,
         descriptionPdf{
           asset->{url}
         },
-        category->{title},
         motorsportRegEvent{
           eventId,
           name,
@@ -76,11 +78,29 @@ export class Client {
     );
   }
 
-  fetchVolunteerCategories = () => {
+  fetchVolunteerPositionBySlug = (slug) => {
+    if (!slug) return Promise.resolve(null);
     return this.client.fetch(
-      `*[_type == "volunteerCategory"] | order(title asc){
+      `*[_type == "volunteerRole" && slug.current == $slug][0]{
+        role->{
+          name,
+          description,
+          detail,
+          pointValue
+        }
+      }`,
+      { slug }
+    );
+  }
+
+  fetchVolunteerFixedRoles = () => {
+    return this.client.fetch(
+      `*[_type == "volunteerFixedRole"] | order(pointValue asc, name asc){
         _id,
-        title
+        name,
+        description,
+        detail,
+        pointValue
       }`
     );
   }
@@ -91,6 +111,27 @@ export class Client {
           (defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
           (!defined(endTime) && dateTime(startTime) >= dateTime(now()))
         )] | order(startTime asc){
+        _id,
+        title,
+        onlineEvent,
+        onlineLink,
+        venueName,
+        slug { current },
+        startTime,
+        endTime,
+        mainImage{
+          ...,
+          asset->{_id, url}
+        },
+        category->{title},
+        address{line1, line2, city, state}
+      }`
+    );
+  }
+
+  fetchAllEvents = () => {
+    return this.client.fetch(
+      `*[_type == "event"] | order(startTime asc){
         _id,
         title,
         onlineEvent,

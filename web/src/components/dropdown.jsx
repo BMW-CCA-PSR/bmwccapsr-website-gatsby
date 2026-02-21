@@ -3,6 +3,8 @@ import NavLink from "./navLink";
 import React from "react";
 import { useLocation } from "@reach/router";
 
+const fixedSlantClip = "polygon(var(--nav-slant-size) 0, 100% 0, calc(100% - var(--nav-slant-size)) 100%, 0 100%)";
+
 const Dropdown = props => {
     const link = props.navigationItemUrl
     const location = useLocation();
@@ -22,7 +24,12 @@ const Dropdown = props => {
         return location.pathname.startsWith(path);
     });
     const activeLinkStyles = isChildActive
-        ? { backgroundColor: "primary", color: "background" }
+        ? {
+            color: "background",
+            "--nav-bg-opacity": 1,
+            WebkitTextStroke: "0.35px currentColor",
+            textShadow: "0 0 0.01px currentColor"
+        }
         : {};
     return (
         <ul
@@ -42,11 +49,11 @@ const Dropdown = props => {
                 position: "relative",
                 height: "100%",
                 textAlign: "center",
-                ":hover > button, :focus-within > button": {
-                    backgroundColor: "primary",
-                    color: "background"
+                ":hover > button": {
+                    color: "background",
+                    "--nav-bg-opacity": 1
                 },
-                    ":hover > ul, :focus-within > ul ": {
+                    ":hover > ul": {
                         visibility: "visible",
                         opacity: "1",
                         display: "block",
@@ -69,11 +76,27 @@ const Dropdown = props => {
                     background: "none",
                     border: "none",
                     font: "inherit",
+                    position: "relative",
+                    isolation: "isolate",
+                    "--nav-slant-size": "14px",
+                    "--nav-bg-opacity": 0,
+                    transition: "color 160ms ease",
+                    "&::before": {
+                        content: "\"\"",
+                        position: "absolute",
+                        inset: 0,
+                        backgroundColor: "primary",
+                        clipPath: fixedSlantClip,
+                        WebkitClipPath: fixedSlantClip,
+                        opacity: "var(--nav-bg-opacity)",
+                        transition: "opacity 160ms ease",
+                        zIndex: 0
+                    },
                     ...activeLinkStyles
                 }}
                 aria-haspopup={link.items && link.items.length > 0 ? true : false}
             >
-                    {props.title}
+                    <span sx={{ position: "relative", zIndex: 1 }}>{props.title}</span>
                 </button>
                 {link.items && link.items.length > 0 ? (
                     <ul
@@ -101,9 +124,6 @@ const Dropdown = props => {
                                 visibility: "visible",
                                 opacity: "1",
                                 display: "block",
-                            },
-                            ":focus-within": {
-                                outline: "none"
                             }
                         }}
                         aria-label="submenu"
