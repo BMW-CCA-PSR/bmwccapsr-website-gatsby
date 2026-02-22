@@ -251,7 +251,125 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
           py: "2rem",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <Box
+          sx={{
+            display: ["grid", "grid", "none"],
+            gridColumn: "1 / -1",
+            gridTemplateColumns: "auto 1fr",
+            alignItems: "flex-start",
+            columnGap: "1rem",
+            rowGap: "0.6rem",
+            mb: "0.25rem",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "0.75rem",
+            }}
+          >
+            <Link
+              to="/"
+              draggable={false}
+              onDragStart={preventDrag}
+              sx={{ textDecoration: "none", userSelect: "none" }}
+            >
+              <StaticImage
+                alt="BMW CCA PSR"
+                src="../images/new-logo.png"
+                placeholder="blurred"
+                layout="constrained"
+                width={84}
+                draggable={false}
+                onDragStart={preventDrag}
+                imgStyle={{
+                  objectFit: "contain",
+                  filter: "grayscale(100%)",
+                  userSelect: "none",
+                  WebkitUserDrag: "none",
+                }}
+                style={{
+                  width: "84px",
+                  display: "block",
+                  filter: "grayscale(100%)",
+                }}
+              />
+            </Link>
+          </Box>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "0.45rem 0.9rem",
+            }}
+          >
+            <Link
+              to="/zundfolge/"
+              sx={{
+                textDecoration: "none",
+                color: "gray",
+                ":hover": { color: "background" },
+              }}
+            >
+              Zündfolge
+            </Link>
+            <Link
+              to="/events"
+              sx={{
+                textDecoration: "none",
+                color: "gray",
+                ":hover": { color: "background" },
+              }}
+            >
+              Events
+            </Link>
+            <Link
+              to="/partners"
+              sx={{
+                textDecoration: "none",
+                color: "gray",
+                ":hover": { color: "background" },
+              }}
+            >
+              Partners
+            </Link>
+            <Link
+              to="/volunteer"
+              sx={{
+                textDecoration: "none",
+                color: "gray",
+                ":hover": { color: "background" },
+              }}
+            >
+              Volunteer
+            </Link>
+            <OutboundLink
+              href="https://cdn.bmwcca.org/static/join/index.html"
+              rel="noopener noreferrer"
+              target="_blank"
+              sx={{
+                textDecoration: "none",
+                color: "gray",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                ":hover": { color: "background" },
+              }}
+            >
+              Join
+              <FiExternalLink size={12} aria-hidden="true" />
+            </OutboundLink>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: ["none", "none", "flex"],
+            flexDirection: "column",
+            gap: "0.75rem",
+          }}
+        >
           <Link
             to="/"
             draggable={false}
@@ -282,7 +400,7 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
         </Box>
         <Box
           sx={{
-            display: "grid",
+            display: ["none", "none", "grid"],
             gridTemplateColumns: ["1fr", "1fr", "1fr 1fr"],
             gap: "0.6rem 2rem",
           }}
@@ -346,7 +464,7 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
         </Box>
         <Box
           sx={{
-            display: "flex",
+            display: ["none", "none", "flex"],
             justifyContent: ["flex-start", "flex-start", "flex-end"],
             alignItems: "flex-start",
           }}
@@ -364,7 +482,7 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               alt="BMW CCA"
               draggable={false}
               sx={{
-                width: "230px",
+                width: "145px",
                 height: "auto",
                 filter: "grayscale(100%)",
                 userSelect: "none",
@@ -487,7 +605,7 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
           />
           <Box
             sx={{
-              fontSize: "xs",
+              fontSize: ["11px", "11px", "xs"],
               color: "gray",
               lineHeight: "1.6",
               mt: "0.5rem",

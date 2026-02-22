@@ -98,19 +98,20 @@ function Page(props) {
       : []
     const content = (page._rawContent || [])
       .filter((c) => !c.disabled)
-      .map((c) => {
+      .map((c, index) => {
+        const contentKey = c?._key || `${c?._type || "content"}-${index}`;
         let el = null;
         switch (c._type) {
           case "hero":
-            el = <Hero key={c._key} {...c} isHomepage={isFrontpage} />;
+            el = <Hero key={contentKey} {...c} isHomepage={isFrontpage} />;
             break;
           case "ctaPlug":
-            el = <Cta key={c._key} {...c} />;
+            el = <Cta key={contentKey} {...c} />;
             break;
           case "heroCarousel":
             el = (
               <HeroSlider
-                key={c._key}
+                key={contentKey}
                 {...c}
                 {...slideAds}
                 featuredSlides={featuredHeroSlides}
@@ -120,28 +121,29 @@ function Page(props) {
             break;
           case "topStories":
           case "zundfolgeLatest":
-            el = <ZundfolgeLatest key={c._key} {...c} {...post} />;
+            el = <ZundfolgeLatest key={contentKey} {...c} {...post} />;
             break;
           case "upcomingEvents":
-            el = <UpcomingEvents key={c._key} {...c} {...event} />;
+            el = <UpcomingEvents key={contentKey} {...c} {...event} />;
             break;
           case "homepageSponsors":
-            el = <HomepageSponsors key={c._key} {...c} {...ads} />;
+            el = <HomepageSponsors key={contentKey} {...c} {...ads} />;
             break;
           case "headerBar":
-            el = <BoxHeader key={c._key} title={c.title} />;
+            el = <BoxHeader key={contentKey} title={c.title} />;
             break;
           case "advertisement":
             const adType = c.type ? c.type === "banner" ? banners : boxes : null
             if(adType && adType.edges){
               const randomAdPosition = randomGenerator(0, adType.edges.length - 1)
               const randomizedAd = adType.edges.length > 0 ? adType.edges[randomAdPosition].node : null
-              el = c.type === "banner" && randomizedAd ? <BannerAd {...randomizedAd} /> : <BoxAd {...randomizedAd} />
+              el = c.type === "banner" && randomizedAd ? <BannerAd key={contentKey} {...randomizedAd} /> : <BoxAd key={contentKey} {...randomizedAd} />
             }
             break;
           case "pageContent":
             el = (
               <ContentContainer
+                key={contentKey}
                 sx={{
                   mx: "auto",
                   my: "20px",
@@ -149,19 +151,19 @@ function Page(props) {
                   width: "100%",
                 }}
               >
-                <PortableText key={c._key} {...c} color={"text"} boxed />
+                <PortableText {...c} color={"text"} boxed />
               </ContentContainer>
             );
             break;
           case "uiComponentRef":
             switch (c.name) {
               case "event-slider":
-                el = <EventSlider key={c._key} {...c} {...event} />;
+                el = <EventSlider key={contentKey} {...c} {...event} />;
                 break;
               case "banner-ad":
                 const randomAdPosition = randomGenerator(0, banners.edges.length - 1)
                 const randomizedAd = banners.edges.length > 0 ? banners.edges[randomAdPosition].node : null
-                el = randomizedAd ? <BannerAd {...randomizedAd} /> : null;
+                el = randomizedAd ? <BannerAd key={contentKey} {...randomizedAd} /> : null;
                 break;
               default:
                 break;
@@ -170,15 +172,20 @@ function Page(props) {
           default:
             el = null;
         }
-        return el;
+        if (!el) {
+          return null;
+        }
+
+        return <React.Fragment key={contentKey}>{el}</React.Fragment>;
       });
     const menuItems = site.navMenu && (site.navMenu.items || []);
     const pageTitle = data.route && !data.route.useSiteTitle && page.title;
+    const seoTitle = pageTitle || site.title || "BMW CCA Puget Sound Region";
 
     return (
       <Layout navMenuItems={menuItems}>
         <Seo
-          title={pageTitle}
+          title={seoTitle}
           description={site.description}
           keywords={site.keywords}
         />

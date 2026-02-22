@@ -34,9 +34,9 @@ const Cta = ({ label, title, body, ctas }) => (
         </div>
 
         <Flex sx={{ justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
-          {(ctas || []).map((c) => (
+          {(ctas || []).map((c, index) => (
             <div
-              key={c._key}
+              key={c?._key || `${c?.title || "cta"}-${index}`}
               sx={{
                 display: "flex",
                 alignItems: "center",

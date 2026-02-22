@@ -103,8 +103,8 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
                   fields: ["publishedAt"],
                   order: ["DESC"],
                 },
-              }
-            })
+              },
+            });
             const now = new Date();
             const posts = entries.filter((post) => {
               if (!post || !post._rawDataCategory || post._id === source._id) {
@@ -125,7 +125,7 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
               }
               return publishedAt <= now;
             });
-            return Array.from(posts)
+            return Array.from(posts);
           },
         },
       },
@@ -199,11 +199,18 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
 
 // HOME PAGE
 
-async function createLandingPages(pathPrefix = "/", graphql, actions, reporter) {
+async function createLandingPages(
+  pathPrefix = "/",
+  graphql,
+  actions,
+  reporter
+) {
   const { createPage } = actions;
   const result = await graphql(`
     {
-      allSanityRoute(filter: { slug: { current: { ne: null } }, page: { id: { ne: null } } }) {
+      allSanityRoute(
+        filter: { slug: { current: { ne: null } }, page: { id: { ne: null } } }
+      ) {
         edges {
           node {
             id
@@ -233,16 +240,25 @@ async function createLandingPages(pathPrefix = "/", graphql, actions, reporter) 
 
 // ZUNDFOLGE PAGE
 
-async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions, reporter) {
+async function createZundfolgePages(
+  pathPrefix = "/zundfolge",
+  graphql,
+  actions,
+  reporter
+) {
   const { createPage } = actions;
-  const zundfolgeArticleTemplate = require.resolve("./src/templates/zundfolge-article.js")
-  const zundfolgeLandingTemplate = require.resolve("./src/templates/zundfolge.js")
+  const zundfolgeArticleTemplate = require.resolve(
+    "./src/templates/zundfolge-article.js"
+  );
+  const zundfolgeLandingTemplate = require.resolve(
+    "./src/templates/zundfolge.js"
+  );
   await graphql(`
     {
       allSanityPost(
         filter: { slug: { current: { ne: null } }, isPublished: { eq: true } }
         sort: { fields: [publishedAt], order: ASC }
-        ) {
+      ) {
         edges {
           node {
             id
@@ -262,30 +278,30 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
         }
       }
     }
-  `).then(result => {
+  `).then((result) => {
     const postEdges = (result.data.allSanityPost || {}).edges || [];
     postEdges
-    .filter((edge) => !isFuture(parseISO(edge.node.publishedAt)))
-    .forEach((edge) => {
-      const { id, slug = {} } = edge.node;
-      const { next, previous } = edge;
-      const path = `${pathPrefix}/${slug.current}/`;
-      reporter.info(`Creating zundfolge article page: ${path}`);
-      createPage({
-        path,
-        component: zundfolgeArticleTemplate,
-        context: { 
-          id,
-          next: next ? next.id : null, 
-          prev: previous ? previous.id : null
-        },
+      .filter((edge) => !isFuture(parseISO(edge.node.publishedAt)))
+      .forEach((edge) => {
+        const { id, slug = {} } = edge.node;
+        const { next, previous } = edge;
+        const path = `${pathPrefix}/${slug.current}/`;
+        reporter.info(`Creating zundfolge article page: ${path}`);
+        createPage({
+          path,
+          component: zundfolgeArticleTemplate,
+          context: {
+            id,
+            next: next ? next.id : null,
+            prev: previous ? previous.id : null,
+          },
+        });
       });
-    });
-    const articlePerPage = 6
-    const numPages = Math.ceil(postEdges.length / articlePerPage)
+    const articlePerPage = 6;
+    const numPages = Math.ceil(postEdges.length / articlePerPage);
 
-    Array.from({length: numPages }).forEach((_, i) => {
-      const path = i === 0 ? `${pathPrefix}/` : `${pathPrefix}/page/${i + 1}`
+    Array.from({ length: numPages }).forEach((_, i) => {
+      const path = i === 0 ? `${pathPrefix}/` : `${pathPrefix}/page/${i + 1}`;
       reporter.info(`Creating zundfolge landing page: ${path}`);
       createPage({
         path,
@@ -294,25 +310,30 @@ async function createZundfolgePages(pathPrefix = "/zundfolge", graphql, actions,
           limit: articlePerPage,
           skip: i * articlePerPage,
           numPages,
-          currentPage: i + 1
-        }
-      })
-    })
-  })
+          currentPage: i + 1,
+        },
+      });
+    });
+  });
 }
 
 // EVENT PAGE
 
-async function createEventPages(pathPrefix = "/events", graphql, actions, reporter) {
+async function createEventPages(
+  pathPrefix = "/events",
+  graphql,
+  actions,
+  reporter
+) {
   const { createPage } = actions;
-  const eventPageTemplate = require.resolve("./src/templates/event-page.js")
-  const eventPageLandingPage = require.resolve("./src/templates/events.js")
+  const eventPageTemplate = require.resolve("./src/templates/event-page.js");
+  const eventPageLandingPage = require.resolve("./src/templates/events.js");
   await graphql(`
     {
       allSanityEvent(
         filter: { slug: { current: { ne: null } } }
         sort: { fields: [startTime], order: ASC }
-        ) {
+      ) {
         edges {
           node {
             id
@@ -332,7 +353,7 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
         }
       }
     }
-  `).then(result => {
+  `).then((result) => {
     const eventEdges = (result.data.allSanityEvent || {}).edges || [];
     eventEdges.forEach((edge) => {
       const { id, slug = {} } = edge.node;
@@ -349,30 +370,34 @@ async function createEventPages(pathPrefix = "/events", graphql, actions, report
         },
       });
     });
-      const eventPerPage = 6
-      const numPages = Math.ceil(eventEdges.length / eventPerPage)
-  
-      Array.from({length: numPages }).forEach((_, i) => {
-        const path = i === 0 ? `${pathPrefix}/` : `${pathPrefix}/page/${i + 1}`
-        reporter.info(`Creating events landing page: ${path}`);
-        createPage({
-          path,
-          component: eventPageLandingPage,
-          context: {
-            limit: eventPerPage,
-            skip: i * eventPerPage,
-            numPages,
-            currentPage: i + 1
-          }
-        })
-      })
+    const eventPerPage = 6;
+    const numPages = Math.ceil(eventEdges.length / eventPerPage);
 
-  })
+    Array.from({ length: numPages }).forEach((_, i) => {
+      const path = i === 0 ? `${pathPrefix}/` : `${pathPrefix}/page/${i + 1}`;
+      reporter.info(`Creating events landing page: ${path}`);
+      createPage({
+        path,
+        component: eventPageLandingPage,
+        context: {
+          limit: eventPerPage,
+          skip: i * eventPerPage,
+          numPages,
+          currentPage: i + 1,
+        },
+      });
+    });
+  });
 }
 
 // ARCHIVE PAGE
 
-async function createArchivePages(pathPrefix = "/zundfolge/archive", graphql, actions, reporter) {
+async function createArchivePages(
+  pathPrefix = "/zundfolge/archive",
+  graphql,
+  actions,
+  reporter
+) {
   const { createPage } = actions;
   const archiveTemplate = require.resolve("./src/templates/archive.js");
 
@@ -387,9 +412,16 @@ async function createArchivePages(pathPrefix = "/zundfolge/archive", graphql, ac
 
 // VOLUNTEER ROLE PAGES
 
-async function createVolunteerRolePages(pathPrefix = "/volunteer", graphql, actions, reporter) {
+async function createVolunteerRolePages(
+  pathPrefix = "/volunteer",
+  graphql,
+  actions,
+  reporter
+) {
   const { createPage } = actions;
-  const volunteerRoleTemplate = require.resolve("./src/templates/volunteer-role.js");
+  const volunteerRoleTemplate = require.resolve(
+    "./src/templates/volunteer-role.js"
+  );
   await graphql(`
     {
       allSanityVolunteerRole {
@@ -409,7 +441,9 @@ async function createVolunteerRolePages(pathPrefix = "/volunteer", graphql, acti
     }
     const roleEdges = (result?.data?.allSanityVolunteerRole || {}).edges || [];
     if (roleEdges.length === 0) {
-      reporter.info("No volunteer positions found; skipping position page creation.");
+      reporter.info(
+        "No volunteer positions found; skipping position page creation."
+      );
       return;
     }
     roleEdges.forEach((edge) => {
@@ -417,7 +451,9 @@ async function createVolunteerRolePages(pathPrefix = "/volunteer", graphql, acti
       const normalizedPath = slug?.current
         ? normalizeVolunteerPath(slug.current, pathPrefix)
         : buildVolunteerFallbackPath(id, pathPrefix);
-      const path = normalizedPath.endsWith("/") ? normalizedPath : `${normalizedPath}/`;
+      const path = normalizedPath.endsWith("/")
+        ? normalizedPath
+        : `${normalizedPath}/`;
       reporter.info(`Creating volunteer position page: ${path}`);
       createPage({
         path,
@@ -436,14 +472,14 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   await createArchivePages("/zundfolge/archive", graphql, actions, reporter);
 };
 
-const path = require("path")
+const path = require("path");
 
 exports.onCreateWebpackConfig = ({ actions, stage, loaders }) => {
   const config = {
     resolve: {
       modules: [path.resolve(__dirname, "src"), "node_modules"],
     },
-  }
+  };
 
   // when building HTML, window is not defined, so Leaflet causes the build to blow up
   if (stage === "build-html") {
@@ -454,8 +490,8 @@ exports.onCreateWebpackConfig = ({ actions, stage, loaders }) => {
           use: loaders.null(),
         },
       ],
-    }
+    };
   }
 
-  actions.setWebpackConfig(config)
-}
+  actions.setWebpackConfig(config);
+};

@@ -12,6 +12,7 @@ import { randomGenerator } from "../lib/helpers";
 import { BoxAd } from "./ads";
 import ContentContainer from "./content-container";
 import { BoxIcon } from "./box-icons";
+import { FiClock } from "react-icons/fi";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
@@ -36,10 +37,13 @@ function EventPage(props) {
   var start = startTime && format(new Date(startTime), "MMMM do, yyyy");
   var updated = _updatedAt && format(new Date(_updatedAt), "MMMM do, yyyy");
   const cat = category.title;
+  const categoryFilterLink = cat
+    ? `/events/?category=${encodeURIComponent(cat)}&active=1`
+    : "/events/?active=1";
   const randomAdPosition = randomGenerator(0, boxes.edges.length - 1);
   const randomizedAd = boxes.edges[randomAdPosition].node;
   return (
-    <event>
+    <section>
       <ContentContainer
         sx={{
           display: "flex",
@@ -56,8 +60,39 @@ function EventPage(props) {
           sx={{
             //pr: "16px",
             flexDirection: "column",
+            position: "relative",
+            mt: isPast ? ["3rem", "3rem", 0, 0] : 0,
           }}
         >
+          {isPast && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                transform: "translateY(calc(-100% - 0.9rem))",
+                zIndex: 3,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                bg: "#f5d76e",
+                color: "black",
+                borderRadius: "10px",
+                px: "0.8rem",
+                py: "0.42rem",
+                fontSize: "xs",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                fontWeight: "heading",
+                gap: "0.45rem",
+              }}
+            >
+              <FiClock size={14} aria-hidden="true" />
+              <span>This event has already passed</span>
+            </Box>
+          )}
           <Box
             sx={{
               position: "relative",
@@ -83,7 +118,23 @@ function EventPage(props) {
               <Text as="span" sx={{ px: "0.35em" }}>
                 /
               </Text>
-              {cat}
+              {cat ? (
+                <Link
+                  to={categoryFilterLink}
+                  sx={{
+                    textDecoration: "none",
+                    color: "text",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    px: "0.15em",
+                    mx: "-0.15em",
+                  }}
+                >
+                  {cat}
+                </Link>
+              ) : (
+                "All"
+              )}
             </Text>
           </Box>
           <Heading
@@ -91,7 +142,6 @@ function EventPage(props) {
             sx={{ mt: 0, position: "relative", zIndex: 1 }}
           >
             {title}
-            {isPast ? " (past)" : ""}
             <BoxIcon
               as="span"
               sx={{
@@ -155,7 +205,7 @@ function EventPage(props) {
           </div>
         </div>
       </ContentContainer>
-    </event>
+    </section>
   );
 }
 

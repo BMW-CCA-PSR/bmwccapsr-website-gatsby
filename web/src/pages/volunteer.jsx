@@ -126,6 +126,29 @@ const sortVolunteerRoles = (items) => {
 const getPositionTitle = (position) =>
   position?.role?.name || position?.title || "Volunteer position";
 
+const toTitleCaseWords = (value) =>
+  String(value || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) =>
+      /^[A-Z0-9]+$/.test(word)
+        ? word
+        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`
+    )
+    .join(" ");
+
+const formatRoleFilterLabel = (roleName) => {
+  const input = String(roleName || "").trim();
+  if (!input) return "";
+  const match = input.match(/^[^(]*\(([^)]+)\)\s*(.*)$/);
+  if (!match) return input;
+  const shortLabel = String(match[1] || "").trim();
+  const suffix = String(match[2] || "").trim();
+  if (!shortLabel) return input;
+  if (!suffix) return shortLabel;
+  return `${shortLabel} ${toTitleCaseWords(suffix)}`;
+};
+
 const VolunteerPage = (props) => {
   const { data, errors } = props;
   const roleNodes = useMemo(
@@ -168,9 +191,28 @@ const VolunteerPage = (props) => {
       const roleName = role?.role?.name;
       if (roleName) unique.add(roleName);
     });
-    const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
-    return ["All", ...sorted];
+    const sorted = Array.from(unique).sort((a, b) => {
+      const aLabel = formatRoleFilterLabel(a);
+      const bLabel = formatRoleFilterLabel(b);
+      return aLabel.localeCompare(bLabel);
+    });
+    return [
+      "All",
+      ...sorted.map((value) => ({
+        value,
+        label: formatRoleFilterLabel(value),
+      })),
+    ];
   }, [rolesByActivity]);
+  const roleLabels = useMemo(() => {
+    const map = new Map();
+    roleFilters.forEach((item) => {
+      if (item && typeof item === "object") {
+        map.set(item.value, item.label || item.value);
+      }
+    });
+    return map;
+  }, [roleFilters]);
   const venues = useMemo(() => {
     const unique = new Set();
     rolesByActivity.forEach((role) => {
@@ -225,7 +267,11 @@ const VolunteerPage = (props) => {
     filterLabelParts.push("Active");
   }
   if (selectedRoles.length) {
-    filterLabelParts.push(selectedRoles.join(", "));
+    filterLabelParts.push(
+      selectedRoles
+        .map((value) => roleLabels.get(value) || formatRoleFilterLabel(value))
+        .join(", ")
+    );
   }
   if (selectedVenues.length) {
     filterLabelParts.push(selectedVenues.join(", "));

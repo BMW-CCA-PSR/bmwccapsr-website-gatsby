@@ -10,9 +10,10 @@ const fixedSlantClip =
 
 const styleWithSubMenu = {
   textDecoration: "none",
-  textTransform: "uppercase",
+  textTransform: "none",
   color: "background",
-  p: "1rem",
+  py: "0.8rem",
+  px: "0.9rem",
 };
 
 const style = {
@@ -22,7 +23,7 @@ const style = {
   py: "auto",
   display: "flex",
   alignItems: "center",
-  px: "2rem",
+  px: "1.35rem",
   height: "100%",
   position: "relative",
   isolation: "isolate",
@@ -32,6 +33,28 @@ const style = {
   "& .nav-link-content": {
     position: "relative",
     zIndex: 1,
+    display: "block",
+    maxWidth: "9.25ch",
+    lineHeight: 1.05,
+    whiteSpace: "normal",
+    textAlign: "center",
+    "&::after": {
+      content: '""',
+      display: "block",
+      width: "100%",
+      height: "2px",
+      mt: "0.22rem",
+      borderRadius: "999px",
+      bg: "currentColor",
+      opacity: 0,
+      transform: "scaleX(0.72)",
+      transformOrigin: "center",
+      transition: "opacity 160ms ease, transform 160ms ease",
+    },
+    "&.nav-link-content--active::after": {
+      opacity: 1,
+      transform: "scaleX(1)",
+    },
   },
   "&::before": {
     content: '""',
@@ -66,7 +89,7 @@ const volunteerStyle = {
   backgroundColor: "primary",
   clipPath: fixedSlantClip,
   WebkitClipPath: fixedSlantClip,
-  px: "2.25rem",
+  px: "1.6rem",
   mx: "0.35rem",
   transition: "background-color 160ms ease",
   ":hover": {
@@ -97,12 +120,15 @@ const volunteerNewBadgeStyle = {
   boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
   pointerEvents: "none",
   zIndex: 2,
+  WebkitTextStroke: 0,
+  textShadow: "none",
 };
 
 const NavLink = (props) => {
   const location = useLocation();
   let subMenu = props.subMenu;
   const handleVolunteerHoverChange = props.onVolunteerHoverChange;
+  const handleNonVolunteerHoverChange = props.onNonVolunteerHoverChange;
   // Internal
   if (props.landingPageRoute || props.route) {
     let path = props.landingPageRoute
@@ -141,23 +167,43 @@ const NavLink = (props) => {
       <Link
         to={path}
         onMouseEnter={() => {
-          if (isVolunteerButton && handleVolunteerHoverChange) {
-            handleVolunteerHoverChange(true);
+          if (subMenu) return;
+          if (isVolunteerButton) {
+            if (handleVolunteerHoverChange) handleVolunteerHoverChange(true);
+            if (handleNonVolunteerHoverChange)
+              handleNonVolunteerHoverChange(false);
+          } else {
+            if (handleVolunteerHoverChange) handleVolunteerHoverChange(false);
+            if (handleNonVolunteerHoverChange)
+              handleNonVolunteerHoverChange(true);
           }
         }}
         onMouseLeave={() => {
-          if (isVolunteerButton && handleVolunteerHoverChange) {
-            handleVolunteerHoverChange(false);
+          if (subMenu) return;
+          if (isVolunteerButton) {
+            if (handleVolunteerHoverChange) handleVolunteerHoverChange(false);
+          } else if (handleNonVolunteerHoverChange) {
+            handleNonVolunteerHoverChange(false);
           }
         }}
         onFocus={() => {
-          if (isVolunteerButton && handleVolunteerHoverChange) {
-            handleVolunteerHoverChange(true);
+          if (subMenu) return;
+          if (isVolunteerButton) {
+            if (handleVolunteerHoverChange) handleVolunteerHoverChange(true);
+            if (handleNonVolunteerHoverChange)
+              handleNonVolunteerHoverChange(false);
+          } else {
+            if (handleVolunteerHoverChange) handleVolunteerHoverChange(false);
+            if (handleNonVolunteerHoverChange)
+              handleNonVolunteerHoverChange(true);
           }
         }}
         onBlur={() => {
-          if (isVolunteerButton && handleVolunteerHoverChange) {
-            handleVolunteerHoverChange(false);
+          if (subMenu) return;
+          if (isVolunteerButton) {
+            if (handleVolunteerHoverChange) handleVolunteerHoverChange(false);
+          } else if (handleNonVolunteerHoverChange) {
+            handleNonVolunteerHoverChange(false);
           }
         }}
         sx={{
@@ -165,7 +211,13 @@ const NavLink = (props) => {
           ...activeStyle,
         }}
       >
-        <Box className="nav-link-content">{props.title}</Box>
+        <Box
+          className={`nav-link-content${
+            isActive ? " nav-link-content--active" : ""
+          }`}
+        >
+          {props.title}
+        </Box>
         {isVolunteerButton && (
           <Box as="span" sx={volunteerNewBadgeStyle}>
             new

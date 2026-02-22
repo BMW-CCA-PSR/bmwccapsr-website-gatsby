@@ -1,5 +1,23 @@
 import { GoFileSymlinkFile } from 'react-icons/go'
 
+const NAV_LINK_ICON_OPTIONS = [
+  { title: 'Car', value: 'car' },
+  { title: 'Road / Route', value: 'route' },
+  { title: 'Map Pin', value: 'map-pin' },
+  { title: 'Calendar', value: 'calendar' },
+  { title: 'Users / Community', value: 'users' },
+  { title: 'Meetup / Social', value: 'social' },
+  { title: 'Tech / Tools', value: 'tools' },
+  { title: 'Wrench', value: 'wrench' },
+  { title: 'Flag / Motorsport', value: 'flag' },
+  { title: 'Education / Book', value: 'book' },
+  { title: 'Trophy', value: 'trophy' },
+  { title: 'News / Article', value: 'news' },
+  { title: 'Volunteer / Helping Hands', value: 'volunteer' },
+  { title: 'Info', value: 'info' },
+  { title: 'Star', value: 'star' }
+]
+
 export default {
     title: 'Link',
     name: 'link',
@@ -17,6 +35,27 @@ export default {
         title: 'Title',
         name: 'title',
         type: 'string'
+      },
+      {
+        title: 'Description (optional)',
+        name: 'description',
+        type: 'string'
+      },
+      {
+        title: 'Image (optional)',
+        name: 'image',
+        type: 'image',
+        options: {
+          hotspot: true
+        }
+      },
+      {
+        title: 'Icon (optional)',
+        name: 'icon',
+        type: 'string',
+        options: {
+          list: NAV_LINK_ICON_OPTIONS
+        }
       },
       {
         title: 'Landing page',
@@ -45,9 +84,10 @@ export default {
         title: 'title',
         landingPage: 'landingPageRoute.slug.current',
         route: 'route',
-        link: 'href'
+        link: 'href',
+        image: 'image'
       },
-      prepare ({title, landingPage, route, link}) {
+      prepare ({title, landingPage, route, link, image}) {
         const normalizedRoute = route
           ? (route.startsWith('/') ? route : `/${route}`)
           : null
@@ -65,7 +105,8 @@ export default {
 
         return {
           title: previewTitle,
-          subtitle
+          subtitle,
+          media: image
         }
       }
     }

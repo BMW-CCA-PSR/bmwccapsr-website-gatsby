@@ -2,6 +2,26 @@
 import React, { useMemo } from "react";
 import { graphql, Link } from "gatsby";
 import { Box, Heading, Text } from "@theme-ui/components";
+import {
+  FaBullhorn,
+  FaCamera,
+  FaCarSide,
+  FaClipboardCheck,
+  FaCogs,
+  FaFlagCheckered,
+  FaHandsHelping,
+  FaHardHat,
+  FaHeart,
+  FaIdBadge,
+  FaMapMarkerAlt,
+  FaRoute,
+  FaShieldAlt,
+  FaToolbox,
+  FaUserAlt,
+  FaUserCheck,
+  FaUsers,
+  FaWrench,
+} from "react-icons/fa";
 import Layout from "../../containers/layout";
 import Seo from "../../components/seo";
 import GraphQLErrorList from "../../components/graphql-error-list";
@@ -47,6 +67,46 @@ const getRoleCapColor = (pointValue) => {
   if (value >= 3) return "#146bba";
   if (value >= 2) return "#197fdd";
   return "#1e94ff";
+};
+
+const getSkillLevelTone = (pointValue) => {
+  const value = Number(pointValue);
+  if (value === 1 || value === 2) {
+    return { label: "Entry", bg: "#e8f7ec", color: "text" };
+  }
+  if (value === 3 || value === 4) {
+    return { label: "Intermediate", bg: "#fff6d5", color: "text" };
+  }
+  if (value === 5 || value === 10) {
+    return { label: "Advanced", bg: "#ffe6e6", color: "text" };
+  }
+  return null;
+};
+
+const ROLE_ICON_RULES = [
+  { pattern: /(marshal|grid|starter|flag|corner|control)/i, icon: FaFlagCheckered },
+  { pattern: /(instructor|coach|trainer|mentor)/i, icon: FaUserCheck },
+  { pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i, icon: FaClipboardCheck },
+  { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
+  { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
+  { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
+  { pattern: /(communications|announc|pa|social|newsletter|content)/i, icon: FaBullhorn },
+  { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
+  { pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i, icon: FaToolbox },
+  { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
+  { pattern: /(car control|ccc|autocross|track|hpde|driving)/i, icon: FaCarSide },
+  { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
+  { pattern: /(venue|location|site)/i, icon: FaMapMarkerAlt },
+  { pattern: /(worker|crew)/i, icon: FaHardHat },
+  { pattern: /(member|membership)/i, icon: FaUsers },
+  { pattern: /(support|assistant|helper)/i, icon: FaHeart },
+];
+
+const getRoleIcon = (name) => {
+  const label = String(name || "").trim();
+  if (!label) return FaUserAlt;
+  const match = ROLE_ICON_RULES.find((rule) => rule.pattern.test(label));
+  return match?.icon || FaCogs;
 };
 
 const VolunteerRolesPage = ({ data, errors }) => {
@@ -194,11 +254,16 @@ const VolunteerRolesPage = ({ data, errors }) => {
               />
               <Box sx={{ display: "grid", gap: "0.75rem" }}>
                 {roles.map((role) => {
+                  const roleName = role?.name?.trim() || "Untitled role";
                   const descriptionText = role?.description?.trim() || "";
                   const detailText = role?.detail?.trim() || "";
                   const showDescription = Boolean(descriptionText);
                   const showDetail =
                     Boolean(detailText) && detailText !== descriptionText;
+                  const skillTone = getSkillLevelTone(
+                    role?.pointValue ?? pointValue
+                  );
+                  const RoleIcon = getRoleIcon(roleName);
                   return (
                     <Box
                       key={role.id}
@@ -224,12 +289,69 @@ const VolunteerRolesPage = ({ data, errors }) => {
                           backgroundColor: getRoleCapColor(pointValue),
                         }}
                       />
-                      <Heading
-                        as="h3"
-                        sx={{ variant: "styles.h4", mt: 0, mb: "0.35rem" }}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "0.75rem",
+                          mb: "0.35rem",
+                        }}
                       >
-                        {role?.name?.trim() || "Untitled role"}
-                      </Heading>
+                        <Box
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.55rem",
+                            minWidth: 0,
+                          }}
+                        >
+                          <Box
+                            as="span"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "26px",
+                              height: "26px",
+                              borderRadius: "999px",
+                              bg: "lightgray",
+                              color: "text",
+                              flex: "0 0 26px",
+                            }}
+                          >
+                            <RoleIcon size={14} aria-hidden="true" />
+                          </Box>
+                          <Heading
+                            as="h3"
+                            sx={{ variant: "styles.h4", mt: 0, mb: 0, minWidth: 0 }}
+                          >
+                            {roleName}
+                          </Heading>
+                        </Box>
+                        {skillTone && (
+                          <Box
+                            as="span"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              px: "0.8rem",
+                              py: "0.35rem",
+                              borderRadius: "999px",
+                              bg: skillTone.bg,
+                              color: skillTone.color,
+                              fontSize: "xs",
+                              fontWeight: "heading",
+                              lineHeight: 1,
+                              whiteSpace: "nowrap",
+                              flex: "0 0 auto",
+                            }}
+                          >
+                            {skillTone.label}
+                          </Box>
+                        )}
+                      </Box>
                       <Box
                         sx={{
                           height: "1px",

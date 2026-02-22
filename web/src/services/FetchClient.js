@@ -1,27 +1,26 @@
 import sanityClient from "../../client";
 
 export class Client {
-  constructor () {
+  constructor() {
     this.client = sanityClient;
   }
 
   listZundfolgeArticles = () => {
-    return this.client
-    .fetch(`*[_type == "post"] | order(publishedAt)`);
-  }
+    return this.client.fetch(`*[_type == "post"] | order(publishedAt)`);
+  };
 
   fetchAuthor = () => {
-    return this.client
-    .fetch(`*[_type == "author"]{
+    return this.client.fetch(`*[_type == "author"]{
       bio,
       "authorImage": image.asset-url
     }`);
-  }
+  };
 
   fetchMostRecentEvent = () => {
-    return this.client
-    .fetch(`*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`);
-  }
+    return this.client.fetch(
+      `*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`
+    );
+  };
 
   fetchUpcomingEvents = (limit = 2) => {
     return this.client.fetch(
@@ -41,7 +40,7 @@ export class Client {
         address{line1, line2, city, state}
       }`
     );
-  }
+  };
 
   fetchVolunteerRoles = () => {
     return this.client.fetch(
@@ -72,11 +71,13 @@ export class Client {
           imageUrl,
           venueName,
           venueCity,
-          venueRegion
+          venueRegion,
+          latitude,
+          longitude
         }
       }`
     );
-  }
+  };
 
   fetchVolunteerPositionBySlug = (slug) => {
     if (!slug) return Promise.resolve(null);
@@ -87,11 +88,19 @@ export class Client {
           description,
           detail,
           pointValue
+        },
+        motorsportRegEvent{
+          latitude,
+          longitude,
+          lat,
+          lng,
+          lon,
+          long
         }
       }`,
       { slug }
     );
-  }
+  };
 
   fetchVolunteerFixedRoles = () => {
     return this.client.fetch(
@@ -103,7 +112,7 @@ export class Client {
         pointValue
       }`
     );
-  }
+  };
 
   fetchEvents = () => {
     return this.client.fetch(
@@ -127,7 +136,7 @@ export class Client {
         address{line1, line2, city, state}
       }`
     );
-  }
+  };
 
   fetchAllEvents = () => {
     return this.client.fetch(
@@ -148,6 +157,5 @@ export class Client {
         address{line1, line2, city, state}
       }`
     );
-  }
-
-};
+  };
+}

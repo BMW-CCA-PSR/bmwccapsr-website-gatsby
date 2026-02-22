@@ -229,6 +229,7 @@ const IndexPage = (props) => {
                 flexDirection: "column",
                 fontSize: "16pt",
                 lineHeight: 1.4,
+                color: "text",
               }}
             >
               <div sx={{ pb: "0.5rem" }}>
@@ -261,6 +262,16 @@ const IndexPage = (props) => {
                 1975.
               </div>
             </div>
+            <Box
+              as="hr"
+              sx={{
+                border: "none",
+                borderTop: "1px solid",
+                borderColor: "currentColor",
+                mt: "0.75rem",
+                mb: 0,
+              }}
+            />
           </div>
           <div sx={{ display: ["none", "none", "block"], minHeight: 220 }}>
             <Link

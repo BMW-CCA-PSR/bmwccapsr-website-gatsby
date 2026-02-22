@@ -54,7 +54,7 @@ const ZundfolgeFeatured = ({ post }) => {
               overflow: "hidden",
               clipPath: ["none", "none", slantClip],
               borderTopLeftRadius: "18px",
-              borderBottomLeftRadius: "18px",
+              borderBottomLeftRadius: [0, 0, "18px"],
             }}
           >
             {post.mainImage && post.mainImage.asset && (

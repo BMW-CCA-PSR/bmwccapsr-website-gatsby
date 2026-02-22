@@ -2,7 +2,7 @@
 import React from "react";
 import { graphql, Link } from "gatsby";
 import { Box, Flex, Heading, Text } from "@theme-ui/components";
-import { FiArrowDownRight, FiArrowRight, FiArrowUpRight } from "react-icons/fi";
+import { FaAward, FaTools, FaUserPlus } from "react-icons/fa";
 import Layout from "../../containers/layout";
 import Seo from "../../components/seo";
 import GraphQLErrorList from "../../components/graphql-error-list";
@@ -106,7 +106,9 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 }}
               />
             </Heading>
-            <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
+            <Text
+              sx={{ variant: "styles.p", color: "text", mb: "1rem", fontSize: "16pt" }}
+            >
               Volunteering is how PSR delivers safe, memorable events and builds
               a strong community. From first-time helpers to experienced
               leaders, there are roles matched to your time, interests, and
@@ -116,12 +118,13 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           </Box>
           <Box
             as="img"
-            src="/images/volunteer1.jpg"
+            src="/images/volunteer3.png"
             alt="Volunteers supporting BMW CCA events"
             sx={{
               width: ["100%", "100%", "320px", "360px"],
-              height: ["230px", "260px", "220px", "240px"],
+              height: ["280px", "320px", "280px", "300px"],
               objectFit: "cover",
+              objectPosition: "center 82%",
               borderRadius: "18px",
               flex: "0 0 auto",
             }}
@@ -134,8 +137,14 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           >
             Skill Level Guide
           </Heading>
+          <Text sx={{ variant: "styles.p", mb: "1.5rem" }}>
+            Points are tied first to expected time and effort, and second to the
+            role/skill level. Higher point values generally mean a larger
+            responsibility and more effort.
+          </Text>
           <Box
             sx={{
+              mt: "1.25rem",
               border: "2px solid",
               borderColor: "black",
               borderRadius: "18px",
@@ -161,7 +170,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               }}
             >
               <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
-                <FiArrowDownRight size={32} />
+                <FaUserPlus size={32} />
                 <Heading
                   as="h3"
                   sx={{
@@ -183,6 +192,12 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 Great for first-time volunteers
                 <Box as="span" sx={{ display: "block" }}>
                   and limited availability.
+                </Box>
+                <Box
+                  as="span"
+                  sx={{ display: "block", mt: "0.35rem", fontWeight: "heading" }}
+                >
+                  Points: 1-2
                 </Box>
               </Text>
             </Box>
@@ -206,7 +221,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               }}
             >
               <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
-                <FiArrowRight size={32} />
+                <FaTools size={32} />
                 <Heading
                   as="h3"
                   sx={{
@@ -228,6 +243,12 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 Ideal for members ready
                 <Box as="span" sx={{ display: "block" }}>
                   to take on more responsibility.
+                </Box>
+                <Box
+                  as="span"
+                  sx={{ display: "block", mt: "0.35rem", fontWeight: "heading" }}
+                >
+                  Points: 3-4
                 </Box>
               </Text>
             </Box>
@@ -251,7 +272,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               }}
             >
               <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
-                <FiArrowUpRight size={32} />
+                <FaAward size={32} />
                 <Heading
                   as="h3"
                   sx={{
@@ -274,9 +295,26 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 <Box as="span" sx={{ display: "block" }}>
                   with specialized skills.
                 </Box>
+                <Box
+                  as="span"
+                  sx={{ display: "block", mt: "0.35rem", fontWeight: "heading" }}
+                >
+                  Points: 5 or 10
+                </Box>
               </Text>
             </Box>
           </Box>
+          <Text sx={{ variant: "styles.p", mb: "0.75rem" }}>
+            Points also tie directly into the Volunteer Rewards Program. Learn
+            how points are tracked and redeemed in the{" "}
+            <Link
+              to="/volunteer/rewards"
+              sx={{ color: "primary", textDecoration: "none" }}
+            >
+              Rewards Program
+            </Link>
+            .
+          </Text>
 
           <Heading
             as="h2"

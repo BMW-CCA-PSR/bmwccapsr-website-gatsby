@@ -1,10 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React, { useEffect, useMemo, useState } from "react";
 import { graphql } from "gatsby";
-import {
-  mapEdgesToNodes,
-  filterOutDocsWithoutSlugs
-} from "../lib/helpers";
+import { mapEdgesToNodes, filterOutDocsWithoutSlugs } from "../lib/helpers";
 import { Box, Button, Heading, Text } from "@theme-ui/components";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
@@ -19,7 +16,7 @@ const buildPaginationItems = (current, total, delta = 2) => {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => ({
       type: "page",
-      value: i + 1
+      value: i + 1,
     }));
   }
   const items = [{ type: "page", value: 1 }];
@@ -52,12 +49,12 @@ const monthOptions = [
   { value: "8", label: "September" },
   { value: "9", label: "October" },
   { value: "10", label: "November" },
-  { value: "11", label: "December" }
+  { value: "11", label: "December" },
 ];
 
 export const query = graphql`
-query EventPageQuery($skip: Int!, $limit: Int!) {
-    site: sanitySiteSettings(_id: {regex: "/(drafts.|)siteSettings/"}) {
+  query EventPageQuery($skip: Int!, $limit: Int!) {
+    site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
       navMenu {
         ...NavMenu
@@ -66,8 +63,8 @@ query EventPageQuery($skip: Int!, $limit: Int!) {
     events: allSanityEvent(
       limit: $limit
       skip: $skip
-      sort: {fields: [startTime], order: ASC}
-      filter: {slug: {current: {ne: null}}}
+      sort: { fields: [startTime], order: ASC }
+      filter: { slug: { current: { ne: null } } }
     ) {
       edges {
         node {
@@ -110,14 +107,13 @@ query EventPageQuery($skip: Int!, $limit: Int!) {
   }
 `;
 
-const IndexPage = props => {
+const IndexPage = (props) => {
   const { data, errors, pageContext } = props;
-  const { limit, currentPage } = pageContext
+  const { limit, currentPage } = pageContext;
 
   const site = (data || {}).site;
   const eventNodes = (data || {}).events
-    ? mapEdgesToNodes(data.events)
-        .filter(filterOutDocsWithoutSlugs)
+    ? mapEdgesToNodes(data.events).filter(filterOutDocsWithoutSlugs)
     : [];
   if (!site && !errors) {
     console.warn(
@@ -145,14 +141,6 @@ const IndexPage = props => {
     });
   }, [liveEvents]);
   const scopedEvents = activeOnly ? activeLiveEvents : liveEvents;
-  const allCategories = useMemo(() => {
-    const unique = new Set();
-    liveEvents.forEach((event) => {
-      if (event?.category?.title) unique.add(event.category.title);
-    });
-    const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
-    return ["All", ...sorted];
-  }, [liveEvents]);
   const categories = useMemo(() => {
     const unique = new Set();
     scopedEvents.forEach((event) => {
@@ -210,21 +198,18 @@ const IndexPage = props => {
       setActiveOnly(false);
     }
     if (categoryParam) {
-      const validCategories = (requestActiveOnly ? categories : allCategories).filter(
-        (category) => category !== "All"
-      );
       const requestedCategories = categoryParam
         .split(",")
         .map((category) => category.trim())
         .filter(Boolean);
-      const normalizedCategories = requestedCategories.filter((category) =>
-        validCategories.includes(category)
-      );
-      if (normalizedCategories.length) {
-        setSelectedCategories(normalizedCategories);
+      if (requestedCategories.length) {
+        setSelectedCategories(requestedCategories);
       }
     }
-    if (monthParam && monthOptions.some((option) => option.value === monthParam)) {
+    if (
+      monthParam &&
+      monthOptions.some((option) => option.value === monthParam)
+    ) {
       setSelectedMonth(monthParam);
     }
     const validYears = requestActiveOnly ? years : allYears;
@@ -235,7 +220,7 @@ const IndexPage = props => {
       setExcludeBoardMeetings(true);
     }
     setHasInitializedFilters(true);
-  }, [hasInitializedFilters, locationSearch, categories, years, allCategories, allYears]);
+  }, [hasInitializedFilters, locationSearch, years, allYears]);
 
   useEffect(() => {
     if (selectedYear === "all") return;
@@ -251,11 +236,22 @@ const IndexPage = props => {
   }, [years, selectedYear, currentYear]);
   useEffect(() => {
     setPageIndex(1);
-  }, [selectedCategories, selectedMonth, selectedYear, excludeBoardMeetings, activeOnly]);
+  }, [
+    selectedCategories,
+    selectedMonth,
+    selectedYear,
+    excludeBoardMeetings,
+    activeOnly,
+  ]);
 
   useEffect(() => {
     if (!hasInitializedFilters) return;
     if (typeof window === "undefined") return;
+    const normalizePathname = (value) => {
+      if (!value || value === "/") return "/";
+      if (/^\/events\/?$/.test(value)) return "/events/";
+      return value;
+    };
     const params = new URLSearchParams(locationSearch);
     if (selectedCategories.length) {
       params.set("category", selectedCategories.join(","));
@@ -283,9 +279,10 @@ const IndexPage = props => {
       params.delete("active");
     }
     const nextSearch = params.toString();
+    const normalizedPathname = normalizePathname(window.location.pathname);
     const nextUrl = nextSearch
-      ? `${window.location.pathname}?${nextSearch}`
-      : window.location.pathname;
+      ? `${normalizedPathname}?${nextSearch}`
+      : normalizedPathname;
     window.history.replaceState({}, "", nextUrl);
   }, [
     hasInitializedFilters,
@@ -295,7 +292,7 @@ const IndexPage = props => {
     selectedYear,
     excludeBoardMeetings,
     activeOnly,
-    currentYear
+    currentYear,
   ]);
   const selectedMonthLabel =
     monthOptions.find((option) => option.value === selectedMonth)?.label ||
@@ -330,6 +327,14 @@ const IndexPage = props => {
       selectedMonth === "all" || eventMonth === Number(selectedMonth);
     return matchesCategory && matchesYear && matchesMonth;
   });
+  const handleResetFilters = () => {
+    setSelectedCategories([]);
+    setSelectedMonth("all");
+    setSelectedYear(String(currentYear));
+    setExcludeBoardMeetings(false);
+    setActiveOnly(true);
+    setPageIndex(1);
+  };
   const pageSize = limit || 12;
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / pageSize));
   const safePageIndex = Math.min(pageIndex, totalPages);
@@ -353,25 +358,41 @@ const IndexPage = props => {
         description="BMW CCA PSR Upcoming Events"
         keywords={site.keywords || []}
       />
-      <ContentContainer sx ={{
-        pl: ["16px", "16px", "50px", "100px"],
-        pr: ["16px", "16px", "50px", "100px"],
-        //pr: "16px",
-        pt: ["6.5rem","6.5rem","10rem","10rem"],
-        pb: "1rem",
-      }}>
+      <ContentContainer
+        sx={{
+          pl: ["16px", "16px", "50px", "100px"],
+          pr: ["16px", "16px", "50px", "100px"],
+          //pr: "16px",
+          pt: ["6.5rem", "6.5rem", "10rem", "10rem"],
+          pb: "1rem",
+        }}
+      >
         <h1 hidden>Welcome to {site.title}</h1>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "0.75rem", pb: "0.35rem" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            pb: "0.35rem",
+          }}
+        >
           <Heading sx={{ variant: "styles.h1", mb: 0 }}>Events</Heading>
           <BoxIcon />
         </Box>
-        <Text sx={{ variant: "styles.p", fontSize: "16pt", color: "text", maxWidth: "760px", mb: "0.75rem" }}>
-          Discover upcoming drives, clinics, social gatherings, and club meetings across the region.
-          Use the filters below to find events that fit your interests and schedule.
+        <Text
+          sx={{
+            variant: "styles.p",
+            fontSize: "16pt",
+            color: "text",
+            maxWidth: "760px",
+            mb: "0.75rem",
+          }}
+        >
+          Discover upcoming drives, clinics, social gatherings, and club
+          meetings across the region. Use the filters below to find events that
+          fit your interests and schedule.
         </Text>
-        <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>
-          Filter
-        </Heading>
+        <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>Filter</Heading>
         <Box
           sx={{
             mt: "1rem",
@@ -381,7 +402,7 @@ const IndexPage = props => {
             borderRadius: "12px",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem"
+            gap: "0.75rem",
           }}
         >
           <CategoryFilterButtons
@@ -420,8 +441,8 @@ const IndexPage = props => {
                 letterSpacing: "0.08em",
                 "&:hover": {
                   bg: excludeBoardMeetings ? "primary" : "highlight",
-                  color: "white"
-                }
+                  color: "white",
+                },
               }}
             >
               Exclude Board Meetings
@@ -448,7 +469,7 @@ const IndexPage = props => {
                   minWidth: "180px",
                   backgroundColor: "background",
                   fontSize: "xs",
-                  color: "text"
+                  color: "text",
                 }}
               >
                 {monthOptions.map((option) => (
@@ -478,7 +499,7 @@ const IndexPage = props => {
                   minWidth: "140px",
                   backgroundColor: "background",
                   fontSize: "xs",
-                  color: "text"
+                  color: "text",
                 }}
               >
                 <option value="all">All years</option>
@@ -497,36 +518,60 @@ const IndexPage = props => {
             borderBottomStyle: "solid",
             pb: "3px",
             borderBottomWidth: "3px",
-            my: "0.5rem"
+            my: "0.5rem",
           }}
         >
           {eventsHeading} — {filterLabel}
         </Heading>
         <div>
-          <ul sx={{
-            listStyle: 'none',
-            display: 'grid',
-            gridGap: 3,
-            gridTemplateColumns: [
-              "1fr",
-              "1fr",
-              "repeat(2, minmax(0, 1fr))",
-              "repeat(2, minmax(0, 1fr))"
-            ],
-            m: 0,
-            p: 0
-          }}>
+          <ul
+            sx={{
+              listStyle: "none",
+              display: "grid",
+              gridGap: 3,
+              gridTemplateColumns: [
+                "1fr",
+                "1fr",
+                "repeat(2, minmax(0, 1fr))",
+                "repeat(2, minmax(0, 1fr))",
+              ],
+              m: 0,
+              p: 0,
+            }}
+          >
             {paginatedEvents &&
               paginatedEvents.map((node, index) => {
-                return <li
-                  key={index}>
+                return (
+                  <li key={index}>
                     <EventPagePreview {...node} isInList />
                   </li>
-            })}
+                );
+              })}
           </ul>
           {!filteredEvents.length && (
             <Box sx={{ mt: "1.5rem", color: "darkgray" }}>
-              No events match those filters yet.
+              No events match those filters yet.{" "}
+              <Button
+                onClick={handleResetFilters}
+                sx={{
+                  bg: "transparent",
+                  color: "primary",
+                  p: 0,
+                  m: 0,
+                  border: "none",
+                  minHeight: "auto",
+                  fontSize: "inherit",
+                  fontWeight: "body",
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  "&:hover": {
+                    color: "secondary",
+                    bg: "transparent",
+                  },
+                }}
+              >
+                Reset filters
+              </Button>
             </Box>
           )}
           {totalPages > 1 && (
@@ -536,7 +581,7 @@ const IndexPage = props => {
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "center",
-                gap: "0.4rem"
+                gap: "0.4rem",
               }}
             >
               <Button
@@ -553,8 +598,8 @@ const IndexPage = props => {
                   cursor: safePageIndex === 1 ? "not-allowed" : "pointer",
                   "&:hover": {
                     bg: safePageIndex === 1 ? "lightgray" : "highlight",
-                    color: safePageIndex === 1 ? "darkgray" : "text"
-                  }
+                    color: safePageIndex === 1 ? "darkgray" : "text",
+                  },
                 }}
               >
                 Prev
@@ -568,7 +613,7 @@ const IndexPage = props => {
                         px: "0.6rem",
                         py: "0.4rem",
                         color: "gray",
-                        alignSelf: "center"
+                        alignSelf: "center",
                       }}
                     >
                       ...
@@ -591,8 +636,8 @@ const IndexPage = props => {
                       minWidth: "42px",
                       "&:hover": {
                         bg: isActive ? "primary" : "highlight",
-                        color: isActive ? "white" : "text"
-                      }
+                        color: isActive ? "white" : "text",
+                      },
                     }}
                   >
                     {item.value}
@@ -615,10 +660,10 @@ const IndexPage = props => {
                   cursor:
                     safePageIndex === totalPages ? "not-allowed" : "pointer",
                   "&:hover": {
-                    bg: safePageIndex === totalPages ? "lightgray" : "highlight",
-                    color:
-                      safePageIndex === totalPages ? "darkgray" : "text"
-                  }
+                    bg:
+                      safePageIndex === totalPages ? "lightgray" : "highlight",
+                    color: safePageIndex === totalPages ? "darkgray" : "text",
+                  },
                 }}
               >
                 Next

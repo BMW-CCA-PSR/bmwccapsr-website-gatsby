@@ -2,6 +2,8 @@
 import React from "react";
 import { graphql, Link } from "gatsby";
 import { Box, Card, Flex, Heading, Text } from "@theme-ui/components";
+import ReactMapGL, { Marker } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import { format, parseISO } from "date-fns";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
@@ -9,7 +11,8 @@ import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
 import { BoxIcon } from "../components/box-icons";
-import { FiHelpCircle } from "react-icons/fi";
+import { FiHelpCircle, FiMaximize2, FiShare2, FiX } from "react-icons/fi";
+import { FaCalendarPlus, FaMapMarkerAlt } from "react-icons/fa";
 import { getVolunteerRoleUrl, mapEdgesToNodes } from "../lib/helpers";
 import { Client } from "../services/FetchClient";
 import {
@@ -40,6 +43,50 @@ const formatDateRange = (start, end) => {
   return `${startLabel} – ${endLabel}`;
 };
 
+const parseCalendarDate = (value) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
+
+const toGoogleCalendarStamp = (value) =>
+  value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+
+const escapeIcsText = (value = "") =>
+  String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,");
+
+const buildIcsPayload = ({ title, description, location, start, end, url }) => {
+  const uid = `${Date.now()}-psr@bmwccapsr.org`;
+  const createdAt = toGoogleCalendarStamp(new Date());
+  const startAt = toGoogleCalendarStamp(start);
+  const endAt = toGoogleCalendarStamp(end);
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//BMW CCA PSR//Volunteer//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${createdAt}`,
+    `DTSTART:${startAt}`,
+    `DTEND:${endAt}`,
+    `SUMMARY:${escapeIcsText(title)}`,
+    `DESCRIPTION:${escapeIcsText(description)}`,
+    `LOCATION:${escapeIcsText(location)}`,
+    url ? `URL:${escapeIcsText(url)}` : null,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ]
+    .filter(Boolean)
+    .join("\r\n");
+};
+
 const formatSkillLevel = (value) => {
   if (!value) return null;
   const normalized = String(value).toLowerCase();
@@ -57,16 +104,16 @@ const formatSkillLevel = (value) => {
 
 const getSkillTone = (value) => {
   const normalized = String(value || "").toLowerCase();
-  if (normalized === "entry") return { bg: "lightgray", color: "text" };
+  if (normalized === "entry") return { bg: "#e8f7ec", color: "text" };
   if (normalized === "medium" || normalized === "intermediate")
-    return { bg: "secondary", color: "white" };
+    return { bg: "#fff6d5", color: "text" };
   if (
     normalized === "high" ||
     normalized === "hard" ||
     normalized === "advanced"
   )
-    return { bg: "primary", color: "white" };
-  return { bg: "lightgray", color: "text" };
+    return { bg: "#ffe6e6", color: "text" };
+  return { bg: "#e8f7ec", color: "text" };
 };
 
 const formatVolunteerPoints = (value) => {
@@ -75,6 +122,328 @@ const formatVolunteerPoints = (value) => {
   const stars = count > 0 && count <= 5 ? "★".repeat(count) : "";
   const label = `${count} Point${count === 1 ? "" : "s"}`;
   return stars ? `${stars} ${label}` : label;
+};
+
+const DEFAULT_MAPBOX_PUBLIC_TOKEN =
+  "pk.eyJ1IjoiZWJveDg2IiwiYSI6ImNpajViaWg4ODAwNWp0aG0zOHlxNjh3ZzcifQ.OxQI3tKViy-IIIOrLABCPQ";
+const VOLUNTEER_POSITION_MAP_STYLE = "mapbox://styles/ebox86/cmlx98cji000q01qqbnvk3al6";
+const VOLUNTEER_POSITION_MAP_FALLBACK_STYLE = "mapbox://styles/mapbox/light-v11";
+
+const PositionEventMap = ({
+  latitude,
+  longitude,
+  title,
+  token,
+  showZoomControls = true,
+  height = ["220px", "240px", "260px"],
+}) => {
+  const [viewport, setViewport] = React.useState({
+    latitude,
+    longitude,
+    zoom: 13.8,
+  });
+  const [activeMapStyle, setActiveMapStyle] = React.useState(
+    VOLUNTEER_POSITION_MAP_STYLE
+  );
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  React.useEffect(() => {
+    setViewport((prev) => ({
+      ...prev,
+      latitude,
+      longitude,
+    }));
+  }, [latitude, longitude]);
+  React.useEffect(() => {
+    setActiveMapStyle(VOLUNTEER_POSITION_MAP_STYLE);
+  }, []);
+
+  const fallbackToLegacyStyle = React.useCallback(() => {
+    setActiveMapStyle((prev) =>
+      prev === VOLUNTEER_POSITION_MAP_FALLBACK_STYLE
+        ? prev
+        : VOLUNTEER_POSITION_MAP_FALLBACK_STYLE
+    );
+  }, []);
+
+  const handleZoomIn = () => {
+    setViewport((prev) => ({
+      ...prev,
+      zoom: Math.min((prev.zoom || 13.8) + 0.75, 18),
+    }));
+  };
+
+  const handleZoomOut = () => {
+    setViewport((prev) => ({
+      ...prev,
+      zoom: Math.max((prev.zoom || 13.8) - 0.75, 8),
+    }));
+  };
+
+  const handleMapError = React.useCallback(() => {
+    fallbackToLegacyStyle();
+  }, [fallbackToLegacyStyle]);
+
+  const closeExpandedMap = React.useCallback(() => {
+    setIsExpanded(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isExpanded || typeof document === "undefined") return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setIsExpanded(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isExpanded]);
+
+  const renderMap = ({
+    interactive,
+    controlsTop = "8px",
+    controlsVisible = showZoomControls,
+  }) => (
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        "& .mapboxgl-canvas": {
+          cursor: interactive ? "grab" : "default !important",
+        },
+      }}
+    >
+      <ReactMapGL
+        {...viewport}
+        style={{ width: "100%", height: "100%" }}
+        mapboxAccessToken={token}
+        mapStyle={activeMapStyle}
+        onError={handleMapError}
+        onMove={(event) => setViewport(event.viewState)}
+        dragPan={interactive}
+        scrollZoom={interactive}
+        boxZoom={interactive}
+        keyboard={interactive}
+        dragRotate={false}
+        doubleClickZoom={interactive}
+        touchZoomRotate={interactive}
+        cursor={interactive ? "grab" : "default"}
+      >
+        <Marker
+          latitude={latitude}
+          longitude={longitude}
+          captureClick={false}
+          draggable={false}
+          anchor="bottom"
+        >
+          <Box
+            as="span"
+            aria-label={title ? `Location for ${title}` : "Event location"}
+            sx={{ display: "inline-flex", lineHeight: 0, pointerEvents: "none" }}
+          >
+            <FaMapMarkerAlt size={30} color="#1e94ff" aria-hidden="true" />
+          </Box>
+        </Marker>
+      </ReactMapGL>
+      {controlsVisible && (
+        <Flex
+          sx={{
+            position: "absolute",
+            top: controlsTop,
+            right: "8px",
+            flexDirection: "column",
+            gap: 0,
+            borderRadius: "8px",
+            overflow: "hidden",
+            border: "1px solid",
+            borderColor: "black",
+            boxShadow: "0 8px 16px rgba(0,0,0,0.14)",
+            zIndex: "9999",
+            pointerEvents: "auto",
+            backgroundColor: "rgba(255,255,255,0.95)",
+          }}
+        >
+          <Box
+            as="button"
+            type="button"
+            aria-label="Zoom in"
+            onClick={handleZoomIn}
+            sx={{
+              width: "38px",
+              height: "38px",
+              backgroundColor: "white",
+              color: "black",
+              border: 0,
+              borderBottom: "1px solid",
+              borderBottomColor: "black",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: "24px",
+              fontWeight: "bold",
+              lineHeight: 1,
+              "&:hover": {
+                backgroundColor: "lightgray",
+                color: "primary",
+              },
+            }}
+          >
+            +
+          </Box>
+          <Box
+            as="button"
+            type="button"
+            aria-label="Zoom out"
+            onClick={handleZoomOut}
+            sx={{
+              width: "38px",
+              height: "38px",
+              backgroundColor: "white",
+              color: "black",
+              border: 0,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: "24px",
+              fontWeight: "bold",
+              lineHeight: 1,
+              "&:hover": {
+                backgroundColor: "lightgray",
+                color: "primary",
+              },
+            }}
+          >
+            -
+          </Box>
+        </Flex>
+      )}
+    </Box>
+  );
+
+  if (typeof window === "undefined") return null;
+
+  return (
+    <>
+      <Box
+        sx={{
+          width: "100%",
+          height,
+          position: "relative",
+        }}
+      >
+        {renderMap({
+          interactive: false,
+          controlsTop: "8px",
+          controlsVisible: showZoomControls,
+        })}
+        <Box
+          as="button"
+          type="button"
+          aria-label="Expand map"
+          title="Expand map"
+          onClick={() => setIsExpanded(true)}
+          sx={{
+            position: "absolute",
+            top: "8px",
+            right: "8px",
+            width: "38px",
+            height: "38px",
+            borderRadius: "8px",
+            border: "1px solid",
+            borderColor: "black",
+            bg: "rgba(255,255,255,0.95)",
+            color: "text",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            zIndex: 5,
+            "&:hover": {
+              bg: "lightgray",
+              color: "primary",
+            },
+          }}
+        >
+          <FiMaximize2 size={16} aria-hidden="true" />
+        </Box>
+      </Box>
+      {isExpanded && (
+        <Box
+          role="dialog"
+          aria-modal="true"
+          aria-label={title ? `${title} map` : "Expanded map"}
+          onClick={closeExpandedMap}
+          sx={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 12000,
+            bg: "rgba(38, 42, 48, 0.72)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: ["0.75rem", "1rem", "1.5rem"],
+          }}
+        >
+          <Box
+            onClick={(event) => event.stopPropagation()}
+            sx={{
+              width: ["100%", "100%", "92vw"],
+              maxWidth: "1280px",
+              height: ["78vh", "80vh", "84vh"],
+              borderRadius: "18px",
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: "black",
+              bg: "white",
+              position: "relative",
+            }}
+          >
+            {renderMap({
+              interactive: true,
+              controlsTop: "56px",
+              controlsVisible: true,
+            })}
+            <Box
+              as="button"
+              type="button"
+              aria-label="Close expanded map"
+              title="Close"
+              onClick={closeExpandedMap}
+              sx={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                width: "40px",
+                height: "40px",
+                borderRadius: "999px",
+                border: "1px solid",
+                borderColor: "black",
+                bg: "rgba(255,255,255,0.95)",
+                color: "text",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                zIndex: 8,
+                "&:hover": {
+                  bg: "lightgray",
+                  color: "primary",
+                },
+              }}
+            >
+              <FiX size={20} aria-hidden="true" />
+            </Box>
+          </Box>
+        </Box>
+      )}
+    </>
+  );
 };
 
 const getPositionTitle = (position) =>
@@ -129,7 +498,7 @@ export const query = graphql`
         active: { eq: true }
       }
       sort: { fields: [date], order: ASC }
-      limit: 3
+      limit: 2
     ) {
       edges {
         node {
@@ -161,6 +530,10 @@ const VolunteerRoleTemplate = (props) => {
   const menuItems = site?.navMenu?.items || [];
   const sanity = React.useMemo(() => new Client(), []);
   const [resolvedRole, setResolvedRole] = React.useState(role?.role || null);
+  const [resolvedEventCoordinates, setResolvedEventCoordinates] =
+    React.useState(null);
+  const [isCalendarMenuOpen, setIsCalendarMenuOpen] = React.useState(false);
+  const calendarMenuRef = React.useRef(null);
   const roleSlug = role?.slug?.current;
 
   React.useEffect(() => {
@@ -168,15 +541,33 @@ const VolunteerRoleTemplate = (props) => {
   }, [role?.role]);
 
   React.useEffect(() => {
+    setResolvedEventCoordinates(null);
+    setIsCalendarMenuOpen(false);
+  }, [roleSlug]);
+
+  React.useEffect(() => {
     if (!roleSlug) return;
-    if (resolvedRole?.name) return;
     let isMounted = true;
     sanity
       .fetchVolunteerPositionBySlug(roleSlug)
       .then((result) => {
         if (!isMounted) return;
-        if (result?.role) {
+        if (result?.role && !resolvedRole?.name) {
           setResolvedRole(result.role);
+        }
+        if (result?.motorsportRegEvent) {
+          setResolvedEventCoordinates({
+            latitude:
+              result.motorsportRegEvent.latitude ??
+              result.motorsportRegEvent.lat ??
+              null,
+            longitude:
+              result.motorsportRegEvent.longitude ??
+              result.motorsportRegEvent.lng ??
+              result.motorsportRegEvent.lon ??
+              result.motorsportRegEvent.long ??
+              null,
+          });
         }
       })
       .catch(() => {
@@ -186,6 +577,176 @@ const VolunteerRoleTemplate = (props) => {
       isMounted = false;
     };
   }, [sanity, roleSlug, resolvedRole?.name]);
+
+  React.useEffect(() => {
+    if (!isCalendarMenuOpen) return undefined;
+    const handlePointerDown = (event) => {
+      if (
+        calendarMenuRef.current &&
+        !calendarMenuRef.current.contains(event.target)
+      ) {
+        setIsCalendarMenuOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setIsCalendarMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isCalendarMenuOpen]);
+
+  const event = role?.motorsportRegEvent;
+  const roleReference = resolvedRole || role?.role || null;
+  const positionTitle = roleReference?.name?.trim() || "Untitled role";
+  const eventDateRange = formatDateRange(event?.start, event?.end);
+  const roleDate = formatDate(role?.date);
+  const imageUrl = normalizeImageUrl(event?.imageUrl);
+  const venueLine = [event?.venueName, event?.venueCity, event?.venueRegion]
+    .filter(Boolean)
+    .join(", ");
+  const mapLatitude = Number.parseFloat(
+    String(event?.latitude ?? resolvedEventCoordinates?.latitude ?? "")
+  );
+  const mapLongitude = Number.parseFloat(
+    String(event?.longitude ?? resolvedEventCoordinates?.longitude ?? "")
+  );
+  const hasMapCoordinates =
+    Number.isFinite(mapLatitude) && Number.isFinite(mapLongitude);
+  const mapboxToken =
+    process.env.GATSBY_SANITY_MAPBOX_TOKEN || DEFAULT_MAPBOX_PUBLIC_TOKEN;
+  const showOtherRoles = otherRoles.length > 0;
+  const skillLevelLabel = formatSkillLevel(role?.skillLevel);
+  const skillTone = getSkillTone(role?.skillLevel);
+  const pointsLabel = formatVolunteerPoints(roleReference?.pointValue);
+  const roleDescription = roleReference?.description?.trim() || "";
+  const roleDetail = roleReference?.detail?.trim() || "";
+  const positionDescription =
+    roleReference?.description || roleReference?.detail || "";
+  const valueTextSize = "xs";
+  const calendarStartDate =
+    parseCalendarDate(event?.start) || parseCalendarDate(role?.date);
+  const calendarEndDate = parseCalendarDate(event?.end);
+  const defaultCalendarEndDate = calendarStartDate
+    ? new Date(calendarStartDate.getTime() + 2 * 60 * 60 * 1000)
+    : null;
+  const finalCalendarEndDate =
+    calendarEndDate && calendarStartDate && calendarEndDate > calendarStartDate
+      ? calendarEndDate
+      : defaultCalendarEndDate;
+  const calendarTitle = event?.name || positionTitle || "BMW CCA PSR Event";
+  const calendarDescription = `Volunteer position: ${positionTitle}${
+    roleDate ? ` on ${roleDate}` : ""
+  }`;
+  const hasCalendarData =
+    Boolean(calendarStartDate) && Boolean(finalCalendarEndDate);
+  const googleCalendarUrl = hasCalendarData
+    ? `https://calendar.google.com/calendar/render?${new URLSearchParams({
+        action: "TEMPLATE",
+        text: calendarTitle,
+        details: calendarDescription,
+        location: venueLine || "",
+        dates: `${toGoogleCalendarStamp(calendarStartDate)}/${toGoogleCalendarStamp(
+          finalCalendarEndDate
+        )}`,
+      }).toString()}`
+    : null;
+  const outlookCalendarUrl = hasCalendarData
+    ? `https://outlook.live.com/calendar/0/deeplink/compose?${new URLSearchParams(
+        {
+          path: "/calendar/action/compose",
+          rru: "addevent",
+          subject: calendarTitle,
+          body: calendarDescription,
+          location: venueLine || "",
+          startdt: calendarStartDate.toISOString(),
+          enddt: finalCalendarEndDate.toISOString(),
+        }
+      ).toString()}`
+    : null;
+
+  const handleDownloadIcs = React.useCallback(() => {
+    if (!hasCalendarData || typeof window === "undefined") return;
+    const fileBody = buildIcsPayload({
+      title: calendarTitle,
+      description: calendarDescription,
+      location: venueLine || "",
+      start: calendarStartDate,
+      end: finalCalendarEndDate,
+      url: event?.url || window.location.href,
+    });
+    const blob = new Blob([fileBody], {
+      type: "text/calendar;charset=utf-8",
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = `${calendarTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "") || "event"}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  }, [
+    calendarDescription,
+    calendarStartDate,
+    calendarTitle,
+    event?.url,
+    finalCalendarEndDate,
+    hasCalendarData,
+    venueLine,
+  ]);
+
+  const handleShare = React.useCallback(async () => {
+    if (typeof window === "undefined") return;
+    const shareUrl = event?.url || window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: calendarTitle,
+          text: calendarDescription,
+          url: shareUrl,
+        });
+        return;
+      } catch (_) {
+        return;
+      }
+    }
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+      } catch (_) {
+        // no-op: clipboard may be blocked in some contexts
+      }
+    }
+  }, [calendarDescription, calendarTitle, event?.url]);
+
+  const iconActionButtonSx = {
+    width: "44px",
+    height: "42px",
+    borderRadius: "8px",
+    border: "1px solid",
+    borderColor: "lightgray",
+    backgroundColor: "lightgray",
+    color: "text",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textDecoration: "none",
+    cursor: "pointer",
+    transition: "background-color 150ms ease, color 150ms ease",
+    "&:hover": {
+      backgroundColor: "#d8d8d8",
+      color: "primary",
+    },
+  };
 
   if (errors) {
     return (
@@ -212,25 +773,6 @@ const VolunteerRoleTemplate = (props) => {
       </Layout>
     );
   }
-
-  const event = role?.motorsportRegEvent;
-  const roleReference = resolvedRole || role?.role || null;
-  const positionTitle = roleReference?.name?.trim() || "Untitled role";
-  const eventDateRange = formatDateRange(event?.start, event?.end);
-  const roleDate = formatDate(role?.date);
-  const imageUrl = normalizeImageUrl(event?.imageUrl);
-  const venueLine = [event?.venueName, event?.venueCity, event?.venueRegion]
-    .filter(Boolean)
-    .join(", ");
-  const showOtherRoles = otherRoles.length > 0;
-  const skillLevelLabel = formatSkillLevel(role?.skillLevel);
-  const skillTone = getSkillTone(role?.skillLevel);
-  const pointsLabel = formatVolunteerPoints(roleReference?.pointValue);
-  const roleDetails =
-    roleReference?.detail?.trim() || roleReference?.description?.trim() || "";
-  const positionDescription =
-    roleReference?.description || roleReference?.detail || "";
-  const valueTextSize = "xs";
 
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
@@ -288,17 +830,21 @@ const VolunteerRoleTemplate = (props) => {
             }}
           />
         </Heading>
-        {event?.name && (
-          <Text sx={{ fontSize: "sm", color: "darkgray" }}>{event.name}</Text>
-        )}
         <Flex
           sx={{
             mt: "2rem",
             gap: "1.5rem",
             flexDirection: ["column", "column", "row", "row"],
+            alignItems: "stretch",
           }}
         >
-          <Box sx={{ flex: ["1 1 100%", "1 1 100%", "1 1 45%"] }}>
+          <Box
+            sx={{
+              flex: ["1 1 100%", "1 1 100%", "1 1 45%"],
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             {imageUrl && (
               <Box
                 as="img"
@@ -316,249 +862,492 @@ const VolunteerRoleTemplate = (props) => {
               />
             )}
             <Card
-              sx={{ p: "1.25rem", borderRadius: "18px", border: "1px solid" }}
+              sx={{
+                p: 0,
+                borderRadius: "18px",
+                border: "1px solid",
+                flex: "1 1 auto",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+              }}
             >
-              <Text sx={{ variant: "text.label", color: "darkgray" }}>
-                Event details
-              </Text>
-              <Heading as="h2" sx={{ variant: "styles.h3", mt: "0.5rem" }}>
-                {event?.name || "MotorsportReg event"}
-              </Heading>
-              {eventDateRange && (
+              <Box
+                sx={{
+                  backgroundColor: "secondary",
+                  px: "1.25rem",
+                  py: "0.65rem",
+                  color: "white",
+                }}
+              >
                 <Text
-                  as="div"
-                  sx={{ fontSize: "sm", color: "gray", mt: "0.5rem" }}
-                >
-                  {eventDateRange}
-                </Text>
-              )}
-              {venueLine && (
-                <Text
-                  as="div"
-                  sx={{ fontSize: "sm", color: "gray", mt: "0.25rem" }}
-                >
-                  {venueLine}
-                </Text>
-              )}
-              {event?.url && (
-                <OutboundLink
-                  href={event.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
                   sx={{
-                    mt: "0.75rem",
-                    display: "inline-block",
-                    textDecoration: "none",
-                    color: "primary",
-                    fontWeight: 600,
-                    fontSize: "sm",
+                    variant: "text.label",
+                    color: "white",
                   }}
                 >
-                  Open event in MSR →
-                </OutboundLink>
+                  Event detail
+                </Text>
+              </Box>
+              <Box sx={{ p: "1.25rem" }}>
+                {event?.name && (
+                  <Text
+                    as="div"
+                    sx={{ fontSize: "sm", fontWeight: "heading", color: "text" }}
+                  >
+                    {event.name}
+                  </Text>
+                )}
+                {eventDateRange && (
+                  <Text
+                    as="div"
+                    sx={{ fontSize: "sm", color: "gray", mt: "0.1rem" }}
+                  >
+                    {eventDateRange}
+                  </Text>
+                )}
+                {venueLine && (
+                  <Text
+                    as="div"
+                    sx={{ fontSize: "sm", color: "gray", mt: "0.25rem" }}
+                  >
+                    {venueLine}
+                  </Text>
+                )}
+                <Flex
+                  sx={{
+                    mt: "0.95rem",
+                    width: "100%",
+                    alignItems: "stretch",
+                    gap: "0.5rem",
+                  }}
+                >
+                  {event?.url ? (
+                    <OutboundLink
+                      href={event.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      sx={{
+                        variant: "buttons.primary",
+                        flex: "1 1 auto",
+                        minWidth: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        fontSize: "xs",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        borderRadius: "8px",
+                        px: "0.9rem",
+                        py: "0.5rem",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Open event in MSR →
+                    </OutboundLink>
+                  ) : (
+                    <Box
+                      sx={{
+                        flex: "1 1 auto",
+                        minWidth: 0,
+                        borderRadius: "8px",
+                        border: "1px solid",
+                        borderColor: "lightgray",
+                        backgroundColor: "lightgray",
+                      }}
+                    />
+                  )}
+                  <Box
+                    ref={calendarMenuRef}
+                    sx={{ position: "relative", flex: "0 0 auto" }}
+                  >
+                    <Box
+                      as="button"
+                      type="button"
+                      onClick={() => setIsCalendarMenuOpen((prev) => !prev)}
+                      aria-label="Add to calendar"
+                      title="Add to calendar"
+                      sx={{
+                        ...iconActionButtonSx,
+                      }}
+                    >
+                      <FaCalendarPlus size={16} aria-hidden="true" />
+                    </Box>
+                    {isCalendarMenuOpen && (
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: "calc(100% + 6px)",
+                          right: 0,
+                          width: "170px",
+                          border: "1px solid",
+                          borderColor: "lightgray",
+                          borderRadius: "10px",
+                          backgroundColor: "white",
+                          boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+                          overflow: "hidden",
+                          zIndex: 12,
+                        }}
+                      >
+                        {googleCalendarUrl && (
+                          <OutboundLink
+                            href={googleCalendarUrl}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            onClick={() => setIsCalendarMenuOpen(false)}
+                            sx={{
+                              display: "block",
+                              px: "0.75rem",
+                              py: "0.55rem",
+                              color: "text",
+                              textDecoration: "none",
+                              fontSize: "xs",
+                              borderBottom: "1px solid",
+                              borderColor: "lightgray",
+                              "&:hover": { backgroundColor: "lightgray" },
+                            }}
+                          >
+                            Google Calendar
+                          </OutboundLink>
+                        )}
+                        {outlookCalendarUrl && (
+                          <OutboundLink
+                            href={outlookCalendarUrl}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            onClick={() => setIsCalendarMenuOpen(false)}
+                            sx={{
+                              display: "block",
+                              px: "0.75rem",
+                              py: "0.55rem",
+                              color: "text",
+                              textDecoration: "none",
+                              fontSize: "xs",
+                              borderBottom: "1px solid",
+                              borderColor: "lightgray",
+                              "&:hover": { backgroundColor: "lightgray" },
+                            }}
+                          >
+                            Outlook
+                          </OutboundLink>
+                        )}
+                        <Box
+                          as="button"
+                          type="button"
+                          onClick={() => {
+                            handleDownloadIcs();
+                            setIsCalendarMenuOpen(false);
+                          }}
+                          disabled={!hasCalendarData}
+                          sx={{
+                            width: "100%",
+                            textAlign: "left",
+                            px: "0.75rem",
+                            py: "0.55rem",
+                            border: 0,
+                            bg: "transparent",
+                            color: hasCalendarData ? "text" : "darkgray",
+                            fontSize: "xs",
+                            cursor: hasCalendarData ? "pointer" : "not-allowed",
+                            "&:hover": {
+                              backgroundColor: hasCalendarData
+                                ? "lightgray"
+                                : "transparent",
+                            },
+                          }}
+                        >
+                          iCal (.ics)
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                  <Box
+                    as="button"
+                    type="button"
+                    aria-label="Share event"
+                    title="Share event"
+                    onClick={handleShare}
+                    sx={iconActionButtonSx}
+                  >
+                    <FiShare2 size={16} aria-hidden="true" />
+                  </Box>
+                </Flex>
+              </Box>
+              {hasMapCoordinates && (
+                <Box
+                  sx={{
+                    borderTop: "1px solid",
+                    borderColor: "lightgray",
+                    flex: "1 1 auto",
+                    minHeight: ["220px", "240px", "280px"],
+                  }}
+                >
+                  <PositionEventMap
+                    latitude={mapLatitude}
+                    longitude={mapLongitude}
+                    title={event?.name}
+                    token={mapboxToken}
+                    showZoomControls={false}
+                    height="100%"
+                  />
+                </Box>
               )}
             </Card>
           </Box>
-          <Card
+          <Box
             sx={{
               flex: ["1 1 100%", "1 1 100%", "1 1 55%"],
-              p: "1.5rem",
-              borderRadius: "18px",
-              border: "1px solid",
+              display: "flex",
+              flexDirection: "column",
+              gap: hasMapCoordinates ? "1rem" : 0,
             }}
           >
-            <Heading as="h2" sx={{ variant: "styles.h3" }}>
-              Position details
-            </Heading>
-            <Box
-              as="dl"
+            <Card
               sx={{
-                mt: "0.75rem",
-                display: "grid",
-                gridTemplateColumns: ["1fr", "1fr", "150px 1fr"],
-                columnGap: "1rem",
-                rowGap: "0.5rem",
-                "& dt": {
-                  m: 0,
-                  fontSize: "xs",
-                  color: "darkgray",
-                  letterSpacing: "0.04em",
-                  textTransform: "uppercase",
-                },
-                "& dd": {
-                  m: 0,
-                  fontSize: valueTextSize,
-                  color: "text",
-                },
+                p: 0,
+                borderRadius: "18px",
+                border: "1px solid",
+                flex: "1 1 auto",
+                overflow: "hidden",
               }}
             >
-              {skillLevelLabel && (
-                <>
-                  <Box as="dt">
-                    Skill level{" "}
-                    <Link
-                      to="/volunteer/overview"
-                      sx={{
-                        color: "white",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        ml: "0.25rem",
-                        width: "20px",
-                        height: "20px",
-                        justifyContent: "center",
-                        borderRadius: "999px",
-                        backgroundColor: "primary",
-                        "&:hover": {
-                          backgroundColor: "secondary",
-                          color: "white",
-                        },
-                      }}
-                    >
-                      <FiHelpCircle size={16} />
-                    </Link>
-                  </Box>
-                  <Box as="dd">
-                    <Box
-                      as="span"
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        px: "0.6rem",
-                        py: "0.2rem",
-                        borderRadius: "999px",
-                        fontSize: valueTextSize,
-                        fontWeight: "heading",
-                        bg: skillTone.bg,
-                        color: skillTone.color,
-                      }}
-                    >
-                      {skillLevelLabel}
-                    </Box>
-                  </Box>
-                </>
-              )}
-              {role?.membershipRequired !== undefined &&
-                role?.membershipRequired !== null && (
-                  <>
-                    <Box as="dt">Membership required</Box>
-                    <Box as="dd">{role.membershipRequired ? "Yes" : "No"}</Box>
-                  </>
-                )}
-              {pointsLabel && (
-                <>
-                  <Box as="dt">
-                    Volunteer points{" "}
-                    <Link
-                      to="/volunteer/rewards"
-                      sx={{
-                        color: "white",
-                        textDecoration: "none",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        ml: "0.25rem",
-                        width: "20px",
-                        height: "20px",
-                        justifyContent: "center",
-                        borderRadius: "999px",
-                        backgroundColor: "primary",
-                        "&:hover": {
-                          backgroundColor: "secondary",
-                          color: "white",
-                        },
-                      }}
-                    >
-                      <FiHelpCircle size={16} />
-                    </Link>
-                  </Box>
-                  <Box as="dd">
-                    <Box
-                      as="span"
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        px: "0.6rem",
-                        py: "0.2rem",
-                        borderRadius: "999px",
-                        fontSize: valueTextSize,
-                        fontWeight: "heading",
-                        bg: "lightgray",
-                        color: "text",
-                      }}
-                    >
-                      {pointsLabel}
-                    </Box>
-                  </Box>
-                </>
-              )}
-              {roleDate && (
-                <>
-                  <Box as="dt">Date</Box>
-                  <Box as="dd">{roleDate}</Box>
-                </>
-              )}
-              {role?.duration && (
-                <>
-                  <Box as="dt">Duration</Box>
-                  <Box as="dd">{role.duration} hours</Box>
-                </>
-              )}
-              {role?.compensation && (
-                <>
-                  <Box as="dt">Compensation</Box>
-                  <Box as="dd">{role.compensation}</Box>
-                </>
-              )}
-              {roleDetails && (
-                <>
-                  <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
-                    Details
-                  </Box>
-                  <Box
-                    as="dd"
-                    sx={{ gridColumn: "1 / -1", lineHeight: "body" }}
-                  >
-                    {roleDetails}
-                  </Box>
-                </>
-              )}
-            </Box>
-            {role?.descriptionPdf?.asset?.url && (
-              <Box sx={{ mt: "1.5rem" }}>
-                <Text sx={{ variant: "text.label", color: "darkgray" }}>
-                  Position PDF
-                </Text>
-                <Box
-                  as="iframe"
-                  title="Volunteer position PDF"
-                  src={role.descriptionPdf.asset.url}
+              <Box
+                sx={{
+                  backgroundColor: "secondary",
+                  px: "1.25rem",
+                  py: "0.65rem",
+                  color: "white",
+                }}
+              >
+                <Text
                   sx={{
-                    width: "100%",
-                    height: ["260px", "320px", "360px"],
-                    border: "1px solid",
-                    borderColor: "lightgray",
-                    borderRadius: "12px",
-                    mt: "0.75rem",
-                  }}
-                />
-                <OutboundLink
-                  href={role.descriptionPdf.asset.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  sx={{
-                    mt: "0.75rem",
-                    display: "inline-block",
-                    textDecoration: "none",
-                    color: "primary",
-                    fontWeight: 600,
-                    fontSize: "sm",
+                    variant: "text.label",
+                    color: "white",
                   }}
                 >
-                  Open PDF in new tab →
-                </OutboundLink>
+                  Position details
+                </Text>
               </Box>
-            )}
-          </Card>
+              <Box sx={{ p: "1.5rem" }}>
+                <Box
+                  as="dl"
+                  sx={{
+                    mt: 0,
+                    display: "grid",
+                    gridTemplateColumns: ["1fr", "1fr", "150px 1fr"],
+                    columnGap: "1rem",
+                    rowGap: "0.5rem",
+                    "& dt": {
+                      m: 0,
+                      fontSize: "xs",
+                      color: "gray",
+                      letterSpacing: "0.04em",
+                      textTransform: "uppercase",
+                    },
+                    "& dd": {
+                      m: 0,
+                      fontSize: valueTextSize,
+                      color: "text",
+                    },
+                    "& dd.position-detail-longtext": {
+                      fontSize: "sm",
+                      lineHeight: "body",
+                    },
+                  }}
+                >
+                {skillLevelLabel && (
+                  <>
+                    <Box as="dt">
+                      Skill level{" "}
+                      <Link
+                        to="/volunteer/overview"
+                        sx={{
+                          color: "white",
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          ml: "0.25rem",
+                          width: "20px",
+                          height: "20px",
+                          justifyContent: "center",
+                          borderRadius: "999px",
+                          backgroundColor: "primary",
+                          "&:hover": {
+                            backgroundColor: "secondary",
+                            color: "white",
+                          },
+                        }}
+                      >
+                        <FiHelpCircle size={16} />
+                      </Link>
+                    </Box>
+                    <Box as="dd">
+                      <Box
+                        as="span"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          px: "0.6rem",
+                          py: "0.2rem",
+                          borderRadius: "999px",
+                          fontSize: valueTextSize,
+                          fontWeight: "heading",
+                          bg: skillTone.bg,
+                          color: skillTone.color,
+                        }}
+                      >
+                        {skillLevelLabel}
+                      </Box>
+                    </Box>
+                  </>
+                )}
+                {role?.membershipRequired !== undefined &&
+                  role?.membershipRequired !== null && (
+                    <>
+                      <Box as="dt">Membership required</Box>
+                      <Box as="dd">
+                        {role.membershipRequired ? "Yes" : "No"}
+                      </Box>
+                    </>
+                  )}
+                {pointsLabel && (
+                  <>
+                    <Box as="dt">
+                      Volunteer points{" "}
+                      <Link
+                        to="/volunteer/rewards"
+                        sx={{
+                          color: "white",
+                          textDecoration: "none",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          ml: "0.25rem",
+                          width: "20px",
+                          height: "20px",
+                          justifyContent: "center",
+                          borderRadius: "999px",
+                          backgroundColor: "primary",
+                          "&:hover": {
+                            backgroundColor: "secondary",
+                            color: "white",
+                          },
+                        }}
+                      >
+                        <FiHelpCircle size={16} />
+                      </Link>
+                    </Box>
+                    <Box as="dd">
+                      <Box
+                        as="span"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          px: "0.6rem",
+                          py: "0.2rem",
+                          borderRadius: "999px",
+                          fontSize: valueTextSize,
+                          fontWeight: "heading",
+                          bg: "lightgray",
+                          color: "text",
+                        }}
+                      >
+                        {pointsLabel}
+                      </Box>
+                    </Box>
+                  </>
+                )}
+                {role?.duration && (
+                  <>
+                    <Box as="dt">Duration</Box>
+                    <Box as="dd">{role.duration} hours</Box>
+                  </>
+                )}
+                {role?.compensation && (
+                  <>
+                    <Box as="dt">Compensation</Box>
+                    <Box as="dd">{role.compensation}</Box>
+                  </>
+                )}
+                {roleDescription && (
+                  <>
+                    <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
+                      Description
+                    </Box>
+                    <Box
+                      as="dd"
+                      className="position-detail-longtext"
+                      sx={{
+                        gridColumn: "1 / -1",
+                        backgroundColor: "#fff6d9",
+                        borderRadius: "6px",
+                        px: "0.65rem",
+                        py: "0.55rem",
+                      }}
+                    >
+                      {roleDescription}
+                    </Box>
+                  </>
+                )}
+                {roleDetail && (
+                  <>
+                    <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
+                      Details
+                    </Box>
+                    <Box
+                      as="dd"
+                      className="position-detail-longtext"
+                      sx={{
+                        gridColumn: "1 / -1",
+                        backgroundColor: "#fff6d9",
+                        borderRadius: "6px",
+                        px: "0.65rem",
+                        py: "0.55rem",
+                      }}
+                    >
+                      {roleDetail}
+                    </Box>
+                  </>
+                )}
+                </Box>
+                {role?.descriptionPdf?.asset?.url && (
+                  <Box sx={{ mt: "1.5rem" }}>
+                    <Text sx={{ variant: "text.label", color: "darkgray" }}>
+                      Position PDF
+                    </Text>
+                    <Box
+                      as="iframe"
+                      title="Volunteer position PDF"
+                      src={role.descriptionPdf.asset.url}
+                      sx={{
+                        width: "100%",
+                        height: ["260px", "320px", "360px"],
+                        border: "1px solid",
+                        borderColor: "lightgray",
+                        borderRadius: "12px",
+                        mt: "0.75rem",
+                      }}
+                    />
+                    <OutboundLink
+                      href={role.descriptionPdf.asset.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      sx={{
+                        mt: "0.75rem",
+                        display: "inline-block",
+                        textDecoration: "none",
+                        color: "primary",
+                        fontWeight: 600,
+                        fontSize: "sm",
+                      }}
+                    >
+                      Open PDF in new tab →
+                    </OutboundLink>
+                  </Box>
+                )}
+                </Box>
+            </Card>
+          </Box>
         </Flex>
       </ContentContainer>
       {showOtherRoles && (

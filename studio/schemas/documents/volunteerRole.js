@@ -1,5 +1,6 @@
 import React from 'react'
 import AutoSlugInput from '../../src/components/AutoSlugInput'
+import AutoSkillLevelInput from '../../src/components/AutoSkillLevelInput'
 
 export default {
     name: 'volunteerRole',
@@ -94,6 +95,11 @@ export default {
         name: 'skillLevel',
         type: 'string',
         title: 'Skill level',
+        description:
+          'Auto-populated from role point value: 1-2 Entry, 3-4 Intermediate, 5/10 Advanced.',
+        components: {
+          input: AutoSkillLevelInput
+        },
         options: {
           list: [
             { title: 'Entry', value: 'entry' },
