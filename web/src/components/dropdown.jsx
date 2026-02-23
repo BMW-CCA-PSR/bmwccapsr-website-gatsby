@@ -177,10 +177,8 @@ const Dropdown = (props) => {
     >
       <li
         ref={dropdownRef}
-        onMouseEnter={openMenu}
-        onMouseLeave={closeMenu}
-        role="menuitem"
-        tabIndex={-1}
+        onPointerEnter={openMenu}
+        onPointerLeave={closeMenu}
         sx={{
           textTransform: "uppercase",
           position: "relative",
