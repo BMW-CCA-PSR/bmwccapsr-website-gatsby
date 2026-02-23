@@ -20,9 +20,27 @@ const toDateToken = (value) => {
   return dayPart
 }
 
-const buildSlugSource = ({ roleName, eventName, dateToken, legacyTitle }) => {
-  const parts = [roleName, eventName, dateToken].filter(Boolean)
-  if (parts.length > 0) return parts.join(' ')
+const getTodayDateToken = () => {
+  const now = new Date()
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+  return local.toISOString().slice(0, 10)
+}
+
+const buildSlugSource = ({
+  roleName,
+  eventId,
+  eventName,
+  eventDateToken,
+  fallbackDateToken,
+  legacyTitle
+}) => {
+  const hasEvent = Boolean(eventId || eventName)
+  if (hasEvent) {
+    const eventParts = [roleName, eventName, eventDateToken || fallbackDateToken].filter(Boolean)
+    if (eventParts.length > 0) return eventParts.join(' ')
+  }
+  const noEventParts = [roleName, fallbackDateToken].filter(Boolean)
+  if (noEventParts.length > 0) return noEventParts.join(' ')
   return legacyTitle || ''
 }
 
@@ -30,6 +48,7 @@ const AutoSlugInput = (props) => {
   const { value, onChange, renderDefault } = props
   const client = useClient({ apiVersion: '2024-06-01' })
   const roleRef = useFormValue(['role'])
+  const eventId = useFormValue(['motorsportRegEvent', 'eventId'])
   const eventName = useFormValue(['motorsportRegEvent', 'name'])
   const eventStart = useFormValue(['motorsportRegEvent', 'start'])
   const selectedDate = useFormValue(['date'])
@@ -65,11 +84,14 @@ const AutoSlugInput = (props) => {
   }, [client, roleRef?._ref])
 
   useEffect(() => {
-    const dateToken = toDateToken(selectedDate || eventStart)
+    const fallbackDateToken = getTodayDateToken()
+    const eventDateToken = toDateToken(eventStart || selectedDate)
     const source = buildSlugSource({
       roleName,
+      eventId,
       eventName,
-      dateToken,
+      eventDateToken,
+      fallbackDateToken,
       legacyTitle
     })
     if (!source) return
@@ -82,7 +104,7 @@ const AutoSlugInput = (props) => {
       lastAuto.current = next
       onChange(set({ _type: 'slug', current: next }))
     }
-  }, [roleName, eventName, eventStart, selectedDate, legacyTitle, value?.current, onChange])
+  }, [roleName, eventId, eventName, eventStart, selectedDate, legacyTitle, value?.current, onChange])
 
   return renderDefault(props)
 }

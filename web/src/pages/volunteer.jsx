@@ -16,7 +16,28 @@ import {
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
 import { FiArrowRight } from "react-icons/fi";
-import { FaClipboardList, FaAward, FaUsers } from "react-icons/fa";
+import {
+  FaAward,
+  FaBullhorn,
+  FaCamera,
+  FaCarSide,
+  FaClipboardCheck,
+  FaClipboardList,
+  FaCogs,
+  FaFlagCheckered,
+  FaHandsHelping,
+  FaHardHat,
+  FaHeart,
+  FaIdBadge,
+  FaRoute,
+  FaShieldAlt,
+  FaToolbox,
+  FaUserAlt,
+  FaUserCheck,
+  FaUsers,
+  FaWrench,
+} from "react-icons/fa";
+import { getVolunteerPointCapColor } from "../lib/volunteerPointStyles";
 
 export const query = graphql`
   query VolunteerPageQuery {
@@ -149,6 +170,32 @@ const formatRoleFilterLabel = (roleName) => {
   return `${shortLabel} ${toTitleCaseWords(suffix)}`;
 };
 
+const ROLE_CARD_ICON_RULES = [
+  { pattern: /(marshal|grid|starter|flag|corner|control)/i, icon: FaFlagCheckered },
+  { pattern: /(instructor|coach|trainer|mentor)/i, icon: FaUserCheck },
+  { pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i, icon: FaClipboardCheck },
+  { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
+  { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
+  { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
+  { pattern: /(communications|announc|pa|social|newsletter|content)/i, icon: FaBullhorn },
+  { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
+  { pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i, icon: FaToolbox },
+  { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
+  { pattern: /(car control|ccc|autocross|track|hpde|driving)/i, icon: FaCarSide },
+  { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
+  { pattern: /(worker|crew)/i, icon: FaHardHat },
+  { pattern: /(member|membership)/i, icon: FaUsers },
+  { pattern: /(support|assistant|helper)/i, icon: FaHeart },
+];
+
+const getRoleCardIcon = (roleName) => {
+  const label = String(roleName || "").trim();
+  if (!label) return FaUserAlt;
+  const match = ROLE_CARD_ICON_RULES.find((rule) => rule.pattern.test(label));
+  return match?.icon || FaCogs;
+};
+const VOLUNTEER_CARD_MEDIA_SLASH_INSET = "64px";
+
 const VolunteerPage = (props) => {
   const { data, errors } = props;
   const roleNodes = useMemo(
@@ -179,9 +226,9 @@ const VolunteerPage = (props) => {
     const now = Date.now();
     return activeRoles.filter((role) => {
       const eventDate = role?.motorsportRegEvent?.start || role?.date;
-      if (!eventDate) return false;
+      if (!eventDate) return true;
       const timestamp = Date.parse(eventDate);
-      if (!Number.isFinite(timestamp)) return false;
+      if (!Number.isFinite(timestamp)) return true;
       return timestamp >= now;
     });
   }, [activeRoles, activeOnly, roles]);
@@ -715,19 +762,58 @@ const VolunteerPage = (props) => {
               const imageUrl = normalizeImageUrl(
                 role?.motorsportRegEvent?.imageUrl
               );
+              const hasAssignedEvent = Boolean(
+                role?.motorsportRegEvent &&
+                  (role?.motorsportRegEvent?.eventId ||
+                    role?.motorsportRegEvent?.name ||
+                    role?.motorsportRegEvent?.start ||
+                    role?.motorsportRegEvent?.url ||
+                    role?.motorsportRegEvent?.venueName ||
+                    role?.motorsportRegEvent?.venueCity ||
+                    role?.motorsportRegEvent?.venueRegion)
+              );
               const roleDate = role?.date || role?.motorsportRegEvent?.start;
               const formattedDate = roleDate
                 ? format(parseISO(roleDate), "MMM d, yyyy")
                 : null;
+              const hasDuration =
+                role?.duration !== undefined &&
+                role?.duration !== null &&
+                role?.duration !== "";
+              const durationValue = hasDuration ? Number(role.duration) : null;
+              const durationLabel = hasDuration
+                ? `${role.duration} hour${
+                    Number.isFinite(durationValue) && durationValue === 1
+                      ? ""
+                      : "s"
+                  }`
+                : null;
+              const membershipLabel =
+                role?.membershipRequired === true
+                  ? "Membership required"
+                  : role?.membershipRequired === false
+                  ? "No membership required"
+                  : null;
+              const secondaryMetaParts = [
+                formattedDate,
+                durationLabel,
+                membershipLabel,
+              ].filter(Boolean);
               const venueParts = [
                 role?.motorsportRegEvent?.venueName,
                 role?.motorsportRegEvent?.venueCity,
                 role?.motorsportRegEvent?.venueRegion,
               ].filter(Boolean);
               const venueLabel = venueParts.join(", ");
+              const showVenueOnCard = !hasAssignedEvent && Boolean(venueLabel);
               const roleUrl = role?.slug?.current
                 ? getVolunteerRoleUrl(role.slug.current)
                 : null;
+              const FallbackRoleIcon = getRoleCardIcon(getPositionTitle(role));
+              const fallbackCapColor = getVolunteerPointCapColor(
+                role?.role?.pointValue
+              );
+              const roleDescription = role?.role?.description?.trim() || "";
               const cardProps = roleUrl ? { as: Link, to: roleUrl } : {};
               return (
                 <Card
@@ -764,12 +850,14 @@ const VolunteerPage = (props) => {
                         clipPath: [
                           "none",
                           "none",
-                          "polygon(0 0, 100% 0, 88% 100%, 0 100%)",
+                          `polygon(0 0, 100% 0, calc(100% - ${VOLUNTEER_CARD_MEDIA_SLASH_INSET}) 100%, 0 100%)`,
                         ],
-                        backgroundColor: "lightgray",
+                        backgroundColor: hasAssignedEvent
+                          ? "lightgray"
+                          : fallbackCapColor,
                       }}
                     >
-                      {imageUrl && (
+                      {imageUrl && hasAssignedEvent && (
                         <Box
                           as="img"
                           src={imageUrl}
@@ -788,6 +876,19 @@ const VolunteerPage = (props) => {
                             ...nonDraggableImageSx,
                           }}
                         />
+                      )}
+                      {!hasAssignedEvent && (
+                        <Flex
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "white",
+                          }}
+                        >
+                          <FallbackRoleIcon size={88} aria-hidden="true" />
+                        </Flex>
                       )}
                     </Box>
                     <Box
@@ -826,12 +927,17 @@ const VolunteerPage = (props) => {
                       <Heading as="h3" sx={{ variant: "styles.h3", mb: 0 }}>
                         {getPositionTitle(role)}
                       </Heading>
-                      {role?.motorsportRegEvent?.name && (
+                      {hasAssignedEvent && role?.motorsportRegEvent?.name && (
                         <Text sx={{ fontSize: "sm", color: "darkgray" }}>
                           {role.motorsportRegEvent.name}
                         </Text>
                       )}
-                      {(venueLabel || formattedDate || role?.duration) && (
+                      {!hasAssignedEvent && roleDescription && (
+                        <Text sx={{ fontSize: "sm", color: "darkgray" }}>
+                          {roleDescription}
+                        </Text>
+                      )}
+                      {(showVenueOnCard || secondaryMetaParts.length > 0) && (
                         <Flex
                           sx={{
                             flexDirection: ["column", "column", "row"],
@@ -841,12 +947,12 @@ const VolunteerPage = (props) => {
                             fontSize: "xs",
                           }}
                         >
-                          {venueLabel && (
+                          {showVenueOnCard && (
                             <Text sx={{ fontSize: "inherit" }}>
                               {venueLabel}
                             </Text>
                           )}
-                          {venueLabel && (formattedDate || role?.duration) && (
+                          {showVenueOnCard && secondaryMetaParts.length > 0 && (
                             <Text
                               sx={{
                                 fontSize: "inherit",
@@ -856,16 +962,9 @@ const VolunteerPage = (props) => {
                               |
                             </Text>
                           )}
-                          {(formattedDate || role?.duration) && (
+                          {secondaryMetaParts.length > 0 && (
                             <Text sx={{ fontSize: "inherit" }}>
-                              {[
-                                formattedDate,
-                                role?.duration
-                                  ? `${role.duration} hours`
-                                  : null,
-                              ]
-                                .filter(Boolean)
-                                .join(" · ")}
+                              {secondaryMetaParts.join(" · ")}
                             </Text>
                           )}
                         </Flex>

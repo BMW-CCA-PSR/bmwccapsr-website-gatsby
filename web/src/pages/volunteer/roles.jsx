@@ -31,6 +31,7 @@ import GraphQLErrorList from "../../components/graphql-error-list";
 import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
 import { mapEdgesToNodes } from "../../lib/helpers";
+import { getVolunteerPointCapColor } from "../../lib/volunteerPointStyles";
 
 export const query = graphql`
   query VolunteerRolesPageQuery {
@@ -86,17 +87,6 @@ const SKILL_TABS = [
     accent: "#9a1f1f",
   },
 ];
-
-const getRoleCapColor = (pointValue) => {
-  const value = Number(pointValue);
-  if (!Number.isFinite(value)) return "#444444";
-  if (value >= 10) return "#000000";
-  if (value >= 5) return "#0b4779";
-  if (value >= 4) return "#0f5898";
-  if (value >= 3) return "#146bba";
-  if (value >= 2) return "#197fdd";
-  return "#1e94ff";
-};
 
 const buildPaginationItems = (current, total, delta = 1) => {
   if (total <= 5) {
@@ -464,7 +454,9 @@ const VolunteerRolesPage = ({ data, errors }) => {
                           left: 0,
                           right: 0,
                           height: "16px",
-                          backgroundColor: getRoleCapColor(role?.pointValue),
+                          backgroundColor: getVolunteerPointCapColor(
+                            role?.pointValue
+                          ),
                         }}
                       />
 

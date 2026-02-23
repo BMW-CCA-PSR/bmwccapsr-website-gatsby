@@ -109,7 +109,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             <Text
               sx={{ variant: "styles.p", color: "text", mb: "1rem", fontSize: "16pt" }}
             >
-              Volunteering is how PSR delivers safe, memorable events and builds
+              Volunteering is how our Club delivers safe, memorable events and builds
               a strong community. From first-time helpers to experienced
               leaders, there are roles matched to your time, interests, and
               skill level. Use this overview to understand how roles are
@@ -313,7 +313,8 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             >
               Rewards Program
             </Link>
-            .
+            . Point allocation may be adjusted at the discretion of the Board
+            or Volunteer Program Chair when deemed necessary.
           </Text>
 
           <Heading
@@ -336,9 +337,6 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             </Box>
             <Box as="li" sx={{ mb: "0.5rem" }}>
               Meet fellow enthusiasts and build lasting connections.
-            </Box>
-            <Box as="li" sx={{ mb: "0.5rem" }}>
-              Develop leadership and event-management skills.
             </Box>
             <Box as="li" sx={{ mb: "0.5rem" }}>
               Earn recognition and rewards.
@@ -364,13 +362,15 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             }}
           >
             <Box as="li" sx={{ mb: "0.5rem" }}>
-              Review available volunteer opportunities.
+              Review available volunteer roles and positions.
             </Box>
             <Box as="li" sx={{ mb: "0.5rem" }}>
-              Select a role that matches your interests and availability.
+              Select roles and positions that match your interests and
+              availability.
             </Box>
             <Box as="li" sx={{ mb: "0.5rem" }}>
-              Sign up or contact the Volunteer Coordinator.
+              Sign up via the MSR Event listing or contact the event Point of
+              Contact.
             </Box>
             <Box as="li" sx={{ mb: "0.5rem" }}>
               Earn points and make a difference!

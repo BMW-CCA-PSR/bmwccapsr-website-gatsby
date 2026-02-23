@@ -26,7 +26,7 @@ export default {
         name: 'slug',
         type: 'slug',
         title: 'Slug',
-        description: 'Auto-generated from role name + event + date. (e.g. "/volunteer/grid-marshall-pacific-raceways-2026-04-18")',
+        description: 'Auto-generated from role + event + date when event is selected; otherwise role + current date. (e.g. "/volunteer/grid-marshall-pacific-raceways-2026-04-18")',
         components: {
           input: AutoSlugInput
         },
@@ -58,8 +58,7 @@ export default {
         name: 'motorsportRegEvent',
         type: 'motorsportRegEvent',
         title: 'Event',
-        description: 'Select a MotorsportReg event for this position.',
-        validation: Rule => Rule.error('Select a MotorsportReg event.').required(),
+        description: 'Select a MotorsportReg event for this position (optional).',
       },
       {
         name: 'descriptionPdf',
@@ -73,7 +72,6 @@ export default {
         name: 'date',
         type: 'date',
         title: 'Date',
-        validation: Rule => Rule.required().error('Provide a date.')
       },
       {
         name: 'duration',
@@ -81,9 +79,12 @@ export default {
         title: 'Duration',
         description: 'Hours (numbers only)',
         validation: Rule =>
-          Rule.required()
-            .min(0)
-            .error('Provide a duration in hours (numbers only).')
+          Rule.optional()
+            .custom((value) =>
+              value === undefined || value === null || value >= 0
+                ? true
+                : 'Provide a duration in hours (numbers only).'
+            )
       },
       {
         name: 'compensation',
@@ -96,7 +97,7 @@ export default {
         type: 'string',
         title: 'Skill level',
         description:
-          'Auto-populated from role point value: 1-2 Entry, 3-4 Intermediate, 5/10 Advanced.',
+          'Auto-populated from role point value (1-2 Entry, 3-4 Intermediate, 5/10 Advanced). You can override if needed.',
         components: {
           input: AutoSkillLevelInput
         },

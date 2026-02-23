@@ -24,7 +24,7 @@ const VolunteerRewardsPage = ({ data, errors }) => {
   const menuItems = site?.navMenu?.items || [];
   const pointLevels = [
     {
-      points: "2",
+      points: "1   \n2",
       heading: "Event Support Roles",
       lead: "Ideal for first-time volunteers or members with limited availability.",
       bullets: [
@@ -235,11 +235,24 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}
           >
             Volunteer Point Levels
+            <Text
+              as="span"
+              sx={{
+                fontSize: "0.62em",
+                verticalAlign: "super",
+                ml: "0.16em",
+                color: "darkgray",
+                fontStyle: "italic",
+                lineHeight: 1,
+              }}
+            >
+              *
+            </Text>
           </Heading>
           <Box
             sx={{
               mt: "0.75rem",
-              mb: "1.5rem",
+              mb: "0.5rem",
               border: "2px solid",
               borderColor: "black",
               borderRadius: "18px",
@@ -333,6 +346,43 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                 </Box>
               </Box>
             ))}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "0.35rem",
+              color: "darkgray",
+              mt: "-0.35rem",
+              mb: "1.25rem",
+            }}
+          >
+            <Text
+              as="span"
+              aria-hidden="true"
+              sx={{
+                flex: "0 0 auto",
+                mt: "0.12rem",
+                fontSize: "11px",
+                lineHeight: 1,
+                color: "darkgray",
+                fontStyle: "italic",
+              }}
+            >
+              *
+            </Text>
+            <Text
+              sx={{
+                variant: "styles.p",
+                fontSize: "xxs",
+                fontStyle: "italic",
+                color: "inherit",
+                mb: 0,
+              }}
+            >
+              Please note: point allocation may be adjusted at the discretion of
+              the Board or Volunteer Program Chair when deemed necessary.
+            </Text>
           </Box>
 
           <Heading

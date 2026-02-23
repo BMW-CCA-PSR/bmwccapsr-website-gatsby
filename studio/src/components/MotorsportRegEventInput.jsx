@@ -1,6 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { LaunchIcon, RefreshIcon, TrashIcon } from "@sanity/icons";
-import { Box, Button, Card, Flex, Select, Stack, Text } from "@sanity/ui";
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Select,
+  Stack,
+  Text,
+  useRootTheme,
+} from "@sanity/ui";
 import { set, unset, useDocumentOperation, useFormValue } from "sanity";
 
 const API_BASE =
@@ -9,6 +18,10 @@ const API_BASE =
 const ORG_ID =
   process.env.SANITY_STUDIO_MOTORSPORTREG_ORG_ID ||
   "E459757B-AF0D-6403-449F2BFCAF307273";
+const MSR_LOGO_DARK =
+  "https://msr-hotlink.s3.amazonaws.com/powered-by/powered-by-msr-default@2x.png";
+const MSR_LOGO_LIGHT =
+  "https://msr-hotlink.s3.amazonaws.com/powered-by/powered-by-msr-outline@2x.png";
 
 const buildCalendarUrl = () => {
   if (!ORG_ID) return null;
@@ -172,6 +185,7 @@ const formatEventDateRange = (start, end) => {
 
 const MotorsportRegEventInput = (props) => {
   const { value, onChange, readOnly } = props;
+  const { scheme } = useRootTheme();
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -211,6 +225,10 @@ const MotorsportRegEventInput = (props) => {
     previewLatitude,
     previewLongitude
   );
+  const isDarkMode = String(scheme || "")
+    .toLowerCase()
+    .includes("dark");
+  const msrLogoSrc = isDarkMode ? MSR_LOGO_DARK : MSR_LOGO_LIGHT;
 
   useEffect(() => {
     setSelectedId(value?.eventId || "");
@@ -391,16 +409,15 @@ const MotorsportRegEventInput = (props) => {
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: 6,
+                  display: "inline-block",
+                  padding: 15,
                 }}
               >
                 <img
-                  src="https://msr-hotlink.s3.amazonaws.com/default/msr-logo-default@2x.png"
+                  src={msrLogoSrc}
                   alt="Online registration and event management service for motorsport events powered by MotorsportReg.com"
                   title="Online registration and event management service for motorsport events powered by MotorsportReg.com"
-                  style={{ width: 200, height: 31, display: "block" }}
+                  style={{ width: 182, height: 32, display: "block" }}
                 />
               </a>
             </Flex>

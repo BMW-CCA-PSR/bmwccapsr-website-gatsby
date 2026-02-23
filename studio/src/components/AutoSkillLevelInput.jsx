@@ -14,8 +14,12 @@ const AutoSkillLevelInput = (props) => {
   const client = useClient({ apiVersion: '2024-06-01' })
   const roleRef = useFormValue(['role'])
   const roleRefId = roleRef?._ref
+  const previousRoleRefId = React.useRef(roleRefId)
 
   useEffect(() => {
+    const didRoleChange = previousRoleRefId.current !== roleRefId
+    previousRoleRefId.current = roleRefId
+
     if (!roleRefId) {
       if (value) onChange(unset())
       return
@@ -35,10 +39,12 @@ const AutoSkillLevelInput = (props) => {
         if (!isMounted) return
         const derived = mapPointValueToSkillLevel(data?.pointValue)
         if (!derived) {
-          if (value) onChange(unset())
+          if (didRoleChange && value) onChange(unset())
           return
         }
-        if (value !== derived) onChange(set(derived))
+        // Auto-populate when the role changes or when value is empty.
+        // If an editor manually overrides after auto-fill, we preserve that override.
+        if ((didRoleChange || !value) && value !== derived) onChange(set(derived))
       })
       .catch(() => {
         if (!isMounted) return
@@ -51,10 +57,9 @@ const AutoSkillLevelInput = (props) => {
 
   return renderDefault({
     ...props,
-    readOnly: true,
     description: roleRefId
-      ? 'Auto-populated from the selected role point value.'
-      : 'Select a role to auto-populate this field.'
+      ? 'Auto-populated from role point value. You can override it if needed.'
+      : 'Select a role to auto-populate this field (editable after fill).'
   })
 }
 

@@ -12,13 +12,38 @@ import ContentContainer from "../components/content-container";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
 import { BoxIcon } from "../components/box-icons";
 import { FiHelpCircle, FiMaximize2, FiShare2, FiX } from "react-icons/fi";
-import { FaCalendarPlus, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaBullhorn,
+  FaCalendarPlus,
+  FaCamera,
+  FaCarSide,
+  FaClock,
+  FaAward,
+  FaClipboardCheck,
+  FaCogs,
+  FaFlagCheckered,
+  FaHandsHelping,
+  FaHardHat,
+  FaHeart,
+  FaIdBadge,
+  FaMapMarkerAlt,
+  FaRoute,
+  FaShieldAlt,
+  FaTools,
+  FaToolbox,
+  FaUserPlus,
+  FaUserAlt,
+  FaUserCheck,
+  FaUsers,
+  FaWrench,
+} from "react-icons/fa";
 import { getVolunteerRoleUrl, mapEdgesToNodes } from "../lib/helpers";
 import { Client } from "../services/FetchClient";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import { getVolunteerPointCapColor } from "../lib/volunteerPointStyles";
 
 const normalizeImageUrl = (value) => {
   if (!value) return null;
@@ -116,12 +141,63 @@ const getSkillTone = (value) => {
   return { bg: "#e8f7ec", color: "text" };
 };
 
+const getSkillIcon = (value) => {
+  const normalized = String(value || "").toLowerCase();
+  if (normalized === "entry") return FaUserPlus;
+  if (normalized === "medium" || normalized === "intermediate") return FaTools;
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return FaAward;
+  return FaUserPlus;
+};
+
 const formatVolunteerPoints = (value) => {
-  if (value === undefined || value === null) return null;
-  const count = Math.max(0, Math.min(10, Number(value)));
-  const stars = count > 0 && count <= 5 ? "★".repeat(count) : "";
-  const label = `${count} Point${count === 1 ? "" : "s"}`;
-  return stars ? `${stars} ${label}` : label;
+  const count = Number(value);
+  if (!Number.isFinite(count) || count <= 0) return null;
+  return `${count} Point${count === 1 ? "" : "s"}`;
+};
+
+const ROLE_ICON_RULES = [
+  {
+    pattern: /(marshal|grid|starter|flag|corner|control)/i,
+    icon: FaFlagCheckered,
+  },
+  {
+    pattern: /(instructor|coach|trainer|mentor)/i,
+    icon: FaUserCheck,
+  },
+  {
+    pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i,
+    icon: FaClipboardCheck,
+  },
+  { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
+  { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
+  { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
+  {
+    pattern: /(communications|announc|pa|social|newsletter|content)/i,
+    icon: FaBullhorn,
+  },
+  { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
+  {
+    pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i,
+    icon: FaToolbox,
+  },
+  { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
+  { pattern: /(car control|ccc|autocross|track|hpde|driving)/i, icon: FaCarSide },
+  { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
+  { pattern: /(worker|crew)/i, icon: FaHardHat },
+  { pattern: /(member|membership)/i, icon: FaUsers },
+  { pattern: /(support|assistant|helper)/i, icon: FaHeart },
+];
+
+const getRoleIcon = (name) => {
+  const label = String(name || "").trim();
+  if (!label) return FaUserAlt;
+  const match = ROLE_ICON_RULES.find((rule) => rule.pattern.test(label));
+  return match?.icon || FaCogs;
 };
 
 const DEFAULT_MAPBOX_PUBLIC_TOKEN =
@@ -604,6 +680,18 @@ const VolunteerRoleTemplate = (props) => {
   const event = role?.motorsportRegEvent;
   const roleReference = resolvedRole || role?.role || null;
   const positionTitle = roleReference?.name?.trim() || "Untitled role";
+  const roleCapColor = getVolunteerPointCapColor(roleReference?.pointValue);
+  const PositionRoleIcon = getRoleIcon(roleReference?.name || positionTitle);
+  const hasEventAssigned = Boolean(
+    event &&
+      (event?.eventId ||
+        event?.name ||
+        event?.start ||
+        event?.url ||
+        event?.venueName ||
+        event?.venueCity ||
+        event?.venueRegion)
+  );
   const eventDateRange = formatDateRange(event?.start, event?.end);
   const roleDate = formatDate(role?.date);
   const imageUrl = normalizeImageUrl(event?.imageUrl);
@@ -617,13 +705,31 @@ const VolunteerRoleTemplate = (props) => {
     String(event?.longitude ?? resolvedEventCoordinates?.longitude ?? "")
   );
   const hasMapCoordinates =
-    Number.isFinite(mapLatitude) && Number.isFinite(mapLongitude);
+    hasEventAssigned &&
+    Number.isFinite(mapLatitude) &&
+    Number.isFinite(mapLongitude);
   const mapboxToken =
     process.env.GATSBY_SANITY_MAPBOX_TOKEN || DEFAULT_MAPBOX_PUBLIC_TOKEN;
   const showOtherRoles = otherRoles.length > 0;
   const skillLevelLabel = formatSkillLevel(role?.skillLevel);
   const skillTone = getSkillTone(role?.skillLevel);
+  const SkillLevelIcon = getSkillIcon(role?.skillLevel);
   const pointsLabel = formatVolunteerPoints(roleReference?.pointValue);
+  const pointsValue = Number(roleReference?.pointValue);
+  const pointStars =
+    Number.isFinite(pointsValue) && pointsValue > 0 && pointsValue <= 5
+      ? "★".repeat(pointsValue)
+      : "";
+  const isTenPointRole = pointsValue === 10;
+  const pointsPillMinHeight = isTenPointRole ? "2.05em" : "1.35em";
+  const hasDuration =
+    role?.duration !== undefined && role?.duration !== null && role?.duration !== "";
+  const durationValue = hasDuration ? Number(role.duration) : null;
+  const durationLabel = hasDuration
+    ? `${role.duration} hour${
+        Number.isFinite(durationValue) && durationValue === 1 ? "" : "s"
+      }`
+    : "";
   const roleDescription = roleReference?.description?.trim() || "";
   const roleDetail = roleReference?.detail?.trim() || "";
   const positionDescription =
@@ -845,7 +951,7 @@ const VolunteerRoleTemplate = (props) => {
               flexDirection: "column",
             }}
           >
-            {imageUrl && (
+            {hasEventAssigned && imageUrl && (
               <Box
                 as="img"
                 src={imageUrl}
@@ -861,17 +967,34 @@ const VolunteerRoleTemplate = (props) => {
                 }}
               />
             )}
-            <Card
-              sx={{
-                p: 0,
-                borderRadius: "18px",
-                border: "1px solid",
-                flex: "1 1 auto",
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
+            {!hasEventAssigned && (
+              <Flex
+                sx={{
+                  width: "100%",
+                  minHeight: ["220px", "260px", "320px"],
+                  borderRadius: "18px",
+                  mb: "1rem",
+                  bg: roleCapColor,
+                  color: "white",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <PositionRoleIcon size={96} aria-hidden="true" />
+              </Flex>
+            )}
+            {hasEventAssigned ? (
+              <Card
+                sx={{
+                  p: 0,
+                  borderRadius: "18px",
+                  border: "1px solid",
+                  flex: "1 1 auto",
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
               <Box
                 sx={{
                   backgroundColor: "secondary",
@@ -1093,7 +1216,27 @@ const VolunteerRoleTemplate = (props) => {
                   />
                 </Box>
               )}
-            </Card>
+              </Card>
+            ) : (
+              <Card
+                sx={{
+                  p: 0,
+                  borderRadius: "18px",
+                  border: "1px solid",
+                  borderColor: "lightgray",
+                  flex: "1 1 auto",
+                  overflow: "hidden",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "100%",
+                    minHeight: ["220px", "260px", "320px"],
+                    bg: "lightgray",
+                  }}
+                />
+              </Card>
+            )}
           </Box>
           <Box
             sx={{
@@ -1188,6 +1331,7 @@ const VolunteerRoleTemplate = (props) => {
                         sx={{
                           display: "inline-flex",
                           alignItems: "center",
+                          gap: "0.45rem",
                           px: "0.6rem",
                           py: "0.2rem",
                           borderRadius: "999px",
@@ -1197,6 +1341,9 @@ const VolunteerRoleTemplate = (props) => {
                           color: skillTone.color,
                         }}
                       >
+                        <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                          <SkillLevelIcon size={14} aria-hidden="true" />
+                        </Box>
                         {skillLevelLabel}
                       </Box>
                     </Box>
@@ -1206,8 +1353,90 @@ const VolunteerRoleTemplate = (props) => {
                   role?.membershipRequired !== null && (
                     <>
                       <Box as="dt">Membership required</Box>
-                      <Box as="dd">
-                        {role.membershipRequired ? "Yes" : "No"}
+                      <Box
+                        as="dd"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          minHeight: "100%",
+                          lineHeight: "body",
+                        }}
+                      >
+                        {role.membershipRequired ? (
+                          <Box
+                            as="span"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.4rem",
+                              px: "0.65rem",
+                              py: "0.14rem",
+                              borderRadius: "999px",
+                              bg: "#f2cf3a",
+                              color: "#2b1f00",
+                              fontSize: valueTextSize,
+                            }}
+                          >
+                            <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                              <FaIdBadge size={12} aria-hidden="true" />
+                            </Box>
+                            <Box as="span" sx={{ fontWeight: "heading" }}>
+                              Yes
+                            </Box>
+                            <Box
+                              as="span"
+                              sx={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                fontSize: "0.78em",
+                                fontStyle: "italic",
+                                color: "inherit",
+                                lineHeight: 1.1,
+                              }}
+                            >
+                              - active BMW CCA membership required
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Box
+                            as="span"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.4rem",
+                              px: "0.65rem",
+                              py: "0.1rem",
+                              borderRadius: "999px",
+                              bg: "lightgray",
+                              color: "text",
+                              fontSize: valueTextSize,
+                            }}
+                          >
+                            <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                              <FaUsers size={14} aria-hidden="true" />
+                            </Box>
+                            <Box
+                              as="span"
+                              sx={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}
+                            >
+                              <Box as="span" sx={{ fontWeight: "heading" }}>
+                                No
+                              </Box>
+                              <Box
+                                as="span"
+                                sx={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  fontSize: "0.78em",
+                                  fontStyle: "italic",
+                                  lineHeight: 1.1,
+                                }}
+                              >
+                                - anyone can volunteer
+                              </Box>
+                            </Box>
+                          </Box>
+                        )}
                       </Box>
                     </>
                   )}
@@ -1243,6 +1472,65 @@ const VolunteerRoleTemplate = (props) => {
                         sx={{
                           display: "inline-flex",
                           alignItems: "center",
+                          gap: "0.45rem",
+                          px: "0.6rem",
+                          py: "0.2rem",
+                          minHeight: pointsPillMinHeight,
+                          borderRadius: "999px",
+                          fontSize: valueTextSize,
+                          fontWeight: "heading",
+                          bg: "lightgray",
+                          color: "text",
+                        }}
+                      >
+                        {(pointStars || isTenPointRole) && (
+                          <Box
+                            as="span"
+                            sx={{
+                              display: "inline-flex",
+                              flexDirection: "column",
+                              alignSelf: "center",
+                              justifyContent: "center",
+                              lineHeight: 1,
+                              fontSize: "0.78em",
+                              letterSpacing: "0.02em",
+                            }}
+                          >
+                            {isTenPointRole ? (
+                              <>
+                                <Box as="span">★★★★★</Box>
+                                <Box as="span">★★★★★</Box>
+                              </>
+                            ) : (
+                              <Box as="span">{pointStars}</Box>
+                            )}
+                          </Box>
+                        )}
+                        <Box
+                          as="span"
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            alignSelf: "center",
+                            lineHeight: 1.1,
+                          }}
+                        >
+                          {pointsLabel}
+                        </Box>
+                      </Box>
+                    </Box>
+                  </>
+                )}
+                {hasDuration && (
+                  <>
+                    <Box as="dt">Duration</Box>
+                    <Box as="dd">
+                      <Box
+                        as="span"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
                           px: "0.6rem",
                           py: "0.2rem",
                           borderRadius: "999px",
@@ -1252,15 +1540,12 @@ const VolunteerRoleTemplate = (props) => {
                           color: "text",
                         }}
                       >
-                        {pointsLabel}
+                        <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                          <FaClock size={12} aria-hidden="true" />
+                        </Box>
+                        <Box as="span">{durationLabel}</Box>
                       </Box>
                     </Box>
-                  </>
-                )}
-                {role?.duration && (
-                  <>
-                    <Box as="dt">Duration</Box>
-                    <Box as="dd">{role.duration} hours</Box>
                   </>
                 )}
                 {role?.compensation && (
