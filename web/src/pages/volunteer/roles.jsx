@@ -17,6 +17,7 @@ import {
   FaMapMarkerAlt,
   FaRoute,
   FaShieldAlt,
+  FaStar,
   FaTools,
   FaToolbox,
   FaUserPlus,
@@ -516,6 +517,10 @@ const VolunteerRolesPage = ({ data, errors }) => {
                         <Box
                           as="span"
                           sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "0.28rem",
                             flex: "0 0 auto",
                             minWidth: "70px",
                             textAlign: "center",
@@ -531,6 +536,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
                             borderColor: "rgba(0,0,0,0.2)",
                           }}
                         >
+                          <FaStar size={11} aria-hidden="true" />
                           {pointLabel}
                         </Box>
                       </Box>

@@ -289,7 +289,7 @@ function ZundfolgeArticle(props) {
             {relatedPosts &&
               relatedPosts
                 .slice(0, 3)
-                .map((post) => <RelatedContent {...post} />)}
+                .map((post) => <RelatedContent key={post.id} {...post} />)}
           </div>
         </div>
       </ContentContainer>

@@ -24,6 +24,67 @@ const buildVolunteerFallbackPath = (id, pathPrefix = "/volunteer") => {
   return `${pathPrefix}/${safeId || "position"}`;
 };
 
+const RELATED_POST_STOP_WORDS = new Set([
+  "about",
+  "after",
+  "before",
+  "between",
+  "could",
+  "from",
+  "have",
+  "into",
+  "just",
+  "like",
+  "more",
+  "over",
+  "that",
+  "their",
+  "there",
+  "these",
+  "they",
+  "this",
+  "those",
+  "under",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "with",
+  "would",
+  "your",
+]);
+
+const tokenizeRelatedPostText = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !RELATED_POST_STOP_WORDS.has(token));
+
+const normalizeRefId = (value) =>
+  String(value || "")
+    .trim()
+    .replace(/^drafts\./, "");
+
+const getPostCategoryRef = (post) =>
+  normalizeRefId(post?._rawDataCategory?._ref || post?.category?._id || "");
+
+const getPostAuthorRefs = (post) => {
+  const rawAuthorRefs = Array.isArray(post?._rawDataAuthors)
+    ? post._rawDataAuthors.map((item) => item?.author?._ref).filter(Boolean)
+    : [];
+  if (rawAuthorRefs.length > 0) {
+    return new Set(rawAuthorRefs.map(normalizeRefId).filter(Boolean));
+  }
+  const hydratedAuthorRefs = Array.isArray(post?.authors)
+    ? post.authors
+        .map((item) => item?.author?._id || item?.author?.id)
+        .filter(Boolean)
+    : [];
+  return new Set(hydratedAuthorRefs.map(normalizeRefId).filter(Boolean));
+};
+
 exports.createSchemaCustomization = ({ actions, schema }) => {
   actions.createTypes(`
     extend type SanityVolunteerRole {
@@ -91,11 +152,6 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         relatedPosts: {
           type: "[SanityPost]",
           resolve: async (source, args, context, info) => {
-            const category = source._rawDataCategory
-              ? source._rawDataCategory._ref
-              : null;
-            if (!category) return [];
-
             const { entries } = await context.nodeModel.findAll({
               type: "SanityPost",
               query: {
@@ -106,26 +162,90 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
               },
             });
             const now = new Date();
-            const posts = entries.filter((post) => {
-              if (!post || !post._rawDataCategory || post._id === source._id) {
-                return false;
-              }
-              if (post._rawDataCategory._ref !== category) {
-                return false;
-              }
-              if (!post.slug || !post.slug.current) {
-                return false;
-              }
-              if (!post.publishedAt) {
-                return false;
-              }
-              const publishedAt = new Date(post.publishedAt);
-              if (Number.isNaN(publishedAt.getTime())) {
-                return false;
-              }
-              return publishedAt <= now;
-            });
-            return Array.from(posts);
+            const sourceId = normalizeRefId(source?._id);
+            const sourceCategoryRef = getPostCategoryRef(source);
+            const sourceAuthorRefs = getPostAuthorRefs(source);
+            const sourceDate = source?.publishedAt
+              ? new Date(source.publishedAt)
+              : null;
+            const sourceTime = Number.isNaN(sourceDate?.getTime?.())
+              ? null
+              : sourceDate.getTime();
+            const sourceTokens = new Set(
+              tokenizeRelatedPostText(source?.title || "")
+            );
+
+            return Array.from(entries)
+              .filter((post) => {
+                if (!post) return false;
+                if (post._id?.startsWith("drafts.")) return false;
+                const postId = normalizeRefId(post._id);
+                if (!postId || postId === sourceId) return false;
+                if (!post.slug || !post.slug.current) return false;
+                if (!post.publishedAt) return false;
+                const publishedAt = new Date(post.publishedAt);
+                if (Number.isNaN(publishedAt.getTime())) return false;
+                return publishedAt <= now;
+              })
+              .map((post) => {
+                const postPublishedAt = new Date(post.publishedAt);
+                const postTime = postPublishedAt.getTime();
+                let score = 0;
+
+                const postCategoryRef = getPostCategoryRef(post);
+                if (
+                  sourceCategoryRef &&
+                  postCategoryRef &&
+                  sourceCategoryRef === postCategoryRef
+                ) {
+                  score += 45;
+                }
+
+                const postAuthorRefs = getPostAuthorRefs(post);
+                if (sourceAuthorRefs.size > 0 && postAuthorRefs.size > 0) {
+                  let sharedAuthors = 0;
+                  sourceAuthorRefs.forEach((ref) => {
+                    if (postAuthorRefs.has(ref)) sharedAuthors += 1;
+                  });
+                  score += Math.min(sharedAuthors * 18, 36);
+                }
+
+                const postTokens = new Set(
+                  tokenizeRelatedPostText(post?.title || "")
+                );
+                if (sourceTokens.size > 0 && postTokens.size > 0) {
+                  let sharedTokens = 0;
+                  postTokens.forEach((token) => {
+                    if (sourceTokens.has(token)) sharedTokens += 1;
+                  });
+                  score += Math.min(sharedTokens * 4, 24);
+                }
+
+                if (sourceTime !== null && Number.isFinite(postTime)) {
+                  const dayDelta = Math.abs(sourceTime - postTime) / 86400000;
+                  const recencyBonus = Math.max(
+                    0,
+                    12 - Math.floor(dayDelta / 30)
+                  );
+                  score += recencyBonus;
+                } else {
+                  score += 1;
+                }
+
+                return { post, score, postTime };
+              })
+              .sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                if (
+                  Number.isFinite(b.postTime) &&
+                  Number.isFinite(a.postTime)
+                ) {
+                  return b.postTime - a.postTime;
+                }
+                return 0;
+              })
+              .slice(0, 12)
+              .map((item) => item.post);
           },
         },
       },

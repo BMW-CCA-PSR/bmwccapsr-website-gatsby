@@ -3,12 +3,34 @@ import React from "react";
 import { Link } from "gatsby";
 import { Box, Card, Heading, Text } from "@theme-ui/components";
 import { format, parseISO } from "date-fns";
+import {
+  FaCalendarAlt,
+  FaFlagCheckered,
+  FaLaptop,
+  FaRoute,
+  FaTools,
+  FaUsers,
+} from "react-icons/fa";
 import { buildImageObj, getEventsUrl } from "../lib/helpers";
 import { imageUrlFor } from "../lib/image-url";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+
+const CATEGORY_ICON_RULES = [
+  { pattern: /(drive|driving|hpde|clinic|car control|autocross|track)/i, icon: FaFlagCheckered },
+  { pattern: /(tour|route|road trip)/i, icon: FaRoute },
+  { pattern: /(social|meet|gather|show|concours)/i, icon: FaUsers },
+  { pattern: /(tech|maintenance|workshop)/i, icon: FaTools },
+];
+
+const getCategoryIcon = (categoryTitle) => {
+  const label = String(categoryTitle || "").trim();
+  if (!label) return FaCalendarAlt;
+  const match = CATEGORY_ICON_RULES.find((rule) => rule.pattern.test(label));
+  return match?.icon || FaCalendarAlt;
+};
 
 const EventCard = ({ event, href }) => {
   if (!event) return null;
@@ -40,6 +62,14 @@ const EventCard = ({ event, href }) => {
     : null;
   const url =
     href || (event?.slug?.current ? getEventsUrl(event.slug.current) : null);
+  const startTimestamp = event?.startTime ? Date.parse(event.startTime) : NaN;
+  const nowTimestamp = Date.now();
+  const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
+  const isUpcoming =
+    Number.isFinite(startTimestamp) &&
+    startTimestamp >= nowTimestamp &&
+    startTimestamp <= upcomingCutoffTimestamp;
+  const showUpcomingPill = Boolean(event?.showUpcomingPill && isUpcoming);
 
   const card = (
     <Card
@@ -53,8 +83,8 @@ const EventCard = ({ event, href }) => {
         display: "flex",
         flexDirection: "column",
         borderStyle: "solid",
-        borderWidth: isOnline ? "3px" : "1px",
-        borderColor: isOnline ? "primary" : "text",
+        borderWidth: "1px",
+        borderColor: "text",
       }}
     >
       {imageUrl && (
@@ -128,7 +158,35 @@ const EventCard = ({ event, href }) => {
           }}
         >
           {event?.category?.title && (
-            <Text sx={{ variant: "text.label", color: "black" }}>
+            <Text
+              sx={{
+                variant: "text.label",
+                color: "black",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+              }}
+            >
+              <Box
+                as="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "22px",
+                  height: "22px",
+                  borderRadius: "999px",
+                  bg: "lightgray",
+                  color: "text",
+                  flex: "0 0 22px",
+                  lineHeight: 0,
+                }}
+              >
+                {React.createElement(getCategoryIcon(event.category.title), {
+                  size: 13,
+                  "aria-hidden": "true",
+                })}
+              </Box>
               {event.category.title}
             </Text>
           )}
@@ -136,8 +194,8 @@ const EventCard = ({ event, href }) => {
             <Text
               sx={{
                 variant: "text.label",
-                bg: "transparent",
-                color: "white",
+                bg: "#e6f0ff",
+                color: "#0e4da9",
                 px: 2,
                 py: 1,
                 borderRadius: 9999,
@@ -145,12 +203,39 @@ const EventCard = ({ event, href }) => {
                 fontSize: "xxs",
                 letterSpacing: "wide",
                 textTransform: "uppercase",
-                backgroundImage:
-                  "linear-gradient(135deg, #1e94ff 0%, #0653b6 100%)",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                border: "1px solid",
+                borderColor: "rgba(14,77,169,0.35)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.28rem",
               }}
             >
+              <FaLaptop size={12} aria-hidden="true" />
               Online
+            </Text>
+          )}
+          {showUpcomingPill && (
+            <Text
+              sx={{
+                variant: "text.label",
+                bg: "#e8f7ec",
+                color: "#1f7a3f",
+                px: 2,
+                py: 1,
+                borderRadius: 9999,
+                fontWeight: 700,
+                fontSize: "xxs",
+                letterSpacing: "wide",
+                textTransform: "uppercase",
+                border: "1px solid",
+                borderColor: "rgba(31,122,63,0.35)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.28rem",
+              }}
+            >
+              <FaCalendarAlt size={12} aria-hidden="true" />
+              Upcoming
             </Text>
           )}
         </Box>

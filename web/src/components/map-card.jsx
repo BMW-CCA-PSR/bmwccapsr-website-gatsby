@@ -4,6 +4,7 @@ import { Box, Card, Flex } from "@theme-ui/components";
 import ReactMapGL, { Marker } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { FiMaximize2, FiX } from "react-icons/fi";
 
 const DEFAULT_MAPBOX_PUBLIC_TOKEN =
   "pk.eyJ1IjoiZWJveDg2IiwiYSI6ImNpajViaWg4ODAwNWp0aG0zOHlxNjh3ZzcifQ.OxQI3tKViy-IIIOrLABCPQ";
@@ -17,6 +18,8 @@ const MapCanvas = ({
   token,
   showZoomControls = true,
   height = ["220px", "240px", "260px"],
+  interactive = false,
+  controlsTop = "8px",
 }) => {
   const [viewport, setViewport] = React.useState({
     latitude,
@@ -64,7 +67,16 @@ const MapCanvas = ({
   if (typeof window === "undefined") return null;
 
   return (
-    <Box sx={{ width: "100%", height, position: "relative" }}>
+    <Box
+      sx={{
+        width: "100%",
+        height,
+        position: "relative",
+        "& .mapboxgl-canvas": {
+          cursor: interactive ? "grab" : "default !important",
+        },
+      }}
+    >
       <ReactMapGL
         {...viewport}
         style={{ width: "100%", height: "100%" }}
@@ -72,13 +84,14 @@ const MapCanvas = ({
         mapStyle={activeMapStyle}
         onError={handleMapError}
         onMove={(event) => setViewport(event.viewState)}
-        dragPan={false}
-        scrollZoom={false}
-        boxZoom={false}
-        keyboard={false}
+        dragPan={interactive}
+        scrollZoom={interactive}
+        boxZoom={interactive}
+        keyboard={interactive}
         dragRotate={false}
-        doubleClickZoom={false}
-        touchZoomRotate={false}
+        doubleClickZoom={interactive}
+        touchZoomRotate={interactive}
+        cursor={interactive ? "grab" : "default"}
       >
         <Marker
           latitude={latitude}
@@ -90,7 +103,11 @@ const MapCanvas = ({
           <Box
             as="span"
             aria-label={title ? `Location for ${title}` : "Event location"}
-            sx={{ display: "inline-flex", lineHeight: 0 }}
+            sx={{
+              display: "inline-flex",
+              lineHeight: 0,
+              pointerEvents: "none",
+            }}
           >
             <FaMapMarkerAlt size={30} color="#1e94ff" aria-hidden="true" />
           </Box>
@@ -100,7 +117,7 @@ const MapCanvas = ({
         <Flex
           sx={{
             position: "absolute",
-            top: "8px",
+            top: controlsTop,
             right: "8px",
             flexDirection: "column",
             gap: 0,
@@ -181,47 +198,213 @@ const MapCard = ({
   token,
   venueLine,
   showZoomControls = true,
+  showExpandControl = true,
   height = ["220px", "240px", "260px"],
 }) => {
   const parsedLatitude = Number.parseFloat(String(latitude ?? ""));
   const parsedLongitude = Number.parseFloat(String(longitude ?? ""));
   const hasCoordinates =
     Number.isFinite(parsedLatitude) && Number.isFinite(parsedLongitude);
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
+  const closeExpandedMap = React.useCallback(() => {
+    setIsExpanded(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (
+      !isExpanded ||
+      typeof window === "undefined" ||
+      typeof document === "undefined"
+    ) {
+      return undefined;
+    }
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const previousBodyStyles = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+    };
+    const previousHtmlOverflowY = document.documentElement.style.overflowY;
+
+    document.documentElement.style.overflowY = "scroll";
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setIsExpanded(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.documentElement.style.overflowY = previousHtmlOverflowY;
+      document.body.style.overflow = previousBodyStyles.overflow;
+      document.body.style.position = previousBodyStyles.position;
+      document.body.style.top = previousBodyStyles.top;
+      document.body.style.left = previousBodyStyles.left;
+      document.body.style.right = previousBodyStyles.right;
+      document.body.style.width = previousBodyStyles.width;
+      window.scrollTo(scrollX, scrollY);
+    };
+  }, [isExpanded]);
 
   if (!hasCoordinates) return null;
 
   return (
-    <Card
-      sx={{
-        borderRadius: "18px",
-        border: "1px solid",
-        overflow: "hidden",
-      }}
-    >
-      <MapCanvas
-        latitude={parsedLatitude}
-        longitude={parsedLongitude}
-        title={title}
-        token={token}
-        showZoomControls={showZoomControls}
-        height={height}
-      />
-      {venueLine && (
+    <>
+      <Card
+        sx={{
+          borderRadius: "18px",
+          border: "1px solid",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        <Box sx={{ position: "relative" }}>
+          <MapCanvas
+            latitude={parsedLatitude}
+            longitude={parsedLongitude}
+            title={title}
+            token={token}
+            showZoomControls={showZoomControls}
+            height={height}
+            interactive={false}
+            controlsTop="8px"
+          />
+          {showExpandControl && (
+            <Box
+              as="button"
+              type="button"
+              aria-label="Expand map"
+              title="Expand map"
+              onClick={() => setIsExpanded(true)}
+              sx={{
+                position: "absolute",
+                top: "8px",
+                right: showZoomControls ? "54px" : "8px",
+                width: "38px",
+                height: "38px",
+                borderRadius: "8px",
+                border: "1px solid",
+                borderColor: "black",
+                bg: "rgba(255,255,255,0.95)",
+                color: "text",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                zIndex: 5,
+                "&:hover": {
+                  bg: "lightgray",
+                  color: "primary",
+                },
+              }}
+            >
+              <FiMaximize2 size={16} aria-hidden="true" />
+            </Box>
+          )}
+        </Box>
+
+        {venueLine && (
+          <Box
+            sx={{
+              px: "1rem",
+              py: "0.65rem",
+              borderTop: "1px solid",
+              borderColor: "lightgray",
+              fontSize: "xs",
+              color: "gray",
+              backgroundColor: "background",
+            }}
+          >
+            {venueLine}
+          </Box>
+        )}
+      </Card>
+
+      {showExpandControl && isExpanded && (
         <Box
+          role="dialog"
+          aria-modal="true"
+          aria-label={title ? `${title} map` : "Expanded map"}
+          onClick={closeExpandedMap}
           sx={{
-            px: "1rem",
-            py: "0.65rem",
-            borderTop: "1px solid",
-            borderColor: "lightgray",
-            fontSize: "xs",
-            color: "gray",
-            backgroundColor: "background",
+            position: "fixed",
+            inset: 0,
+            zIndex: 12000,
+            bg: "rgba(38, 42, 48, 0.72)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            p: ["0.75rem", "1rem", "1.5rem"],
           }}
         >
-          {venueLine}
+          <Box
+            onClick={(event) => event.stopPropagation()}
+            sx={{
+              width: ["100%", "100%", "92vw"],
+              maxWidth: "1280px",
+              height: ["78vh", "80vh", "84vh"],
+              borderRadius: "18px",
+              overflow: "hidden",
+              border: "1px solid",
+              borderColor: "black",
+              bg: "white",
+              position: "relative",
+            }}
+          >
+            <MapCanvas
+              latitude={parsedLatitude}
+              longitude={parsedLongitude}
+              title={title}
+              token={token}
+              showZoomControls={true}
+              height="100%"
+              interactive={true}
+              controlsTop="56px"
+            />
+            <Box
+              as="button"
+              type="button"
+              aria-label="Close expanded map"
+              title="Close"
+              onClick={closeExpandedMap}
+              sx={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                width: "40px",
+                height: "40px",
+                borderRadius: "999px",
+                border: "1px solid",
+                borderColor: "black",
+                bg: "rgba(255,255,255,0.95)",
+                color: "text",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                zIndex: 8,
+                "&:hover": {
+                  bg: "lightgray",
+                  color: "primary",
+                },
+              }}
+            >
+              <FiX size={20} aria-hidden="true" />
+            </Box>
+          </Box>
         </Box>
       )}
-    </Card>
+    </>
   );
 };
 

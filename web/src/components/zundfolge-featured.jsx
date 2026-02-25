@@ -37,7 +37,6 @@ const ZundfolgeFeatured = ({ post }) => {
           borderRadius: "18px",
           border: "1px solid",
           borderColor: "black",
-          boxShadow: "0 18px 40px rgba(0, 0, 0, 0.14)",
         }}
       >
         <Box

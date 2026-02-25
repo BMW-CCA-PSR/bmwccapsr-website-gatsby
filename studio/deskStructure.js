@@ -240,7 +240,26 @@ export default (S) =>
                   S.documentList('volunteerRole')
                     .title('Active positions')
                     .menuItems(S.documentTypeList('volunteerRole').getMenuItems())
-                    .filter('_type == "volunteerRole" && active && !(_id in path("drafts.**"))')
+                    .filter(
+                      `_type == "volunteerRole" &&
+                        active == true &&
+                        !(_id in path("drafts.**")) &&
+                        (
+                          !(
+                            defined(motorsportRegEvent.eventId) ||
+                            defined(motorsportRegEvent.name) ||
+                            defined(motorsportRegEvent.start) ||
+                            defined(motorsportRegEvent.url) ||
+                            defined(motorsportRegEvent.venueName) ||
+                            defined(motorsportRegEvent.venueCity) ||
+                            defined(motorsportRegEvent.venueRegion)
+                          ) ||
+                          (
+                            defined(coalesce(motorsportRegEvent.start, date)) &&
+                            dateTime(coalesce(motorsportRegEvent.start, date)) >= dateTime(now())
+                          )
+                        )`
+                    )
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)

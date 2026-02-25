@@ -31,9 +31,12 @@ import {
   FaIdBadge,
   FaRoute,
   FaShieldAlt,
+  FaStar,
   FaToolbox,
+  FaTools,
   FaUserAlt,
   FaUserCheck,
+  FaUserPlus,
   FaUsers,
   FaWrench,
 } from "react-icons/fa";
@@ -171,17 +174,32 @@ const formatRoleFilterLabel = (roleName) => {
 };
 
 const ROLE_CARD_ICON_RULES = [
-  { pattern: /(marshal|grid|starter|flag|corner|control)/i, icon: FaFlagCheckered },
+  {
+    pattern: /(marshal|grid|starter|flag|corner|control)/i,
+    icon: FaFlagCheckered,
+  },
   { pattern: /(instructor|coach|trainer|mentor)/i, icon: FaUserCheck },
-  { pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i, icon: FaClipboardCheck },
+  {
+    pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i,
+    icon: FaClipboardCheck,
+  },
   { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
   { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
   { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
-  { pattern: /(communications|announc|pa|social|newsletter|content)/i, icon: FaBullhorn },
+  {
+    pattern: /(communications|announc|pa|social|newsletter|content)/i,
+    icon: FaBullhorn,
+  },
   { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
-  { pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i, icon: FaToolbox },
+  {
+    pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i,
+    icon: FaToolbox,
+  },
   { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
-  { pattern: /(car control|ccc|autocross|track|hpde|driving)/i, icon: FaCarSide },
+  {
+    pattern: /(car control|ccc|autocross|track|hpde|driving)/i,
+    icon: FaCarSide,
+  },
   { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
   { pattern: /(worker|crew)/i, icon: FaHardHat },
   { pattern: /(member|membership)/i, icon: FaUsers },
@@ -194,6 +212,67 @@ const getRoleCardIcon = (roleName) => {
   const match = ROLE_CARD_ICON_RULES.find((rule) => rule.pattern.test(label));
   return match?.icon || FaCogs;
 };
+
+const formatSkillLevel = (value) => {
+  if (!value) return null;
+  const normalized = String(value).toLowerCase();
+  if (normalized === "entry") return "Entry";
+  if (normalized === "medium" || normalized === "intermediate")
+    return "Intermediate";
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return "Advanced";
+  return null;
+};
+
+const getSkillTone = (value) => {
+  const normalized = String(value || "").toLowerCase();
+  if (normalized === "entry") return { bg: "#e8f7ec", color: "text" };
+  if (normalized === "medium" || normalized === "intermediate")
+    return { bg: "#fff6d5", color: "text" };
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return { bg: "#ffe6e6", color: "text" };
+  return { bg: "#e8f7ec", color: "text" };
+};
+
+const getSkillIcon = (value) => {
+  const normalized = String(value || "").toLowerCase();
+  if (normalized === "entry") return FaUserPlus;
+  if (normalized === "medium" || normalized === "intermediate") return FaTools;
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return FaAward;
+  return FaUserPlus;
+};
+
+const VOLUNTEER_CARD_PILL_SX = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.28rem",
+  minWidth: "70px",
+  textAlign: "center",
+  px: "0.55rem",
+  py: "0.35rem",
+  borderRadius: "999px",
+  fontWeight: "heading",
+  fontSize: "xs",
+  lineHeight: 1,
+  border: "1px solid",
+  borderColor: "rgba(0,0,0,0.2)",
+};
+const VOLUNTEER_CARD_POINTS_PILL_ICON_SIZE = 11;
+const VOLUNTEER_CARD_SKILL_PILL_ICON_SIZE = 14;
 const VOLUNTEER_CARD_MEDIA_SLASH_INSET = "64px";
 
 const VolunteerPage = (props) => {
@@ -225,10 +304,21 @@ const VolunteerPage = (props) => {
     if (!activeOnly) return roles;
     const now = Date.now();
     return activeRoles.filter((role) => {
+      const hasAssignedEvent = Boolean(
+        role?.motorsportRegEvent &&
+          (role?.motorsportRegEvent?.eventId ||
+            role?.motorsportRegEvent?.name ||
+            role?.motorsportRegEvent?.start ||
+            role?.motorsportRegEvent?.url ||
+            role?.motorsportRegEvent?.venueName ||
+            role?.motorsportRegEvent?.venueCity ||
+            role?.motorsportRegEvent?.venueRegion)
+      );
+      if (!hasAssignedEvent) return true;
       const eventDate = role?.motorsportRegEvent?.start || role?.date;
-      if (!eventDate) return true;
+      if (!eventDate) return false;
       const timestamp = Date.parse(eventDate);
-      if (!Number.isFinite(timestamp)) return true;
+      if (!Number.isFinite(timestamp)) return false;
       return timestamp >= now;
     });
   }, [activeRoles, activeOnly, roles]);
@@ -741,18 +831,17 @@ const VolunteerPage = (props) => {
             target="_blank"
             rel="noreferrer"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: 6,
+              display: "inline-block",
+              padding: 15,
               justifySelf: "end",
               alignSelf: "end",
             }}
           >
             <img
-              src="https://msr-hotlink.s3.amazonaws.com/dark/msr-logo-dark@2x.png"
+              src="https://msr-hotlink.s3.amazonaws.com/powered-by/powered-by-msr-outline@2x.png"
               alt="Online registration and event management service for motorsport events powered by MotorsportReg.com"
               title="Online registration and event management service for motorsport events powered by MotorsportReg.com"
-              style={{ width: 200, height: 31, display: "block" }}
+              style={{ width: 185, height: 33, display: "block" }}
             />
           </a>
         </Box>
@@ -814,6 +903,9 @@ const VolunteerPage = (props) => {
                 role?.role?.pointValue
               );
               const roleDescription = role?.role?.description?.trim() || "";
+              const skillLevelLabel = formatSkillLevel(role?.skillLevel);
+              const skillTone = getSkillTone(role?.skillLevel);
+              const SkillIcon = getSkillIcon(role?.skillLevel);
               const cardProps = roleUrl ? { as: Link, to: roleUrl } : {};
               return (
                 <Card
@@ -912,17 +1004,33 @@ const VolunteerPage = (props) => {
                           role?.role?.pointValue !== null && (
                             <Text
                               sx={{
-                                variant: "text.label",
-                                color: "white",
-                                bg: "primary",
-                                px: 2,
-                                py: 1,
-                                borderRadius: 9999,
+                                ...VOLUNTEER_CARD_PILL_SX,
+                                bg: "lightgray",
+                                color: "text",
                               }}
                             >
+                              <FaStar
+                                size={VOLUNTEER_CARD_POINTS_PILL_ICON_SIZE}
+                                aria-hidden="true"
+                              />
                               {role.role.pointValue} pts
                             </Text>
                           )}
+                        {skillLevelLabel && (
+                          <Text
+                            sx={{
+                              ...VOLUNTEER_CARD_PILL_SX,
+                              bg: skillTone.bg,
+                              color: skillTone.color,
+                            }}
+                          >
+                            <SkillIcon
+                              size={VOLUNTEER_CARD_SKILL_PILL_ICON_SIZE}
+                              aria-hidden="true"
+                            />
+                            {skillLevelLabel}
+                          </Text>
+                        )}
                       </Box>
                       <Heading as="h3" sx={{ variant: "styles.h3", mb: 0 }}>
                         {getPositionTitle(role)}

@@ -543,7 +543,7 @@ const IndexPage = (props) => {
               paginatedEvents.map((node, index) => {
                 return (
                   <li key={index}>
-                    <EventPagePreview {...node} isInList />
+                    <EventPagePreview {...node} isInList showUpcomingPill />
                   </li>
                 );
               })}

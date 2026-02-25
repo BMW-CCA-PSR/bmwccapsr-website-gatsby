@@ -5,6 +5,7 @@ import { getEventsUrl, getZundfolgeUrl } from "../lib/helpers";
 import { Link } from "gatsby";
 import { Heading, Text, Box, Card, Flex } from "@theme-ui/components";
 import SanityImage from "gatsby-plugin-sanity-image";
+import { FaCalendarAlt, FaLaptop } from "react-icons/fa";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
@@ -37,6 +38,13 @@ function RelatedContent(props) {
     .toLowerCase();
   const hasOnlineKeyword = /(zoom|online|remote)/i.test(locationText);
   const isOnline = Boolean(onlineEvent) || hasOnlineKeyword;
+  const startTimestamp = startTime ? Date.parse(startTime) : NaN;
+  const nowTimestamp = Date.now();
+  const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
+  const isUpcoming =
+    Number.isFinite(startTimestamp) &&
+    startTimestamp >= nowTimestamp &&
+    startTimestamp <= upcomingCutoffTimestamp;
   if (isArticle) {
     // commenting out author data on related content for now - 1/24/22
   } else {
@@ -108,8 +116,8 @@ function RelatedContent(props) {
           mb: "1rem",
           borderRadius: "18px",
           borderStyle: "solid",
-          borderColor: isOnline ? "primary" : "black",
-          borderWidth: isOnline ? "3px" : "1px",
+          borderColor: "black",
+          borderWidth: "1px",
           overflow: "hidden",
         }}
       >
@@ -125,8 +133,8 @@ function RelatedContent(props) {
                   height: "100%",
                   maxHeight: "200px",
                   objectFit: "cover",
-                  borderTopLeftRadius: isOnline ? "15px" : "18px",
-                  borderTopRightRadius: isOnline ? "15px" : "18px",
+                  borderTopLeftRadius: "18px",
+                  borderTopRightRadius: "18px",
                   ...nonDraggableImageSx,
                 }}
               />
@@ -170,8 +178,8 @@ function RelatedContent(props) {
               <Text
                 sx={{
                   variant: "text.label",
-                  bg: "transparent",
-                  color: "white",
+                  bg: "#e6f0ff",
+                  color: "#0e4da9",
                   px: 2,
                   py: 1,
                   borderRadius: 9999,
@@ -179,12 +187,39 @@ function RelatedContent(props) {
                   fontSize: "xxs",
                   letterSpacing: "wide",
                   textTransform: "uppercase",
-                  backgroundImage:
-                    "linear-gradient(135deg, #0b3a6f 0%, #1e94ff 100%)",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                  border: "1px solid",
+                  borderColor: "rgba(14,77,169,0.35)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.28rem",
                 }}
               >
+                <FaLaptop size={12} aria-hidden="true" />
                 Online
+              </Text>
+            )}
+            {isUpcoming && (
+              <Text
+                sx={{
+                  variant: "text.label",
+                  bg: "#e8f7ec",
+                  color: "#1f7a3f",
+                  px: 2,
+                  py: 1,
+                  borderRadius: 9999,
+                  fontWeight: 700,
+                  fontSize: "xxs",
+                  letterSpacing: "wide",
+                  textTransform: "uppercase",
+                  border: "1px solid",
+                  borderColor: "rgba(31,122,63,0.35)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.28rem",
+                }}
+              >
+                <FaCalendarAlt size={12} aria-hidden="true" />
+                Upcoming
               </Text>
             )}
           </Flex>

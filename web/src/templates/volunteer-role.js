@@ -76,7 +76,10 @@ const parseCalendarDate = (value) => {
 };
 
 const toGoogleCalendarStamp = (value) =>
-  value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  value
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 
 const escapeIcsText = (value = "") =>
   String(value)
@@ -186,7 +189,10 @@ const ROLE_ICON_RULES = [
     icon: FaToolbox,
   },
   { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
-  { pattern: /(car control|ccc|autocross|track|hpde|driving)/i, icon: FaCarSide },
+  {
+    pattern: /(car control|ccc|autocross|track|hpde|driving)/i,
+    icon: FaCarSide,
+  },
   { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
   { pattern: /(worker|crew)/i, icon: FaHardHat },
   { pattern: /(member|membership)/i, icon: FaUsers },
@@ -202,8 +208,10 @@ const getRoleIcon = (name) => {
 
 const DEFAULT_MAPBOX_PUBLIC_TOKEN =
   "pk.eyJ1IjoiZWJveDg2IiwiYSI6ImNpajViaWg4ODAwNWp0aG0zOHlxNjh3ZzcifQ.OxQI3tKViy-IIIOrLABCPQ";
-const VOLUNTEER_POSITION_MAP_STYLE = "mapbox://styles/ebox86/cmlx98cji000q01qqbnvk3al6";
-const VOLUNTEER_POSITION_MAP_FALLBACK_STYLE = "mapbox://styles/mapbox/light-v11";
+const VOLUNTEER_POSITION_MAP_STYLE =
+  "mapbox://styles/ebox86/cmlx98cji000q01qqbnvk3al6";
+const VOLUNTEER_POSITION_MAP_FALLBACK_STYLE =
+  "mapbox://styles/mapbox/light-v11";
 
 const PositionEventMap = ({
   latitude,
@@ -265,16 +273,47 @@ const PositionEventMap = ({
   }, []);
 
   React.useEffect(() => {
-    if (!isExpanded || typeof document === "undefined") return undefined;
-    const previousOverflow = document.body.style.overflow;
+    if (
+      !isExpanded ||
+      typeof window === "undefined" ||
+      typeof document === "undefined"
+    ) {
+      return undefined;
+    }
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const previousBodyStyles = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+    };
+    const previousHtmlOverflowY = document.documentElement.style.overflowY;
+
+    document.documentElement.style.overflowY = "scroll";
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+
     const handleEscape = (event) => {
       if (event.key === "Escape") setIsExpanded(false);
     };
     document.addEventListener("keydown", handleEscape);
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflowY = previousHtmlOverflowY;
+      document.body.style.overflow = previousBodyStyles.overflow;
+      document.body.style.position = previousBodyStyles.position;
+      document.body.style.top = previousBodyStyles.top;
+      document.body.style.left = previousBodyStyles.left;
+      document.body.style.right = previousBodyStyles.right;
+      document.body.style.width = previousBodyStyles.width;
+      window.scrollTo(scrollX, scrollY);
     };
   }, [isExpanded]);
 
@@ -319,7 +358,11 @@ const PositionEventMap = ({
           <Box
             as="span"
             aria-label={title ? `Location for ${title}` : "Event location"}
-            sx={{ display: "inline-flex", lineHeight: 0, pointerEvents: "none" }}
+            sx={{
+              display: "inline-flex",
+              lineHeight: 0,
+              pointerEvents: "none",
+            }}
           >
             <FaMapMarkerAlt size={30} color="#1e94ff" aria-hidden="true" />
           </Box>
@@ -723,7 +766,9 @@ const VolunteerRoleTemplate = (props) => {
   const isTenPointRole = pointsValue === 10;
   const pointsPillMinHeight = isTenPointRole ? "2.05em" : "1.35em";
   const hasDuration =
-    role?.duration !== undefined && role?.duration !== null && role?.duration !== "";
+    role?.duration !== undefined &&
+    role?.duration !== null &&
+    role?.duration !== "";
   const durationValue = hasDuration ? Number(role.duration) : null;
   const durationLabel = hasDuration
     ? `${role.duration} hour${
@@ -757,9 +802,9 @@ const VolunteerRoleTemplate = (props) => {
         text: calendarTitle,
         details: calendarDescription,
         location: venueLine || "",
-        dates: `${toGoogleCalendarStamp(calendarStartDate)}/${toGoogleCalendarStamp(
-          finalCalendarEndDate
-        )}`,
+        dates: `${toGoogleCalendarStamp(
+          calendarStartDate
+        )}/${toGoogleCalendarStamp(finalCalendarEndDate)}`,
       }).toString()}`
     : null;
   const outlookCalendarUrl = hasCalendarData
@@ -792,10 +837,12 @@ const VolunteerRoleTemplate = (props) => {
     const downloadUrl = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = downloadUrl;
-    a.download = `${calendarTitle
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "") || "event"}.ics`;
+    a.download = `${
+      calendarTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "") || "event"
+    }.ics`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -995,227 +1042,233 @@ const VolunteerRoleTemplate = (props) => {
                   flexDirection: "column",
                 }}
               >
-              <Box
-                sx={{
-                  backgroundColor: "secondary",
-                  px: "1.25rem",
-                  py: "0.65rem",
-                  color: "white",
-                }}
-              >
-                <Text
+                <Box
                   sx={{
-                    variant: "text.label",
+                    backgroundColor: "secondary",
+                    px: "1.25rem",
+                    py: "0.65rem",
                     color: "white",
                   }}
                 >
-                  Event detail
-                </Text>
-              </Box>
-              <Box sx={{ p: "1.25rem" }}>
-                {event?.name && (
                   <Text
-                    as="div"
-                    sx={{ fontSize: "sm", fontWeight: "heading", color: "text" }}
+                    sx={{
+                      variant: "text.label",
+                      color: "white",
+                    }}
                   >
-                    {event.name}
+                    Event detail
                   </Text>
-                )}
-                {eventDateRange && (
-                  <Text
-                    as="div"
-                    sx={{ fontSize: "sm", color: "gray", mt: "0.1rem" }}
-                  >
-                    {eventDateRange}
-                  </Text>
-                )}
-                {venueLine && (
-                  <Text
-                    as="div"
-                    sx={{ fontSize: "sm", color: "gray", mt: "0.25rem" }}
-                  >
-                    {venueLine}
-                  </Text>
-                )}
-                <Flex
-                  sx={{
-                    mt: "0.95rem",
-                    width: "100%",
-                    alignItems: "stretch",
-                    gap: "0.5rem",
-                  }}
-                >
-                  {event?.url ? (
-                    <OutboundLink
-                      href={event.url}
-                      rel="noopener noreferrer"
-                      target="_blank"
+                </Box>
+                <Box sx={{ p: "1.25rem" }}>
+                  {event?.name && (
+                    <Text
+                      as="div"
                       sx={{
-                        variant: "buttons.primary",
-                        flex: "1 1 auto",
-                        minWidth: 0,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textDecoration: "none",
-                        fontSize: "xs",
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        borderRadius: "8px",
-                        px: "0.9rem",
-                        py: "0.5rem",
-                        whiteSpace: "nowrap",
+                        fontSize: "sm",
+                        fontWeight: "heading",
+                        color: "text",
                       }}
                     >
-                      Open event in MSR →
-                    </OutboundLink>
-                  ) : (
-                    <Box
-                      sx={{
-                        flex: "1 1 auto",
-                        minWidth: 0,
-                        borderRadius: "8px",
-                        border: "1px solid",
-                        borderColor: "lightgray",
-                        backgroundColor: "lightgray",
-                      }}
-                    />
+                      {event.name}
+                    </Text>
                   )}
-                  <Box
-                    ref={calendarMenuRef}
-                    sx={{ position: "relative", flex: "0 0 auto" }}
+                  {eventDateRange && (
+                    <Text
+                      as="div"
+                      sx={{ fontSize: "sm", color: "gray", mt: "0.1rem" }}
+                    >
+                      {eventDateRange}
+                    </Text>
+                  )}
+                  {venueLine && (
+                    <Text
+                      as="div"
+                      sx={{ fontSize: "sm", color: "gray", mt: "0.25rem" }}
+                    >
+                      {venueLine}
+                    </Text>
+                  )}
+                  <Flex
+                    sx={{
+                      mt: "0.95rem",
+                      width: "100%",
+                      alignItems: "stretch",
+                      gap: "0.5rem",
+                    }}
                   >
+                    {event?.url ? (
+                      <OutboundLink
+                        href={event.url}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        sx={{
+                          variant: "buttons.primary",
+                          flex: "1 1 auto",
+                          minWidth: 0,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textDecoration: "none",
+                          fontSize: "xs",
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          borderRadius: "8px",
+                          px: "0.9rem",
+                          py: "0.5rem",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Open event in MSR →
+                      </OutboundLink>
+                    ) : (
+                      <Box
+                        sx={{
+                          flex: "1 1 auto",
+                          minWidth: 0,
+                          borderRadius: "8px",
+                          border: "1px solid",
+                          borderColor: "lightgray",
+                          backgroundColor: "lightgray",
+                        }}
+                      />
+                    )}
+                    <Box
+                      ref={calendarMenuRef}
+                      sx={{ position: "relative", flex: "0 0 auto" }}
+                    >
+                      <Box
+                        as="button"
+                        type="button"
+                        onClick={() => setIsCalendarMenuOpen((prev) => !prev)}
+                        aria-label="Add to calendar"
+                        title="Add to calendar"
+                        sx={{
+                          ...iconActionButtonSx,
+                        }}
+                      >
+                        <FaCalendarPlus size={16} aria-hidden="true" />
+                      </Box>
+                      {isCalendarMenuOpen && (
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: "calc(100% + 6px)",
+                            right: 0,
+                            width: "170px",
+                            border: "1px solid",
+                            borderColor: "lightgray",
+                            borderRadius: "10px",
+                            backgroundColor: "white",
+                            boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+                            overflow: "hidden",
+                            zIndex: 12,
+                          }}
+                        >
+                          {googleCalendarUrl && (
+                            <OutboundLink
+                              href={googleCalendarUrl}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                              onClick={() => setIsCalendarMenuOpen(false)}
+                              sx={{
+                                display: "block",
+                                px: "0.75rem",
+                                py: "0.55rem",
+                                color: "text",
+                                textDecoration: "none",
+                                fontSize: "xs",
+                                borderBottom: "1px solid",
+                                borderColor: "lightgray",
+                                "&:hover": { backgroundColor: "lightgray" },
+                              }}
+                            >
+                              Google Calendar
+                            </OutboundLink>
+                          )}
+                          {outlookCalendarUrl && (
+                            <OutboundLink
+                              href={outlookCalendarUrl}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                              onClick={() => setIsCalendarMenuOpen(false)}
+                              sx={{
+                                display: "block",
+                                px: "0.75rem",
+                                py: "0.55rem",
+                                color: "text",
+                                textDecoration: "none",
+                                fontSize: "xs",
+                                borderBottom: "1px solid",
+                                borderColor: "lightgray",
+                                "&:hover": { backgroundColor: "lightgray" },
+                              }}
+                            >
+                              Outlook
+                            </OutboundLink>
+                          )}
+                          <Box
+                            as="button"
+                            type="button"
+                            onClick={() => {
+                              handleDownloadIcs();
+                              setIsCalendarMenuOpen(false);
+                            }}
+                            disabled={!hasCalendarData}
+                            sx={{
+                              width: "100%",
+                              textAlign: "left",
+                              px: "0.75rem",
+                              py: "0.55rem",
+                              border: 0,
+                              bg: "transparent",
+                              color: hasCalendarData ? "text" : "darkgray",
+                              fontSize: "xs",
+                              cursor: hasCalendarData
+                                ? "pointer"
+                                : "not-allowed",
+                              "&:hover": {
+                                backgroundColor: hasCalendarData
+                                  ? "lightgray"
+                                  : "transparent",
+                              },
+                            }}
+                          >
+                            iCal (.ics)
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
                     <Box
                       as="button"
                       type="button"
-                      onClick={() => setIsCalendarMenuOpen((prev) => !prev)}
-                      aria-label="Add to calendar"
-                      title="Add to calendar"
-                      sx={{
-                        ...iconActionButtonSx,
-                      }}
+                      aria-label="Share event"
+                      title="Share event"
+                      onClick={handleShare}
+                      sx={iconActionButtonSx}
                     >
-                      <FaCalendarPlus size={16} aria-hidden="true" />
+                      <FiShare2 size={16} aria-hidden="true" />
                     </Box>
-                    {isCalendarMenuOpen && (
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: "calc(100% + 6px)",
-                          right: 0,
-                          width: "170px",
-                          border: "1px solid",
-                          borderColor: "lightgray",
-                          borderRadius: "10px",
-                          backgroundColor: "white",
-                          boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
-                          overflow: "hidden",
-                          zIndex: 12,
-                        }}
-                      >
-                        {googleCalendarUrl && (
-                          <OutboundLink
-                            href={googleCalendarUrl}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                            onClick={() => setIsCalendarMenuOpen(false)}
-                            sx={{
-                              display: "block",
-                              px: "0.75rem",
-                              py: "0.55rem",
-                              color: "text",
-                              textDecoration: "none",
-                              fontSize: "xs",
-                              borderBottom: "1px solid",
-                              borderColor: "lightgray",
-                              "&:hover": { backgroundColor: "lightgray" },
-                            }}
-                          >
-                            Google Calendar
-                          </OutboundLink>
-                        )}
-                        {outlookCalendarUrl && (
-                          <OutboundLink
-                            href={outlookCalendarUrl}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                            onClick={() => setIsCalendarMenuOpen(false)}
-                            sx={{
-                              display: "block",
-                              px: "0.75rem",
-                              py: "0.55rem",
-                              color: "text",
-                              textDecoration: "none",
-                              fontSize: "xs",
-                              borderBottom: "1px solid",
-                              borderColor: "lightgray",
-                              "&:hover": { backgroundColor: "lightgray" },
-                            }}
-                          >
-                            Outlook
-                          </OutboundLink>
-                        )}
-                        <Box
-                          as="button"
-                          type="button"
-                          onClick={() => {
-                            handleDownloadIcs();
-                            setIsCalendarMenuOpen(false);
-                          }}
-                          disabled={!hasCalendarData}
-                          sx={{
-                            width: "100%",
-                            textAlign: "left",
-                            px: "0.75rem",
-                            py: "0.55rem",
-                            border: 0,
-                            bg: "transparent",
-                            color: hasCalendarData ? "text" : "darkgray",
-                            fontSize: "xs",
-                            cursor: hasCalendarData ? "pointer" : "not-allowed",
-                            "&:hover": {
-                              backgroundColor: hasCalendarData
-                                ? "lightgray"
-                                : "transparent",
-                            },
-                          }}
-                        >
-                          iCal (.ics)
-                        </Box>
-                      </Box>
-                    )}
-                  </Box>
-                  <Box
-                    as="button"
-                    type="button"
-                    aria-label="Share event"
-                    title="Share event"
-                    onClick={handleShare}
-                    sx={iconActionButtonSx}
-                  >
-                    <FiShare2 size={16} aria-hidden="true" />
-                  </Box>
-                </Flex>
-              </Box>
-              {hasMapCoordinates && (
-                <Box
-                  sx={{
-                    borderTop: "1px solid",
-                    borderColor: "lightgray",
-                    flex: "1 1 auto",
-                    minHeight: ["220px", "240px", "280px"],
-                  }}
-                >
-                  <PositionEventMap
-                    latitude={mapLatitude}
-                    longitude={mapLongitude}
-                    title={event?.name}
-                    token={mapboxToken}
-                    showZoomControls={false}
-                    height="100%"
-                  />
+                  </Flex>
                 </Box>
-              )}
+                {hasMapCoordinates && (
+                  <Box
+                    sx={{
+                      borderTop: "1px solid",
+                      borderColor: "lightgray",
+                      flex: "1 1 auto",
+                      minHeight: ["220px", "240px", "280px"],
+                    }}
+                  >
+                    <PositionEventMap
+                      latitude={mapLatitude}
+                      longitude={mapLongitude}
+                      title={event?.name}
+                      token={mapboxToken}
+                      showZoomControls={false}
+                      height="100%"
+                    />
+                  </Box>
+                )}
               </Card>
             ) : (
               <Card
@@ -1299,128 +1352,95 @@ const VolunteerRoleTemplate = (props) => {
                     },
                   }}
                 >
-                {skillLevelLabel && (
-                  <>
-                    <Box as="dt">
-                      Skill level{" "}
-                      <Link
-                        to="/volunteer/overview"
-                        sx={{
-                          color: "white",
-                          textDecoration: "none",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          ml: "0.25rem",
-                          width: "20px",
-                          height: "20px",
-                          justifyContent: "center",
-                          borderRadius: "999px",
-                          backgroundColor: "primary",
-                          "&:hover": {
-                            backgroundColor: "secondary",
-                            color: "white",
-                          },
-                        }}
-                      >
-                        <FiHelpCircle size={16} />
-                      </Link>
-                    </Box>
-                    <Box as="dd">
-                      <Box
-                        as="span"
-                        sx={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "0.45rem",
-                          px: "0.6rem",
-                          py: "0.2rem",
-                          borderRadius: "999px",
-                          fontSize: valueTextSize,
-                          fontWeight: "heading",
-                          bg: skillTone.bg,
-                          color: skillTone.color,
-                        }}
-                      >
-                        <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
-                          <SkillLevelIcon size={14} aria-hidden="true" />
-                        </Box>
-                        {skillLevelLabel}
-                      </Box>
-                    </Box>
-                  </>
-                )}
-                {role?.membershipRequired !== undefined &&
-                  role?.membershipRequired !== null && (
+                  {skillLevelLabel && (
                     <>
-                      <Box as="dt">Membership required</Box>
-                      <Box
-                        as="dd"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          minHeight: "100%",
-                          lineHeight: "body",
-                        }}
-                      >
-                        {role.membershipRequired ? (
+                      <Box as="dt">
+                        Skill level{" "}
+                        <Link
+                          to="/volunteer/overview"
+                          sx={{
+                            color: "white",
+                            textDecoration: "none",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            ml: "0.25rem",
+                            width: "20px",
+                            height: "20px",
+                            justifyContent: "center",
+                            borderRadius: "999px",
+                            backgroundColor: "primary",
+                            "&:hover": {
+                              backgroundColor: "secondary",
+                              color: "white",
+                            },
+                          }}
+                        >
+                          <FiHelpCircle size={16} />
+                        </Link>
+                      </Box>
+                      <Box as="dd">
+                        <Box
+                          as="span"
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.45rem",
+                            px: "0.6rem",
+                            py: "0.2rem",
+                            borderRadius: "999px",
+                            fontSize: valueTextSize,
+                            fontWeight: "heading",
+                            bg: skillTone.bg,
+                            color: skillTone.color,
+                          }}
+                        >
                           <Box
                             as="span"
-                            sx={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "0.4rem",
-                              px: "0.65rem",
-                              py: "0.14rem",
-                              borderRadius: "999px",
-                              bg: "#f2cf3a",
-                              color: "#2b1f00",
-                              fontSize: valueTextSize,
-                            }}
+                            sx={{ display: "inline-flex", lineHeight: 0 }}
                           >
-                            <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
-                              <FaIdBadge size={12} aria-hidden="true" />
-                            </Box>
-                            <Box as="span" sx={{ fontWeight: "heading" }}>
-                              Yes
-                            </Box>
+                            <SkillLevelIcon size={14} aria-hidden="true" />
+                          </Box>
+                          {skillLevelLabel}
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                  {role?.membershipRequired !== undefined &&
+                    role?.membershipRequired !== null && (
+                      <>
+                        <Box as="dt">Membership required</Box>
+                        <Box
+                          as="dd"
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            minHeight: "100%",
+                            lineHeight: "body",
+                          }}
+                        >
+                          {role.membershipRequired ? (
                             <Box
                               as="span"
                               sx={{
                                 display: "inline-flex",
                                 alignItems: "center",
-                                fontSize: "0.78em",
-                                fontStyle: "italic",
-                                color: "inherit",
-                                lineHeight: 1.1,
+                                gap: "0.4rem",
+                                px: "0.65rem",
+                                py: "0.14rem",
+                                borderRadius: "999px",
+                                bg: "#f2cf3a",
+                                color: "#2b1f00",
+                                fontSize: valueTextSize,
                               }}
                             >
-                              - active BMW CCA membership required
-                            </Box>
-                          </Box>
-                        ) : (
-                          <Box
-                            as="span"
-                            sx={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "0.4rem",
-                              px: "0.65rem",
-                              py: "0.1rem",
-                              borderRadius: "999px",
-                              bg: "lightgray",
-                              color: "text",
-                              fontSize: valueTextSize,
-                            }}
-                          >
-                            <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
-                              <FaUsers size={14} aria-hidden="true" />
-                            </Box>
-                            <Box
-                              as="span"
-                              sx={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}
-                            >
+                              <Box
+                                as="span"
+                                sx={{ display: "inline-flex", lineHeight: 0 }}
+                              >
+                                <FaIdBadge size={12} aria-hidden="true" />
+                              </Box>
                               <Box as="span" sx={{ fontWeight: "heading" }}>
-                                No
+                                Yes
                               </Box>
                               <Box
                                 as="span"
@@ -1429,171 +1449,220 @@ const VolunteerRoleTemplate = (props) => {
                                   alignItems: "center",
                                   fontSize: "0.78em",
                                   fontStyle: "italic",
+                                  color: "inherit",
                                   lineHeight: 1.1,
                                 }}
                               >
-                                - anyone can volunteer
+                                - active BMW CCA membership required
                               </Box>
                             </Box>
-                          </Box>
-                        )}
-                      </Box>
-                    </>
-                  )}
-                {pointsLabel && (
-                  <>
-                    <Box as="dt">
-                      Volunteer points{" "}
-                      <Link
-                        to="/volunteer/rewards"
-                        sx={{
-                          color: "white",
-                          textDecoration: "none",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          ml: "0.25rem",
-                          width: "20px",
-                          height: "20px",
-                          justifyContent: "center",
-                          borderRadius: "999px",
-                          backgroundColor: "primary",
-                          "&:hover": {
-                            backgroundColor: "secondary",
+                          ) : (
+                            <Box
+                              as="span"
+                              sx={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.4rem",
+                                px: "0.65rem",
+                                py: "0.1rem",
+                                borderRadius: "999px",
+                                bg: "lightgray",
+                                color: "text",
+                                fontSize: valueTextSize,
+                              }}
+                            >
+                              <Box
+                                as="span"
+                                sx={{ display: "inline-flex", lineHeight: 0 }}
+                              >
+                                <FaUsers size={14} aria-hidden="true" />
+                              </Box>
+                              <Box
+                                as="span"
+                                sx={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "0.2rem",
+                                }}
+                              >
+                                <Box as="span" sx={{ fontWeight: "heading" }}>
+                                  No
+                                </Box>
+                                <Box
+                                  as="span"
+                                  sx={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    fontSize: "0.78em",
+                                    fontStyle: "italic",
+                                    lineHeight: 1.1,
+                                  }}
+                                >
+                                  - anyone can volunteer
+                                </Box>
+                              </Box>
+                            </Box>
+                          )}
+                        </Box>
+                      </>
+                    )}
+                  {pointsLabel && (
+                    <>
+                      <Box as="dt">
+                        Volunteer points{" "}
+                        <Link
+                          to="/volunteer/rewards"
+                          sx={{
                             color: "white",
-                          },
-                        }}
-                      >
-                        <FiHelpCircle size={16} />
-                      </Link>
-                    </Box>
-                    <Box as="dd">
-                      <Box
-                        as="span"
-                        sx={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "0.45rem",
-                          px: "0.6rem",
-                          py: "0.2rem",
-                          minHeight: pointsPillMinHeight,
-                          borderRadius: "999px",
-                          fontSize: valueTextSize,
-                          fontWeight: "heading",
-                          bg: "lightgray",
-                          color: "text",
-                        }}
-                      >
-                        {(pointStars || isTenPointRole) && (
-                          <Box
-                            as="span"
-                            sx={{
-                              display: "inline-flex",
-                              flexDirection: "column",
-                              alignSelf: "center",
-                              justifyContent: "center",
-                              lineHeight: 1,
-                              fontSize: "0.78em",
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            {isTenPointRole ? (
-                              <>
-                                <Box as="span">★★★★★</Box>
-                                <Box as="span">★★★★★</Box>
-                              </>
-                            ) : (
-                              <Box as="span">{pointStars}</Box>
-                            )}
-                          </Box>
-                        )}
+                            textDecoration: "none",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            ml: "0.25rem",
+                            width: "20px",
+                            height: "20px",
+                            justifyContent: "center",
+                            borderRadius: "999px",
+                            backgroundColor: "primary",
+                            "&:hover": {
+                              backgroundColor: "secondary",
+                              color: "white",
+                            },
+                          }}
+                        >
+                          <FiHelpCircle size={16} />
+                        </Link>
+                      </Box>
+                      <Box as="dd">
                         <Box
                           as="span"
                           sx={{
                             display: "inline-flex",
                             alignItems: "center",
-                            alignSelf: "center",
-                            lineHeight: 1.1,
+                            gap: "0.45rem",
+                            px: "0.6rem",
+                            py: "0.2rem",
+                            minHeight: pointsPillMinHeight,
+                            borderRadius: "999px",
+                            fontSize: valueTextSize,
+                            fontWeight: "heading",
+                            bg: "lightgray",
+                            color: "text",
                           }}
                         >
-                          {pointsLabel}
+                          {(pointStars || isTenPointRole) && (
+                            <Box
+                              as="span"
+                              sx={{
+                                display: "inline-flex",
+                                flexDirection: "column",
+                                alignSelf: "center",
+                                justifyContent: "center",
+                                lineHeight: 1,
+                                fontSize: "0.78em",
+                                letterSpacing: "0.02em",
+                              }}
+                            >
+                              {isTenPointRole ? (
+                                <>
+                                  <Box as="span">★★★★★</Box>
+                                  <Box as="span">★★★★★</Box>
+                                </>
+                              ) : (
+                                <Box as="span">{pointStars}</Box>
+                              )}
+                            </Box>
+                          )}
+                          <Box
+                            as="span"
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              alignSelf: "center",
+                              lineHeight: 1.1,
+                            }}
+                          >
+                            {pointsLabel}
+                          </Box>
                         </Box>
                       </Box>
-                    </Box>
-                  </>
-                )}
-                {hasDuration && (
-                  <>
-                    <Box as="dt">Duration</Box>
-                    <Box as="dd">
+                    </>
+                  )}
+                  {hasDuration && (
+                    <>
+                      <Box as="dt">Duration</Box>
+                      <Box as="dd">
+                        <Box
+                          as="span"
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            px: "0.6rem",
+                            py: "0.2rem",
+                            borderRadius: "999px",
+                            fontSize: valueTextSize,
+                            fontWeight: "heading",
+                            bg: "lightgray",
+                            color: "text",
+                          }}
+                        >
+                          <Box
+                            as="span"
+                            sx={{ display: "inline-flex", lineHeight: 0 }}
+                          >
+                            <FaClock size={12} aria-hidden="true" />
+                          </Box>
+                          <Box as="span">{durationLabel}</Box>
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                  {role?.compensation && (
+                    <>
+                      <Box as="dt">Compensation</Box>
+                      <Box as="dd">{role.compensation}</Box>
+                    </>
+                  )}
+                  {roleDescription && (
+                    <>
+                      <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
+                        Description
+                      </Box>
                       <Box
-                        as="span"
+                        as="dd"
+                        className="position-detail-longtext"
                         sx={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "0.4rem",
-                          px: "0.6rem",
-                          py: "0.2rem",
-                          borderRadius: "999px",
-                          fontSize: valueTextSize,
-                          fontWeight: "heading",
-                          bg: "lightgray",
-                          color: "text",
+                          gridColumn: "1 / -1",
+                          backgroundColor: "#fff6d9",
+                          borderRadius: "6px",
+                          px: "0.65rem",
+                          py: "0.55rem",
                         }}
                       >
-                        <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
-                          <FaClock size={12} aria-hidden="true" />
-                        </Box>
-                        <Box as="span">{durationLabel}</Box>
+                        {roleDescription}
                       </Box>
-                    </Box>
-                  </>
-                )}
-                {role?.compensation && (
-                  <>
-                    <Box as="dt">Compensation</Box>
-                    <Box as="dd">{role.compensation}</Box>
-                  </>
-                )}
-                {roleDescription && (
-                  <>
-                    <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
-                      Description
-                    </Box>
-                    <Box
-                      as="dd"
-                      className="position-detail-longtext"
-                      sx={{
-                        gridColumn: "1 / -1",
-                        backgroundColor: "#fff6d9",
-                        borderRadius: "6px",
-                        px: "0.65rem",
-                        py: "0.55rem",
-                      }}
-                    >
-                      {roleDescription}
-                    </Box>
-                  </>
-                )}
-                {roleDetail && (
-                  <>
-                    <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
-                      Details
-                    </Box>
-                    <Box
-                      as="dd"
-                      className="position-detail-longtext"
-                      sx={{
-                        gridColumn: "1 / -1",
-                        backgroundColor: "#fff6d9",
-                        borderRadius: "6px",
-                        px: "0.65rem",
-                        py: "0.55rem",
-                      }}
-                    >
-                      {roleDetail}
-                    </Box>
-                  </>
-                )}
+                    </>
+                  )}
+                  {roleDetail && (
+                    <>
+                      <Box as="dt" sx={{ gridColumn: "1 / -1", mt: "0.35rem" }}>
+                        Details
+                      </Box>
+                      <Box
+                        as="dd"
+                        className="position-detail-longtext"
+                        sx={{
+                          gridColumn: "1 / -1",
+                          backgroundColor: "#fff6d9",
+                          borderRadius: "6px",
+                          px: "0.65rem",
+                          py: "0.55rem",
+                        }}
+                      >
+                        {roleDetail}
+                      </Box>
+                    </>
+                  )}
                 </Box>
                 {role?.descriptionPdf?.asset?.url && (
                   <Box sx={{ mt: "1.5rem" }}>
@@ -1630,7 +1699,7 @@ const VolunteerRoleTemplate = (props) => {
                     </OutboundLink>
                   </Box>
                 )}
-                </Box>
+              </Box>
             </Card>
           </Box>
         </Flex>
