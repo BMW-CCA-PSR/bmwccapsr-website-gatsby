@@ -19,6 +19,7 @@ import { FiArrowRight } from "react-icons/fi";
 import {
   FaAward,
   FaBullhorn,
+  FaCalendarAlt,
   FaCamera,
   FaCarSide,
   FaClipboardCheck,
@@ -75,7 +76,9 @@ export const query = graphql`
             }
           }
           motorsportRegEvent {
+            origin
             eventId
+            sanityEventId
             name
             start
             end
@@ -84,6 +87,9 @@ export const query = graphql`
             venueName
             venueCity
             venueRegion
+            eventType
+            registrationStart
+            registrationEnd
           }
         }
       }
@@ -119,6 +125,18 @@ const normalizeImageUrl = (value) => {
   if (!value) return null;
   if (value.startsWith("//")) return `https:${value}`;
   return value;
+};
+
+const parseCalendarDate = (value) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
+
+const toDateToken = (value) => {
+  if (!value) return null;
+  return String(value).slice(0, 10);
 };
 
 const sortVolunteerRoles = (items) => {
@@ -157,7 +175,7 @@ const toTitleCaseWords = (value) =>
     .map((word) =>
       /^[A-Z0-9]+$/.test(word)
         ? word
-        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`
+        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`,
     )
     .join(" ");
 
@@ -280,7 +298,7 @@ const VolunteerPage = (props) => {
   const roleNodes = useMemo(
     () =>
       (data || {}).roles ? sortVolunteerRoles(mapEdgesToNodes(data.roles)) : [],
-    [data]
+    [data],
   );
   const sanity = useMemo(() => new Client(), []);
   const [roles, setRoles] = useState(roleNodes);
@@ -298,7 +316,7 @@ const VolunteerPage = (props) => {
   const menuItems = site?.navMenu?.items || [];
   const activeRoles = useMemo(
     () => roles.filter((role) => role?.active !== false),
-    [roles]
+    [roles],
   );
   const rolesByActivity = useMemo(() => {
     if (!activeOnly) return roles;
@@ -306,13 +324,13 @@ const VolunteerPage = (props) => {
     return activeRoles.filter((role) => {
       const hasAssignedEvent = Boolean(
         role?.motorsportRegEvent &&
-          (role?.motorsportRegEvent?.eventId ||
-            role?.motorsportRegEvent?.name ||
-            role?.motorsportRegEvent?.start ||
-            role?.motorsportRegEvent?.url ||
-            role?.motorsportRegEvent?.venueName ||
-            role?.motorsportRegEvent?.venueCity ||
-            role?.motorsportRegEvent?.venueRegion)
+        (role?.motorsportRegEvent?.eventId ||
+          role?.motorsportRegEvent?.name ||
+          role?.motorsportRegEvent?.start ||
+          role?.motorsportRegEvent?.url ||
+          role?.motorsportRegEvent?.venueName ||
+          role?.motorsportRegEvent?.venueCity ||
+          role?.motorsportRegEvent?.venueRegion),
       );
       if (!hasAssignedEvent) return true;
       const eventDate = role?.motorsportRegEvent?.start || role?.date;
@@ -378,7 +396,7 @@ const VolunteerPage = (props) => {
   }, [rolesByActivity]);
   const hasVenueFilterOptions = useMemo(
     () => venues.some((venue) => venue !== "All"),
-    [venues]
+    [venues],
   );
   const hasPointFilterOptions = useMemo(
     () =>
@@ -388,7 +406,7 @@ const VolunteerPage = (props) => {
         }
         return option !== "All";
       }),
-    [pointOptions]
+    [pointOptions],
   );
   const pointLabels = useMemo(() => {
     const map = new Map();
@@ -407,7 +425,7 @@ const VolunteerPage = (props) => {
     filterLabelParts.push(
       selectedRoles
         .map((value) => roleLabels.get(value) || formatRoleFilterLabel(value))
-        .join(", ")
+        .join(", "),
     );
   }
   if (selectedVenues.length) {
@@ -422,8 +440,8 @@ const VolunteerPage = (props) => {
   const combinedFilterLabel = filterLabelParts.length
     ? filterLabelParts.join(" · ")
     : activeOnly
-    ? "Active"
-    : "All";
+      ? "Active"
+      : "All";
   const handleSelectAllFilters = () => {
     setSelectedRoles([]);
     setSelectedVenues([]);
@@ -446,8 +464,15 @@ const VolunteerPage = (props) => {
   const safePageIndex = Math.min(pageIndex, totalPages);
   const paginatedRoles = filteredByPoints.slice(
     (safePageIndex - 1) * pageSize,
-    safePageIndex * pageSize
+    safePageIndex * pageSize,
   );
+  const nowTimestamp = Date.now();
+  const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
+  const todayToken = useMemo(() => {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }, []);
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
   const pointFilters = hasPointFilterOptions ? (
     <CategoryFilterButtons
@@ -780,6 +805,8 @@ const VolunteerPage = (props) => {
             mb: "1.5rem",
             p: ["1rem", "1.25rem"],
             backgroundColor: "lightgray",
+            border: "1px solid",
+            borderColor: "black",
             borderRadius: "12px",
             display: "flex",
             flexWrap: "wrap",
@@ -849,19 +876,50 @@ const VolunteerPage = (props) => {
           <Box sx={{ display: "grid", gap: "1.25rem" }}>
             {paginatedRoles.map((role) => {
               const imageUrl = normalizeImageUrl(
-                role?.motorsportRegEvent?.imageUrl
+                role?.motorsportRegEvent?.imageUrl,
               );
               const hasAssignedEvent = Boolean(
                 role?.motorsportRegEvent &&
-                  (role?.motorsportRegEvent?.eventId ||
-                    role?.motorsportRegEvent?.name ||
-                    role?.motorsportRegEvent?.start ||
-                    role?.motorsportRegEvent?.url ||
-                    role?.motorsportRegEvent?.venueName ||
-                    role?.motorsportRegEvent?.venueCity ||
-                    role?.motorsportRegEvent?.venueRegion)
+                (role?.motorsportRegEvent?.eventId ||
+                  role?.motorsportRegEvent?.name ||
+                  role?.motorsportRegEvent?.start ||
+                  role?.motorsportRegEvent?.url ||
+                  role?.motorsportRegEvent?.venueName ||
+                  role?.motorsportRegEvent?.venueCity ||
+                  role?.motorsportRegEvent?.venueRegion),
               );
               const roleDate = role?.date || role?.motorsportRegEvent?.start;
+              const roleStartTimestamp = roleDate ? Date.parse(roleDate) : NaN;
+              const registrationStartDate = parseCalendarDate(
+                role?.motorsportRegEvent?.registrationStart,
+              );
+              const registrationEndDate = parseCalendarDate(
+                role?.motorsportRegEvent?.registrationEnd,
+              );
+              const hasRegistrationWindow = Boolean(
+                registrationStartDate || registrationEndDate,
+              );
+              const isRegistrationOpen = hasRegistrationWindow
+                ? (!registrationStartDate ||
+                    nowTimestamp >= registrationStartDate.getTime()) &&
+                  (!registrationEndDate ||
+                    nowTimestamp <= registrationEndDate.getTime())
+                : null;
+              const roleEventDateToken =
+                toDateToken(role?.motorsportRegEvent?.start) ||
+                toDateToken(role?.date);
+              const roleStatusIsOpen = hasRegistrationWindow
+                ? isRegistrationOpen === true
+                : Boolean(
+                    hasAssignedEvent &&
+                    roleEventDateToken &&
+                    todayToken &&
+                    roleEventDateToken > todayToken,
+                  );
+              const isUpcoming =
+                Number.isFinite(roleStartTimestamp) &&
+                roleStartTimestamp >= nowTimestamp &&
+                roleStartTimestamp <= upcomingCutoffTimestamp;
               const formattedDate = roleDate
                 ? format(parseISO(roleDate), "MMM d, yyyy")
                 : null;
@@ -881,8 +939,8 @@ const VolunteerPage = (props) => {
                 role?.membershipRequired === true
                   ? "Membership required"
                   : role?.membershipRequired === false
-                  ? "No membership required"
-                  : null;
+                    ? "No membership required"
+                    : null;
               const secondaryMetaParts = [
                 formattedDate,
                 durationLabel,
@@ -900,7 +958,7 @@ const VolunteerPage = (props) => {
                 : null;
               const FallbackRoleIcon = getRoleCardIcon(getPositionTitle(role));
               const fallbackCapColor = getVolunteerPointCapColor(
-                role?.role?.pointValue
+                role?.role?.pointValue,
               );
               const roleDescription = role?.role?.description?.trim() || "";
               const skillLevelLabel = formatSkillLevel(role?.skillLevel);
@@ -1029,6 +1087,42 @@ const VolunteerPage = (props) => {
                               aria-hidden="true"
                             />
                             {skillLevelLabel}
+                          </Text>
+                        )}
+                        {isUpcoming && (
+                          <Text
+                            sx={{
+                              ...VOLUNTEER_CARD_PILL_SX,
+                              bg: "#e8f7ec",
+                              color: "#1f7a3f",
+                              borderColor: "rgba(31,122,63,0.35)",
+                            }}
+                          >
+                            <FaCalendarAlt size={12} aria-hidden="true" />
+                            Upcoming
+                          </Text>
+                        )}
+                        {hasAssignedEvent && (
+                          <Text
+                            sx={{
+                              ...VOLUNTEER_CARD_PILL_SX,
+                              bg: roleStatusIsOpen ? "#e8f7ec" : "#fde8e8",
+                              color: roleStatusIsOpen ? "#1f7a3f" : "#9a1f1f",
+                              borderColor: roleStatusIsOpen
+                                ? "rgba(31,122,63,0.35)"
+                                : "rgba(154,31,31,0.35)",
+                            }}
+                          >
+                            <Box
+                              as="span"
+                              sx={{
+                                width: "7px",
+                                height: "7px",
+                                borderRadius: "999px",
+                                bg: roleStatusIsOpen ? "#1f7a3f" : "#9a1f1f",
+                              }}
+                            />
+                            {roleStatusIsOpen ? "Open" : "Closed"}
                           </Text>
                         )}
                       </Box>

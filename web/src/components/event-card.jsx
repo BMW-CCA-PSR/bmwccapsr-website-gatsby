@@ -32,6 +32,21 @@ const getCategoryIcon = (categoryTitle) => {
   return match?.icon || FaCalendarAlt;
 };
 
+const statusPillBaseSx = {
+  variant: "text.label",
+  px: 2,
+  py: 1,
+  borderRadius: 9999,
+  fontWeight: 700,
+  fontSize: "xxs",
+  letterSpacing: "wide",
+  textTransform: "uppercase",
+  border: "1px solid",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.28rem",
+};
+
 const EventCard = ({ event, href }) => {
   if (!event) return null;
   const cityState =
@@ -147,6 +162,7 @@ const EventCard = ({ event, href }) => {
           display: "flex",
           justifyContent: "center",
           flexDirection: "column",
+          gap: "0.5rem",
         }}
       >
         <Box
@@ -193,21 +209,10 @@ const EventCard = ({ event, href }) => {
           {isOnline && (
             <Text
               sx={{
-                variant: "text.label",
+                ...statusPillBaseSx,
                 bg: "#e6f0ff",
                 color: "#0e4da9",
-                px: 2,
-                py: 1,
-                borderRadius: 9999,
-                fontWeight: 700,
-                fontSize: "xxs",
-                letterSpacing: "wide",
-                textTransform: "uppercase",
-                border: "1px solid",
                 borderColor: "rgba(14,77,169,0.35)",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.28rem",
               }}
             >
               <FaLaptop size={12} aria-hidden="true" />
@@ -217,21 +222,10 @@ const EventCard = ({ event, href }) => {
           {showUpcomingPill && (
             <Text
               sx={{
-                variant: "text.label",
+                ...statusPillBaseSx,
                 bg: "#e8f7ec",
                 color: "#1f7a3f",
-                px: 2,
-                py: 1,
-                borderRadius: 9999,
-                fontWeight: 700,
-                fontSize: "xxs",
-                letterSpacing: "wide",
-                textTransform: "uppercase",
-                border: "1px solid",
                 borderColor: "rgba(31,122,63,0.35)",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.28rem",
               }}
             >
               <FaCalendarAlt size={12} aria-hidden="true" />
@@ -239,7 +233,14 @@ const EventCard = ({ event, href }) => {
             </Text>
           )}
         </Box>
-        <Heading sx={{ textDecoration: "none", variant: "styles.h3" }}>
+        <Heading
+          sx={{
+            textDecoration: "none",
+            variant: "styles.h3",
+            mt: 0,
+            mb: 0,
+          }}
+        >
           {event.title}
         </Heading>
         {cityState && !isOnline && (

@@ -3,11 +3,18 @@ import MotorsportRegEventInput from "../../src/components/MotorsportRegEventInpu
 export default {
   name: "motorsportRegEvent",
   type: "object",
-  title: "MotorsportReg event",
+  title: "Position event",
   components: {
     input: MotorsportRegEventInput,
   },
   fields: [
+    {
+      name: "origin",
+      type: "string",
+      title: "Origin",
+      readOnly: true,
+      hidden: true,
+    },
     {
       name: "eventId",
       type: "string",
@@ -79,6 +86,35 @@ export default {
       type: "string",
       title: "Organization ID",
       readOnly: true,
+      hidden: true,
+    },
+    {
+      name: "sanityEventId",
+      type: "string",
+      title: "Sanity Event ID",
+      readOnly: true,
+      hidden: true,
+    },
+    {
+      name: "eventType",
+      type: "string",
+      title: "Event type",
+      readOnly: true,
+      hidden: true,
+    },
+    {
+      name: "registrationStart",
+      type: "datetime",
+      title: "Registration start",
+      readOnly: true,
+      hidden: true,
+    },
+    {
+      name: "registrationEnd",
+      type: "datetime",
+      title: "Registration end",
+      readOnly: true,
+      hidden: true,
     },
   ],
   preview: {

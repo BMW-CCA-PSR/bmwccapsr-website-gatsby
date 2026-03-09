@@ -11,6 +11,21 @@ import {
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
 
+const statusPillBaseSx = {
+  variant: "text.label",
+  px: 2,
+  py: 1,
+  borderRadius: 9999,
+  fontWeight: 700,
+  fontSize: "xxs",
+  letterSpacing: "wide",
+  textTransform: "uppercase",
+  border: "1px solid",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.28rem",
+};
+
 function RelatedContent(props) {
   const {
     title,
@@ -171,27 +186,23 @@ function RelatedContent(props) {
             </div>
           )}
         </div>
-        <Box p={3}>
+        <Box
+          p={3}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+          }}
+        >
           <Flex sx={{ alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
             <Text sx={{ variant: "text.label" }}>{cat}</Text>
             {isOnline && (
               <Text
                 sx={{
-                  variant: "text.label",
+                  ...statusPillBaseSx,
                   bg: "#e6f0ff",
                   color: "#0e4da9",
-                  px: 2,
-                  py: 1,
-                  borderRadius: 9999,
-                  fontWeight: 700,
-                  fontSize: "xxs",
-                  letterSpacing: "wide",
-                  textTransform: "uppercase",
-                  border: "1px solid",
                   borderColor: "rgba(14,77,169,0.35)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.28rem",
                 }}
               >
                 <FaLaptop size={12} aria-hidden="true" />
@@ -201,21 +212,10 @@ function RelatedContent(props) {
             {isUpcoming && (
               <Text
                 sx={{
-                  variant: "text.label",
+                  ...statusPillBaseSx,
                   bg: "#e8f7ec",
                   color: "#1f7a3f",
-                  px: 2,
-                  py: 1,
-                  borderRadius: 9999,
-                  fontWeight: 700,
-                  fontSize: "xxs",
-                  letterSpacing: "wide",
-                  textTransform: "uppercase",
-                  border: "1px solid",
                   borderColor: "rgba(31,122,63,0.35)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.28rem",
                 }}
               >
                 <FaCalendarAlt size={12} aria-hidden="true" />
@@ -223,10 +223,7 @@ function RelatedContent(props) {
               </Text>
             )}
           </Flex>
-          <Heading
-            sx={{ textDecoration: "none", mt: isOnline ? "0.35rem" : 0 }}
-            variant="styles.h4"
-          >
+          <Heading sx={{ textDecoration: "none", mt: 0, mb: 0 }} variant="styles.h4">
             {title}
           </Heading>
           {!isOnline && (

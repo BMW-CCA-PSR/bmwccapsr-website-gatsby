@@ -2,7 +2,6 @@
 import React from "react";
 import { Box, Card, Flex } from "@theme-ui/components";
 import ReactMapGL, { Marker } from "react-map-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { FiMaximize2, FiX } from "react-icons/fi";
 
@@ -42,7 +41,7 @@ const MapCanvas = ({
 
   const fallbackToLegacyStyle = React.useCallback(() => {
     setActiveMapStyle((prev) =>
-      prev === MAP_STYLE_FALLBACK ? prev : MAP_STYLE_FALLBACK
+      prev === MAP_STYLE_FALLBACK ? prev : MAP_STYLE_FALLBACK,
     );
   }, []);
 

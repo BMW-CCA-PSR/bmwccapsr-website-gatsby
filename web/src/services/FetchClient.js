@@ -18,7 +18,7 @@ export class Client {
 
   fetchMostRecentEvent = () => {
     return this.client.fetch(
-      `*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`
+      `*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`,
     );
   };
 
@@ -38,7 +38,7 @@ export class Client {
         },
         category->{title},
         address{line1, line2, city, state}
-      }`
+      }`,
     );
   };
 
@@ -63,7 +63,9 @@ export class Client {
           asset->{url}
         },
         motorsportRegEvent{
+          origin,
           eventId,
+          sanityEventId,
           name,
           start,
           end,
@@ -72,10 +74,13 @@ export class Client {
           venueName,
           venueCity,
           venueRegion,
+          eventType,
+          registrationStart,
+          registrationEnd,
           latitude,
           longitude
         }
-      }`
+      }`,
     );
   };
 
@@ -90,6 +95,20 @@ export class Client {
           pointValue
         },
         motorsportRegEvent{
+          origin,
+          eventId,
+          sanityEventId,
+          name,
+          start,
+          end,
+          url,
+          imageUrl,
+          venueName,
+          venueCity,
+          venueRegion,
+          eventType,
+          registrationStart,
+          registrationEnd,
           latitude,
           longitude,
           lat,
@@ -98,7 +117,7 @@ export class Client {
           long
         }
       }`,
-      { slug }
+      { slug },
     );
   };
 
@@ -110,7 +129,7 @@ export class Client {
         description,
         detail,
         pointValue
-      }`
+      }`,
     );
   };
 
@@ -134,7 +153,7 @@ export class Client {
         },
         category->{title},
         address{line1, line2, city, state}
-      }`
+      }`,
     );
   };
 
@@ -155,7 +174,7 @@ export class Client {
         },
         category->{title},
         address{line1, line2, city, state}
-      }`
+      }`,
     );
   };
 }

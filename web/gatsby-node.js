@@ -87,6 +87,14 @@ const getPostAuthorRefs = (post) => {
 
 exports.createSchemaCustomization = ({ actions, schema }) => {
   actions.createTypes(`
+    extend type SanityMotorsportRegEvent {
+      origin: String
+      sanityEventId: String
+      eventType: String
+      registrationStart: String
+      registrationEnd: String
+    }
+
     extend type SanityVolunteerRole {
       skillLevel: String
       membershipRequired: Boolean
@@ -172,7 +180,7 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
               ? null
               : sourceDate.getTime();
             const sourceTokens = new Set(
-              tokenizeRelatedPostText(source?.title || "")
+              tokenizeRelatedPostText(source?.title || ""),
             );
 
             return Array.from(entries)
@@ -211,7 +219,7 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
                 }
 
                 const postTokens = new Set(
-                  tokenizeRelatedPostText(post?.title || "")
+                  tokenizeRelatedPostText(post?.title || ""),
                 );
                 if (sourceTokens.size > 0 && postTokens.size > 0) {
                   let sharedTokens = 0;
@@ -225,7 +233,7 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
                   const dayDelta = Math.abs(sourceTime - postTime) / 86400000;
                   const recencyBonus = Math.max(
                     0,
-                    12 - Math.floor(dayDelta / 30)
+                    12 - Math.floor(dayDelta / 30),
                   );
                   score += recencyBonus;
                 } else {
@@ -274,6 +282,7 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         description: { type: "String" },
         detail: { type: "String" },
         pointValue: { type: "Int" },
+        roleScope: { type: "String" },
       },
     }),
     schema.buildObjectType({
@@ -323,7 +332,7 @@ async function createLandingPages(
   pathPrefix = "/",
   graphql,
   actions,
-  reporter
+  reporter,
 ) {
   const { createPage } = actions;
   const result = await graphql(`
@@ -364,15 +373,13 @@ async function createZundfolgePages(
   pathPrefix = "/zundfolge",
   graphql,
   actions,
-  reporter
+  reporter,
 ) {
   const { createPage } = actions;
-  const zundfolgeArticleTemplate = require.resolve(
-    "./src/templates/zundfolge-article.js"
-  );
-  const zundfolgeLandingTemplate = require.resolve(
-    "./src/templates/zundfolge.js"
-  );
+  const zundfolgeArticleTemplate =
+    require.resolve("./src/templates/zundfolge-article.js");
+  const zundfolgeLandingTemplate =
+    require.resolve("./src/templates/zundfolge.js");
   await graphql(`
     {
       allSanityPost(
@@ -443,7 +450,7 @@ async function createEventPages(
   pathPrefix = "/events",
   graphql,
   actions,
-  reporter
+  reporter,
 ) {
   const { createPage } = actions;
   const eventPageTemplate = require.resolve("./src/templates/event-page.js");
@@ -516,7 +523,7 @@ async function createArchivePages(
   pathPrefix = "/zundfolge/archive",
   graphql,
   actions,
-  reporter
+  reporter,
 ) {
   const { createPage } = actions;
   const archiveTemplate = require.resolve("./src/templates/archive.js");
@@ -536,12 +543,11 @@ async function createVolunteerRolePages(
   pathPrefix = "/volunteer",
   graphql,
   actions,
-  reporter
+  reporter,
 ) {
   const { createPage } = actions;
-  const volunteerRoleTemplate = require.resolve(
-    "./src/templates/volunteer-role.js"
-  );
+  const volunteerRoleTemplate =
+    require.resolve("./src/templates/volunteer-role.js");
   await graphql(`
     {
       allSanityVolunteerRole {
@@ -562,7 +568,7 @@ async function createVolunteerRolePages(
     const roleEdges = (result?.data?.allSanityVolunteerRole || {}).edges || [];
     if (roleEdges.length === 0) {
       reporter.info(
-        "No volunteer positions found; skipping position page creation."
+        "No volunteer positions found; skipping position page creation.",
       );
       return;
     }

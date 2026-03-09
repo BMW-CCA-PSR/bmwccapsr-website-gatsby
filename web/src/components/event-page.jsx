@@ -292,7 +292,7 @@ function EventPage(props) {
                 zIndex: 3,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 width: "100%",
                 bg: "#f5d76e",
                 color: "black",

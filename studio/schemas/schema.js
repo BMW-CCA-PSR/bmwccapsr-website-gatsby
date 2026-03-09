@@ -14,6 +14,7 @@ import advertiserCategory from './documents/advertiserCategory'
 import volunteerRole from './documents/volunteerRole'
 import volunteerCategory from './documents/volunteerCategory'
 import volunteerFixedRole from './documents/volunteerFixedRole'
+import volunteerApplication from './documents/volunteerApplication'
 import workflow from './documents/workflow'
 
 // Object types
@@ -76,6 +77,7 @@ export default [
     advertiserCategory,
     volunteerRole,
     volunteerFixedRole,
+    volunteerApplication,
     volunteerCategory,
     address,
     workflow,

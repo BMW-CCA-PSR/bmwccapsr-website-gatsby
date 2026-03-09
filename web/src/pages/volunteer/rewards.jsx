@@ -196,7 +196,9 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             </Box>
             .
           </Heading>
-          <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
+          <Text
+              sx={{ variant: "styles.p", color: "text", mb: "1rem", fontSize: "16pt" }}
+            >
             Our Club thrives because of members who step up and get involved.
             The Volunteer Rewards Program is designed to recognize, reward, and
             encourage participation, from helping at a single event to leading

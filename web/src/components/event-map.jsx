@@ -2,7 +2,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import ReactMapGL from "react-map-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
 import Pin from "./event-map-marker";
 
 function EventMap(props) {

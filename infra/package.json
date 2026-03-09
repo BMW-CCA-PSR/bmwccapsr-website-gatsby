@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@aws-cdk/aws-amplify": "^1.119.0",
+    "@aws-cdk/aws-apigateway": "^1.119.0",
     "@aws-cdk/aws-certificatemanager": "^1.119.0",
     "@aws-cdk/aws-codebuild": "^1.119.0",
     "@aws-cdk/aws-codecommit": "^1.119.0",
@@ -31,7 +32,9 @@
     "@aws-cdk/aws-ecs-patterns": "^1.119.0",
     "@aws-cdk/aws-elasticloadbalancingv2": "^1.119.0",
     "@aws-cdk/aws-iam": "^1.119.0",
+    "@aws-cdk/aws-lambda": "^1.119.0",
     "@aws-cdk/aws-route53": "^1.119.0",
+    "@aws-cdk/aws-secretsmanager": "^1.119.0",
     "@aws-cdk/core": "^1.119.0",
     "docker": "^1.0.0",
     "dotenv": "^10.0.0",

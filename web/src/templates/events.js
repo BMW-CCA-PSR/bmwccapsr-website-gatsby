@@ -117,7 +117,7 @@ const IndexPage = (props) => {
     : [];
   if (!site && !errors) {
     console.warn(
-      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
+      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.',
     );
   }
   const menuItems = site?.navMenu?.items || [];
@@ -230,7 +230,7 @@ const IndexPage = (props) => {
       setSelectedYear(
         yearStrings.includes(String(currentYear))
           ? String(currentYear)
-          : yearStrings[0]
+          : yearStrings[0],
       );
     }
   }, [years, selectedYear, currentYear]);
@@ -340,7 +340,7 @@ const IndexPage = (props) => {
   const safePageIndex = Math.min(pageIndex, totalPages);
   const paginatedEvents = filteredEvents.slice(
     (safePageIndex - 1) * pageSize,
-    safePageIndex * pageSize
+    safePageIndex * pageSize,
   );
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
 
@@ -399,6 +399,8 @@ const IndexPage = (props) => {
             mb: "1.5rem",
             p: ["1rem", "1.25rem"],
             backgroundColor: "lightgray",
+            border: "1px solid",
+            borderColor: "black",
             borderRadius: "12px",
             display: "flex",
             flexDirection: "column",

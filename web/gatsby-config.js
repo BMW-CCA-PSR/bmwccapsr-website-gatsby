@@ -1,9 +1,15 @@
-// Load variables from `.env` as soon as possible
-require("dotenv").config({
-  path: `.env.${process.env.NODE_ENV || "development"}`
-});
-
 const path = require("path");
+
+// Load base `.env` first, then environment-specific overrides.
+require("dotenv").config({
+  path: path.resolve(__dirname, ".env"),
+});
+require("dotenv").config({
+  path: path.resolve(
+    __dirname,
+    `.env.${process.env.NODE_ENV || "development"}`,
+  ),
+});
 const clientConfig = require("./client-config");
 
 const isProd = process.env.NODE_ENV === "production";

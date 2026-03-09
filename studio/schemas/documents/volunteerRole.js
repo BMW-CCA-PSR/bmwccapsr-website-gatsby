@@ -1,145 +1,159 @@
-import React from 'react'
-import AutoSlugInput from '../../src/components/AutoSlugInput'
-import AutoSkillLevelInput from '../../src/components/AutoSkillLevelInput'
+import React from "react";
+import AutoSlugInput from "../../src/components/AutoSlugInput";
+import AutoSkillLevelInput from "../../src/components/AutoSkillLevelInput";
 
 export default {
-    name: 'volunteerRole',
-    type: 'document',
-    title: 'Volunteer Position',
-    fieldsets: [
-      {
-        name: 'positionToggles',
-        title: 'Position settings'
+  name: "volunteerRole",
+  type: "document",
+  title: "Volunteer Position",
+  fieldsets: [
+    {
+      name: "positionToggles",
+      title: "Position settings",
+    },
+  ],
+  fields: [
+    {
+      name: "role",
+      type: "reference",
+      to: {
+        type: "volunteerFixedRole",
+      },
+      title: "Role",
+      validation: (Rule) => Rule.error("Select a role.").required(),
+    },
+    {
+      name: "slug",
+      type: "slug",
+      title: "Slug",
+      description:
+        'Auto-generated from position name + event date when event is selected; otherwise position name + current date. (e.g. "/volunteer/hpde-assistant-2026-04-18")',
+      components: {
+        input: AutoSlugInput,
+      },
+      options: {
+        maxLength: 96,
+        source: "role",
+      },
+      validation: (Rule) =>
+        Rule.error("Add a slug to publish this position.").required(),
+    },
+    {
+      title: "Active position",
+      name: "active",
+      type: "boolean",
+      initialValue: true,
+      fieldset: "positionToggles",
+    },
+    {
+      name: "membershipRequired",
+      type: "boolean",
+      title: "BMW CCA Membership Required",
+      initialValue: false,
+      fieldset: "positionToggles",
+      validation: (Rule) =>
+        Rule.required().custom((value) =>
+          value === true || value === false ? true : "Select Yes or No.",
+        ),
+    },
+    {
+      name: "motorsportRegEvent",
+      type: "motorsportRegEvent",
+      title: "Event",
+      description:
+        "Select an MSR or Sanity event for this position (optional).",
+    },
+    {
+      name: "descriptionPdf",
+      type: "file",
+      title: "Description PDF (optional)",
+      options: {
+        accept: ".pdf",
+      },
+    },
+    {
+      name: "date",
+      type: "date",
+      title: "Date",
+    },
+    {
+      name: "duration",
+      type: "number",
+      title: "Duration",
+      description: "Hours (numbers only)",
+      validation: (Rule) =>
+        Rule.optional().custom((value) =>
+          value === undefined || value === null || value >= 0
+            ? true
+            : "Provide a duration in hours (numbers only).",
+        ),
+    },
+    {
+      name: "capacity",
+      type: "number",
+      title: "Capacity",
+      description:
+        "Optional maximum assignments for this position. Leave empty or set to 0 for unlimited assignments.",
+      validation: (Rule) =>
+        Rule.optional()
+          .integer()
+          .min(0)
+          .error("Capacity must be a whole number that is 0 or greater."),
+    },
+    {
+      name: "compensation",
+      type: "string",
+      title: "Compensation / swag item",
+      validation: (Rule) => Rule.optional(),
+    },
+    {
+      name: "skillLevel",
+      type: "string",
+      title: "Skill level",
+      description:
+        "Auto-populated from role point value (1-2 Entry, 3-4 Intermediate, 5/10 Advanced). You can override if needed.",
+      components: {
+        input: AutoSkillLevelInput,
+      },
+      options: {
+        list: [
+          { title: "Entry", value: "entry" },
+          { title: "Intermediate", value: "medium" },
+          { title: "Advanced", value: "high" },
+        ],
+      },
+      validation: (Rule) => Rule.required().error("Select a skill level."),
+    },
+  ],
+  preview: {
+    select: {
+      roleName: "role.name",
+      eventName: "motorsportRegEvent.name",
+      date: "date",
+      points: "role.pointValue",
+      imageUrl: "motorsportRegEvent.imageUrl",
+    },
+    prepare({ roleName, eventName, date, points, imageUrl }) {
+      const title = roleName || "Untitled position";
+      const subtitleParts = [eventName];
+      if (date) subtitleParts.push(date);
+      if (points !== undefined && points !== null) {
+        subtitleParts.push(`${points} pts`);
       }
-    ],
-    fields: [
-      {
-        name: 'role',
-        type: 'reference',
-        to: {
-          type: 'volunteerFixedRole',
-        },
-        title: 'Role',
-        validation: Rule => Rule.error('Select a role.').required(),
-      },
-      {
-        name: 'slug',
-        type: 'slug',
-        title: 'Slug',
-        description: 'Auto-generated from role + event + date when event is selected; otherwise role + current date. (e.g. "/volunteer/grid-marshall-pacific-raceways-2026-04-18")',
-        components: {
-          input: AutoSlugInput
-        },
-        options: {
-          maxLength: 96,
-          source: 'role',
-        },
-        validation: Rule => Rule.error('Add a slug to publish this position.').required()
-      },
-      {
-        title: 'Active position',
-        name: 'active',
-        type: 'boolean',
-        initialValue: true,
-        fieldset: 'positionToggles'
-      },
-      {
-        name: 'membershipRequired',
-        type: 'boolean',
-        title: 'BMW CCA Membership Required',
-        initialValue: false,
-        fieldset: 'positionToggles',
-        validation: Rule =>
-          Rule.required().custom((value) =>
-            value === true || value === false ? true : 'Select Yes or No.'
-          )
-      },
-      {
-        name: 'motorsportRegEvent',
-        type: 'motorsportRegEvent',
-        title: 'Event',
-        description: 'Select a MotorsportReg event for this position (optional).',
-      },
-      {
-        name: 'descriptionPdf',
-        type: 'file',
-        title: 'Description PDF (optional)',
-        options: {
-          accept: '.pdf',
-        },
-      },
-      {
-        name: 'date',
-        type: 'date',
-        title: 'Date',
-      },
-      {
-        name: 'duration',
-        type: 'number',
-        title: 'Duration',
-        description: 'Hours (numbers only)',
-        validation: Rule =>
-          Rule.optional()
-            .custom((value) =>
-              value === undefined || value === null || value >= 0
-                ? true
-                : 'Provide a duration in hours (numbers only).'
-            )
-      },
-      {
-        name: 'compensation',
-        type: 'string',
-        title: 'Compensation / swag item',
-        validation: Rule => Rule.optional()
-      },
-      {
-        name: 'skillLevel',
-        type: 'string',
-        title: 'Skill level',
-        description:
-          'Auto-populated from role point value (1-2 Entry, 3-4 Intermediate, 5/10 Advanced). You can override if needed.',
-        components: {
-          input: AutoSkillLevelInput
-        },
-        options: {
-          list: [
-            { title: 'Entry', value: 'entry' },
-            { title: 'Intermediate', value: 'medium' },
-            { title: 'Advanced', value: 'high' }
-          ]
-        },
-        validation: Rule => Rule.required().error('Select a skill level.')
-      }
-    ],
-    preview: {
-      select: {
-        roleName: 'role.name',
-        eventName: 'motorsportRegEvent.name',
-        date: 'date',
-        points: 'role.pointValue',
-        imageUrl: 'motorsportRegEvent.imageUrl'
-      },
-      prepare({ roleName, eventName, date, points, imageUrl }) {
-        const title = roleName || 'Untitled position'
-        const subtitleParts = [eventName]
-        if (date) subtitleParts.push(date)
-        if (points !== undefined && points !== null) {
-          subtitleParts.push(`${points} pts`)
-        }
-        const subtitle = subtitleParts.filter(Boolean).join(' | ')
-        const normalizedUrl =
-          imageUrl && imageUrl.startsWith('//') ? `https:${imageUrl}` : imageUrl
-        return {
-          title,
-          subtitle,
-          media: normalizedUrl
-            ? React.createElement('img', {
-                src: normalizedUrl,
-                alt: title || subtitle || 'Volunteer role',
-                style: { objectFit: 'cover', width: '100%', height: '100%' }
-              })
-            : undefined
-        }
-      }
-    }
-  }
+      const subtitle = subtitleParts.filter(Boolean).join(" | ");
+      const normalizedUrl =
+        imageUrl && imageUrl.startsWith("//") ? `https:${imageUrl}` : imageUrl;
+      return {
+        title,
+        subtitle,
+        media: normalizedUrl
+          ? React.createElement("img", {
+              src: normalizedUrl,
+              alt: title || subtitle || "Volunteer role",
+              style: { objectFit: "cover", width: "100%", height: "100%" },
+            })
+          : undefined,
+      };
+    },
+  },
+};
