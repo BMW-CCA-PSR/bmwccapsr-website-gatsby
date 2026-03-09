@@ -5,7 +5,7 @@ import { getEventsUrl, getZundfolgeUrl } from "../lib/helpers";
 import { Link } from "gatsby";
 import { Heading, Text, Box, Card, Flex } from "@theme-ui/components";
 import SanityImage from "gatsby-plugin-sanity-image";
-import { FaCalendarAlt, FaLaptop } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
@@ -196,19 +196,6 @@ function RelatedContent(props) {
         >
           <Flex sx={{ alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
             <Text sx={{ variant: "text.label" }}>{cat}</Text>
-            {isOnline && (
-              <Text
-                sx={{
-                  ...statusPillBaseSx,
-                  bg: "#e6f0ff",
-                  color: "#0e4da9",
-                  borderColor: "rgba(14,77,169,0.35)",
-                }}
-              >
-                <FaLaptop size={12} aria-hidden="true" />
-                Online
-              </Text>
-            )}
             {isUpcoming && (
               <Text
                 sx={{

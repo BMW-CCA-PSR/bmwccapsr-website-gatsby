@@ -101,6 +101,20 @@ export default {
           .error("Capacity must be a whole number that is 0 or greater."),
     },
     {
+      name: "assignedVolunteers",
+      type: "array",
+      title: "Assigned volunteers",
+      description:
+        "Auto-managed from application assignment actions. This list is read-only.",
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "volunteerApplication" }],
+        },
+      ],
+      readOnly: true,
+    },
+    {
       name: "compensation",
       type: "string",
       title: "Compensation / swag item",

@@ -255,7 +255,8 @@ function EventPage(props) {
     cursor: "pointer",
     textDecoration: "none",
     "&:hover": {
-      bg: "highlight",
+      bg: "#e7f0ff",
+      borderColor: "#90b4f8",
       color: "text",
     },
   };

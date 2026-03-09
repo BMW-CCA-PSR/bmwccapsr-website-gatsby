@@ -144,6 +144,11 @@ const shouldAutoDeactivatePositionOnAssign = (application) => {
   return roleName.includes("chairperson") || roleName.includes("coordinator");
 };
 
+const getEffectiveCapacityLimit = (application) => {
+  if (shouldAutoDeactivatePositionOnAssign(application)) return 1;
+  return toCapacityNumber(application?.position?.capacity);
+};
+
 const canTransition = (currentStatus, nextStatus) => {
   const status = normalizeStatus(currentStatus);
   return (STATUS_TRANSITIONS[status] || []).includes(nextStatus);
@@ -239,6 +244,8 @@ export default function VolunteerApplicationsPane(props) {
   const [fromDate, setFromDate] = React.useState("");
   const [toDate, setToDate] = React.useState("");
   const [selectedIds, setSelectedIds] = React.useState([]);
+  const paneConfigKey = `${lockStatusFilter ? "locked" : "unlocked"}:${configuredStatuses.join(",")}`;
+  const previousPaneConfigKeyRef = React.useRef(paneConfigKey);
 
   const fetchApplications = React.useCallback(async () => {
     setIsLoading(true);
@@ -267,6 +274,14 @@ export default function VolunteerApplicationsPane(props) {
       setStatusFilter("all");
     }
   }, [configuredStatuses, lockStatusFilter, statusFilter]);
+
+  React.useEffect(() => {
+    if (previousPaneConfigKeyRef.current === paneConfigKey) return;
+    previousPaneConfigKeyRef.current = paneConfigKey;
+    if (!lockStatusFilter) {
+      setStatusFilter("all");
+    }
+  }, [lockStatusFilter, paneConfigKey]);
 
   React.useEffect(() => {
     setSelectedIds((prev) =>
@@ -483,7 +498,7 @@ export default function VolunteerApplicationsPane(props) {
 
         if (nextStatus === "assigned") {
           const positionId = application?.position?._id;
-          const capacityLimit = toCapacityNumber(application?.position?.capacity);
+          const capacityLimit = getEffectiveCapacityLimit(application);
           if (positionId && capacityLimit) {
             const assignedCount = workingAssignedCounts.get(positionId) || 0;
             if (assignedCount >= capacityLimit) {
@@ -503,6 +518,16 @@ export default function VolunteerApplicationsPane(props) {
             draft.ifRevisionId(application._rev).set(patch)
           );
 
+          if (application?.position?._id && nextStatus === "assigned") {
+            transaction.patch(application.position._id, (draft) =>
+              draft
+                .setIfMissing({ assignedVolunteers: [] })
+                .insert("after", "assignedVolunteers[-1]", [
+                  { _type: "reference", _ref: application._id },
+                ])
+            );
+          }
+
           if (
             nextStatus === "assigned" &&
             application?.position?._id &&
@@ -510,6 +535,17 @@ export default function VolunteerApplicationsPane(props) {
           ) {
             transaction.patch(application.position._id, (draft) =>
               draft.set({ active: false })
+            );
+          }
+
+          if (
+            application?.position?._id &&
+            (nextStatus === "withdrawn" ||
+              nextStatus === "denied" ||
+              nextStatus === "expired")
+          ) {
+            transaction.patch(application.position._id, (draft) =>
+              draft.unset([`assignedVolunteers[_ref=="${application._id}"]`])
             );
           }
 
@@ -766,11 +802,16 @@ export default function VolunteerApplicationsPane(props) {
                     const assignedCount = positionId
                       ? assignedCountByPosition.get(positionId) || 0
                       : 0;
-                    const capacityNumber = toCapacityNumber(group.capacity);
+                    const groupRepresentative = group.rows?.[0] || null;
+                    const capacityNumber = getEffectiveCapacityLimit(groupRepresentative);
                     const capacityLabel = isUnlimitedCapacity(group.capacity)
                       ? `${assignedCount} assigned / unlimited`
                       : `${assignedCount} assigned / ${capacityNumber}`;
                     const isFull = capacityNumber ? assignedCount >= capacityNumber : false;
+                    const showCapacityLabel = group.rows.some((row) => {
+                      const rowStatus = normalizeStatus(row?.status);
+                      return rowStatus === "submitted" || rowStatus === "assigned";
+                    });
 
                     return (
                       <React.Fragment key={group.key}>
@@ -792,17 +833,19 @@ export default function VolunteerApplicationsPane(props) {
                                   </Text>
                                 ) : null}
                               </Stack>
-                              <Text
-                                size={1}
-                                style={{
-                                  color: isFull
-                                    ? "var(--card-critical-fg-color, #7f1d1d)"
-                                    : "var(--card-fg-color)",
-                                  fontWeight: isFull ? 700 : 500,
-                                }}
-                              >
-                                {capacityLabel}
-                              </Text>
+                              {showCapacityLabel ? (
+                                <Text
+                                  size={1}
+                                  style={{
+                                    color: isFull
+                                      ? "var(--card-critical-fg-color, #7f1d1d)"
+                                      : "var(--card-fg-color)",
+                                    fontWeight: isFull ? 700 : 500,
+                                  }}
+                                >
+                                  {capacityLabel}
+                                </Text>
+                              ) : null}
                             </Flex>
                           </td>
                         </tr>
@@ -857,15 +900,27 @@ export default function VolunteerApplicationsPane(props) {
                                       return null;
                                     }
 
+                                    const isAssignAction = targetStatus === "assigned";
+                                    const isAssignBlockedByCapacity = isAssignAction && isFull;
+                                    const actionLabel =
+                                      targetStatus === "withdrawn" &&
+                                      applicationStatus === "assigned"
+                                        ? "Remove"
+                                        : definition.label;
+                                    const actionTitle = isAssignBlockedByCapacity
+                                      ? "Capacity is full for this position."
+                                      : actionLabel;
+
                                     return (
                                       <button
                                         key={`${application._id}-${targetStatus}`}
                                         type="button"
-                                        disabled={isApplyingAction}
+                                        disabled={isApplyingAction || isAssignBlockedByCapacity}
                                         onClick={() => runTransition([application._id], targetStatus)}
+                                        title={actionTitle}
                                         style={compactButtonStyle}
                                       >
-                                        {definition.label}
+                                        {actionLabel}
                                       </button>
                                     );
                                   })}

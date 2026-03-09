@@ -33,6 +33,10 @@ import GraphQLErrorList from "../../components/graphql-error-list";
 import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
 import CategoryFilterButtons from "../../components/category-filter-buttons";
+import {
+  FilterBox,
+  FilterSearchField,
+} from "../../components/filter-ui";
 import { mapEdgesToNodes } from "../../lib/helpers";
 import { getVolunteerPointCapColor } from "../../lib/volunteerPointStyles";
 
@@ -337,6 +341,8 @@ const VolunteerRolesPage = ({ data, errors }) => {
   const handleTabChange = (tabKey) => {
     setActiveTab(tabKey);
   };
+  const hasAnyFilterSelections =
+    searchTerm.trim().length > 0 || selectedBrowseFilters.length > 0;
 
   const setPageForActiveTab = (nextPage) => {
     setPageByTab((prev) => ({ ...prev, [activeTab]: nextPage }));
@@ -431,39 +437,19 @@ const VolunteerRolesPage = ({ data, errors }) => {
           </Box>
         ) : (
           <>
-            <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>
-              Filter
-            </Heading>
-            <Box
-              sx={{
-                border: "1px solid",
-                borderColor: "black",
-                borderRadius: "14px",
-                bg: "lightgray",
-                px: ["0.75rem", "0.9rem", "1rem"],
-                pt: ["0.75rem", "0.8rem", "0.9rem"],
-                pb: ["0.6rem", "0.65rem", "0.7rem"],
-                mt: "1rem",
-                mb: "1rem",
-              }}
-            >
-              <Box
-                as="input"
-                type="text"
+            <FilterBox sx={{ mb: "1rem" }}>
+              <FilterSearchField
+                label="Search"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search role name or description"
-                sx={{
-                  width: "100%",
-                  border: "1px solid",
-                  borderColor: "gray",
-                  borderRadius: "8px",
-                  px: "0.6rem",
-                  py: "0.45rem",
-                  fontSize: "sm",
-                  mb: "1rem",
-                  bg: "background",
+                clearLabel="Clear role filters"
+                clearDisabled={!hasAnyFilterSelections}
+                onClear={() => {
+                  setSearchTerm("");
+                  setSelectedBrowseFilters([]);
                 }}
+                fieldSx={{ mb: "1rem" }}
               />
               <Box
                 sx={{
@@ -481,10 +467,11 @@ const VolunteerRolesPage = ({ data, errors }) => {
                   selectedCategories={selectedBrowseFilters}
                   onChange={setSelectedBrowseFilters}
                   showAll={false}
-                  layout="wrap"
+                  layout="stretch"
+                  stretchColumns={5}
                 />
               </Box>
-            </Box>
+            </FilterBox>
 
             <Box
               sx={{
@@ -556,97 +543,101 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
               <Box
                 sx={{
-                  px: ["0.75rem", "0.9rem", "1rem"],
-                  pt: "0.8rem",
-                  pb: "0.4rem",
-                }}
-              >
-                <Text
-                  sx={{
-                    variant: "text.label",
-                    color: "darkgray",
-                    mb: "0.15rem",
-                  }}
-                >
-                  {currentTab.label} roles
-                </Text>
-              </Box>
-
-              <Box
-                sx={{
                   flex: 1,
                   minHeight: 0,
                   px: ["0.75rem", "0.9rem", "1rem"],
+                  pt: ["0.75rem", "0.8rem", "0.9rem"],
                   pb: ["0.75rem", "0.75rem", "0.9rem"],
                   display: "flex",
                   flexDirection: "column",
                   gap: "0.8rem",
                 }}
               >
-                <Box
-                  sx={{
-                    flex: 1,
-                    minHeight: 0,
-                    display: "grid",
-                    gridTemplateRows: `repeat(${PAGE_SIZE}, minmax(0, 1fr))`,
-                    gap: "0.7rem",
-                  }}
-                >
-                  {paddedRoles.map((role, index) => {
-                    if (!role) {
+                {activeRoles.length === 0 ? (
+                  <Box
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                      border: "1px dashed",
+                      borderColor: "lightgray",
+                      borderRadius: "12px",
+                      bg: "rgba(0,0,0,0.01)",
+                      px: "1rem",
+                    }}
+                  >
+                    <Text sx={{ color: "darkgray", m: 0 }}>
+                      No results found
+                    </Text>
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                      display: "grid",
+                      gridTemplateRows: `repeat(${PAGE_SIZE}, minmax(0, 1fr))`,
+                      gap: "0.7rem",
+                    }}
+                  >
+                    {paddedRoles.map((role, index) => {
+                      if (!role) {
+                        return (
+                          <Box
+                            key={`empty-role-${activeTab}-${index}`}
+                            sx={{
+                              borderRadius: "12px",
+                              border: "1px dashed",
+                              borderColor: "lightgray",
+                              bg: "rgba(0,0,0,0.01)",
+                            }}
+                          />
+                        );
+                      }
+
+                      const roleName = role?.name?.trim() || "Untitled role";
+                      const descriptionText =
+                        role?.description?.trim() || "No description available.";
+                      const RoleIcon = getRoleIcon(roleName);
+                      const scopeMeta = getRoleScopeMeta(role?.roleScope);
+                      const pointValue = Number(role?.pointValue);
+                      const pointLabel = Number.isFinite(pointValue)
+                        ? `${pointValue} pt${pointValue === 1 ? "" : "s"}`
+                        : "-";
+
                       return (
                         <Box
-                          key={`empty-role-${activeTab}-${index}`}
+                          key={role.id}
                           sx={{
+                            position: "relative",
+                            overflow: "hidden",
+                            border: "1px solid",
+                            borderColor: "black",
                             borderRadius: "12px",
-                            border: "1px dashed",
-                            borderColor: "lightgray",
-                            bg: "rgba(0,0,0,0.01)",
+                            p: ["0.75rem", "0.8rem", "0.9rem"],
+                            pt: ["1.5rem", "1.55rem", "1.65rem"],
+                            bg: "background",
+                            display: "flex",
+                            flexDirection: "column",
+                            minHeight: 0,
                           }}
-                        />
-                      );
-                    }
-
-                    const roleName = role?.name?.trim() || "Untitled role";
-                    const descriptionText =
-                      role?.description?.trim() || "No description available.";
-                    const RoleIcon = getRoleIcon(roleName);
-                    const scopeMeta = getRoleScopeMeta(role?.roleScope);
-                    const pointValue = Number(role?.pointValue);
-                    const pointLabel = Number.isFinite(pointValue)
-                      ? `${pointValue} pt${pointValue === 1 ? "" : "s"}`
-                      : "-";
-
-                    return (
-                      <Box
-                        key={role.id}
-                        sx={{
-                          position: "relative",
-                          overflow: "hidden",
-                          border: "1px solid",
-                          borderColor: "black",
-                          borderRadius: "12px",
-                          p: ["0.75rem", "0.8rem", "0.9rem"],
-                          pt: ["1.5rem", "1.55rem", "1.65rem"],
-                          bg: "background",
-                          display: "flex",
-                          flexDirection: "column",
-                          minHeight: 0,
-                        }}
-                      >
-                        <Box
-                          as="span"
-                          sx={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: "16px",
-                            backgroundColor: getVolunteerPointCapColor(
-                              role?.pointValue,
-                            ),
-                          }}
-                        />
+                        >
+                          <Box
+                            as="span"
+                            sx={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              height: "16px",
+                              backgroundColor: getVolunteerPointCapColor(
+                                role?.pointValue,
+                              ),
+                            }}
+                          />
 
                         <Box
                           sx={{
@@ -685,11 +676,11 @@ const VolunteerRolesPage = ({ data, errors }) => {
                             <Heading
                               as="h3"
                               sx={{
-                                variant: "styles.h4",
+                                variant: "styles.h3",
                                 mt: 0,
                                 mb: 0,
                                 minWidth: 0,
-                                fontSize: ["1rem", "1rem", "1.05rem"],
+                                fontSize: ["1.2rem", "1.28rem", "1.36rem"],
                                 lineHeight: 1.2,
                                 display: "-webkit-box",
                                 WebkitLineClamp: 2,
@@ -778,10 +769,11 @@ const VolunteerRolesPage = ({ data, errors }) => {
                         >
                           {descriptionText}
                         </Text>
-                      </Box>
-                    );
-                  })}
-                </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )}
 
                 <Box
                   sx={{

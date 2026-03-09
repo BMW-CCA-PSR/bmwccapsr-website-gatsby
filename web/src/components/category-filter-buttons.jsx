@@ -28,6 +28,7 @@ const CategoryFilterButtons = ({
   onAllToggle,
   onSelectAll,
   layout = "wrap",
+  stretchColumns = 4,
   children
 }) => {
   const handleToggle = (category) => {
@@ -55,7 +56,18 @@ const CategoryFilterButtons = ({
   const containerStyles =
     layout === "inline"
       ? { display: "contents" }
-      : { display: "flex", flexWrap: "wrap", gap: "0.5rem" };
+      : layout === "stretch"
+        ? {
+            display: "grid",
+            gridTemplateColumns: [
+              "1fr",
+              "repeat(2, minmax(0, 1fr))",
+              `repeat(${Math.max(1, Number(stretchColumns) || 1)}, minmax(0, 1fr))`,
+            ],
+            gap: "0.5rem",
+            width: "100%",
+          }
+        : { display: "flex", flexWrap: "wrap", gap: "0.5rem" };
 
   return (
     <Box sx={containerStyles}>
@@ -81,6 +93,7 @@ const CategoryFilterButtons = ({
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
+              width: layout === "stretch" ? "100%" : "auto",
               bg: isActive ? "primary" : "background",
               color: isActive ? "white" : "text",
               borderRadius: "999px",

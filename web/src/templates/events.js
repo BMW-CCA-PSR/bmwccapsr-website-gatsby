@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { graphql } from "gatsby";
 import { mapEdgesToNodes, filterOutDocsWithoutSlugs } from "../lib/helpers";
 import { Box, Button, Heading, Text } from "@theme-ui/components";
+import { FiSliders } from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
@@ -10,7 +11,15 @@ import EventPagePreview from "../components/event-page-preview";
 import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
 import { Client } from "../services/FetchClient";
-import CategoryFilterButtons from "../components/category-filter-buttons";
+import {
+  FilterBox,
+  FilterField,
+  FilterGrid,
+  FilterPillButton,
+  FilterPillRow,
+  FilterSearchField,
+  FilterSelect,
+} from "../components/filter-ui";
 
 const buildPaginationItems = (current, total, delta = 2) => {
   if (total <= 7) {
@@ -50,6 +59,13 @@ const monthOptions = [
   { value: "9", label: "October" },
   { value: "10", label: "November" },
   { value: "11", label: "December" },
+];
+
+const sortOptions = [
+  { value: "dateAsc", label: "Date: Soonest" },
+  { value: "dateDesc", label: "Date: Latest" },
+  { value: "titleAsc", label: "Title: A-Z" },
+  { value: "titleDesc", label: "Title: Z-A" },
 ];
 
 export const query = graphql`
@@ -127,8 +143,9 @@ const IndexPage = (props) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedYear, setSelectedYear] = useState(String(currentYear));
-  const [excludeBoardMeetings, setExcludeBoardMeetings] = useState(false);
   const [activeOnly, setActiveOnly] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSort, setSelectedSort] = useState("dateAsc");
   const [pageIndex, setPageIndex] = useState(currentPage || 1);
   const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
   const locationSearch = props.location?.search || "";
@@ -147,7 +164,10 @@ const IndexPage = (props) => {
       if (event?.category?.title) unique.add(event.category.title);
     });
     const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
-    return ["All", ...sorted];
+    return [
+      { value: "all", label: "All categories" },
+      ...sorted.map((value) => ({ value, label: value })),
+    ];
   }, [scopedEvents]);
   const allYears = useMemo(() => {
     const unique = new Set();
@@ -191,8 +211,9 @@ const IndexPage = (props) => {
     const categoryParam = params.get("category");
     const monthParam = params.get("month");
     const yearParam = params.get("year");
-    const excludeParam = params.get("excludeBoard");
     const activeParam = params.get("active");
+    const queryParam = params.get("q");
+    const sortParam = params.get("sort");
     const requestActiveOnly = !(activeParam === "0" || activeParam === "false");
     if (!requestActiveOnly) {
       setActiveOnly(false);
@@ -203,7 +224,7 @@ const IndexPage = (props) => {
         .map((category) => category.trim())
         .filter(Boolean);
       if (requestedCategories.length) {
-        setSelectedCategories(requestedCategories);
+        setSelectedCategories([requestedCategories[0]]);
       }
     }
     if (
@@ -216,8 +237,11 @@ const IndexPage = (props) => {
     if (yearParam && validYears.includes(Number(yearParam))) {
       setSelectedYear(yearParam);
     }
-    if (excludeParam === "1" || excludeParam === "true") {
-      setExcludeBoardMeetings(true);
+    if (queryParam) {
+      setSearchTerm(queryParam.trim());
+    }
+    if (sortParam && sortOptions.some((option) => option.value === sortParam)) {
+      setSelectedSort(sortParam);
     }
     setHasInitializedFilters(true);
   }, [hasInitializedFilters, locationSearch, years, allYears]);
@@ -240,8 +264,9 @@ const IndexPage = (props) => {
     selectedCategories,
     selectedMonth,
     selectedYear,
-    excludeBoardMeetings,
     activeOnly,
+    searchTerm,
+    selectedSort,
   ]);
 
   useEffect(() => {
@@ -254,7 +279,7 @@ const IndexPage = (props) => {
     };
     const params = new URLSearchParams(locationSearch);
     if (selectedCategories.length) {
-      params.set("category", selectedCategories.join(","));
+      params.set("category", selectedCategories[0]);
     } else {
       params.delete("category");
     }
@@ -268,15 +293,20 @@ const IndexPage = (props) => {
     } else {
       params.delete("year");
     }
-    if (excludeBoardMeetings) {
-      params.set("excludeBoard", "1");
-    } else {
-      params.delete("excludeBoard");
-    }
     if (!activeOnly) {
       params.set("active", "0");
     } else {
       params.delete("active");
+    }
+    if (searchTerm.trim()) {
+      params.set("q", searchTerm.trim());
+    } else {
+      params.delete("q");
+    }
+    if (selectedSort !== "dateAsc") {
+      params.set("sort", selectedSort);
+    } else {
+      params.delete("sort");
     }
     const nextSearch = params.toString();
     const normalizedPathname = normalizePathname(window.location.pathname);
@@ -290,59 +320,122 @@ const IndexPage = (props) => {
     selectedCategories,
     selectedMonth,
     selectedYear,
-    excludeBoardMeetings,
     activeOnly,
+    searchTerm,
+    selectedSort,
     currentYear,
   ]);
   const selectedMonthLabel =
     monthOptions.find((option) => option.value === selectedMonth)?.label ||
     "All months";
+  const selectedCategoryValue = selectedCategories[0] || "all";
+  const selectedCategoryLabel =
+    categories.find((item) => item.value === selectedCategoryValue)?.label ||
+    "All categories";
   const filterLabelParts = [];
-  if (selectedCategories.length) {
-    filterLabelParts.push(selectedCategories.join(", "));
+  if (selectedCategoryValue !== "all") {
+    filterLabelParts.push(selectedCategoryLabel);
   }
   if (selectedMonth !== "all") filterLabelParts.push(selectedMonthLabel);
   if (selectedYear !== "all") filterLabelParts.push(selectedYear);
-  if (excludeBoardMeetings) filterLabelParts.push("Excluding Board Meetings");
+  if (searchTerm.trim()) filterLabelParts.push(`"${searchTerm.trim()}"`);
+  const hasAnyFilterSelections =
+    selectedCategories.length > 0 ||
+    selectedMonth !== "all" ||
+    selectedYear !== String(currentYear) ||
+    !activeOnly ||
+    selectedSort !== "dateAsc" ||
+    searchTerm.trim().length > 0;
   const filterLabel = filterLabelParts.length
     ? filterLabelParts.join(" · ")
     : "All";
   const eventsHeading = activeOnly
     ? "Upcoming events"
     : "All events (including historical)";
+  const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredEvents = scopedEvents.filter((event) => {
     if (!event?.startTime) return false;
     const eventDate = new Date(event.startTime);
     const eventYear = eventDate.getFullYear();
     const eventMonth = eventDate.getMonth();
-    const title = (event?.title || "").toLowerCase();
-    const isBoardMeeting = title.includes("board meeting");
-    if (excludeBoardMeetings && isBoardMeeting) return false;
+    const haystack = [
+      event?.title,
+      event?.category?.title,
+      event?.venueName,
+      event?.address?.line1,
+      event?.address?.line2,
+      event?.address?.city,
+      event?.address?.state,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    if (normalizedSearch && !haystack.includes(normalizedSearch)) return false;
     const matchesCategory =
-      selectedCategories.length === 0 ||
-      selectedCategories.includes(event?.category?.title);
+      selectedCategoryValue === "all" ||
+      event?.category?.title === selectedCategoryValue;
     const matchesYear =
       selectedYear === "all" || eventYear === Number(selectedYear);
     const matchesMonth =
       selectedMonth === "all" || eventMonth === Number(selectedMonth);
     return matchesCategory && matchesYear && matchesMonth;
   });
+  const sortedEvents = useMemo(() => {
+    const list = [...filteredEvents];
+    list.sort((a, b) => {
+      if (selectedSort === "dateDesc") {
+        return Date.parse(b?.startTime || 0) - Date.parse(a?.startTime || 0);
+      }
+      if (selectedSort === "titleAsc") {
+        return String(a?.title || "").localeCompare(String(b?.title || ""));
+      }
+      if (selectedSort === "titleDesc") {
+        return String(b?.title || "").localeCompare(String(a?.title || ""));
+      }
+      return Date.parse(a?.startTime || 0) - Date.parse(b?.startTime || 0);
+    });
+    return list;
+  }, [filteredEvents, selectedSort]);
   const handleResetFilters = () => {
     setSelectedCategories([]);
     setSelectedMonth("all");
     setSelectedYear(String(currentYear));
-    setExcludeBoardMeetings(false);
     setActiveOnly(true);
+    setSearchTerm("");
+    setSelectedSort("dateAsc");
     setPageIndex(1);
   };
   const pageSize = limit || 12;
-  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(sortedEvents.length / pageSize));
   const safePageIndex = Math.min(pageIndex, totalPages);
-  const paginatedEvents = filteredEvents.slice(
+  const paginatedEvents = sortedEvents.slice(
     (safePageIndex - 1) * pageSize,
     safePageIndex * pageSize,
   );
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
+  const sortControlSx = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.35rem",
+    bg: "lightgray",
+    color: "text",
+    border: "1px solid",
+    borderColor: "gray",
+    borderRadius: "8px",
+    px: "0.65rem",
+    py: "0.25rem",
+    fontSize: "xs",
+    fontWeight: "heading",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    cursor: "pointer",
+    transition: "background-color 160ms ease, border-color 160ms ease",
+    "&:hover": {
+      bg: "#e7f0ff",
+      borderColor: "#90b4f8",
+    },
+  };
 
   if (errors) {
     return (
@@ -392,139 +485,174 @@ const IndexPage = (props) => {
           meetings across the region. Use the filters below to find events that
           fit your interests and schedule.
         </Text>
-        <Heading sx={{ variant: "styles.h3", mt: "0.5rem" }}>Filter</Heading>
-        <Box
-          sx={{
-            mt: "1rem",
-            mb: "1.5rem",
-            p: ["1rem", "1.25rem"],
-            backgroundColor: "lightgray",
-            border: "1px solid",
-            borderColor: "black",
-            borderRadius: "12px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.75rem",
-          }}
-        >
-          <CategoryFilterButtons
-            categories={categories}
-            selectedCategories={selectedCategories}
-            onChange={setSelectedCategories}
-            allLabel="Active"
-            allSelected={activeOnly}
-            onAllToggle={() =>
-              setActiveOnly((prev) => {
-                const next = !prev;
-                if (!next) {
-                  setSelectedYear("all");
-                }
-                return next;
-              })
-            }
-            showDivider
-          >
-            <Button
-              onClick={() => setExcludeBoardMeetings((prev) => !prev)}
+        <FilterBox>
+          <FilterGrid sx={{ gridTemplateColumns: ["1fr"] }}>
+            <Box sx={{ gridColumn: "1 / -1" }}>
+              <FilterSearchField
+                label="Search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search events, venue, category"
+                clearLabel="Reset filters"
+                clearDisabled={!hasAnyFilterSelections}
+                onClear={handleResetFilters}
+              />
+            </Box>
+
+            <Box
               sx={{
-                variant: "buttons.primary",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                bg: excludeBoardMeetings ? "secondary" : "background",
-                color: excludeBoardMeetings ? "white" : "text",
-                borderRadius: "999px",
-                px: "1rem",
-                py: 0,
-                height: "34px",
-                lineHeight: 1,
-                fontSize: "xs",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                "&:hover": {
-                  bg: excludeBoardMeetings ? "primary" : "highlight",
-                  color: "white",
-                },
+                gridColumn: "1 / -1",
+                display: "grid",
+                gridTemplateColumns: ["1fr", "1fr 1fr", "repeat(4, minmax(0, 1fr))"],
+                gap: "0.75rem",
+                alignItems: "end",
               }}
             >
-              Exclude Board Meetings
-            </Button>
-          </CategoryFilterButtons>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-            <Box>
-              <label htmlFor="event-month" sx={{ variant: "text.label" }}>
-                Month
-              </label>
-              <select
-                id="event-month"
-                value={selectedMonth}
-                onChange={(event) => setSelectedMonth(event.target.value)}
-                sx={{
-                  display: "block",
-                  mt: "0.35rem",
-                  px: "0.75rem",
-                  py: "0.5rem",
-                  borderRadius: "6px",
-                  borderColor: "gray",
-                  borderStyle: "solid",
-                  borderWidth: "1px",
-                  minWidth: "180px",
-                  backgroundColor: "background",
-                  fontSize: "xs",
-                  color: "text",
-                }}
-              >
-                {monthOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                <FilterField label="Status">
+                  <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
+                    <FilterPillButton
+                      type="button"
+                      onClick={() => setActiveOnly(true)}
+                      active={activeOnly}
+                      activeBg="primary"
+                      activeHoverBg="secondary"
+                      sx={{ flex: "1 1 0" }}
+                    >
+                      Active
+                    </FilterPillButton>
+                    <FilterPillButton
+                      type="button"
+                      onClick={() => {
+                        setActiveOnly(false);
+                        setSelectedYear("all");
+                      }}
+                      active={!activeOnly}
+                      activeBg="primary"
+                      activeHoverBg="secondary"
+                      sx={{ flex: "1 1 0" }}
+                    >
+                      All
+                    </FilterPillButton>
+                  </FilterPillRow>
+                </FilterField>
+                <FilterField label="Category">
+                  <FilterSelect
+                    value={selectedCategoryValue}
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      if (next === "all") {
+                        setSelectedCategories([]);
+                        return;
+                      }
+                      setSelectedCategories([next]);
+                    }}
+                  >
+                    {categories.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </FilterSelect>
+                </FilterField>
+                <FilterField label="Month">
+                  <FilterSelect
+                    id="event-month"
+                    value={selectedMonth}
+                    onChange={(event) => setSelectedMonth(event.target.value)}
+                  >
+                    {monthOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </FilterSelect>
+                </FilterField>
+
+                <FilterField label="Year">
+                  <FilterSelect
+                    id="event-year"
+                    value={selectedYear}
+                    onChange={(event) => setSelectedYear(event.target.value)}
+                  >
+                    <option value="all">All years</option>
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </FilterSelect>
+                </FilterField>
             </Box>
-            <Box>
-              <label htmlFor="event-year" sx={{ variant: "text.label" }}>
-                Year
-              </label>
-              <select
-                id="event-year"
-                value={selectedYear}
-                onChange={(event) => setSelectedYear(event.target.value)}
-                sx={{
-                  display: "block",
-                  mt: "0.35rem",
-                  px: "0.75rem",
-                  py: "0.5rem",
-                  borderRadius: "6px",
-                  borderColor: "gray",
-                  borderStyle: "solid",
-                  borderWidth: "1px",
-                  minWidth: "140px",
-                  backgroundColor: "background",
-                  fontSize: "xs",
-                  color: "text",
-                }}
-              >
-                <option value="all">All years</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </Box>
-          </Box>
-        </Box>
-        <Heading
+          </FilterGrid>
+        </FilterBox>
+        <Box
           sx={{
-            variant: "styles.h3",
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) auto",
+            columnGap: "0.75rem",
+            rowGap: "0.25rem",
+            alignItems: "end",
             borderBottomStyle: "solid",
             pb: "3px",
             borderBottomWidth: "3px",
             my: "0.5rem",
           }}
         >
-          {eventsHeading} — {filterLabel}
-        </Heading>
+          <Heading
+            sx={{
+              variant: "styles.h3",
+              mb: 0,
+              minWidth: 0,
+              overflowWrap: "anywhere",
+              lineHeight: 1.2,
+            }}
+          >
+            {eventsHeading} — {filterLabel}
+          </Heading>
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              justifySelf: "end",
+              ...sortControlSx,
+            }}
+          >
+            <FiSliders size={20} />
+            <FilterSelect
+              aria-label="Sort events"
+              value={selectedSort}
+              onChange={(event) => setSelectedSort(event.target.value)}
+              sx={{
+                minWidth: "170px",
+                bg: "transparent",
+                border: "none",
+                color: "text",
+                fontSize: "xs",
+                fontWeight: "heading",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                py: 0,
+                px: 0,
+                cursor: "pointer",
+                "&:focus": {
+                  outline: "none",
+                  boxShadow: "none",
+                },
+                "&:focus-visible": {
+                  outline: "none",
+                  boxShadow: "none",
+                },
+              }}
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </FilterSelect>
+          </Box>
+        </Box>
         <div>
           <ul
             sx={{
