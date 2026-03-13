@@ -38,7 +38,7 @@ function Seo({ description, lang, meta, keywords, title, image }) {
               },
               {
                 property: "og:title",
-                content: title
+                content: pageTitle
               },
               {
                 property: "og:description",
@@ -62,7 +62,7 @@ function Seo({ description, lang, meta, keywords, title, image }) {
               },
               {
                 name: "twitter:title",
-                content: title
+                content: pageTitle
               },
               {
                 name: "twitter:description",
@@ -89,7 +89,8 @@ function Seo({ description, lang, meta, keywords, title, image }) {
 Seo.defaultProps = {
   lang: "en",
   meta: [],
-  keywords: []
+  keywords: [],
+  title: ""
 };
 
 Seo.propTypes = {
@@ -97,7 +98,7 @@ Seo.propTypes = {
   lang: PropTypes.string,
   meta: PropTypes.array,
   keywords: PropTypes.arrayOf(PropTypes.string),
-  title: PropTypes.string.isRequired
+  title: PropTypes.string
 };
 
 export default Seo;

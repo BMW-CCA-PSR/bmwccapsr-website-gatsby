@@ -1,5 +1,6 @@
 // sanity.config.js
 import React from "react";
+import "./variableOverrides.css";
 import { defineConfig } from "sanity";
 import { deskTool } from 'sanity/desk'
 import { unsplashImageAsset } from "sanity-plugin-asset-source-unsplash";

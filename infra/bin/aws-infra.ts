@@ -5,6 +5,7 @@ import { AmplifyInfraStack } from '../lib/amplify-infra-stack';
 import { EcsInfraStack } from '../lib/ecs-infra-stack';
 import { PipelineInfraStack } from '../lib/pipeline-infra-stack';
 import { ClusterInfraStack } from '../lib/cluster-infra-stack';
+import { VolunteerAppsApiStack } from "../lib/volunteer-apps-api-stack";
 
 const env = { 
   account: '992166107237', 
@@ -28,4 +29,5 @@ class GatsbyPreviewInfraStack extends cdk.Stack {
 const app = new cdk.App();
 new GatsbyPreviewInfraStack(app, 'GatsbyPreviewInfraStack', {env: env});
 new AmplifyInfraStack(app, 'AmplifyInfraStack',{env: env});
+new VolunteerAppsApiStack(app, "VolunteerAppsApiStack", { env });
 app.synth();

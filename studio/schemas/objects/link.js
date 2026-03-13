@@ -1,5 +1,23 @@
 import { GoFileSymlinkFile } from 'react-icons/go'
 
+const NAV_LINK_ICON_OPTIONS = [
+  { title: 'Car', value: 'car' },
+  { title: 'Road / Route', value: 'route' },
+  { title: 'Map Pin', value: 'map-pin' },
+  { title: 'Calendar', value: 'calendar' },
+  { title: 'Users / Community', value: 'users' },
+  { title: 'Meetup / Social', value: 'social' },
+  { title: 'Tech / Tools', value: 'tools' },
+  { title: 'Wrench', value: 'wrench' },
+  { title: 'Flag / Motorsport', value: 'flag' },
+  { title: 'Education / Book', value: 'book' },
+  { title: 'Trophy', value: 'trophy' },
+  { title: 'News / Article', value: 'news' },
+  { title: 'Volunteer / Helping Hands', value: 'volunteer' },
+  { title: 'Info', value: 'info' },
+  { title: 'Star', value: 'star' }
+]
+
 export default {
     title: 'Link',
     name: 'link',
@@ -17,6 +35,27 @@ export default {
         title: 'Title',
         name: 'title',
         type: 'string'
+      },
+      {
+        title: 'Description (optional)',
+        name: 'description',
+        type: 'string'
+      },
+      {
+        title: 'Image (optional)',
+        name: 'image',
+        type: 'image',
+        options: {
+          hotspot: true
+        }
+      },
+      {
+        title: 'Icon (optional)',
+        name: 'icon',
+        type: 'string',
+        options: {
+          list: NAV_LINK_ICON_OPTIONS
+        }
       },
       {
         title: 'Landing page',
@@ -44,19 +83,30 @@ export default {
       select: {
         title: 'title',
         landingPage: 'landingPageRoute.slug.current',
-        link: 'href'
+        route: 'route',
+        link: 'href',
+        image: 'image'
       },
-      prepare ({title, landingPage, link}) {
-        let subtitle = 'Not set'
+      prepare ({title, landingPage, route, link, image}) {
+        const normalizedRoute = route
+          ? (route.startsWith('/') ? route : `/${route}`)
+          : null
+
+        let subtitle = 'No destination set'
         if (landingPage) {
           subtitle = `Route: /${landingPage}`
-        }
-        if (link) {
+        } else if (normalizedRoute) {
+          subtitle = `Path: ${normalizedRoute}`
+        } else if (link) {
           subtitle = `External: ${link}`
         }
+
+        const previewTitle = title || normalizedRoute || (landingPage ? `/${landingPage}` : link) || 'Untitled link'
+
         return {
-          title,
-          subtitle
+          title: previewTitle,
+          subtitle,
+          media: image
         }
       }
     }

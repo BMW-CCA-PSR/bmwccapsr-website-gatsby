@@ -1,111 +1,826 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import { format, differenceInHours } from "date-fns";
-import { Heading, Text, Flex, Box } from "@theme-ui/components";
+import { Text, Flex, Box } from "@theme-ui/components";
+import { FiClock, FiShare2, FiSlash } from "react-icons/fi";
+import {
+  FaCalendarPlus,
+  FaClock,
+  FaDollarSign,
+  FaIdBadge,
+  FaTag,
+  FaUsers,
+} from "react-icons/fa";
+import MapCard from "./map-card";
+
+const parseCalendarDate = (value) => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
+
+const toGoogleCalendarStamp = (value) =>
+  value
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
+
+const escapeIcsText = (value = "") =>
+  String(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,");
+
+const buildIcsPayload = ({ title, description, location, start, end, url }) => {
+  const uid = `${Date.now()}-psr@bmwccapsr.org`;
+  const createdAt = toGoogleCalendarStamp(new Date());
+  const startAt = toGoogleCalendarStamp(start);
+  const endAt = toGoogleCalendarStamp(end);
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//BMW CCA PSR//Events//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${createdAt}`,
+    `DTSTART:${startAt}`,
+    `DTEND:${endAt}`,
+    `SUMMARY:${escapeIcsText(title)}`,
+    `DESCRIPTION:${escapeIcsText(description)}`,
+    `LOCATION:${escapeIcsText(location)}`,
+    url ? `URL:${escapeIcsText(url)}` : null,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ]
+    .filter(Boolean)
+    .join("\r\n");
+};
+
+const DEFAULT_MAPBOX_PUBLIC_TOKEN =
+  "pk.eyJ1IjoiZWJveDg2IiwiYSI6ImNpajViaWg4ODAwNWp0aG0zOHlxNjh3ZzcifQ.OxQI3tKViy-IIIOrLABCPQ";
+
+const detailLabelSx = {
+  variant: "text.label",
+  display: "block",
+  color: "gray",
+  letterSpacing: "0.04em",
+  textTransform: "uppercase",
+  mb: "0.2rem",
+};
+
+const detailValueSx = {
+  variant: "styles.p",
+  display: "block",
+  mt: 0,
+  mb: "0.85rem",
+  textAlign: "left",
+};
+
+const neutralDetailPillSx = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "0.4rem",
+  px: "0.6rem",
+  py: "0.2rem",
+  borderRadius: "999px",
+  fontSize: "xs",
+  fontWeight: "heading",
+  bg: "lightgray",
+  color: "text",
+  mb: "0.85rem",
+};
 
 function EventDetails(props) {
-    const { startTime, endTime } = props;
-    const address = props.address || {};
-    var start = startTime && (format(new Date(startTime), "eeee MMMM do, yyyy"))
-    var numHours = startTime && endTime && (differenceInHours(new Date(endTime), new Date(startTime)))
-    const isOnline = Boolean(props.onlineEvent)
-    return (
-    <Box sx={{
-        backgroundColor: "lightgray",
+  const { startTime, endTime, isPast } = props;
+  const address = props.address || {};
+  const [isCalendarMenuOpen, setIsCalendarMenuOpen] = React.useState(false);
+  const calendarMenuRef = React.useRef(null);
+
+  const startDate = parseCalendarDate(startTime);
+  const endDate = parseCalendarDate(endTime);
+  const start = startDate ? format(startDate, "eeee MMMM do, yyyy") : null;
+  const startTimeLabel = startDate ? format(startDate, "p") : null;
+  const numHours =
+    startDate && endDate
+      ? differenceInHours(new Date(endDate), new Date(startDate))
+      : null;
+
+  const onlineText = [
+    props.venueName,
+    address.line1,
+    address.line2,
+    address.city,
+    address.state,
+    props.website,
+    props.onlineLink,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const hasOnlineKeyword = /(zoom|online|remote|virtual|teams|meet)/i.test(
+    onlineText
+  );
+  const isOnline = Boolean(
+    props.onlineEvent || props.onlineLink || hasOnlineKeyword
+  );
+  const calendarStartDate = startDate;
+  const calendarEndDate = endDate;
+  const defaultCalendarEndDate = calendarStartDate
+    ? new Date(calendarStartDate.getTime() + 2 * 60 * 60 * 1000)
+    : null;
+  const finalCalendarEndDate =
+    calendarEndDate && calendarStartDate && calendarEndDate > calendarStartDate
+      ? calendarEndDate
+      : defaultCalendarEndDate;
+
+  const eventLocation = [props.venueName, address.city, address.state]
+    .filter(Boolean)
+    .join(", ");
+  const calendarTitle = props.title || "BMW CCA PSR Event";
+  const calendarDescription = `Event: ${props.title || "BMW CCA PSR Event"}${
+    start ? ` on ${start}` : ""
+  }`;
+  const eventUrl =
+    props.website ||
+    props.onlineLink ||
+    (typeof window !== "undefined" ? window.location.href : "");
+  const hasCalendarData =
+    Boolean(calendarStartDate) && Boolean(finalCalendarEndDate);
+  const googleCalendarUrl = hasCalendarData
+    ? `https://calendar.google.com/calendar/render?${new URLSearchParams({
+        action: "TEMPLATE",
+        text: calendarTitle,
+        details: calendarDescription,
+        location: eventLocation || "",
+        dates: `${toGoogleCalendarStamp(
+          calendarStartDate
+        )}/${toGoogleCalendarStamp(finalCalendarEndDate)}`,
+      }).toString()}`
+    : null;
+  const outlookCalendarUrl = hasCalendarData
+    ? `https://outlook.live.com/calendar/0/deeplink/compose?${new URLSearchParams(
+        {
+          path: "/calendar/action/compose",
+          rru: "addevent",
+          subject: calendarTitle,
+          body: calendarDescription,
+          location: eventLocation || "",
+          startdt: calendarStartDate.toISOString(),
+          enddt: finalCalendarEndDate.toISOString(),
+        }
+      ).toString()}`
+    : null;
+
+  const mapboxToken =
+    process.env.GATSBY_SANITY_MAPBOX_TOKEN ||
+    process.env.GATSBY_MAPBOX_TOKEN ||
+    DEFAULT_MAPBOX_PUBLIC_TOKEN;
+  const hasValidAddress = Boolean(
+    !isOnline && address.line1 && address.city && address.state
+  );
+  const explicitLatitude = Number.parseFloat(
+    String(props?.location?.lat ?? "")
+  );
+  const explicitLongitude = Number.parseFloat(
+    String(props?.location?.lng ?? "")
+  );
+  const hasExplicitCoordinates =
+    Number.isFinite(explicitLatitude) && Number.isFinite(explicitLongitude);
+  const [resolvedMapCoords, setResolvedMapCoords] = React.useState(
+    hasExplicitCoordinates
+      ? { latitude: explicitLatitude, longitude: explicitLongitude }
+      : null
+  );
+
+  React.useEffect(() => {
+    if (!isCalendarMenuOpen) return undefined;
+    const handlePointerDown = (event) => {
+      if (
+        calendarMenuRef.current &&
+        !calendarMenuRef.current.contains(event.target)
+      ) {
+        setIsCalendarMenuOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setIsCalendarMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isCalendarMenuOpen]);
+
+  React.useEffect(() => {
+    if (hasExplicitCoordinates) {
+      setResolvedMapCoords({
+        latitude: explicitLatitude,
+        longitude: explicitLongitude,
+      });
+      return undefined;
+    }
+
+    if (!hasValidAddress || !mapboxToken || typeof window === "undefined") {
+      setResolvedMapCoords(null);
+      return undefined;
+    }
+
+    let isCurrent = true;
+    const fullAddress = [
+      address.line1,
+      address.line2,
+      address.city,
+      address.state,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    const geocodeAddress = async () => {
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            fullAddress
+          )}.json?access_token=${encodeURIComponent(
+            mapboxToken
+          )}&limit=1&autocomplete=false&country=US`
+        );
+        if (!response.ok) {
+          if (isCurrent) setResolvedMapCoords(null);
+          return;
+        }
+        const payload = await response.json();
+        const center = payload?.features?.[0]?.center;
+        const longitude = Number.parseFloat(String(center?.[0] ?? ""));
+        const latitude = Number.parseFloat(String(center?.[1] ?? ""));
+        if (
+          isCurrent &&
+          Number.isFinite(latitude) &&
+          Number.isFinite(longitude)
+        ) {
+          setResolvedMapCoords({ latitude, longitude });
+        } else if (isCurrent) {
+          setResolvedMapCoords(null);
+        }
+      } catch (_) {
+        if (isCurrent) setResolvedMapCoords(null);
+      }
+    };
+
+    geocodeAddress();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [
+    address.city,
+    address.line1,
+    address.line2,
+    address.state,
+    explicitLatitude,
+    explicitLongitude,
+    hasExplicitCoordinates,
+    hasValidAddress,
+    mapboxToken,
+  ]);
+
+  const handleDownloadIcs = React.useCallback(() => {
+    if (!hasCalendarData || typeof window === "undefined") return;
+    const fileBody = buildIcsPayload({
+      title: calendarTitle,
+      description: calendarDescription,
+      location: eventLocation || "",
+      start: calendarStartDate,
+      end: finalCalendarEndDate,
+      url: eventUrl || window.location.href,
+    });
+    const blob = new Blob([fileBody], {
+      type: "text/calendar;charset=utf-8",
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = `${
+      calendarTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "") || "event"
+    }.ics`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  }, [
+    calendarDescription,
+    calendarStartDate,
+    calendarTitle,
+    eventLocation,
+    eventUrl,
+    finalCalendarEndDate,
+    hasCalendarData,
+  ]);
+
+  const handleShare = React.useCallback(async () => {
+    if (typeof window === "undefined") return;
+    const shareUrl = eventUrl || window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: calendarTitle,
+          text: calendarDescription,
+          url: shareUrl,
+        });
+        return;
+      } catch (_) {
+        return;
+      }
+    }
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+      } catch (_) {
+        // no-op
+      }
+    }
+  }, [calendarDescription, calendarTitle, eventUrl]);
+
+  const addressLine = [address.line1, address.line2].filter(Boolean).join(", ");
+  const cityStateLine = [address.city, address.state]
+    .filter(Boolean)
+    .join(", ");
+  const iconActionButtonSx = {
+    width: "44px",
+    height: "42px",
+    borderRadius: "8px",
+    border: "1px solid",
+    borderColor: "lightgray",
+    backgroundColor: "lightgray",
+    color: "text",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textDecoration: "none",
+    cursor: "pointer",
+    transition: "background-color 150ms ease, color 150ms ease",
+    "&:hover": {
+      backgroundColor: "#d8d8d8",
+      color: "primary",
+    },
+  };
+  const hasMembershipRequired =
+    props.membershipRequired !== undefined && props.membershipRequired !== null;
+
+  return (
+    <Box
+      sx={{
         width: "100%",
         mx: "auto",
         borderRadius: "18px",
         overflow: "hidden",
-    }}>
-        <Flex sx={{
-        flexDirection: ["column", "column", "row"],
-        }}>
-            {/* Left col (text) */}
-            <Flex sx={{
+        border: "1px solid",
+        borderColor: "black",
+        backgroundColor: "background",
+      }}
+    >
+      {isPast && (
+        <Box
+          sx={{
             width: "100%",
-            flexDirection: ["column", "row"],
-            alignItems: "flex-start",
-            textAlign: ["center", "left"],
-            mx: "auto",
-            }}>
-                <Flex sx={{
-                    flexDirection: "column",
-                    width: "100%",
-                    alignItems: "flex-start",
-                    p: 3
-                }}>
-                    <Heading variant="styles.h3" sx={{pb: 3}}>Details</Heading>
-                    <Heading variant="styles.h4">Date</Heading>
-                    <Text variant="styles.p">{start}</Text>
-                    <Heading variant="styles.h4">Time</Heading>
-                    <Text variant="styles.p">{format(new Date(startTime), "p")}</Text>
-                    <Heading variant="styles.h4">Length</Heading>
-                    <Text variant="styles.p">{numHours} hours</Text>
-                    <Heading variant="styles.h4">Cost</Heading>
-                    <Text variant="styles.p">{!props.cost || props.cost === 0 ? "Free" : `$${props.cost}`}</Text>
-                    {props.poc && <Heading variant="styles.h4">Point of Contact</Heading>}
-                    {props.poc ? props.poc.name && <Text variant="styles.p">{props.poc.name}</Text> : null}
-                    {props.poc ? props.poc.contact && <Text variant="styles.p">{props.poc.contact}</Text> : null}
-                </Flex>
-                <Flex sx={{
-                    flexDirection: "column",
-                    width: "100%",
-                    alignItems: "flex-start",
-                    p: 3
-                }}>
-                    {isOnline ? (
-                        <>
-                            <Heading variant="styles.h3" sx={{ pb: 3 }}>Online Event</Heading>
-                            <Text variant="styles.p" sx={{ textAlign: "left" }}>
-                                This event is held online. Please reach out to the event organizer for joining information.
-                            </Text>
-                            {props.onlineLink && <Heading variant="styles.h4">Link</Heading>}
-                            {props.onlineLink && (
-                                <Text
-                                    variant="styles.p"
-                                    sx={{ textAlign: "left", width: "100%", wordWrap: "break-word" }}
-                                >
-                                    <a href={props.onlineLink}>Join online</a>
-                                </Text>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            <Heading variant="styles.h3" sx={{ pb: 3 }}>Venue</Heading>
-                            {props.venueName && <Heading variant="styles.h4">Name</Heading>}
-                            {props.venueName && <Text variant="styles.p">{props.venueName}</Text>}
-                            <Heading variant="styles.h4">Address</Heading>
-                            {address.line1 && <Text variant="styles.p">{address.line1}</Text>}
-                            {address.line2 && <Text variant="styles.p">{address.line2}</Text>}
-                            {address.city && address.state && (
-                                <Text variant="styles.p" sx={{ textTransform: "capitalize" }}>
-                                    {address.city}, {address.state}
-                                </Text>
-                            )}
-                            {props.website && <Heading variant="styles.h4">Website</Heading>}
-                            {props.website && (
-                                <Text
-                                    variant="styles.p"
-                                    sx={{ textAlign: "left", width: "100%", wordWrap: "break-word" }}
-                                >
-                                    <a href={props.website}>Link</a>
-                                </Text>
-                            )}
-                        </>
-                    )}
-                </Flex>
-            </Flex>
-            {/* Right col (map) */}
-            {/* <Box sx={{
-                width: "100%",
-                textAlign: "center",
-                display: "block",
-                position: "relative"
-            }}>
-                <EventMap {...props} />
-            </Box> */}
-        </Flex>
-    </Box>)
+            px: 3,
+            py: "0.75rem",
+            backgroundColor: "#f5d76e",
+            color: "black",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            fontSize: "xs",
+            fontWeight: "heading",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.45rem",
+          }}
+        >
+          <FiClock size={14} aria-hidden="true" />
+          <span>This event has already passed</span>
+        </Box>
+      )}
+
+      <Box
+        sx={{
+          backgroundColor: "primary",
+          px: "1.25rem",
+          py: "0.65rem",
+          color: "white",
+        }}
+      >
+        <Text sx={{ variant: "text.label", color: "white" }}>
+          Event details
+        </Text>
+      </Box>
+      {props.title && (
+        <Box sx={{ px: "1.25rem", pt: "0.8rem", pb: "0.15rem" }}>
+          <Text
+            as="div"
+            sx={{ fontSize: "sm", fontWeight: "heading", color: "text" }}
+          >
+            {props.title}
+          </Text>
+          {start && (
+            <Text as="div" sx={{ fontSize: "sm", color: "gray", mt: "0.1rem" }}>
+              {start}
+            </Text>
+          )}
+        </Box>
+      )}
+
+      <Flex
+        sx={{
+          flexDirection: ["column", "column", "row"],
+          gap: ["0.5rem", "0.5rem", "1rem"],
+          p: 3,
+        }}
+      >
+        <Box sx={{ width: "100%" }}>
+          <Text sx={detailLabelSx}>Time</Text>
+          <Text sx={detailValueSx}>{startTimeLabel || "TBD"}</Text>
+
+          <Text sx={detailLabelSx}>Length</Text>
+          <Box as="span" sx={neutralDetailPillSx}>
+            <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+              <FaClock size={12} aria-hidden="true" />
+            </Box>
+            <Box as="span">
+              {Number.isFinite(numHours) && numHours > 0
+                ? `${numHours} hours`
+                : "TBD"}
+            </Box>
+          </Box>
+
+          <Text sx={detailLabelSx}>Cost</Text>
+          <Box as="span" sx={neutralDetailPillSx}>
+            {!props.cost || props.cost === 0 ? (
+              <Box
+                as="span"
+                sx={{
+                  position: "relative",
+                  display: "inline-flex",
+                  width: "12px",
+                  height: "12px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  lineHeight: 0,
+                }}
+              >
+                <FaDollarSign size={12} aria-hidden="true" />
+                <FiSlash
+                  size={16}
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    top: "-2px",
+                    left: "-2px",
+                    color: "red",
+                  }}
+                />
+              </Box>
+            ) : (
+              <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                <FaTag size={12} aria-hidden="true" />
+              </Box>
+            )}
+            <Box as="span">
+              {!props.cost || props.cost === 0 ? "Free" : `$${props.cost}`}
+            </Box>
+          </Box>
+          {hasMembershipRequired && (
+            <>
+              <Text sx={detailLabelSx}>Membership required</Text>
+              {props.membershipRequired ? (
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    px: "0.65rem",
+                    py: "0.14rem",
+                    borderRadius: "999px",
+                    bg: "#f2cf3a",
+                    color: "#2b1f00",
+                    fontSize: "sm",
+                    mb: "0.85rem",
+                  }}
+                >
+                  <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                    <FaIdBadge size={12} aria-hidden="true" />
+                  </Box>
+                  <Box as="span" sx={{ fontWeight: "heading" }}>
+                    Yes
+                  </Box>
+                  <Box
+                    as="span"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      fontSize: "0.78em",
+                      fontStyle: "italic",
+                      color: "inherit",
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    - active BMW CCA membership required
+                  </Box>
+                </Box>
+              ) : (
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    px: "0.65rem",
+                    py: "0.1rem",
+                    borderRadius: "999px",
+                    bg: "lightgray",
+                    color: "text",
+                    fontSize: "sm",
+                    mb: "0.85rem",
+                  }}
+                >
+                  <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                    <FaUsers size={14} aria-hidden="true" />
+                  </Box>
+                  <Box
+                    as="span"
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.2rem",
+                    }}
+                  >
+                    <Box as="span" sx={{ fontWeight: "heading" }}>
+                      No
+                    </Box>
+                    <Box
+                      as="span"
+                      sx={{ fontSize: "0.78em", fontStyle: "italic" }}
+                    >
+                      - anyone can volunteer
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+            </>
+          )}
+
+          {props.poc && (props.poc.name || props.poc.contact) && (
+            <>
+              <Text sx={detailLabelSx}>Point of contact</Text>
+              {props.poc.name && (
+                <Text sx={detailValueSx}>{props.poc.name}</Text>
+              )}
+              {props.poc.contact && (
+                <Text sx={detailValueSx}>{props.poc.contact}</Text>
+              )}
+            </>
+          )}
+          {props.website && (
+            <>
+              <Text sx={detailLabelSx}>Website</Text>
+              <Text
+                variant="styles.p"
+                sx={{
+                  mt: 0,
+                  mb: "0.85rem",
+                  textAlign: "left",
+                  width: "100%",
+                  wordWrap: "break-word",
+                }}
+              >
+                <a href={props.website}>Link</a>
+              </Text>
+            </>
+          )}
+          <Flex
+            sx={{
+              mt: "0.65rem",
+              width: "100%",
+              alignItems: "stretch",
+              gap: "0.5rem",
+            }}
+          >
+            <Box
+              ref={calendarMenuRef}
+              sx={{ position: "relative", flex: "1 1 auto" }}
+            >
+              <Box
+                as="button"
+                type="button"
+                onClick={() =>
+                  hasCalendarData && setIsCalendarMenuOpen((prev) => !prev)
+                }
+                aria-label="Add to calendar"
+                title="Add to calendar"
+                disabled={!hasCalendarData}
+                sx={{
+                  variant: "buttons.primary",
+                  width: "100%",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.4rem",
+                  borderRadius: "8px",
+                  border: 0,
+                  boxShadow: "none",
+                  px: "0.9rem",
+                  py: "0.5rem",
+                  fontSize: "xs",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  cursor: hasCalendarData ? "pointer" : "not-allowed",
+                  opacity: hasCalendarData ? 1 : 0.6,
+                }}
+              >
+                <FaCalendarPlus size={15} aria-hidden="true" />
+                Add to calendar
+              </Box>
+              {isCalendarMenuOpen && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "calc(100% + 6px)",
+                    right: 0,
+                    width: "170px",
+                    border: "1px solid",
+                    borderColor: "lightgray",
+                    borderRadius: "10px",
+                    backgroundColor: "white",
+                    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+                    overflow: "hidden",
+                    zIndex: 12,
+                  }}
+                >
+                  {googleCalendarUrl && (
+                    <a
+                      href={googleCalendarUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      onClick={() => setIsCalendarMenuOpen(false)}
+                      sx={{
+                        display: "block",
+                        px: "0.75rem",
+                        py: "0.55rem",
+                        color: "text",
+                        textDecoration: "none",
+                        fontSize: "xs",
+                        borderBottom: "1px solid",
+                        borderColor: "lightgray",
+                        "&:hover": { backgroundColor: "lightgray" },
+                      }}
+                    >
+                      Google Calendar
+                    </a>
+                  )}
+                  {outlookCalendarUrl && (
+                    <a
+                      href={outlookCalendarUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      onClick={() => setIsCalendarMenuOpen(false)}
+                      sx={{
+                        display: "block",
+                        px: "0.75rem",
+                        py: "0.55rem",
+                        color: "text",
+                        textDecoration: "none",
+                        fontSize: "xs",
+                        borderBottom: "1px solid",
+                        borderColor: "lightgray",
+                        "&:hover": { backgroundColor: "lightgray" },
+                      }}
+                    >
+                      Outlook
+                    </a>
+                  )}
+                  <Box
+                    as="button"
+                    type="button"
+                    onClick={() => {
+                      handleDownloadIcs();
+                      setIsCalendarMenuOpen(false);
+                    }}
+                    disabled={!hasCalendarData}
+                    sx={{
+                      width: "100%",
+                      textAlign: "left",
+                      px: "0.75rem",
+                      py: "0.55rem",
+                      border: 0,
+                      bg: "transparent",
+                      color: hasCalendarData ? "text" : "darkgray",
+                      fontSize: "xs",
+                      cursor: hasCalendarData ? "pointer" : "not-allowed",
+                      "&:hover": {
+                        backgroundColor: hasCalendarData
+                          ? "lightgray"
+                          : "transparent",
+                      },
+                    }}
+                  >
+                    iCal (.ics)
+                  </Box>
+                </Box>
+              )}
+            </Box>
+            <Box
+              as="button"
+              type="button"
+              aria-label="Share event"
+              title="Share event"
+              onClick={handleShare}
+              sx={iconActionButtonSx}
+            >
+              <FiShare2 size={16} aria-hidden="true" />
+            </Box>
+          </Flex>
+        </Box>
+
+        <Box sx={{ width: "100%" }}>
+          {isOnline ? (
+            <>
+              <Text sx={detailLabelSx}>Online event</Text>
+              <Text
+                variant="styles.p"
+                sx={{ mt: 0, mb: "0.65rem", textAlign: "left" }}
+              >
+                This event is held online. Please reach out to the event
+                organizer for joining information.
+              </Text>
+              {props.onlineLink && (
+                <>
+                  <Text sx={detailLabelSx}>Link</Text>
+                  <Text
+                    variant="styles.p"
+                    sx={{
+                      mt: 0,
+                      mb: "0.65rem",
+                      textAlign: "left",
+                      width: "100%",
+                      wordWrap: "break-word",
+                    }}
+                  >
+                    <a href={props.onlineLink}>Join online</a>
+                  </Text>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {props.venueName && (
+                <>
+                  <Text sx={detailLabelSx}>Venue</Text>
+                  <Text sx={detailValueSx}>{props.venueName}</Text>
+                </>
+              )}
+
+              {(addressLine || cityStateLine) && (
+                <>
+                  <Text sx={detailLabelSx}>Address</Text>
+                  {addressLine && <Text sx={detailValueSx}>{addressLine}</Text>}
+                  {cityStateLine && (
+                    <Text
+                      sx={{ ...detailValueSx, textTransform: "capitalize" }}
+                    >
+                      {cityStateLine}
+                    </Text>
+                  )}
+                </>
+              )}
+
+              {hasValidAddress && resolvedMapCoords && (
+                <Box sx={{ mt: "0.35rem" }}>
+                  <MapCard
+                    latitude={resolvedMapCoords.latitude}
+                    longitude={resolvedMapCoords.longitude}
+                    title={props.title}
+                    token={mapboxToken}
+                    showZoomControls={false}
+                    height={["200px", "210px", "220px"]}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        </Box>
+      </Flex>
+    </Box>
+  );
 }
 
 export default EventDetails;

@@ -1,19 +1,14 @@
 /** @jsxImportSource theme-ui */
 import React, { useEffect, useState } from "react";
 import { graphql, Link } from "gatsby";
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Button
-} from "@theme-ui/components";
+import { Box, Flex, Heading, Text, Button } from "@theme-ui/components";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
 import Layout from "../containers/layout";
 import Seo from "../components/seo";
 import GraphQLErrorList from "../components/graphql-error-list";
 import ContentContainer from "../components/content-container";
 import PortableText from "../components/portableText";
+import { BoxIcon } from "../components/box-icons";
 
 const baseJoinUrl = "https://www.bmwcca.org/join";
 const heroImage = "/images/bmw-join-image.jpg";
@@ -34,7 +29,7 @@ const getTrackingParams = (search) => {
     utm_medium: params.get("utm_medium") || params.get("medium") || "",
     utm_campaign: params.get("utm_campaign") || params.get("campaign") || "",
     utm_content: params.get("utm_content") || "",
-    utm_term: params.get("utm_term") || ""
+    utm_term: params.get("utm_term") || "",
   });
 };
 
@@ -65,10 +60,9 @@ const primaryButton = {
   "&:hover": {
     color: "white",
     bg: "highlight",
-    transform: "translateY(-1px)"
-  }
+    transform: "translateY(-1px)",
+  },
 };
-
 
 const QrLandingPage = (props) => {
   const { data, errors, location } = props;
@@ -116,7 +110,7 @@ const QrLandingPage = (props) => {
       const eventParams = cleanParams({
         ...trackingParams,
         entry_source: trackingParams.utm_source || "unknown",
-        page_location: window.location.href
+        page_location: window.location.href,
       });
       window.gtag("event", "qr_landing_view", eventParams);
     }
@@ -127,7 +121,7 @@ const QrLandingPage = (props) => {
       const eventParams = cleanParams({
         ...trackingParams,
         entry_source: trackingParams.utm_source || "unknown",
-        page_location: window.location.href
+        page_location: window.location.href,
       });
       window.gtag("event", "join_click", eventParams);
     }
@@ -156,7 +150,7 @@ const QrLandingPage = (props) => {
             pl: ["16px", "16px", "50px", "100px"],
             pr: ["16px", "16px", "50px", "100px"],
             pt: ["6.5rem", "6.5rem", "9rem", "9rem"],
-            pb: "2rem"
+            pb: "2rem",
           }}
         >
           <Box
@@ -170,7 +164,7 @@ const QrLandingPage = (props) => {
               overflow: "hidden",
               display: "flex",
               flexDirection: ["column", "column", "row"],
-              minHeight: ["auto", "auto", "360px"]
+              minHeight: ["auto", "auto", "360px"],
             }}
           >
             <Box
@@ -179,7 +173,7 @@ const QrLandingPage = (props) => {
                 zIndex: 2,
                 maxWidth: ["100%", "100%", "56%"],
                 p: ["1.5rem", "2rem", "3rem"],
-                pr: ["1.5rem", "2rem", "2.5rem"]
+                pr: ["1.5rem", "2rem", "2.5rem"],
               }}
             >
               {joinHero.label ? (
@@ -187,7 +181,7 @@ const QrLandingPage = (props) => {
                   sx={{
                     variant: "text.label",
                     color: "white",
-                    letterSpacing: "wide"
+                    letterSpacing: "wide",
                   }}
                 >
                   {joinHero.label}
@@ -200,7 +194,7 @@ const QrLandingPage = (props) => {
                     variant: "styles.h1",
                     color: "white",
                     mt: "0.75rem",
-                    maxWidth: "40rem"
+                    maxWidth: "40rem",
                   }}
                 >
                   {joinHero.heading}
@@ -212,7 +206,7 @@ const QrLandingPage = (props) => {
                     fontSize: ["18px", "20px", "24px"],
                     maxWidth: "36rem",
                     mt: "1rem",
-                    lineHeight: "1.5"
+                    lineHeight: "1.5",
                   }}
                 >
                   {joinHero.subheading}
@@ -231,11 +225,11 @@ const QrLandingPage = (props) => {
                 clipPath: [
                   "none",
                   "none",
-                  `polygon(${heroSlant} 0, 100% 0, 100% 100%, 0 100%)`
+                  `polygon(${heroSlant} 0, 100% 0, 100% 100%, 0 100%)`,
                 ],
                 borderTopRightRadius: ["0", "0", "18px"],
                 borderBottomRightRadius: "18px",
-                overflow: "hidden"
+                overflow: "hidden",
               }}
             >
               <Box
@@ -245,7 +239,7 @@ const QrLandingPage = (props) => {
                   backgroundImage: `url(${heroImage})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  transform: "scale(1.05)"
+                  transform: "scale(1.05)",
                 }}
               />
               <Box
@@ -253,7 +247,7 @@ const QrLandingPage = (props) => {
                   position: "absolute",
                   inset: 0,
                   background:
-                    "linear-gradient(120deg, rgba(6, 59, 122, 0.35), rgba(6, 59, 122, 0.1))"
+                    "linear-gradient(120deg, rgba(6, 59, 122, 0.35), rgba(6, 59, 122, 0.1))",
                 }}
               />
             </Box>
@@ -264,7 +258,7 @@ const QrLandingPage = (props) => {
           <ContentContainer
             sx={{
               pl: ["16px", "16px", "50px", "100px"],
-              pr: ["16px", "16px", "50px", "100px"]
+              pr: ["16px", "16px", "50px", "100px"],
             }}
           >
             <Flex
@@ -272,11 +266,19 @@ const QrLandingPage = (props) => {
                 justifyContent: "space-between",
                 alignItems: ["flex-start", "center"],
                 flexDirection: ["column", "row"],
-                gap: "0.75rem"
+                gap: "0.75rem",
               }}
             >
-              <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
+              <Heading as="h2" sx={{ variant: "styles.h2", mb: "0.25rem" }}>
                 Event highlights for {eventYear}
+                <BoxIcon
+                  as="span"
+                  sx={{
+                    display: "inline-grid",
+                    ml: "0.5rem",
+                    verticalAlign: "middle",
+                  }}
+                />
               </Heading>
               <Link
                 to="/events"
@@ -294,8 +296,8 @@ const QrLandingPage = (props) => {
                   letterSpacing: "0.08em",
                   "&:hover": {
                     bg: "highlight",
-                    color: "white"
-                  }
+                    color: "white",
+                  },
                 }}
               >
                 All Events
@@ -308,7 +310,7 @@ const QrLandingPage = (props) => {
                 borderTop: "2px solid",
                 borderColor: "text",
                 mt: "0.75rem",
-                mb: "1.25rem"
+                mb: "1.25rem",
               }}
             />
             {highlightsIntro ? (
@@ -327,13 +329,13 @@ const QrLandingPage = (props) => {
                 boxShadow: "0 18px 28px -20px rgba(0, 0, 0, 0.4)",
                 overflow: "hidden",
                 display: "flex",
-                flexDirection: ["column", "column", "row"]
+                flexDirection: ["column", "column", "row"],
               }}
             >
               <Box
                 sx={{
                   p: ["1.5rem", "1.75rem", "2.25rem"],
-                  flex: "1 1 58%"
+                  flex: "1 1 58%",
                 }}
               >
                 <Heading
@@ -348,7 +350,7 @@ const QrLandingPage = (props) => {
                     listStyleType: "disc",
                     pl: "1.5rem",
                     mt: "1.5rem",
-                    mb: 0
+                    mb: 0,
                   }}
                 >
                   {hpdeItems.map((event) => (
@@ -361,7 +363,7 @@ const QrLandingPage = (props) => {
                           sx={{
                             display: "block",
                             color: "darkgray",
-                            mt: "0.35rem"
+                            mt: "0.35rem",
                           }}
                         >
                           {event.details}
@@ -393,8 +395,8 @@ const QrLandingPage = (props) => {
                     letterSpacing: "0.08em",
                     "&:hover": {
                       bg: "primary",
-                      color: "white"
-                    }
+                      color: "white",
+                    },
                   }}
                 >
                   View All Driver Education Events
@@ -409,11 +411,11 @@ const QrLandingPage = (props) => {
                   clipPath: [
                     "none",
                     "none",
-                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
+                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)",
                   ],
                   borderTopRightRadius: ["0", "0", "18px"],
                   borderBottomRightRadius: "18px",
-                  overflow: "hidden"
+                  overflow: "hidden",
                 }}
               >
                 <Box
@@ -423,14 +425,14 @@ const QrLandingPage = (props) => {
                     inset: 0,
                     zIndex: 1,
                     "&:hover .image-layer": {
-                      filter: "grayscale(100%)"
+                      filter: "grayscale(100%)",
                     },
                     "&:hover .image-tint": {
-                      opacity: 0.55
+                      opacity: 0.55,
                     },
                     "&:hover::after": {
                       opacity: 1,
-                      transform: "translateY(-6px)"
+                      transform: "translateY(-6px)",
                     },
                     "&::after": {
                       content: "attr(data-tooltip)",
@@ -448,8 +450,8 @@ const QrLandingPage = (props) => {
                       transition: "opacity 0.2s ease, transform 0.2s ease",
                       pointerEvents: "none",
                       maxWidth: "90%",
-                      zIndex: 2
-                    }
+                      zIndex: 2,
+                    },
                   }}
                 >
                   <Box
@@ -461,7 +463,7 @@ const QrLandingPage = (props) => {
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       filter: "grayscale(0%)",
-                      transition: "filter 0.2s ease"
+                      transition: "filter 0.2s ease",
                     }}
                   />
                   <Box
@@ -472,7 +474,7 @@ const QrLandingPage = (props) => {
                       backgroundColor: "rgba(30, 148, 255, 0.55)",
                       opacity: 0,
                       transition: "opacity 0.2s ease",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </Box>
@@ -483,7 +485,7 @@ const QrLandingPage = (props) => {
                     background:
                       "linear-gradient(120deg, rgba(6, 59, 122, 0.25), rgba(6, 59, 122, 0.05))",
                     pointerEvents: "none",
-                    zIndex: 0
+                    zIndex: 0,
                   }}
                 />
               </Box>
@@ -499,13 +501,13 @@ const QrLandingPage = (props) => {
                 boxShadow: "0 18px 28px -20px rgba(0, 0, 0, 0.4)",
                 overflow: "hidden",
                 display: "flex",
-                flexDirection: ["column", "column", "row"]
+                flexDirection: ["column", "column", "row"],
               }}
             >
               <Box
                 sx={{
                   p: ["1.5rem", "1.75rem", "2.25rem"],
-                  flex: "1 1 58%"
+                  flex: "1 1 58%",
                 }}
               >
                 <Heading
@@ -522,7 +524,7 @@ const QrLandingPage = (props) => {
                     mt: "1.5rem",
                     mb: 0,
                     columnCount: [1, 1, socialColumns],
-                    columnGap: "1.5rem"
+                    columnGap: "1.5rem",
                   }}
                 >
                   {socialItems.map((event) => (
@@ -538,7 +540,7 @@ const QrLandingPage = (props) => {
                           sx={{
                             display: "block",
                             color: "darkgray",
-                            mt: "0.35rem"
+                            mt: "0.35rem",
                           }}
                         >
                           {event.details}
@@ -570,8 +572,8 @@ const QrLandingPage = (props) => {
                     letterSpacing: "0.08em",
                     "&:hover": {
                       bg: "primary",
-                      color: "white"
-                    }
+                      color: "white",
+                    },
                   }}
                 >
                   View All Social Events
@@ -586,13 +588,13 @@ const QrLandingPage = (props) => {
                   clipPath: [
                     "none",
                     "none",
-                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
+                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)",
                   ],
                   borderTopRightRadius: ["0", "0", "18px"],
                   borderBottomRightRadius: "18px",
                   overflow: "hidden",
                   display: "flex",
-                  flexDirection: ["column", "row", "row"]
+                  flexDirection: ["column", "row", "row"],
                 }}
               >
                 <Box
@@ -605,14 +607,14 @@ const QrLandingPage = (props) => {
                     position: "relative",
                     zIndex: 1,
                     "&:hover .image-layer": {
-                      filter: "grayscale(100%)"
+                      filter: "grayscale(100%)",
                     },
                     "&:hover .image-tint": {
-                      opacity: 0.55
+                      opacity: 0.55,
                     },
                     "&:hover::after": {
                       opacity: 1,
-                      transform: "translateY(-6px)"
+                      transform: "translateY(-6px)",
                     },
                     "&::after": {
                       content: "attr(data-tooltip)",
@@ -630,8 +632,8 @@ const QrLandingPage = (props) => {
                       transition: "opacity 0.2s ease, transform 0.2s ease",
                       pointerEvents: "none",
                       maxWidth: "90%",
-                      zIndex: 2
-                    }
+                      zIndex: 2,
+                    },
                   }}
                 >
                   <Box
@@ -641,9 +643,13 @@ const QrLandingPage = (props) => {
                       inset: 0,
                       backgroundImage: "url(/images/tech1.jpg)",
                       backgroundSize: "cover",
-                      backgroundPosition: "center left",
+                      backgroundPosition: [
+                        "center left",
+                        "center left",
+                        "28% center",
+                      ],
                       filter: "grayscale(0%)",
-                      transition: "filter 0.2s ease"
+                      transition: "filter 0.2s ease",
                     }}
                   />
                   <Box
@@ -654,7 +660,7 @@ const QrLandingPage = (props) => {
                       backgroundColor: "rgba(30, 148, 255, 0.55)",
                       opacity: 0,
                       transition: "opacity 0.2s ease",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </Box>
@@ -665,20 +671,20 @@ const QrLandingPage = (props) => {
                     clipPath: [
                       "none",
                       "none",
-                      "polygon(24% 0, 100% 0, 100% 100%, 0 100%)"
+                      "polygon(24% 0, 100% 0, 100% 100%, 0 100%)",
                     ],
                     ml: ["0", "0", "-20px"],
                     position: "relative",
                     zIndex: 2,
                     "&:hover .image-layer": {
-                      filter: "grayscale(100%)"
+                      filter: "grayscale(100%)",
                     },
                     "&:hover .image-tint": {
-                      opacity: 0.55
+                      opacity: 0.55,
                     },
                     "&:hover::after": {
                       opacity: 1,
-                      transform: "translateY(-6px)"
+                      transform: "translateY(-6px)",
                     },
                     "&::after": {
                       content: "attr(data-tooltip)",
@@ -696,8 +702,8 @@ const QrLandingPage = (props) => {
                       transition: "opacity 0.2s ease, transform 0.2s ease",
                       pointerEvents: "none",
                       maxWidth: "90%",
-                      zIndex: 2
-                    }
+                      zIndex: 2,
+                    },
                   }}
                 >
                   <Box
@@ -709,7 +715,7 @@ const QrLandingPage = (props) => {
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       filter: "grayscale(0%)",
-                      transition: "filter 0.2s ease"
+                      transition: "filter 0.2s ease",
                     }}
                   />
                   <Box
@@ -720,7 +726,7 @@ const QrLandingPage = (props) => {
                       backgroundColor: "rgba(30, 148, 255, 0.55)",
                       opacity: 0,
                       transition: "opacity 0.2s ease",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </Box>
@@ -731,7 +737,7 @@ const QrLandingPage = (props) => {
                     background:
                       "linear-gradient(120deg, rgba(6, 59, 122, 0.2), rgba(6, 59, 122, 0.05))",
                     pointerEvents: "none",
-                    zIndex: 0
+                    zIndex: 0,
                   }}
                 />
               </Box>
@@ -743,11 +749,19 @@ const QrLandingPage = (props) => {
           <ContentContainer
             sx={{
               pl: ["16px", "16px", "50px", "100px"],
-              pr: ["16px", "16px", "50px", "100px"]
+              pr: ["16px", "16px", "50px", "100px"],
             }}
           >
-            <Heading sx={{ variant: "styles.h2", mb: "0.25rem" }}>
+            <Heading as="h2" sx={{ variant: "styles.h2", mb: "0.25rem" }}>
               Member benefits
+              <BoxIcon
+                as="span"
+                sx={{
+                  display: "inline-grid",
+                  ml: "0.5rem",
+                  verticalAlign: "middle",
+                }}
+              />
             </Heading>
             <Box
               as="hr"
@@ -756,11 +770,13 @@ const QrLandingPage = (props) => {
                 borderTop: "2px solid",
                 borderColor: "text",
                 mt: "0.75rem",
-                mb: "1.25rem"
+                mb: "1.25rem",
               }}
             />
             {benefitsIntro ? (
-              <Text sx={{ mt: "0.75rem", maxWidth: "40rem", color: "darkgray" }}>
+              <Text
+                sx={{ mt: "0.75rem", maxWidth: "40rem", color: "darkgray" }}
+              >
                 {benefitsIntro}
               </Text>
             ) : null}
@@ -772,7 +788,7 @@ const QrLandingPage = (props) => {
                 borderRadius: "18px",
                 overflow: "hidden",
                 boxShadow: "0 18px 30px -22px rgba(0, 0, 0, 0.45)",
-                backgroundColor: "lightgray"
+                backgroundColor: "lightgray",
               }}
             >
               <Box
@@ -782,7 +798,7 @@ const QrLandingPage = (props) => {
                   flex: "1 1 55%",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "center"
+                  justifyContent: "center",
                 }}
               >
                 <ul
@@ -790,7 +806,7 @@ const QrLandingPage = (props) => {
                     listStyleType: "disc",
                     pl: "1.5rem",
                     mt: 0,
-                    mb: 0
+                    mb: 0,
                   }}
                 >
                   {benefitsPrimaryList.map((benefit) => (
@@ -800,7 +816,7 @@ const QrLandingPage = (props) => {
                         sx={{
                           fontWeight: "700",
                           color: "text",
-                          fontSize: ["22px", "24px", "26px"]
+                          fontSize: ["22px", "24px", "26px"],
                         }}
                       >
                         {benefit.title}
@@ -824,8 +840,8 @@ const QrLandingPage = (props) => {
                   clipPath: [
                     "none",
                     "none",
-                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)"
-                  ]
+                    "polygon(12% 0, 100% 0, 100% 100%, 0 100%)",
+                  ],
                 }}
               >
                 <Box
@@ -834,11 +850,11 @@ const QrLandingPage = (props) => {
                     inset: 0,
                     zIndex: 1,
                     "&:hover .image-layer": {
-                      filter: "grayscale(100%)"
+                      filter: "grayscale(100%)",
                     },
                     "&:hover .image-tint": {
-                      opacity: 0.55
-                    }
+                      opacity: 0.55,
+                    },
                   }}
                 >
                   <Box
@@ -850,7 +866,7 @@ const QrLandingPage = (props) => {
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       filter: "grayscale(0%)",
-                      transition: "filter 0.2s ease"
+                      transition: "filter 0.2s ease",
                     }}
                   />
                   <Box
@@ -861,7 +877,7 @@ const QrLandingPage = (props) => {
                       backgroundColor: "rgba(30, 148, 255, 0.55)",
                       opacity: 0,
                       transition: "opacity 0.2s ease",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </Box>
@@ -871,7 +887,7 @@ const QrLandingPage = (props) => {
                     inset: 0,
                     background:
                       "linear-gradient(140deg, rgba(6, 59, 122, 0.2), rgba(6, 59, 122, 0))",
-                    pointerEvents: "none"
+                    pointerEvents: "none",
                   }}
                 />
               </Box>
@@ -885,7 +901,7 @@ const QrLandingPage = (props) => {
                 borderRadius: "18px",
                 overflow: "hidden",
                 boxShadow: "0 18px 30px -22px rgba(0, 0, 0, 0.45)",
-                backgroundColor: "lightgray"
+                backgroundColor: "lightgray",
               }}
             >
               <Box
@@ -897,8 +913,8 @@ const QrLandingPage = (props) => {
                   clipPath: [
                     "none",
                     "none",
-                    "polygon(0 0, 100% 0, 88% 100%, 0 100%)"
-                  ]
+                    "polygon(0 0, 100% 0, 88% 100%, 0 100%)",
+                  ],
                 }}
               >
                 <Box
@@ -908,14 +924,14 @@ const QrLandingPage = (props) => {
                     inset: 0,
                     zIndex: 1,
                     "&:hover .image-layer": {
-                      filter: "grayscale(100%)"
+                      filter: "grayscale(100%)",
                     },
                     "&:hover .image-tint": {
-                      opacity: 0.55
+                      opacity: 0.55,
                     },
                     "&:hover::after": {
                       opacity: 1,
-                      transform: "translateY(-6px)"
+                      transform: "translateY(-6px)",
                     },
                     "&::after": {
                       content: "attr(data-tooltip)",
@@ -933,8 +949,8 @@ const QrLandingPage = (props) => {
                       transition: "opacity 0.2s ease, transform 0.2s ease",
                       pointerEvents: "none",
                       maxWidth: "90%",
-                      zIndex: 2
-                    }
+                      zIndex: 2,
+                    },
                   }}
                 >
                   <Box
@@ -946,7 +962,7 @@ const QrLandingPage = (props) => {
                       backgroundSize: "cover",
                       backgroundPosition: "center bottom",
                       filter: "grayscale(0%)",
-                      transition: "filter 0.2s ease"
+                      transition: "filter 0.2s ease",
                     }}
                   />
                   <Box
@@ -957,7 +973,7 @@ const QrLandingPage = (props) => {
                       backgroundColor: "rgba(30, 148, 255, 0.55)",
                       opacity: 0,
                       transition: "opacity 0.2s ease",
-                      pointerEvents: "none"
+                      pointerEvents: "none",
                     }}
                   />
                 </Box>
@@ -967,7 +983,7 @@ const QrLandingPage = (props) => {
                     inset: 0,
                     background:
                       "linear-gradient(160deg, rgba(6, 59, 122, 0.15), rgba(6, 59, 122, 0))",
-                    pointerEvents: "none"
+                    pointerEvents: "none",
                   }}
                 />
               </Box>
@@ -979,7 +995,7 @@ const QrLandingPage = (props) => {
                   flex: "1 1 55%",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "center"
+                  justifyContent: "center",
                 }}
               >
                 <ul
@@ -987,7 +1003,7 @@ const QrLandingPage = (props) => {
                     listStyleType: "disc",
                     pl: "1.5rem",
                     mt: 0,
-                    mb: 0
+                    mb: 0,
                   }}
                 >
                   {benefitsSecondaryList.map((benefit) => (
@@ -997,7 +1013,7 @@ const QrLandingPage = (props) => {
                         sx={{
                           fontWeight: "700",
                           color: "text",
-                          fontSize: ["22px", "24px", "26px"]
+                          fontSize: ["22px", "24px", "26px"],
                         }}
                       >
                         {benefit.title}
@@ -1020,13 +1036,13 @@ const QrLandingPage = (props) => {
                 color: "white",
                 borderRadius: "16px",
                 p: ["1.5rem", "2rem", "2.5rem"],
-                textAlign: "center"
+                textAlign: "center",
               }}
             >
-              <Heading sx={{ variant: "styles.h2", color: "white" }}>
+              <Heading as="h2" sx={{ variant: "styles.h2", color: "white" }}>
                 Ready to join?
               </Heading>
-              <Text sx={{ mt: "0.75rem", maxWidth: "38rem", mx: "auto" }}>
+              <Text sx={{ mt: "1.25rem", maxWidth: "38rem", mx: "auto" }}>
                 Membership gets you access to local events, the national BMW CCA
                 community, and a full calendar of experiences.
               </Text>

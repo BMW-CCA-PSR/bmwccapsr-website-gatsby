@@ -23,6 +23,13 @@ fragment NavMenu on SanityNavigationMenu {
             }
             route
             title
+            icon
+            description
+            image {
+              asset {
+                url
+              }
+            }
             href
           }
         }
@@ -42,6 +49,13 @@ fragment NavMenu on SanityNavigationMenu {
       }
       route
       title
+      icon
+      description
+      image {
+        asset {
+          url
+        }
+      }
       href
     }
   }

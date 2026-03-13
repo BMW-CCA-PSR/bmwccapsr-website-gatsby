@@ -7,7 +7,7 @@ import serializers from "./serializers";
 import { Box } from "@theme-ui/components";
 
 function PortableText(props){
-  const blocks = props.body
+  const blocks = Array.isArray(props.body) ? props.body : []
   const color = props.color
   const boxedSx = props.boxedSx
   const dropCapKey = props.enableDropCap ? (() => {
