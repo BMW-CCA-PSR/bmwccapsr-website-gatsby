@@ -14,6 +14,9 @@ export function filterOutDocsWithoutSlugs({ slug }) {
 }
 
 export function filterOutDocsPublishedInTheFuture({ publishedAt }) {
+  if (process.env.NODE_ENV !== "production") {
+    return true;
+  }
   return !isFuture(parseISO(publishedAt));
 }
 

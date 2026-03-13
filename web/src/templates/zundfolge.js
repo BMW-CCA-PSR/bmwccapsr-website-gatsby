@@ -41,6 +41,11 @@ const buildPaginationItems = (current, total, delta = 2) => {
   return items;
 };
 
+const shouldFilterFutureContent = process.env.NODE_ENV === "production";
+const futureFilter = shouldFilterFutureContent
+  ? filterOutDocsPublishedInTheFuture
+  : () => true;
+
 export const query = graphql`
   query ZundfolgePageQuery($skip: Int!, $limit: Int!) {
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
@@ -162,12 +167,12 @@ const IndexPage = (props) => {
   const postNodes = (data || {}).posts
     ? mapEdgesToNodes(data.posts)
         .filter(filterOutDocsWithoutSlugs)
-        .filter(filterOutDocsPublishedInTheFuture)
+        .filter(futureFilter)
     : [];
   const featuredPost = (data || {}).featured
     ? mapEdgesToNodes(data.featured)
         .filter(filterOutDocsWithoutSlugs)
-        .filter(filterOutDocsPublishedInTheFuture)[0]
+        .filter(futureFilter)[0]
     : null;
   if (!site) {
     console.warn(

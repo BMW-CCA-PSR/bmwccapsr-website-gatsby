@@ -283,6 +283,11 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
         detail: { type: "String" },
         pointValue: { type: "Int" },
         roleScope: { type: "String" },
+        assignmentCardinality: { type: "String" },
+        icon: { type: "String" },
+        color: { type: "String" },
+        presentationIcon: { type: "String" },
+        presentationColor: { type: "String" },
       },
     }),
     schema.buildObjectType({

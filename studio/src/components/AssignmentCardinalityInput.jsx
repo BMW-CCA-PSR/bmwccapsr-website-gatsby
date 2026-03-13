@@ -2,25 +2,25 @@ import React from "react";
 import { set } from "sanity";
 import { Box, Card, Flex, Radio, Stack, Text } from "@sanity/ui";
 
-const ROLE_SCOPE_OPTIONS = [
+const ASSIGNMENT_CARDINALITY_OPTIONS = [
   {
-    value: "event",
-    title: "Event",
-    description: "Role is tied to a specific event date/location.",
+    value: "singleton",
+    title: "Single assignee",
+    description: "One person at a time for this position.",
   },
   {
-    value: "program",
-    title: "Club",
-    description: "Role is ongoing or recurring, not tied to one event.",
+    value: "multiple",
+    title: "Multiple assignees",
+    description: "Many people can be assigned to this position.",
   },
 ];
 
-const RoleScopeInput = (props) => {
+const AssignmentCardinalityInput = (props) => {
   const { value, onChange, readOnly } = props;
 
   return (
     <Stack space={2}>
-      {ROLE_SCOPE_OPTIONS.map((option) => {
+      {ASSIGNMENT_CARDINALITY_OPTIONS.map((option) => {
         const checked = value === option.value;
         return (
           <Card
@@ -64,4 +64,4 @@ const RoleScopeInput = (props) => {
   );
 };
 
-export default RoleScopeInput;
+export default AssignmentCardinalityInput;

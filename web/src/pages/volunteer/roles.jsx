@@ -4,28 +4,11 @@ import { graphql, Link } from "gatsby";
 import { Box, Button, Heading, Text } from "@theme-ui/components";
 import {
   FaAward,
-  FaBullhorn,
   FaCalendarAlt,
-  FaCamera,
-  FaCarSide,
-  FaClipboardCheck,
   FaCogs,
-  FaFlagCheckered,
-  FaHandsHelping,
-  FaHardHat,
-  FaHeart,
-  FaIdBadge,
-  FaMapMarkerAlt,
-  FaRoute,
-  FaShieldAlt,
   FaStar,
   FaTools,
-  FaToolbox,
   FaUserPlus,
-  FaUserAlt,
-  FaUserCheck,
-  FaUsers,
-  FaWrench,
 } from "react-icons/fa";
 import Layout from "../../containers/layout";
 import Seo from "../../components/seo";
@@ -38,7 +21,10 @@ import {
   FilterSearchField,
 } from "../../components/filter-ui";
 import { mapEdgesToNodes } from "../../lib/helpers";
-import { getVolunteerPointCapColor } from "../../lib/volunteerPointStyles";
+import {
+  getVolunteerRoleIconComponent,
+  getVolunteerRolePresentationColor,
+} from "../../lib/volunteerRolePresentation";
 
 export const query = graphql`
   query VolunteerRolesPageQuery {
@@ -58,6 +44,8 @@ export const query = graphql`
           description
           pointValue
           roleScope
+          icon
+          color
         }
       }
     }
@@ -124,43 +112,6 @@ const buildPaginationItems = (current, total, delta = 1) => {
   return items;
 };
 
-const ROLE_ICON_RULES = [
-  {
-    pattern: /(marshal|grid|starter|flag|corner|control)/i,
-    icon: FaFlagCheckered,
-  },
-  {
-    pattern: /(instructor|coach|trainer|mentor)/i,
-    icon: FaUserCheck,
-  },
-  {
-    pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i,
-    icon: FaClipboardCheck,
-  },
-  { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
-  { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
-  { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
-  {
-    pattern: /(communications|announc|pa|social|newsletter|content)/i,
-    icon: FaBullhorn,
-  },
-  { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
-  {
-    pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i,
-    icon: FaToolbox,
-  },
-  { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
-  {
-    pattern: /(car control|ccc|autocross|track|hpde|driving)/i,
-    icon: FaCarSide,
-  },
-  { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
-  { pattern: /(venue|location|site)/i, icon: FaMapMarkerAlt },
-  { pattern: /(worker|crew)/i, icon: FaHardHat },
-  { pattern: /(member|membership)/i, icon: FaUsers },
-  { pattern: /(support|assistant|helper)/i, icon: FaHeart },
-];
-
 const ROLE_BROWSE_FILTERS = [
   {
     value: "track-driving",
@@ -192,13 +143,6 @@ const ROLE_BROWSE_FILTERS = [
   },
 ];
 
-const getRoleIcon = (name) => {
-  const label = String(name || "").trim();
-  if (!label) return FaUserAlt;
-  const match = ROLE_ICON_RULES.find((rule) => rule.pattern.test(label));
-  return match?.icon || FaCogs;
-};
-
 const getRoleBrowseTags = (name) => {
   const label = String(name || "").trim();
   if (!label) return [];
@@ -228,7 +172,7 @@ const getRoleScopeMeta = (value) => {
   }
   if (normalized === "program") {
     return {
-      label: "Program scope",
+      label: "Club scope",
       icon: FaCogs,
       bg: "#eef3f5",
       color: "#334155",
@@ -601,7 +545,13 @@ const VolunteerRolesPage = ({ data, errors }) => {
                       const roleName = role?.name?.trim() || "Untitled role";
                       const descriptionText =
                         role?.description?.trim() || "No description available.";
-                      const RoleIcon = getRoleIcon(roleName);
+                      const RolePresentationIcon = getVolunteerRoleIconComponent(
+                        role?.icon,
+                      );
+                      const rolePresentationColor =
+                        getVolunteerRolePresentationColor(
+                          role?.color,
+                        );
                       const scopeMeta = getRoleScopeMeta(role?.roleScope);
                       const pointValue = Number(role?.pointValue);
                       const pointLabel = Number.isFinite(pointValue)
@@ -633,9 +583,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
                               left: 0,
                               right: 0,
                               height: "16px",
-                              backgroundColor: getVolunteerPointCapColor(
-                                role?.pointValue,
-                              ),
+                              backgroundColor: rolePresentationColor || undefined,
                             }}
                           />
 
@@ -657,22 +605,24 @@ const VolunteerRolesPage = ({ data, errors }) => {
                               flex: "1 1 auto",
                             }}
                           >
-                            <Box
-                              as="span"
-                              sx={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: "24px",
-                                height: "24px",
-                                borderRadius: "999px",
-                                bg: "lightgray",
-                                color: "text",
-                                flex: "0 0 24px",
-                              }}
-                            >
-                              <RoleIcon size={13} aria-hidden="true" />
-                            </Box>
+                            {RolePresentationIcon && (
+                              <Box
+                                as="span"
+                                sx={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: "24px",
+                                  height: "24px",
+                                  borderRadius: "999px",
+                                  bg: rolePresentationColor || undefined,
+                                  color: "white",
+                                  flex: "0 0 24px",
+                                }}
+                              >
+                                <RolePresentationIcon size={13} aria-hidden="true" />
+                              </Box>
+                            )}
                             <Heading
                               as="h3"
                               sx={{

@@ -1,5 +1,11 @@
 /** @jsxImportSource theme-ui */
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Link, graphql } from "gatsby";
 import { Box, Button, Card, Flex, Heading, Text } from "@theme-ui/components";
 import { format, parseISO } from "date-fns";
@@ -23,33 +29,17 @@ import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
-import { FiArrowRight } from "react-icons/fi";
+import { FiArrowRight, FiSliders } from "react-icons/fi";
 import {
   FaAward,
-  FaBullhorn,
   FaCalendarAlt,
-  FaCamera,
-  FaCarSide,
-  FaClipboardCheck,
   FaClipboardList,
-  FaCogs,
-  FaFlagCheckered,
-  FaHandsHelping,
-  FaHardHat,
-  FaHeart,
-  FaIdBadge,
-  FaRoute,
-  FaShieldAlt,
   FaStar,
-  FaToolbox,
   FaTools,
-  FaUserAlt,
-  FaUserCheck,
   FaUserPlus,
   FaUsers,
-  FaWrench,
 } from "react-icons/fa";
-import { getVolunteerPointCapColor } from "../lib/volunteerPointStyles";
+import { getVolunteerRoleIconComponent } from "../lib/volunteerRolePresentation";
 
 export const query = graphql`
   query VolunteerPageQuery {
@@ -68,6 +58,9 @@ export const query = graphql`
             description
             detail
             pointValue
+            roleScope
+            icon
+            color
           }
           slug {
             current
@@ -173,6 +166,28 @@ const sortVolunteerRoles = (items) => {
   });
 };
 
+const sortOptions = [
+  { value: "dateAsc", label: "Date: Soonest" },
+  { value: "dateDesc", label: "Date: Latest" },
+  { value: "titleAsc", label: "Title: A-Z" },
+  { value: "titleDesc", label: "Title: Z-A" },
+  { value: "pointsDesc", label: "Points: Highest" },
+  { value: "pointsAsc", label: "Points: Lowest" },
+];
+
+const scopeOptions = [
+  { value: "all", label: "All scopes" },
+  { value: "event", label: "Event" },
+  { value: "program", label: "Club" },
+];
+
+const skillLevelOptions = [
+  { value: "all", label: "All skill levels" },
+  { value: "entry", label: "Entry" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+];
+
 const getPositionTitle = (position) =>
   position?.role?.name || position?.title || "Volunteer position";
 
@@ -183,7 +198,7 @@ const toTitleCaseWords = (value) =>
     .map((word) =>
       /^[A-Z0-9]+$/.test(word)
         ? word
-        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`,
+        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`
     )
     .join(" ");
 
@@ -199,46 +214,6 @@ const formatRoleFilterLabel = (roleName) => {
   return `${shortLabel} ${toTitleCaseWords(suffix)}`;
 };
 
-const ROLE_CARD_ICON_RULES = [
-  {
-    pattern: /(marshal|grid|starter|flag|corner|control)/i,
-    icon: FaFlagCheckered,
-  },
-  { pattern: /(instructor|coach|trainer|mentor)/i, icon: FaUserCheck },
-  {
-    pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i,
-    icon: FaClipboardCheck,
-  },
-  { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
-  { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
-  { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
-  {
-    pattern: /(communications|announc|pa|social|newsletter|content)/i,
-    icon: FaBullhorn,
-  },
-  { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
-  {
-    pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i,
-    icon: FaToolbox,
-  },
-  { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
-  {
-    pattern: /(car control|ccc|autocross|track|hpde|driving)/i,
-    icon: FaCarSide,
-  },
-  { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
-  { pattern: /(worker|crew)/i, icon: FaHardHat },
-  { pattern: /(member|membership)/i, icon: FaUsers },
-  { pattern: /(support|assistant|helper)/i, icon: FaHeart },
-];
-
-const getRoleCardIcon = (roleName) => {
-  const label = String(roleName || "").trim();
-  if (!label) return FaUserAlt;
-  const match = ROLE_CARD_ICON_RULES.find((rule) => rule.pattern.test(label));
-  return match?.icon || FaCogs;
-};
-
 const formatSkillLevel = (value) => {
   if (!value) return null;
   const normalized = String(value).toLowerCase();
@@ -251,6 +226,21 @@ const formatSkillLevel = (value) => {
     normalized === "advanced"
   )
     return "Advanced";
+  return null;
+};
+
+const getSkillLevelKey = (value) => {
+  if (!value) return null;
+  const normalized = String(value).toLowerCase();
+  if (normalized === "entry") return "entry";
+  if (normalized === "medium" || normalized === "intermediate")
+    return "intermediate";
+  if (
+    normalized === "high" ||
+    normalized === "hard" ||
+    normalized === "advanced"
+  )
+    return "advanced";
   return null;
 };
 
@@ -301,7 +291,7 @@ const VOLUNTEER_CARD_POINTS_PILL_ICON_SIZE = 11;
 const VOLUNTEER_CARD_SKILL_PILL_ICON_SIZE = 14;
 const VOLUNTEER_CARD_MEDIA_SLASH_INSET = "64px";
 const VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX = "volunteerApplicationSession:";
-const VOLUNTEER_APPLIED_CAP_SX = {
+const VOLUNTEER_STATUS_CAP_BASE_SX = {
   position: "absolute",
   top: 0,
   left: 0,
@@ -321,9 +311,27 @@ const VOLUNTEER_APPLIED_CAP_SX = {
   boxShadow: "0 3px 10px rgba(0,0,0,0.18)",
   pointerEvents: "none",
 };
-const VOLUNTEER_WITHDRAWN_CAP_SX = {
-  ...VOLUNTEER_APPLIED_CAP_SX,
-  bg: "#9a1f1f",
+const VOLUNTEER_LANDING_STATUS_CAP_META = {
+  submitted: { label: "Submitted", bg: "#2f9e44", color: "white" },
+  assigned: { label: "Assigned", bg: "#1f7a3f", color: "white" },
+  withdrawn: { label: "Withdrawn", bg: "#f4c430", color: "#1f1f1f" },
+  denied: { label: "Rejected", bg: "#9a1f1f", color: "white" },
+  rejected: { label: "Rejected", bg: "#9a1f1f", color: "white" },
+};
+const VOLUNTEER_FILLED_STATUS_CAP_META = {
+  label: "Filled",
+  bg: "#6b7280",
+  color: "white",
+};
+const VOLUNTEER_ROLES_REFRESH_INTERVAL_MS = 60 * 1000;
+const normalizeApplicationStatus = (value) => {
+  const key = String(value || "")
+    .trim()
+    .toLowerCase();
+  if (!key) return null;
+  if (key === "denied") return "rejected";
+  if (key in VOLUNTEER_LANDING_STATUS_CAP_META) return key;
+  return null;
 };
 
 const VolunteerPage = (props) => {
@@ -331,7 +339,7 @@ const VolunteerPage = (props) => {
   const roleNodes = useMemo(
     () =>
       (data || {}).roles ? sortVolunteerRoles(mapEdgesToNodes(data.roles)) : [],
-    [data],
+    [data]
   );
   const sanity = useMemo(() => new Client(), []);
   const [roles, setRoles] = useState(roleNodes);
@@ -339,22 +347,22 @@ const VolunteerPage = (props) => {
   const [pageIndex, setPageIndex] = useState(1);
   const [statusFilter, setStatusFilter] = useState("active");
   const [selectedRole, setSelectedRole] = useState("all");
-  const [selectedVenue, setSelectedVenue] = useState("all");
-  const [selectedPoint, setSelectedPoint] = useState("all");
+  const [selectedSkill, setSelectedSkill] = useState("all");
+  const [selectedScope, setSelectedScope] = useState("all");
+  const [selectedSort, setSelectedSort] = useState("dateAsc");
   const [searchTerm, setSearchTerm] = useState("");
-  const [appliedPositionIds, setAppliedPositionIds] = useState(() => new Set());
-  const [withdrawnPositionIds, setWithdrawnPositionIds] = useState(
-    () => new Set(),
-  );
+  const [applicationStatusByPosition, setApplicationStatusByPosition] =
+    useState({});
   const [hasInitializedPagination, setHasInitializedPagination] =
     useState(false);
   const locationSearch = props.location?.search || "";
+  const isMountedRef = useRef(true);
 
   const site = (data || {}).site;
   const menuItems = site?.navMenu?.items || [];
   const activeRoles = useMemo(
     () => roles.filter((role) => role?.active !== false),
-    [roles],
+    [roles]
   );
   const rolesByStatus = useMemo(() => {
     if (statusFilter === "all") return roles;
@@ -362,13 +370,13 @@ const VolunteerPage = (props) => {
     return activeRoles.filter((role) => {
       const hasAssignedEvent = Boolean(
         role?.motorsportRegEvent &&
-        (role?.motorsportRegEvent?.eventId ||
-          role?.motorsportRegEvent?.name ||
-          role?.motorsportRegEvent?.start ||
-          role?.motorsportRegEvent?.url ||
-          role?.motorsportRegEvent?.venueName ||
-          role?.motorsportRegEvent?.venueCity ||
-          role?.motorsportRegEvent?.venueRegion),
+          (role?.motorsportRegEvent?.eventId ||
+            role?.motorsportRegEvent?.name ||
+            role?.motorsportRegEvent?.start ||
+            role?.motorsportRegEvent?.url ||
+            role?.motorsportRegEvent?.venueName ||
+            role?.motorsportRegEvent?.venueCity ||
+            role?.motorsportRegEvent?.venueRegion)
       );
       if (!hasAssignedEvent) return true;
       const eventDate = role?.motorsportRegEvent?.start || role?.date;
@@ -406,44 +414,6 @@ const VolunteerPage = (props) => {
     });
     return map;
   }, [roleFilterOptions]);
-  const venueOptions = useMemo(() => {
-    const unique = new Set();
-    rolesByStatus.forEach((role) => {
-      const venueName = role?.motorsportRegEvent?.venueName;
-      if (venueName) unique.add(venueName);
-    });
-    const sorted = Array.from(unique).sort((a, b) => a.localeCompare(b));
-    return [{ value: "all", label: "All venues" }, ...sorted.map((value) => ({
-      value,
-      label: value,
-    }))];
-  }, [rolesByStatus]);
-  const pointOptions = useMemo(() => {
-    const unique = new Set();
-    rolesByStatus.forEach((role) => {
-      if (
-        role?.role?.pointValue !== undefined &&
-        role?.role?.pointValue !== null
-      ) {
-        unique.add(role.role.pointValue);
-      }
-    });
-    const sorted = Array.from(unique).sort((a, b) => a - b);
-    const labeled = sorted.map((value) => ({
-      value: String(value),
-      label: `${value} pt${value === 1 ? "" : "s"}`,
-    }));
-    return [{ value: "all", label: "All point values" }, ...labeled];
-  }, [rolesByStatus]);
-  const pointLabels = useMemo(() => {
-    const map = new Map();
-    pointOptions.forEach((option) => {
-      if (option && typeof option === "object") {
-        map.set(option.value, option.label || option.value);
-      }
-    });
-    return map;
-  }, [pointOptions]);
   const filterLabelParts = [];
   filterLabelParts.push(statusFilter === "active" ? "Active" : "All");
   if (searchTerm.trim()) {
@@ -451,20 +421,33 @@ const VolunteerPage = (props) => {
   }
   if (selectedRole !== "all") {
     filterLabelParts.push(
-      roleLabels.get(selectedRole) || formatRoleFilterLabel(selectedRole),
+      roleLabels.get(selectedRole) || formatRoleFilterLabel(selectedRole)
     );
   }
-  if (selectedVenue !== "all") {
-    filterLabelParts.push(selectedVenue);
+  if (selectedSkill !== "all") {
+    filterLabelParts.push(
+      skillLevelOptions.find((option) => option.value === selectedSkill)
+        ?.label || selectedSkill
+    );
   }
-  if (selectedPoint !== "all") {
-    filterLabelParts.push(pointLabels.get(selectedPoint) || selectedPoint);
+  if (selectedScope !== "all") {
+    filterLabelParts.push(
+      scopeOptions.find((option) => option.value === selectedScope)?.label ||
+        selectedScope
+    );
+  }
+  if (selectedSort !== "dateAsc") {
+    filterLabelParts.push(
+      sortOptions.find((option) => option.value === selectedSort)?.label ||
+        selectedSort
+    );
   }
   const hasAnyFilterSelections =
     statusFilter !== "active" ||
     selectedRole !== "all" ||
-    selectedVenue !== "all" ||
-    selectedPoint !== "all" ||
+    selectedSkill !== "all" ||
+    selectedScope !== "all" ||
+    selectedSort !== "dateAsc" ||
     searchTerm.trim().length > 0;
   const combinedFilterLabel = filterLabelParts.join(" · ");
   const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -487,20 +470,94 @@ const VolunteerPage = (props) => {
     if (selectedRole === "all") return true;
     return selectedRole === role?.role?.name;
   });
-  const filteredByVenue = filteredRoles.filter((role) => {
-    if (selectedVenue === "all") return true;
-    return selectedVenue === role?.motorsportRegEvent?.venueName;
+  const filteredBySkill = filteredRoles.filter((role) => {
+    if (selectedSkill === "all") return true;
+    return getSkillLevelKey(role?.skillLevel) === selectedSkill;
   });
-  const filteredByPoints = filteredByVenue.filter((role) => {
-    if (selectedPoint === "all") return true;
-    return Number(selectedPoint) === role?.role?.pointValue;
+  const filteredByScope = filteredBySkill.filter((role) => {
+    if (selectedScope === "all") return true;
+    const normalizedRoleScope = String(role?.role?.roleScope || "")
+      .trim()
+      .toLowerCase();
+    if (normalizedRoleScope === "event" || normalizedRoleScope === "program") {
+      return normalizedRoleScope === selectedScope;
+    }
+    const hasAssignedEvent = Boolean(
+      role?.motorsportRegEvent &&
+        (role?.motorsportRegEvent?.eventId ||
+          role?.motorsportRegEvent?.name ||
+          role?.motorsportRegEvent?.start ||
+          role?.motorsportRegEvent?.url ||
+          role?.motorsportRegEvent?.venueName ||
+          role?.motorsportRegEvent?.venueCity ||
+          role?.motorsportRegEvent?.venueRegion)
+    );
+    return (hasAssignedEvent ? "event" : "program") === selectedScope;
   });
+  const sortedRoles = useMemo(() => {
+    const list = [...filteredByScope];
+    const getRoleDateValue = (role) => {
+      const value = role?.date || role?.motorsportRegEvent?.start;
+      if (!value) return null;
+      const timestamp = Date.parse(value);
+      return Number.isFinite(timestamp) ? timestamp : null;
+    };
+    const getRolePointsValue = (role) => {
+      const value = Number(role?.role?.pointValue);
+      return Number.isFinite(value) ? value : null;
+    };
+    const getRoleTitleValue = (role) =>
+      String(getPositionTitle(role) || "").toLowerCase();
+    list.sort((a, b) => {
+      if (selectedSort === "dateDesc") {
+        const aDate = getRoleDateValue(a);
+        const bDate = getRoleDateValue(b);
+        if (aDate === null && bDate === null) return 0;
+        if (aDate === null) return 1;
+        if (bDate === null) return -1;
+        if (aDate !== bDate) return bDate - aDate;
+        return getRoleTitleValue(a).localeCompare(getRoleTitleValue(b));
+      }
+      if (selectedSort === "titleAsc") {
+        return getRoleTitleValue(a).localeCompare(getRoleTitleValue(b));
+      }
+      if (selectedSort === "titleDesc") {
+        return getRoleTitleValue(b).localeCompare(getRoleTitleValue(a));
+      }
+      if (selectedSort === "pointsDesc") {
+        const aPoints = getRolePointsValue(a);
+        const bPoints = getRolePointsValue(b);
+        if (aPoints === null && bPoints === null) return 0;
+        if (aPoints === null) return 1;
+        if (bPoints === null) return -1;
+        if (aPoints !== bPoints) return bPoints - aPoints;
+        return getRoleTitleValue(a).localeCompare(getRoleTitleValue(b));
+      }
+      if (selectedSort === "pointsAsc") {
+        const aPoints = getRolePointsValue(a);
+        const bPoints = getRolePointsValue(b);
+        if (aPoints === null && bPoints === null) return 0;
+        if (aPoints === null) return 1;
+        if (bPoints === null) return -1;
+        if (aPoints !== bPoints) return aPoints - bPoints;
+        return getRoleTitleValue(a).localeCompare(getRoleTitleValue(b));
+      }
+      const aDate = getRoleDateValue(a);
+      const bDate = getRoleDateValue(b);
+      if (aDate === null && bDate === null) return 0;
+      if (aDate === null) return 1;
+      if (bDate === null) return -1;
+      if (aDate !== bDate) return aDate - bDate;
+      return getRoleTitleValue(a).localeCompare(getRoleTitleValue(b));
+    });
+    return list;
+  }, [filteredByScope, selectedSort]);
   const pageSize = 6;
-  const totalPages = Math.max(1, Math.ceil(filteredByPoints.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(sortedRoles.length / pageSize));
   const safePageIndex = Math.min(pageIndex, totalPages);
-  const paginatedRoles = filteredByPoints.slice(
+  const paginatedRoles = sortedRoles.slice(
     (safePageIndex - 1) * pageSize,
-    safePageIndex * pageSize,
+    safePageIndex * pageSize
   );
   const nowTimestamp = Date.now();
   const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
@@ -510,24 +567,67 @@ const VolunteerPage = (props) => {
     return local.toISOString().slice(0, 10);
   }, []);
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
+
   useEffect(() => {
-    let isMounted = true;
-    setIsLoading(roleNodes.length === 0);
-    sanity
-      .fetchVolunteerRoles()
-      .then((data) => {
-        if (!isMounted) return;
-        setRoles(sortVolunteerRoles(Array.isArray(data) ? data : []));
-        setIsLoading(false);
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setIsLoading(false);
-      });
+    isMountedRef.current = true;
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
-  }, [sanity, roleNodes.length]);
+  }, []);
+
+  const refreshRoles = useCallback(
+    async ({ allowLoadingState = false } = {}) => {
+      if (allowLoadingState) {
+        setIsLoading((current) => current || roleNodes.length === 0);
+      }
+      try {
+        const data = await sanity.fetchVolunteerRoles();
+        if (!isMountedRef.current) return;
+        setRoles(sortVolunteerRoles(Array.isArray(data) ? data : []));
+      } catch (_error) {
+        // Keep existing role data if the refresh fails.
+      } finally {
+        if (allowLoadingState && isMountedRef.current) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [roleNodes.length, sanity]
+  );
+
+  useEffect(() => {
+    setIsLoading(roleNodes.length === 0);
+    refreshRoles({ allowLoadingState: true });
+  }, [refreshRoles, roleNodes.length]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return undefined;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refreshRoles();
+      }
+    };
+    const handleFocus = () => {
+      refreshRoles();
+    };
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        refreshRoles();
+      }
+    }, VOLUNTEER_ROLES_REFRESH_INTERVAL_MS);
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refreshRoles]);
 
   useEffect(() => {
     if (roleNodes.length && roles.length === 0) {
@@ -541,11 +641,35 @@ const VolunteerPage = (props) => {
   }, [
     roles.length,
     selectedRole,
-    selectedVenue,
-    selectedPoint,
+    selectedSkill,
+    selectedScope,
+    selectedSort,
     statusFilter,
     searchTerm,
   ]);
+  const sortControlSx = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.35rem",
+    bg: "lightgray",
+    color: "text",
+    border: "1px solid",
+    borderColor: "gray",
+    borderRadius: "8px",
+    px: "0.65rem",
+    py: "0.25rem",
+    fontSize: "xs",
+    fontWeight: "heading",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    cursor: "pointer",
+    transition: "background-color 160ms ease, border-color 160ms ease",
+    "&:hover": {
+      bg: "#e7f0ff",
+      borderColor: "#90b4f8",
+    },
+  };
 
   useEffect(() => {
     if (hasInitializedPagination) return;
@@ -577,42 +701,32 @@ const VolunteerPage = (props) => {
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
 
-    const readAppliedPositionIds = () => {
-      const nextApplied = new Set();
-      const nextWithdrawn = new Set();
+    const readApplicationStatuses = () => {
+      const nextStatuses = {};
       Object.keys(window.localStorage).forEach((key) => {
         if (!key.startsWith(VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX)) return;
-        const positionId = key.slice(VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX.length);
+        const positionId = key.slice(
+          VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX.length
+        );
         if (!positionId) return;
         try {
           const raw = window.localStorage.getItem(key);
           if (!raw) return;
           const parsed = JSON.parse(raw);
-          const status = String(parsed?.status || "")
-            .trim()
-            .toLowerCase();
+          const status = normalizeApplicationStatus(parsed?.status);
           const hasApplicationId = Boolean(parsed?.applicationId);
-          if (
-            hasApplicationId &&
-            (status === "submitted" || status === "assigned")
-          ) {
-            nextApplied.add(positionId);
-            return;
-          }
-          if (hasApplicationId && status === "withdrawn") {
-            nextWithdrawn.add(positionId);
-          }
+          if (!hasApplicationId || !status) return;
+          nextStatuses[positionId] = status;
         } catch (_) {
           // Ignore malformed local storage values.
         }
       });
-      setAppliedPositionIds(nextApplied);
-      setWithdrawnPositionIds(nextWithdrawn);
+      setApplicationStatusByPosition(nextStatuses);
     };
 
-    readAppliedPositionIds();
-    window.addEventListener("storage", readAppliedPositionIds);
-    return () => window.removeEventListener("storage", readAppliedPositionIds);
+    readApplicationStatuses();
+    window.addEventListener("storage", readApplicationStatuses);
+    return () => window.removeEventListener("storage", readApplicationStatuses);
   }, []);
 
   if (errors) {
@@ -865,14 +979,15 @@ const VolunteerPage = (props) => {
                 label="Search"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search role, event, venue"
+                placeholder="Search role, event, skill"
                 clearLabel="Clear filters"
                 clearDisabled={!hasAnyFilterSelections}
                 onClear={() => {
                   setStatusFilter("active");
                   setSelectedRole("all");
-                  setSelectedVenue("all");
-                  setSelectedPoint("all");
+                  setSelectedSkill("all");
+                  setSelectedScope("all");
+                  setSelectedSort("dateAsc");
                   setSearchTerm("");
                 }}
                 fieldSx={{ minWidth: ["100%", "320px"] }}
@@ -882,76 +997,80 @@ const VolunteerPage = (props) => {
               sx={{
                 gridColumn: "1 / -1",
                 display: "grid",
-                gridTemplateColumns: ["1fr", "1fr 1fr", "repeat(4, minmax(0, 1fr))"],
+                gridTemplateColumns: [
+                  "1fr",
+                  "1fr 1fr",
+                  "repeat(4, minmax(0, 1fr))",
+                ],
                 gap: "0.75rem",
                 alignItems: "end",
               }}
             >
-                <FilterField label="Status">
-                  <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
-                    <FilterPillButton
-                      type="button"
-                      onClick={() => setStatusFilter("active")}
-                      active={statusFilter === "active"}
-                      sx={{ flex: "1 1 0" }}
+              <FilterField label="Status">
+                <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
+                  <FilterPillButton
+                    type="button"
+                    onClick={() => setStatusFilter("active")}
+                    active={statusFilter === "active"}
+                    sx={{ flex: "1 1 0" }}
+                  >
+                    Active
+                  </FilterPillButton>
+                  <FilterPillButton
+                    type="button"
+                    onClick={() => setStatusFilter("all")}
+                    active={statusFilter === "all"}
+                    sx={{ flex: "1 1 0" }}
+                  >
+                    All
+                  </FilterPillButton>
+                </FilterPillRow>
+              </FilterField>
+              <FilterField label="Role">
+                <FilterSelect
+                  value={selectedRole}
+                  onChange={(event) => setSelectedRole(event.target.value)}
+                >
+                  {roleFilterOptions.map((option) => (
+                    <option
+                      key={`role-filter-${option.value}`}
+                      value={option.value}
                     >
-                      Active
-                    </FilterPillButton>
-                    <FilterPillButton
-                      type="button"
-                      onClick={() => setStatusFilter("all")}
-                      active={statusFilter === "all"}
-                      sx={{ flex: "1 1 0" }}
+                      {option.label}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
+              <FilterField label="Skill level">
+                <FilterSelect
+                  value={selectedSkill}
+                  onChange={(event) => setSelectedSkill(event.target.value)}
+                >
+                  {skillLevelOptions.map((option) => (
+                    <option
+                      key={`skill-filter-${option.value}`}
+                      value={option.value}
                     >
-                      All
-                    </FilterPillButton>
-                  </FilterPillRow>
-                </FilterField>
-                <FilterField label="Role">
-                  <FilterSelect
-                    value={selectedRole}
-                    onChange={(event) => setSelectedRole(event.target.value)}
-                  >
-                    {roleFilterOptions.map((option) => (
-                      <option
-                        key={`role-filter-${option.value}`}
-                        value={option.value}
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </FilterSelect>
-                </FilterField>
-                <FilterField label="Venue">
-                  <FilterSelect
-                    value={selectedVenue}
-                    onChange={(event) => setSelectedVenue(event.target.value)}
-                  >
-                    {venueOptions.map((option) => (
-                      <option
-                        key={`venue-filter-${option.value}`}
-                        value={option.value}
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </FilterSelect>
-                </FilterField>
-                <FilterField label="Points">
-                  <FilterSelect
-                    value={selectedPoint}
-                    onChange={(event) => setSelectedPoint(event.target.value)}
-                  >
-                    {pointOptions.map((option) => (
-                      <option
-                        key={`point-filter-${option.value}`}
-                        value={option.value}
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </FilterSelect>
-                </FilterField>
+                      {option.label}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
+              <FilterField label="Scope">
+                <FilterSelect
+                  value={selectedScope}
+                  onChange={(event) => setSelectedScope(event.target.value)}
+                >
+                  {scopeOptions.map((option) => (
+                    <option
+                      key={`scope-filter-${option.value}`}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
             </Box>
           </FilterGrid>
         </FilterBox>
@@ -979,57 +1098,112 @@ const VolunteerPage = (props) => {
           >
             Positions — {combinedFilterLabel}
           </Heading>
-          <a
-            href="https://motorsportreg.com"
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              display: "inline-block",
-              padding: 15,
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.55rem",
               justifySelf: "end",
-              alignSelf: "end",
+              flexWrap: "wrap",
             }}
           >
-            <img
-              src="https://msr-hotlink.s3.amazonaws.com/powered-by/powered-by-msr-outline@2x.png"
-              alt="Online registration and event management service for motorsport events powered by MotorsportReg.com"
-              title="Online registration and event management service for motorsport events powered by MotorsportReg.com"
-              style={{ width: 185, height: 33, display: "block" }}
-            />
-          </a>
+            <a
+              href="https://motorsportreg.com"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: 0,
+              }}
+            >
+              <img
+                src="https://msr-hotlink.s3.amazonaws.com/powered-by/powered-by-msr-outline@2x.png"
+                alt="Online registration and event management service for motorsport events powered by MotorsportReg.com"
+                title="Online registration and event management service for motorsport events powered by MotorsportReg.com"
+                style={{ width: 185, height: 33, display: "block" }}
+              />
+            </a>
+            <Box
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                ...sortControlSx,
+              }}
+            >
+              <FiSliders size={20} />
+              <FilterSelect
+                aria-label="Sort positions"
+                value={selectedSort}
+                onChange={(event) => setSelectedSort(event.target.value)}
+                sx={{
+                  minWidth: "170px",
+                  bg: "transparent",
+                  border: "none",
+                  color: "text",
+                  fontSize: "xs",
+                  fontWeight: "heading",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  py: 0,
+                  px: 0,
+                  cursor: "pointer",
+                  "&:focus": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                  "&:focus-visible": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                {sortOptions.map((option) => (
+                  <option
+                    key={`role-sort-${option.value}`}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </FilterSelect>
+            </Box>
+          </Box>
         </Box>
         {paginatedRoles.length > 0 && (
           <Box sx={{ display: "grid", gap: "1.25rem" }}>
             {paginatedRoles.map((role) => {
               const rolePositionId = String(role?.id || role?._id || "");
-              const isAppliedOnLanding =
-                Boolean(rolePositionId) && appliedPositionIds.has(rolePositionId);
-              const isWithdrawnOnLanding =
-                Boolean(rolePositionId) &&
-                withdrawnPositionIds.has(rolePositionId);
+              const landingStatusKey = rolePositionId
+                ? applicationStatusByPosition[rolePositionId] || null
+                : null;
+              const landingStatusMeta = landingStatusKey
+                ? VOLUNTEER_LANDING_STATUS_CAP_META[landingStatusKey] || null
+                : null;
               const imageUrl = normalizeImageUrl(
-                role?.motorsportRegEvent?.imageUrl,
+                role?.motorsportRegEvent?.imageUrl
               );
               const hasAssignedEvent = Boolean(
                 role?.motorsportRegEvent &&
-                (role?.motorsportRegEvent?.eventId ||
-                  role?.motorsportRegEvent?.name ||
-                  role?.motorsportRegEvent?.start ||
-                  role?.motorsportRegEvent?.url ||
-                  role?.motorsportRegEvent?.venueName ||
-                  role?.motorsportRegEvent?.venueCity ||
-                  role?.motorsportRegEvent?.venueRegion),
+                  (role?.motorsportRegEvent?.eventId ||
+                    role?.motorsportRegEvent?.name ||
+                    role?.motorsportRegEvent?.start ||
+                    role?.motorsportRegEvent?.url ||
+                    role?.motorsportRegEvent?.venueName ||
+                    role?.motorsportRegEvent?.venueCity ||
+                    role?.motorsportRegEvent?.venueRegion)
               );
               const roleDate = role?.date || role?.motorsportRegEvent?.start;
               const roleStartTimestamp = roleDate ? Date.parse(roleDate) : NaN;
               const registrationStartDate = parseCalendarDate(
-                role?.motorsportRegEvent?.registrationStart,
+                role?.motorsportRegEvent?.registrationStart
               );
               const registrationEndDate = parseCalendarDate(
-                role?.motorsportRegEvent?.registrationEnd,
+                role?.motorsportRegEvent?.registrationEnd
               );
               const hasRegistrationWindow = Boolean(
-                registrationStartDate || registrationEndDate,
+                registrationStartDate || registrationEndDate
               );
               const isRegistrationOpen = hasRegistrationWindow
                 ? (!registrationStartDate ||
@@ -1044,9 +1218,9 @@ const VolunteerPage = (props) => {
                 ? isRegistrationOpen === true
                 : Boolean(
                     hasAssignedEvent &&
-                    roleEventDateToken &&
-                    todayToken &&
-                    roleEventDateToken > todayToken,
+                      roleEventDateToken &&
+                      todayToken &&
+                      roleEventDateToken > todayToken
                   );
               const isUpcoming =
                 Number.isFinite(roleStartTimestamp) &&
@@ -1071,8 +1245,8 @@ const VolunteerPage = (props) => {
                 role?.membershipRequired === true
                   ? "Membership required"
                   : role?.membershipRequired === false
-                    ? "No membership required"
-                    : null;
+                  ? "No membership required"
+                  : null;
               const secondaryMetaParts = [
                 formattedDate,
                 durationLabel,
@@ -1088,14 +1262,26 @@ const VolunteerPage = (props) => {
               const roleUrl = role?.slug?.current
                 ? getVolunteerRoleUrl(role.slug.current)
                 : null;
-              const FallbackRoleIcon = getRoleCardIcon(getPositionTitle(role));
-              const fallbackCapColor = getVolunteerPointCapColor(
-                role?.role?.pointValue,
+              const RolePresentationIcon = getVolunteerRoleIconComponent(
+                role?.role?.icon
               );
               const roleDescription = role?.role?.description?.trim() || "";
               const skillLevelLabel = formatSkillLevel(role?.skillLevel);
               const skillTone = getSkillTone(role?.skillLevel);
               const SkillIcon = getSkillIcon(role?.skillLevel);
+              const assignedVolunteerCount = Number(
+                role?.assignedVolunteerCount
+              );
+              const isNonEventFilled =
+                !hasAssignedEvent &&
+                (role?.active === false ||
+                  (Number.isFinite(assignedVolunteerCount) &&
+                    assignedVolunteerCount > 0));
+              const filledStatusMeta =
+                !landingStatusMeta && isNonEventFilled
+                  ? VOLUNTEER_FILLED_STATUS_CAP_META
+                  : null;
+              const statusCapMeta = landingStatusMeta || filledStatusMeta;
               const cardProps = roleUrl ? { as: Link, to: roleUrl } : {};
               return (
                 <Card
@@ -1136,7 +1322,7 @@ const VolunteerPage = (props) => {
                         ],
                         backgroundColor: hasAssignedEvent
                           ? "lightgray"
-                          : fallbackCapColor,
+                          : "black",
                       }}
                     >
                       {imageUrl && hasAssignedEvent && (
@@ -1159,7 +1345,7 @@ const VolunteerPage = (props) => {
                           }}
                         />
                       )}
-                      {!hasAssignedEvent && (
+                      {!hasAssignedEvent && RolePresentationIcon && (
                         <Flex
                           sx={{
                             position: "absolute",
@@ -1169,17 +1355,19 @@ const VolunteerPage = (props) => {
                             color: "white",
                           }}
                         >
-                          <FallbackRoleIcon size={88} aria-hidden="true" />
+                          <RolePresentationIcon size={88} aria-hidden="true" />
                         </Flex>
                       )}
-                      {isAppliedOnLanding && (
-                        <Box as="span" sx={VOLUNTEER_APPLIED_CAP_SX}>
-                          Applied
-                        </Box>
-                      )}
-                      {!isAppliedOnLanding && isWithdrawnOnLanding && (
-                        <Box as="span" sx={VOLUNTEER_WITHDRAWN_CAP_SX}>
-                          Withdrawn
+                      {statusCapMeta && (
+                        <Box
+                          as="span"
+                          sx={{
+                            ...VOLUNTEER_STATUS_CAP_BASE_SX,
+                            bg: statusCapMeta.bg,
+                            color: statusCapMeta.color,
+                          }}
+                        >
+                          {statusCapMeta.label}
                         </Box>
                       )}
                     </Box>

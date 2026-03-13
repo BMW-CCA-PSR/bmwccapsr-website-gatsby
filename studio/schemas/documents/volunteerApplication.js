@@ -49,9 +49,19 @@ export default {
       title: 'Applicant phone'
     },
     {
-      name: 'applicantNotes',
+      name: 'hasPerformedRoleBefore',
+      type: 'boolean',
+      title: 'Has performed role before'
+    },
+    {
+      name: 'referral',
+      type: 'string',
+      title: 'Referral'
+    },
+    {
+      name: 'notes',
       type: 'text',
-      title: 'Applicant notes',
+      title: 'Notes',
       rows: 4
     },
     {
@@ -93,6 +103,22 @@ export default {
       name: 'deniedAt',
       type: 'datetime',
       title: 'Denied at',
+      hidden: ({document}) => document?.status !== 'denied'
+    },
+    {
+      name: 'rejectedReasonPublic',
+      type: 'text',
+      title: 'Rejected reason (public)',
+      description: 'Shown to the applicant when their application is rejected.',
+      rows: 3,
+      hidden: ({document}) => document?.status !== 'denied'
+    },
+    {
+      name: 'rejectedReasonInternal',
+      type: 'text',
+      title: 'Rejected reason (internal)',
+      description: 'Internal-only staff context for this rejection.',
+      rows: 3,
       hidden: ({document}) => document?.status !== 'denied'
     },
     {

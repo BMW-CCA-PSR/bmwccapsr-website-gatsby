@@ -1,6 +1,19 @@
-import React from "react";
+import { RiUserStarLine as VolunteerRoleIcon } from "react-icons/ri";
 import AutoSlugInput from "../../src/components/AutoSlugInput";
 import AutoSkillLevelInput from "../../src/components/AutoSkillLevelInput";
+import { VOLUNTEER_ICON_COMPONENTS } from "../../src/components/volunteerIconOptions";
+
+const SANITY_API_VERSION = "2021-08-31";
+
+const getRelatedDocumentIds = (documentId) => {
+  const normalizedId = String(documentId || "").trim();
+  if (!normalizedId) return [];
+  const publishedId = normalizedId.replace(/^drafts\./, "");
+  const draftId = publishedId ? `drafts.${publishedId}` : "";
+  return Array.from(
+    new Set([normalizedId, publishedId, draftId].filter(Boolean))
+  );
+};
 
 export default {
   name: "volunteerRole",
@@ -20,7 +33,92 @@ export default {
         type: "volunteerFixedRole",
       },
       title: "Role",
-      validation: (Rule) => Rule.error("Select a role.").required(),
+      options: {
+        filter: async ({ document, getClient }) => {
+          const client = getClient({ apiVersion: SANITY_API_VERSION });
+          const excludedIds = getRelatedDocumentIds(document?._id);
+          const currentRoleId = String(document?.role?._ref || "").trim();
+          const blockedRoleIdsRaw = await client.fetch(
+            `*[
+              _type == "volunteerRole" &&
+              !(_id in $excludedIds) &&
+              role->roleScope == "program" &&
+              role->assignmentCardinality == "singleton" &&
+              defined(role._ref)
+            ].role._ref`,
+            { excludedIds }
+          );
+          const blockedRoleIds = Array.from(
+            new Set(
+              Array.isArray(blockedRoleIdsRaw)
+                ? blockedRoleIdsRaw
+                    .map((value) => String(value || "").trim())
+                    .filter(Boolean)
+                : []
+            )
+          );
+
+          if (blockedRoleIds.length === 0) {
+            return {};
+          }
+
+          return {
+            filter:
+              "!(_id in $blockedRoleIds) || (_id == $currentRoleId && defined($currentRoleId) && $currentRoleId != '')",
+            params: {
+              blockedRoleIds,
+              currentRoleId,
+            },
+          };
+        },
+      },
+      validation: (Rule) =>
+        Rule.error("Select a role.")
+          .required()
+          .custom(async (value, context) => {
+            const roleId = String(value?._ref || "").trim();
+            if (!roleId) return true;
+
+            const client = context.getClient({
+              apiVersion: SANITY_API_VERSION,
+            });
+            const roleConfig = await client.fetch(
+              `*[_type == "volunteerFixedRole" && _id == $roleId][0]{
+                roleScope,
+                assignmentCardinality,
+                name
+              }`,
+              { roleId }
+            );
+
+            const isProgramSingleton =
+              String(roleConfig?.roleScope || "")
+                .trim()
+                .toLowerCase() === "program" &&
+              String(roleConfig?.assignmentCardinality || "")
+                .trim()
+                .toLowerCase() === "singleton";
+
+            if (!isProgramSingleton) return true;
+
+            const excludedIds = getRelatedDocumentIds(context.document?._id);
+            const duplicateCount = await client.fetch(
+              `count(*[
+                _type == "volunteerRole" &&
+                role._ref == $roleId &&
+                !(_id in $excludedIds)
+              ])`,
+              { roleId, excludedIds }
+            );
+
+            if (Number(duplicateCount) > 0) {
+              return `${
+                roleConfig?.name || "This role"
+              } is configured as a club-scope single-assignee role, so only one volunteer position may exist for it at a time.`;
+            }
+
+            return true;
+          }),
     },
     {
       name: "slug",
@@ -53,7 +151,7 @@ export default {
       fieldset: "positionToggles",
       validation: (Rule) =>
         Rule.required().custom((value) =>
-          value === true || value === false ? true : "Select Yes or No.",
+          value === true || value === false ? true : "Select Yes or No."
         ),
     },
     {
@@ -85,7 +183,7 @@ export default {
         Rule.optional().custom((value) =>
           value === undefined || value === null || value >= 0
             ? true
-            : "Provide a duration in hours (numbers only).",
+            : "Provide a duration in hours (numbers only)."
         ),
     },
     {
@@ -93,7 +191,7 @@ export default {
       type: "number",
       title: "Capacity",
       description:
-        "Optional maximum assignments for this position. Leave empty or set to 0 for unlimited assignments.",
+        "Optional override for assignment limit. Leave empty or 0 to use role defaults (single-assignee roles default to 1; multiple-assignee roles default to unlimited).",
       validation: (Rule) =>
         Rule.optional()
           .integer()
@@ -142,12 +240,13 @@ export default {
   preview: {
     select: {
       roleName: "role.name",
+      roleIcon: "role.icon",
+      roleLegacyIcon: "role.presentationIcon",
       eventName: "motorsportRegEvent.name",
       date: "date",
       points: "role.pointValue",
-      imageUrl: "motorsportRegEvent.imageUrl",
     },
-    prepare({ roleName, eventName, date, points, imageUrl }) {
+    prepare({ roleName, roleIcon, roleLegacyIcon, eventName, date, points }) {
       const title = roleName || "Untitled position";
       const subtitleParts = [eventName];
       if (date) subtitleParts.push(date);
@@ -155,18 +254,17 @@ export default {
         subtitleParts.push(`${points} pts`);
       }
       const subtitle = subtitleParts.filter(Boolean).join(" | ");
-      const normalizedUrl =
-        imageUrl && imageUrl.startsWith("//") ? `https:${imageUrl}` : imageUrl;
+      const resolvedIcon = roleIcon || roleLegacyIcon;
+      const IconComponent =
+        VOLUNTEER_ICON_COMPONENTS[
+          String(resolvedIcon || "")
+            .trim()
+            .toLowerCase()
+        ] || VolunteerRoleIcon;
       return {
         title,
         subtitle,
-        media: normalizedUrl
-          ? React.createElement("img", {
-              src: normalizedUrl,
-              alt: title || subtitle || "Volunteer role",
-              style: { objectFit: "cover", width: "100%", height: "100%" },
-            })
-          : undefined,
+        media: IconComponent,
       };
     },
   },

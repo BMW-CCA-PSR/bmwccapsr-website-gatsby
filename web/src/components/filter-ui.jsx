@@ -114,7 +114,9 @@ export const FilterPillButton = ({
       justifyContent: "center",
       bg: active ? activeBg : "background",
       color: active ? "white" : "text",
-      borderRadius: "999px",
+      border: "1px solid",
+      borderColor: active ? "rgba(15,23,42,0.22)" : "rgba(15,23,42,0.14)",
+      borderRadius: "8px",
       px: "0.9rem",
       py: 0,
       height: "34px",
@@ -122,9 +124,16 @@ export const FilterPillButton = ({
       fontSize: "xs",
       textTransform: "uppercase",
       letterSpacing: "0.08em",
+      cursor: "pointer",
+      transition:
+        "background-color 140ms ease, color 140ms ease, border-color 140ms ease",
       "&:hover": {
         bg: active ? activeHoverBg : "highlight",
-        color: "white",
+        color: active ? "white" : "text",
+        borderColor: active ? "rgba(15,23,42,0.3)" : "rgba(15,23,42,0.22)",
+      },
+      "&:active": {
+        transform: "translateY(0.5px)",
       },
       ...sx,
     }}

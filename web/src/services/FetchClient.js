@@ -18,7 +18,7 @@ export class Client {
 
   fetchMostRecentEvent = () => {
     return this.client.fetch(
-      `*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`,
+      `*[_type == "event" && dateTime(startTime) > dateTime(now())]{title, slug} | order(startTime asc)[0]`
     );
   };
 
@@ -38,7 +38,7 @@ export class Client {
         },
         category->{title},
         address{line1, line2, city, state}
-      }`,
+      }`
     );
   };
 
@@ -46,11 +46,14 @@ export class Client {
     return this.client.fetch(
       `*[_type == "volunteerRole"] | order(motorsportRegEvent.start asc, _createdAt desc){
         _id,
+        "assignedVolunteerCount": count(assignedVolunteers[defined(_ref)]),
         role->{
           name,
           description,
           detail,
-          pointValue
+          pointValue,
+          icon,
+          color
         },
         slug,
         active,
@@ -80,7 +83,7 @@ export class Client {
           latitude,
           longitude
         }
-      }`,
+      }`
     );
   };
 
@@ -88,11 +91,15 @@ export class Client {
     if (!slug) return Promise.resolve(null);
     return this.client.fetch(
       `*[_type == "volunteerRole" && slug.current == $slug][0]{
+        active,
+        "assignedVolunteerCount": count(assignedVolunteers[defined(_ref)]),
         role->{
           name,
           description,
           detail,
-          pointValue
+          pointValue,
+          icon,
+          color
         },
         motorsportRegEvent{
           origin,
@@ -117,7 +124,15 @@ export class Client {
           long
         }
       }`,
-      { slug },
+      { slug }
+    );
+  };
+
+  fetchAssignedVolunteerCount = (positionId) => {
+    if (!positionId) return Promise.resolve(null);
+    return this.client.fetch(
+      `count(*[_type == "volunteerApplication" && position._ref == $positionId && status == "assigned" && isActive == true])`,
+      { positionId }
     );
   };
 
@@ -128,8 +143,12 @@ export class Client {
         name,
         description,
         detail,
-        pointValue
-      }`,
+        pointValue,
+        roleScope,
+        assignmentCardinality,
+        icon,
+        color
+      }`
     );
   };
 
@@ -153,7 +172,7 @@ export class Client {
         },
         category->{title},
         address{line1, line2, city, state}
-      }`,
+      }`
     );
   };
 
@@ -174,7 +193,7 @@ export class Client {
         },
         category->{title},
         address{line1, line2, city, state}
-      }`,
+      }`
     );
   };
 }

@@ -35,6 +35,7 @@ const getFooterLink = (item) => {
 
 const STATIC_FOOTER_INTERNAL_PATHS = new Set([
   "/zundfolge",
+  "/zundfolge/archive",
   "/events",
   "/partners",
   "/volunteer",
@@ -301,8 +302,9 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: ["1fr", "repeat(2, minmax(0, 1fr))"],
               gap: "0.45rem 0.9rem",
+              px: "0.85rem",
             }}
           >
             <Link
@@ -324,6 +326,16 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               }}
             >
               Events
+            </Link>
+            <Link
+              to="/zundfolge/archive"
+              sx={{
+                textDecoration: "none",
+                color: "gray",
+                ":hover": { color: "background" },
+              }}
+            >
+              Archive
             </Link>
             <Link
               to="/partners"
@@ -401,8 +413,13 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
         <Box
           sx={{
             display: ["none", "none", "grid"],
-            gridTemplateColumns: ["1fr", "1fr", "1fr 1fr"],
+            gridTemplateColumns: [
+              "1fr",
+              "repeat(2, minmax(0, 1fr))",
+              "repeat(3, minmax(0, 1fr))",
+            ],
             gap: "0.6rem 2rem",
+            px: "0.85rem",
           }}
         >
           <Link
@@ -424,6 +441,16 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
             }}
           >
             Events
+          </Link>
+          <Link
+            to="/zundfolge/archive"
+            sx={{
+              textDecoration: "none",
+              color: "gray",
+              ":hover": { color: "background" },
+            }}
+          >
+            Archive
           </Link>
           <Link
             to="/partners"

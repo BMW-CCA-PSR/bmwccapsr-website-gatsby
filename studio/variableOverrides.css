@@ -1,4 +1,29 @@
 :root {
-    --brand-primary: #1e94ff;
-    --state-info-color: #0653b6;
-  }
+  --brand-primary: #1e94ff;
+  --state-info-color: #0653b6;
+}
+
+/* Remove Sanity preview avatar chrome so icons render like plain list icons */
+[data-ui="PreviewMedia"] {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-ui="PreviewMedia"] [data-ui="Avatar"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-ui="PreviewMedia"] > * {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+[data-ui="PreviewMedia"] [data-ui="Avatar"]::before,
+[data-ui="PreviewMedia"] [data-ui="Avatar"]::after {
+  display: none !important;
+}

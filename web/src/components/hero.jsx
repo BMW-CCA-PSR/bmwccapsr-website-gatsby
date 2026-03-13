@@ -74,7 +74,9 @@ function Hero(props) {
             />
           </Heading>
           <div sx={{py: "20px"}}>
-            <Text variant="styles.h3" sx={{color: `${fontColor}`}}>{props.tagline}</Text>
+            <Text variant="styles.h3" sx={{color: `${fontColor}`, fontWeight: 400}}>
+              {props.tagline}
+            </Text>
           </div>
           {props.cta && props.cta.title && (
             <CTALink {...props.cta} />

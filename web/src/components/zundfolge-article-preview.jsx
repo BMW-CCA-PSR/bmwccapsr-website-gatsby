@@ -81,7 +81,6 @@ function ZundfolgeArticlePreview(props) {
                   textTransform: "uppercase",
                   backgroundImage:
                     "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
                 }}
               >
                 NEW

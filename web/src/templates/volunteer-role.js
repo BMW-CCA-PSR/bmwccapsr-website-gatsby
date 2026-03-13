@@ -13,33 +13,18 @@ import { OutboundLink } from "gatsby-plugin-google-gtag";
 import { BoxIcon } from "../components/box-icons";
 import { FiHelpCircle, FiMaximize2, FiShare2, FiX } from "react-icons/fi";
 import {
-  FaBullhorn,
   FaCalendarPlus,
-  FaCamera,
-  FaCarSide,
   FaCheckCircle,
   FaClock,
   FaAward,
-  FaClipboardCheck,
-  FaCogs,
-  FaFlagCheckered,
   FaGlobe,
-  FaHandsHelping,
-  FaHardHat,
-  FaHeart,
   FaIdBadge,
   FaMapMarkerAlt,
-  FaRoute,
-  FaShieldAlt,
   FaBan,
   FaTools,
-  FaToolbox,
   FaUserPlus,
   FaBriefcase,
-  FaUserAlt,
-  FaUserCheck,
   FaUsers,
-  FaWrench,
 } from "react-icons/fa";
 import { getVolunteerRoleUrl, mapEdgesToNodes } from "../lib/helpers";
 import { Client } from "../services/FetchClient";
@@ -47,7 +32,10 @@ import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
-import { getVolunteerPointCapColor } from "../lib/volunteerPointStyles";
+import {
+  getVolunteerRoleIconComponent,
+  getVolunteerRolePresentationColor,
+} from "../lib/volunteerRolePresentation";
 
 const normalizeImageUrl = (value) => {
   if (!value) return null;
@@ -83,13 +71,13 @@ const isVolunteerPositionActive = (position, todayToken) => {
   const positionEvent = position?.motorsportRegEvent;
   const hasAssignedEvent = Boolean(
     positionEvent &&
-    (positionEvent?.eventId ||
-      positionEvent?.name ||
-      positionEvent?.start ||
-      positionEvent?.url ||
-      positionEvent?.venueName ||
-      positionEvent?.venueCity ||
-      positionEvent?.venueRegion),
+      (positionEvent?.eventId ||
+        positionEvent?.name ||
+        positionEvent?.start ||
+        positionEvent?.url ||
+        positionEvent?.venueName ||
+        positionEvent?.venueCity ||
+        positionEvent?.venueRegion)
   );
 
   if (!hasAssignedEvent) return true;
@@ -220,16 +208,18 @@ const formatVolunteerPoints = (value) => {
 };
 
 const APPLICATION_STATUS_META = {
-  submitted: { label: "Submitted", bg: "#e8f7ec", color: "#1f7a3f" },
-  assigned: { label: "Assigned", bg: "#e8f7ec", color: "#1f7a3f" },
+  submitted: { label: "Submitted", bg: "#e8f7ec", color: "#2f9e44" },
+  assigned: { label: "Assigned", bg: "#dff3e6", color: "#1f7a3f" },
   denied: { label: "Rejected", bg: "#fde8e8", color: "#9a1f1f" },
   rejected: { label: "Rejected", bg: "#fde8e8", color: "#9a1f1f" },
-  withdrawn: { label: "Withdrawn", bg: "#fde8e8", color: "#9a1f1f" },
+  withdrawn: { label: "Withdrawn", bg: "#fff6d5", color: "#8b6b00" },
   expired: { label: "Closed", bg: "#fde8e8", color: "#9a1f1f" },
 };
 
 const getApplicationStatusMeta = (value) => {
-  const key = String(value || "").trim().toLowerCase();
+  const key = String(value || "")
+    .trim()
+    .toLowerCase();
   return (
     APPLICATION_STATUS_META[key] || {
       label: key ? key[0].toUpperCase() + key.slice(1) : "Submitted",
@@ -239,47 +229,18 @@ const getApplicationStatusMeta = (value) => {
   );
 };
 
-const ROLE_ICON_RULES = [
-  {
-    pattern: /(marshal|grid|starter|flag|corner|control)/i,
-    icon: FaFlagCheckered,
-  },
-  {
-    pattern: /(instructor|coach|trainer|mentor)/i,
-    icon: FaUserCheck,
-  },
-  {
-    pattern: /(registration|check[- ]?in|admin|desk|sign[- ]?in)/i,
-    icon: FaClipboardCheck,
-  },
-  { pattern: /(safety|medical|first aid)/i, icon: FaShieldAlt },
-  { pattern: /(photographer|photo|media|video)/i, icon: FaCamera },
-  { pattern: /(route|tour|drive leader|lead car|sweep)/i, icon: FaRoute },
-  {
-    pattern: /(communications|announc|pa|social|newsletter|content)/i,
-    icon: FaBullhorn,
-  },
-  { pattern: /(tech|mechanic|inspection|garage)/i, icon: FaWrench },
-  {
-    pattern: /(pit|equipment|ops|operations|setup|teardown|logistics)/i,
-    icon: FaToolbox,
-  },
-  { pattern: /(hospitality|welcome|host|greeter)/i, icon: FaHandsHelping },
-  {
-    pattern: /(car control|ccc|autocross|track|hpde|driving)/i,
-    icon: FaCarSide,
-  },
-  { pattern: /(coordinator|manager|lead)/i, icon: FaIdBadge },
-  { pattern: /(worker|crew)/i, icon: FaHardHat },
-  { pattern: /(member|membership)/i, icon: FaUsers },
-  { pattern: /(support|assistant|helper)/i, icon: FaHeart },
-];
+const APPLICATION_SASH_META = {
+  submitted: { label: "Submitted", bg: "#2f9e44", color: "white" },
+  assigned: { label: "Assigned", bg: "#1f7a3f", color: "white" },
+  withdrawn: { label: "Withdrawn", bg: "#f4c430", color: "#1f1f1f" },
+  denied: { label: "Rejected", bg: "#9a1f1f", color: "white" },
+  rejected: { label: "Rejected", bg: "#9a1f1f", color: "white" },
+};
 
-const getRoleIcon = (name) => {
-  const label = String(name || "").trim();
-  if (!label) return FaUserAlt;
-  const match = ROLE_ICON_RULES.find((rule) => rule.pattern.test(label));
-  return match?.icon || FaCogs;
+const FILLED_SASH_META = {
+  label: "Filled",
+  bg: "#6b7280",
+  color: "white",
 };
 
 const DEFAULT_MAPBOX_PUBLIC_TOKEN =
@@ -311,7 +272,7 @@ const PositionEventMap = ({
     zoom: 13.8,
   });
   const [activeMapStyle, setActiveMapStyle] = React.useState(
-    VOLUNTEER_POSITION_MAP_STYLE,
+    VOLUNTEER_POSITION_MAP_STYLE
   );
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -330,7 +291,7 @@ const PositionEventMap = ({
     setActiveMapStyle((prev) =>
       prev === VOLUNTEER_POSITION_MAP_FALLBACK_STYLE
         ? prev
-        : VOLUNTEER_POSITION_MAP_FALLBACK_STYLE,
+        : VOLUNTEER_POSITION_MAP_FALLBACK_STYLE
     );
   }, []);
 
@@ -679,6 +640,8 @@ export const query = graphql`
         description
         detail
         pointValue
+        icon
+        color
       }
       slug {
         current
@@ -728,6 +691,8 @@ export const query = graphql`
           role {
             name
             pointValue
+            icon
+            color
           }
           slug {
             current
@@ -756,14 +721,19 @@ const VolunteerRoleTemplate = (props) => {
   const role = data?.role;
   const otherRoles = React.useMemo(
     () => (data?.otherRoles ? mapEdgesToNodes(data.otherRoles) : []),
-    [data?.otherRoles],
+    [data?.otherRoles]
   );
   const menuItems = site?.navMenu?.items || [];
   const sanity = React.useMemo(() => new Client(), []);
   const [resolvedRole, setResolvedRole] = React.useState(role?.role || null);
   const [resolvedEvent, setResolvedEvent] = React.useState(
-    role?.motorsportRegEvent || null,
+    role?.motorsportRegEvent || null
   );
+  const [resolvedRoleActive, setResolvedRoleActive] = React.useState(
+    role?.active ?? null
+  );
+  const [assignedApplicationCount, setAssignedApplicationCount] =
+    React.useState(null);
   const [resolvedEventCoordinates, setResolvedEventCoordinates] =
     React.useState(null);
   const [isCalendarMenuOpen, setIsCalendarMenuOpen] = React.useState(false);
@@ -785,6 +755,7 @@ const VolunteerRoleTemplate = (props) => {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     hasPerformedRoleBefore: null,
     referral: "",
     notes: "",
@@ -795,11 +766,11 @@ const VolunteerRoleTemplate = (props) => {
   const positionId = role?._id;
   const applicationStorageKey = React.useMemo(
     () => getApplicationSessionStorageKey(positionId),
-    [positionId],
+    [positionId]
   );
   const pointsBannerStorageKey = React.useMemo(
     () => getPointsBannerSessionStorageKey(positionId),
-    [positionId],
+    [positionId]
   );
 
   React.useEffect(() => {
@@ -813,6 +784,8 @@ const VolunteerRoleTemplate = (props) => {
   React.useEffect(() => {
     setResolvedEvent(null);
     setResolvedEventCoordinates(null);
+    setResolvedRoleActive(role?.active ?? null);
+    setAssignedApplicationCount(null);
     setIsCalendarMenuOpen(false);
     setIsApplyModalOpen(false);
     setIsApplySubmitting(false);
@@ -827,6 +800,7 @@ const VolunteerRoleTemplate = (props) => {
       firstName: "",
       lastName: "",
       email: "",
+      phone: "",
       hasPerformedRoleBefore: null,
       referral: "",
       notes: "",
@@ -836,10 +810,7 @@ const VolunteerRoleTemplate = (props) => {
   const persistManagedApplication = React.useCallback(
     (nextSession) => {
       setManagedApplication(nextSession || null);
-      if (
-        typeof window === "undefined" ||
-        !applicationStorageKey
-      ) {
+      if (typeof window === "undefined" || !applicationStorageKey) {
         return;
       }
       try {
@@ -849,13 +820,13 @@ const VolunteerRoleTemplate = (props) => {
         }
         window.localStorage.setItem(
           applicationStorageKey,
-          JSON.stringify(nextSession),
+          JSON.stringify(nextSession)
         );
       } catch (_error) {
         // ignore storage errors
       }
     },
-    [applicationStorageKey],
+    [applicationStorageKey]
   );
 
   React.useEffect(() => {
@@ -885,6 +856,7 @@ const VolunteerRoleTemplate = (props) => {
       firstName: managedApplication.firstName || "",
       lastName: managedApplication.lastName || "",
       email: managedApplication.email || "",
+      phone: managedApplication.phone || "",
       hasPerformedRoleBefore:
         typeof managedApplication.hasPerformedRoleBefore === "boolean"
           ? managedApplication.hasPerformedRoleBefore
@@ -899,10 +871,14 @@ const VolunteerRoleTemplate = (props) => {
     const params = new URLSearchParams(window.location.search);
     const shouldOpenManage = params.get("manage") === "1";
     const applicationId = normalizeManageQueryValue(
-      params.get("applicationId"),
+      params.get("applicationId")
     );
-    const linkedPositionId = normalizeManageQueryValue(params.get("positionId"));
-    const intent = normalizeManageQueryValue(params.get("intent")).toLowerCase();
+    const linkedPositionId = normalizeManageQueryValue(
+      params.get("positionId")
+    );
+    const intent = normalizeManageQueryValue(
+      params.get("intent")
+    ).toLowerCase();
 
     if (!applicationId) {
       setManageLinkRequest(null);
@@ -929,6 +905,12 @@ const VolunteerRoleTemplate = (props) => {
       .fetchVolunteerPositionBySlug(roleSlug)
       .then((result) => {
         if (!isMounted) return;
+        if (typeof result?.active === "boolean") {
+          setResolvedRoleActive(result.active);
+        }
+        if (Number.isFinite(Number(result?.assignedVolunteerCount))) {
+          setAssignedApplicationCount(Number(result.assignedVolunteerCount));
+        }
         if (result?.role) {
           setResolvedRole(result.role);
         }
@@ -1035,7 +1017,7 @@ const VolunteerRoleTemplate = (props) => {
     }
     try {
       const dismissedValue = window.sessionStorage.getItem(
-        pointsBannerStorageKey,
+        pointsBannerStorageKey
       );
       setShowPointsBanner(dismissedValue !== "1");
     } catch (_error) {
@@ -1043,7 +1025,7 @@ const VolunteerRoleTemplate = (props) => {
     }
   }, [pointsBannerStorageKey]);
 
-  const dismissPointsBanner = React.useCallback(() => {
+  const autoDismissPointsBanner = React.useCallback(() => {
     setShowPointsBanner(false);
     if (typeof window === "undefined" || !pointsBannerStorageKey) return;
     try {
@@ -1053,28 +1035,31 @@ const VolunteerRoleTemplate = (props) => {
     }
   }, [pointsBannerStorageKey]);
 
+  const dismissPointsBanner = React.useCallback(() => {
+    autoDismissPointsBanner();
+  }, [autoDismissPointsBanner]);
+
   const event = React.useMemo(
     () => ({
       ...(role?.motorsportRegEvent || {}),
       ...(resolvedEvent || {}),
     }),
-    [role?.motorsportRegEvent, resolvedEvent],
+    [role?.motorsportRegEvent, resolvedEvent]
   );
   const roleReference = resolvedRole || role?.role || null;
   const positionTitle = roleReference?.name?.trim() || "Untitled role";
   const shortPositionTitle =
     formatCardPositionTitle(positionTitle) || positionTitle;
-  const roleCapColor = getVolunteerPointCapColor(roleReference?.pointValue);
-  const PositionRoleIcon = getRoleIcon(roleReference?.name || positionTitle);
+  const PositionRoleIcon = getVolunteerRoleIconComponent(roleReference?.icon);
   const hasEventAssigned = Boolean(
     event &&
-    (event?.eventId ||
-      event?.name ||
-      event?.start ||
-      event?.url ||
-      event?.venueName ||
-      event?.venueCity ||
-      event?.venueRegion),
+      (event?.eventId ||
+        event?.name ||
+        event?.start ||
+        event?.url ||
+        event?.venueName ||
+        event?.venueCity ||
+        event?.venueRegion)
   );
   const eventDateRange = formatDateRange(event?.start, event?.end);
   const roleDate = formatDate(role?.date);
@@ -1086,7 +1071,7 @@ const VolunteerRoleTemplate = (props) => {
   const registrationEndDate = parseCalendarDate(event?.registrationEnd);
   const registrationEndLabel = formatDate(event?.registrationEnd);
   const hasRegistrationWindow = Boolean(
-    registrationStartDate || registrationEndDate,
+    registrationStartDate || registrationEndDate
   );
   const nowTime = Date.now();
   const isRegistrationOpen = hasRegistrationWindow
@@ -1098,10 +1083,10 @@ const VolunteerRoleTemplate = (props) => {
   const shouldDisableEventMsrcLink =
     hasRegistrationWindow && isRegistrationOpen === false;
   const mapLatitude = Number.parseFloat(
-    String(event?.latitude ?? resolvedEventCoordinates?.latitude ?? ""),
+    String(event?.latitude ?? resolvedEventCoordinates?.latitude ?? "")
   );
   const mapLongitude = Number.parseFloat(
-    String(event?.longitude ?? resolvedEventCoordinates?.longitude ?? ""),
+    String(event?.longitude ?? resolvedEventCoordinates?.longitude ?? "")
   );
   const hasMapCoordinates =
     hasEventAssigned &&
@@ -1119,7 +1104,7 @@ const VolunteerRoleTemplate = (props) => {
       otherRoles
         .filter((candidate) => isVolunteerPositionActive(candidate, todayToken))
         .slice(0, 2),
-    [otherRoles, todayToken],
+    [otherRoles, todayToken]
   );
   const showOtherRoles = activeOtherRoles.length > 0;
   const skillLevelLabel = formatSkillLevel(role?.skillLevel);
@@ -1148,8 +1133,9 @@ const VolunteerRoleTemplate = (props) => {
   const positionDescription =
     roleReference?.description || roleReference?.detail || "";
   const isMsrManagedVolunteerEvent =
-    event?.origin === "msr" || Boolean(event?.eventId);
-  const shouldDisableApply = isMsrManagedVolunteerEvent;
+    String(event?.origin || "")
+      .trim()
+      .toLowerCase() === "msr";
   const valueTextSize = "xs";
   const calendarStartDate =
     parseCalendarDate(event?.start) || parseCalendarDate(role?.date);
@@ -1174,7 +1160,7 @@ const VolunteerRoleTemplate = (props) => {
         details: calendarDescription,
         location: venueLine || "",
         dates: `${toGoogleCalendarStamp(
-          calendarStartDate,
+          calendarStartDate
         )}/${toGoogleCalendarStamp(finalCalendarEndDate)}`,
       }).toString()}`
     : null;
@@ -1188,7 +1174,7 @@ const VolunteerRoleTemplate = (props) => {
           location: venueLine || "",
           startdt: calendarStartDate.toISOString(),
           enddt: finalCalendarEndDate.toISOString(),
-        },
+        }
       ).toString()}`
     : null;
 
@@ -1230,12 +1216,14 @@ const VolunteerRoleTemplate = (props) => {
 
   const handleShare = React.useCallback(async () => {
     if (typeof window === "undefined") return;
-    const shareUrl = event?.url || window.location.href;
+    const shareUrl = window.location.href;
+    const shareText = `Hey, check out this new volunteer opportunity with BMW CCA PSR: ${positionTitle}.`;
+    const shareMessage = `${shareText}\n${shareUrl}`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: calendarTitle,
-          text: calendarDescription,
+          title: `Volunteer Opportunity: ${positionTitle}`,
+          text: shareText,
           url: shareUrl,
         });
         return;
@@ -1245,40 +1233,46 @@ const VolunteerRoleTemplate = (props) => {
     }
     if (navigator.clipboard?.writeText) {
       try {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(shareMessage);
       } catch (_) {
         // no-op: clipboard may be blocked in some contexts
       }
     }
-  }, [calendarDescription, calendarTitle, event?.url]);
+  }, [positionTitle]);
 
-  const handleApplyFieldChange = React.useCallback((field) => {
-    return (event) => {
-      const value = event?.currentTarget?.value || "";
-      setApplyFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-      if (applyNotice) {
-        setApplyNotice("");
-        setApplyNoticeTone("neutral");
-      }
-    };
-  }, [applyNotice]);
+  const handleApplyFieldChange = React.useCallback(
+    (field) => {
+      return (event) => {
+        const value = event?.currentTarget?.value || "";
+        setApplyFormData((prev) => ({
+          ...prev,
+          [field]: value,
+        }));
+        if (applyNotice) {
+          setApplyNotice("");
+          setApplyNoticeTone("neutral");
+        }
+      };
+    },
+    [applyNotice]
+  );
 
-  const handleApplyPerformedRoleBeforeChange = React.useCallback((value) => {
-    return () => {
-      setApplyFormData((prev) => ({
-        ...prev,
-        hasPerformedRoleBefore:
-          prev.hasPerformedRoleBefore === value ? null : value,
-      }));
-      if (applyNotice) {
-        setApplyNotice("");
-        setApplyNoticeTone("neutral");
-      }
-    };
-  }, [applyNotice]);
+  const handleApplyPerformedRoleBeforeChange = React.useCallback(
+    (value) => {
+      return () => {
+        setApplyFormData((prev) => ({
+          ...prev,
+          hasPerformedRoleBefore:
+            prev.hasPerformedRoleBefore === value ? null : value,
+        }));
+        if (applyNotice) {
+          setApplyNotice("");
+          setApplyNoticeTone("neutral");
+        }
+      };
+    },
+    [applyNotice]
+  );
 
   const isApplyEmailValid = React.useMemo(() => {
     const email = applyFormData.email.trim();
@@ -1307,9 +1301,22 @@ const VolunteerRoleTemplate = (props) => {
   const managedStatusKey = String(managedApplication?.status || "")
     .trim()
     .toLowerCase();
+  const positionActive =
+    typeof resolvedRoleActive === "boolean" ? resolvedRoleActive : role?.active;
+  const hasAssignedVolunteer =
+    Number.isFinite(Number(assignedApplicationCount)) &&
+    Number(assignedApplicationCount) > 0;
+  const isNonEventFilled =
+    !hasEventAssigned &&
+    !hasManagedApplication &&
+    (positionActive === false || hasAssignedVolunteer);
   const isManagedApplicationAssigned = managedStatusKey === "assigned";
-  const isAppliedState =
-    managedStatusKey === "submitted" || managedStatusKey === "assigned";
+  const managedSashMeta =
+    APPLICATION_SASH_META[managedStatusKey] ||
+    (managedStatusKey === "denied" ? APPLICATION_SASH_META.rejected : null);
+  const sashMeta =
+    managedSashMeta || (isNonEventFilled ? FILLED_SASH_META : null);
+  const showStatusSash = Boolean(sashMeta);
   const isWithdrawnState = managedStatusKey === "withdrawn";
   const isManagedApplicationRejected =
     managedStatusKey === "denied" || managedStatusKey === "rejected";
@@ -1318,12 +1325,16 @@ const VolunteerRoleTemplate = (props) => {
     isManagedApplicationRejected ||
     managedStatusKey === "withdrawn" ||
     managedStatusKey === "expired";
+  const managedRejectedReasonPublic = normalizeManageQueryValue(
+    managedApplication?.rejectedReasonPublic
+  );
   const managedApplicationStatus = getApplicationStatusMeta(
-    managedApplication?.status,
+    managedApplication?.status
   );
   const managedApplicationSubmittedLabel = formatDateTime(
-    managedApplication?.submittedAt,
+    managedApplication?.submittedAt
   );
+  const shouldDisableApply = isMsrManagedVolunteerEvent || isNonEventFilled;
   const isManagedFormDirty = React.useMemo(() => {
     if (!hasManagedApplication) return false;
     return (
@@ -1332,7 +1343,11 @@ const VolunteerRoleTemplate = (props) => {
       applyFormData.lastName.trim() !==
         String(managedApplication?.lastName || "").trim() ||
       applyFormData.email.trim().toLowerCase() !==
-        String(managedApplication?.email || "").trim().toLowerCase() ||
+        String(managedApplication?.email || "")
+          .trim()
+          .toLowerCase() ||
+      applyFormData.phone.trim() !==
+        String(managedApplication?.phone || "").trim() ||
       applyFormData.referral.trim() !==
         String(managedApplication?.referral || "").trim() ||
       applyFormData.notes.trim() !==
@@ -1344,9 +1359,9 @@ const VolunteerRoleTemplate = (props) => {
   const isApplySuccessState =
     applyNoticeTone === "success" && !isApplySubmitting;
   const canWithdrawManagedApplication =
-    hasManagedApplication &&
-    managedStatusKey === "submitted";
-  const isApplyFormReadOnly = isApplySuccessState || isManagedApplicationImmutable;
+    hasManagedApplication && managedStatusKey === "submitted";
+  const isApplyFormReadOnly =
+    isApplySuccessState || isManagedApplicationImmutable;
   const shouldShowUpdateLabel =
     hasManagedApplication && managedStatusKey === "submitted";
   const canSubmitApplyForm =
@@ -1386,7 +1401,7 @@ const VolunteerRoleTemplate = (props) => {
     if (!VOLUNTEER_APPS_API_URL) {
       setApplyNoticeTone("error");
       setApplyNotice(
-        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL.",
+        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL."
       );
       return;
     }
@@ -1406,7 +1421,7 @@ const VolunteerRoleTemplate = (props) => {
             positionId,
             applicationId: managedApplication?.applicationId,
           }),
-        },
+        }
       );
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.ok) {
@@ -1418,12 +1433,14 @@ const VolunteerRoleTemplate = (props) => {
         ...managedApplication,
         status: "withdrawn",
       });
+      autoDismissPointsBanner();
       setApplyNoticeTone("neutral");
       setApplyNotice("");
       setApplyFormData({
         firstName: "",
         lastName: "",
         email: "",
+        phone: "",
         hasPerformedRoleBefore: null,
         referral: "",
         notes: "",
@@ -1434,12 +1451,13 @@ const VolunteerRoleTemplate = (props) => {
       setApplyNoticeTone("error");
       setApplyNotice(
         error?.message ||
-          "We couldn’t withdraw your application right now. Please try again.",
+          "We couldn’t withdraw your application right now. Please try again."
       );
     } finally {
       setIsWithdrawProcessing(false);
     }
   }, [
+    autoDismissPointsBanner,
     canWithdrawManagedApplication,
     hasManagedApplication,
     isApplySubmitting,
@@ -1453,7 +1471,8 @@ const VolunteerRoleTemplate = (props) => {
     async (applicationIdToLoad, intent = "manage", options = {}) => {
       const shouldShowBusy = options?.showBusy !== false;
       const shouldHydrateForm = options?.hydrateForm !== false;
-      if (!VOLUNTEER_APPS_API_URL || !applicationIdToLoad || !positionId) return;
+      if (!VOLUNTEER_APPS_API_URL || !applicationIdToLoad || !positionId)
+        return;
       if (shouldShowBusy) setIsApplySubmitting(true);
       try {
         const response = await fetch(
@@ -1468,7 +1487,7 @@ const VolunteerRoleTemplate = (props) => {
               positionId,
               applicationId: applicationIdToLoad,
             }),
-          },
+          }
         );
         const payload = await response.json().catch(() => null);
         if (!response.ok || !payload?.ok || !payload?.application) {
@@ -1480,9 +1499,12 @@ const VolunteerRoleTemplate = (props) => {
           applicationId: loaded.applicationId || applicationIdToLoad,
           status: loaded.status || "submitted",
           submittedAt: loaded.submittedAt || null,
+          rejectedReasonPublic: loaded.rejectedReasonPublic || "",
+          rejectedReasonInternal: loaded.rejectedReasonInternal || "",
           firstName: loaded.firstName || "",
           lastName: loaded.lastName || "",
           email: loaded.email || "",
+          phone: loaded.phone || "",
           referral: loaded.referral || "",
           notes: loaded.notes || "",
           hasPerformedRoleBefore:
@@ -1496,6 +1518,7 @@ const VolunteerRoleTemplate = (props) => {
             firstName: session.firstName,
             lastName: session.lastName,
             email: session.email,
+            phone: session.phone,
             hasPerformedRoleBefore: session.hasPerformedRoleBefore,
             referral: session.referral,
             notes: session.notes,
@@ -1509,21 +1532,17 @@ const VolunteerRoleTemplate = (props) => {
         if (shouldShowBusy) setIsApplySubmitting(false);
       }
     },
-    [persistManagedApplication, positionId],
+    [persistManagedApplication, positionId]
   );
 
   React.useEffect(() => {
-    if (
-      !isApplyModalOpen ||
-      !manageLinkRequest?.applicationId ||
-      !positionId
-    ) {
+    if (!isApplyModalOpen || !manageLinkRequest?.applicationId || !positionId) {
       return;
     }
     let isCancelled = false;
     loadManagedApplication(
       manageLinkRequest.applicationId,
-      manageLinkRequest.intent,
+      manageLinkRequest.intent
     ).finally(() => {
       if (isCancelled) return;
       setManageLinkRequest(null);
@@ -1589,6 +1608,7 @@ const VolunteerRoleTemplate = (props) => {
         firstName: "",
         lastName: "",
         email: "",
+        phone: "",
         hasPerformedRoleBefore: null,
         referral: "",
         notes: "",
@@ -1603,7 +1623,7 @@ const VolunteerRoleTemplate = (props) => {
     if (!VOLUNTEER_APPS_API_URL) {
       setApplyNoticeTone("error");
       setApplyNotice(
-        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL.",
+        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL."
       );
       return;
     }
@@ -1624,11 +1644,12 @@ const VolunteerRoleTemplate = (props) => {
             positionId,
             applicationId: managedApplication.applicationId,
           }),
-        },
+        }
       );
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.ok) {
-        const details = payload?.details || payload?.error || "Unknown reset error.";
+        const details =
+          payload?.details || payload?.error || "Unknown reset error.";
         throw new Error(details);
       }
 
@@ -1638,6 +1659,7 @@ const VolunteerRoleTemplate = (props) => {
         firstName: "",
         lastName: "",
         email: "",
+        phone: "",
         hasPerformedRoleBefore: null,
         referral: "",
         notes: "",
@@ -1647,18 +1669,20 @@ const VolunteerRoleTemplate = (props) => {
       setShowWithdrawConfirm(false);
       setShowResetApplicationConfirm(false);
       setIsApplyModalOpen(false);
+      autoDismissPointsBanner();
       showToast("Application reset.");
     } catch (error) {
       setApplyNoticeTone("error");
       setApplyNotice(
         error?.message ||
-          "We couldn’t reset your application right now. Please try again.",
+          "We couldn’t reset your application right now. Please try again."
       );
     } finally {
       setIsWithdrawProcessing(false);
       setIsResetProcessing(false);
     }
   }, [
+    autoDismissPointsBanner,
     isWithdrawProcessing,
     managedApplication?.applicationId,
     persistManagedApplication,
@@ -1679,7 +1703,7 @@ const VolunteerRoleTemplate = (props) => {
       if (!VOLUNTEER_APPS_API_URL) {
         setApplyNoticeTone("error");
         setApplyNotice(
-          "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL.",
+          "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL."
         );
         return;
       }
@@ -1698,21 +1722,18 @@ const VolunteerRoleTemplate = (props) => {
           firstName: applyFormData.firstName.trim(),
           lastName: applyFormData.lastName.trim(),
           email: applyFormData.email.trim(),
-          phone: "",
+          phone: applyFormData.phone.trim(),
           notes: applyFormData.notes.trim(),
           referral: applyFormData.referral.trim(),
           hasPerformedRoleBefore: applyFormData.hasPerformedRoleBefore,
         };
-        const response = await fetch(
-          endpoint,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payloadBody),
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          body: JSON.stringify(payloadBody),
+        });
         const payload = await response.json().catch(() => null);
         if (!response.ok || !payload?.ok) {
           const details =
@@ -1731,26 +1752,36 @@ const VolunteerRoleTemplate = (props) => {
             payload?.application?.submittedAt ||
             managedApplication?.submittedAt ||
             new Date().toISOString(),
+          rejectedReasonPublic:
+            payload?.application?.rejectedReasonPublic ||
+            managedApplication?.rejectedReasonPublic ||
+            "",
+          rejectedReasonInternal:
+            payload?.application?.rejectedReasonInternal ||
+            managedApplication?.rejectedReasonInternal ||
+            "",
           firstName: applyFormData.firstName.trim(),
           lastName: applyFormData.lastName.trim(),
           email: applyFormData.email.trim(),
+          phone: applyFormData.phone.trim(),
           referral: applyFormData.referral.trim(),
           notes: applyFormData.notes.trim(),
           hasPerformedRoleBefore: applyFormData.hasPerformedRoleBefore,
         };
         persistManagedApplication(nextSession);
+        autoDismissPointsBanner();
         setApplyNoticeTone("success");
         if (hasManagedApplication) {
           setApplyNotice("Application updated.");
           showToast("Application updated.");
         } else if (payload?.deduped) {
           setApplyNotice(
-            "You already have an active application for this position. We’ve kept your existing submission.",
+            "You already have an active application for this position. We’ve kept your existing submission."
           );
           showToast("Application already on file.");
         } else {
           setApplyNotice(
-            "Application submitted. You should receive a confirmation email shortly.",
+            "Application submitted. You should receive a confirmation email shortly."
           );
           showToast("Application submitted.");
         }
@@ -1758,22 +1789,25 @@ const VolunteerRoleTemplate = (props) => {
         setApplyNoticeTone("error");
         setApplyNotice(
           error?.message ||
-            "We couldn’t submit your application right now. Please try again.",
+            "We couldn’t submit your application right now. Please try again."
         );
       } finally {
         setIsApplySubmitting(false);
       }
     },
     [
+      autoDismissPointsBanner,
       applyFormData,
       canSubmitApplyForm,
       hasManagedApplication,
       managedApplication?.applicationId,
+      managedApplication?.rejectedReasonInternal,
+      managedApplication?.rejectedReasonPublic,
       managedApplication?.submittedAt,
       persistManagedApplication,
       positionId,
       showToast,
-    ],
+    ]
   );
 
   const iconActionButtonSx = {
@@ -1915,7 +1949,7 @@ const VolunteerRoleTemplate = (props) => {
                     ...nonDraggableImageSx,
                   }}
                 />
-                {isAppliedState && (
+                {showStatusSash && (
                   <Box
                     as="span"
                     sx={{
@@ -1928,8 +1962,8 @@ const VolunteerRoleTemplate = (props) => {
                       alignItems: "center",
                       justifyContent: "center",
                       textAlign: "center",
-                      bg: "#1f7a3f",
-                      color: "white",
+                      bg: sashMeta.bg,
+                      color: sashMeta.color,
                       fontSize: "18px",
                       fontWeight: "heading",
                       lineHeight: 1,
@@ -1940,35 +1974,7 @@ const VolunteerRoleTemplate = (props) => {
                       pointerEvents: "none",
                     }}
                   >
-                    Applied
-                  </Box>
-                )}
-                {isWithdrawnState && (
-                  <Box
-                    as="span"
-                    sx={{
-                      position: "absolute",
-                      top: "44px",
-                      left: "-82px",
-                      width: "300px",
-                      py: "0.62rem",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      textAlign: "center",
-                      bg: "#9a1f1f",
-                      color: "white",
-                      fontSize: "18px",
-                      fontWeight: "heading",
-                      lineHeight: 1,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      transform: "rotate(-45deg)",
-                      boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    Withdrawn
+                    {sashMeta.label}
                   </Box>
                 )}
               </Box>
@@ -1976,7 +1982,7 @@ const VolunteerRoleTemplate = (props) => {
             {!hasEventAssigned && (
               <Box
                 sx={{
-                  display: ["none", "none", "flex"],
+                  display: ["flex", "flex", "flex"],
                   position: "relative",
                   width: "100%",
                   minHeight: ["220px", "260px", "320px"],
@@ -1989,15 +1995,17 @@ const VolunteerRoleTemplate = (props) => {
                   sx={{
                     width: "100%",
                     minHeight: ["220px", "260px", "320px"],
-                    bg: roleCapColor,
+                    bg: "black",
                     color: "white",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <PositionRoleIcon size={96} aria-hidden="true" />
+                  {PositionRoleIcon && (
+                    <PositionRoleIcon size={96} aria-hidden="true" />
+                  )}
                 </Flex>
-                {isAppliedState && (
+                {showStatusSash && (
                   <Box
                     as="span"
                     sx={{
@@ -2010,8 +2018,8 @@ const VolunteerRoleTemplate = (props) => {
                       alignItems: "center",
                       justifyContent: "center",
                       textAlign: "center",
-                      bg: "#1f7a3f",
-                      color: "white",
+                      bg: sashMeta.bg,
+                      color: sashMeta.color,
                       fontSize: "18px",
                       fontWeight: "heading",
                       lineHeight: 1,
@@ -2022,35 +2030,7 @@ const VolunteerRoleTemplate = (props) => {
                       pointerEvents: "none",
                     }}
                   >
-                    Applied
-                  </Box>
-                )}
-                {isWithdrawnState && (
-                  <Box
-                    as="span"
-                    sx={{
-                      position: "absolute",
-                      top: "44px",
-                      left: "-82px",
-                      width: "300px",
-                      py: "0.62rem",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      textAlign: "center",
-                      bg: "#9a1f1f",
-                      color: "white",
-                      fontSize: "18px",
-                      fontWeight: "heading",
-                      lineHeight: 1,
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      transform: "rotate(-45deg)",
-                      boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
-                      pointerEvents: "none",
-                    }}
-                  >
-                    Withdrawn
+                    {sashMeta.label}
                   </Box>
                 )}
               </Box>
@@ -2429,16 +2409,6 @@ const VolunteerRoleTemplate = (props) => {
                         </Box>
                       )}
                     </Box>
-                    <Box
-                      as="button"
-                      type="button"
-                      aria-label="Share event"
-                      title="Share event"
-                      onClick={handleShare}
-                      sx={iconActionButtonSx}
-                    >
-                      <FiShare2 size={16} aria-hidden="true" />
-                    </Box>
                   </Flex>
                 </Box>
                 {hasMapCoordinates && (
@@ -2464,6 +2434,7 @@ const VolunteerRoleTemplate = (props) => {
             ) : (
               <Card
                 sx={{
+                  display: ["none", "none", "block"],
                   p: 0,
                   borderRadius: "18px",
                   border: "1px solid",
@@ -2532,6 +2503,28 @@ const VolunteerRoleTemplate = (props) => {
                   <FaGlobe size={14} aria-hidden="true" />
                   <Text as="span" sx={{ color: "inherit" }}>
                     This event manages volunteer applications through MSR.
+                  </Text>
+                </Box>
+              )}
+              {isNonEventFilled && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.45rem",
+                    bg: "#dff3e6",
+                    color: "#1f7a3f",
+                    px: "1.25rem",
+                    py: "0.7rem",
+                    fontSize: "xs",
+                    fontWeight: "heading",
+                    lineHeight: 1.4,
+                    borderBottom: "1px solid",
+                    borderBottomColor: "rgba(0,0,0,0.08)",
+                  }}
+                >
+                  <Text as="span" sx={{ color: "inherit" }}>
+                    This position has been filled.
                   </Text>
                 </Box>
               )}
@@ -2629,60 +2622,75 @@ const VolunteerRoleTemplate = (props) => {
                       </Box>
                     </Box>
                   )}
-                  <Button
-                    as="button"
-                    type="button"
-                    onClick={() => {
-                      if (shouldDisableApply) return;
-                      setApplyNotice("");
-                      setIsApplyModalOpen(true);
-                    }}
-                    disabled={shouldDisableApply}
-                    sx={{
-                      variant: "buttons.primary",
-                      fontSize: "xs",
-                      letterSpacing: "0.08em",
-                      textTransform: "uppercase",
-                      borderRadius: "8px",
-                      px: "0.9rem",
-                      py: "0.65rem",
-                      width: "100%",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "0.35rem",
-                      mt: "0.5rem",
-                      boxShadow:
-                        "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
-                      transition: shouldDisableApply
-                        ? "none"
-                        : "background-color 0.5s ease-out",
-                      cursor: shouldDisableApply ? "not-allowed" : "pointer",
-                      opacity: shouldDisableApply ? 0.6 : 1,
-                      filter: shouldDisableApply ? "saturate(0.35)" : "none",
-                      "&:disabled": {
-                        color: "white",
-                        bg: "primary",
-                        cursor: "not-allowed",
-                        opacity: 0.6,
-                        filter: "saturate(0.35)",
-                        pointerEvents: "none",
-                      },
-                      "&:disabled:hover": {
-                        color: "white",
-                        bg: "primary",
-                      },
-                      "&:hover:not(:disabled)": {
-                        color: "white",
-                        bg: "highlight",
-                      },
-                    }}
+                  <Flex
+                    sx={{ mt: "0.5rem", gap: "0.5rem", alignItems: "stretch" }}
                   >
-                    <FaBriefcase size={12} aria-hidden="true" />
-                    {hasManagedApplication
-                      ? "View / Manage application"
-                      : "Apply for this position"}
-                  </Button>
+                    <Button
+                      as="button"
+                      type="button"
+                      onClick={() => {
+                        if (shouldDisableApply) return;
+                        setApplyNotice("");
+                        setIsApplyModalOpen(true);
+                      }}
+                      disabled={shouldDisableApply}
+                      sx={{
+                        variant: "buttons.primary",
+                        fontSize: "xs",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        borderRadius: "8px",
+                        px: "0.9rem",
+                        py: "0.65rem",
+                        width: "100%",
+                        flex: "1 1 auto",
+                        minWidth: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "0.35rem",
+                        boxShadow:
+                          "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
+                        transition: shouldDisableApply
+                          ? "none"
+                          : "background-color 0.5s ease-out",
+                        cursor: shouldDisableApply ? "not-allowed" : "pointer",
+                        opacity: shouldDisableApply ? 0.6 : 1,
+                        filter: shouldDisableApply ? "saturate(0.35)" : "none",
+                        "&:disabled": {
+                          color: "white",
+                          bg: "primary",
+                          cursor: "not-allowed",
+                          opacity: 0.6,
+                          filter: "saturate(0.35)",
+                          pointerEvents: "none",
+                        },
+                        "&:disabled:hover": {
+                          color: "white",
+                          bg: "primary",
+                        },
+                        "&:hover:not(:disabled)": {
+                          color: "white",
+                          bg: "highlight",
+                        },
+                      }}
+                    >
+                      <FaBriefcase size={12} aria-hidden="true" />
+                      {hasManagedApplication
+                        ? "View / Manage application"
+                        : "Apply for this position"}
+                    </Button>
+                    <Box
+                      as="button"
+                      type="button"
+                      aria-label="Share this position"
+                      title="Share this position"
+                      onClick={handleShare}
+                      sx={iconActionButtonSx}
+                    >
+                      <FiShare2 size={16} aria-hidden="true" />
+                    </Box>
+                  </Flex>
                 </Flex>
               </Box>
             </Card>
@@ -3369,7 +3377,12 @@ const VolunteerRoleTemplate = (props) => {
                 >
                   <FaBan size={18} aria-hidden="true" />
                   <Text sx={{ m: 0, fontSize: "sm", color: "inherit" }}>
-                    Application rejected. This application is now read-only.
+                    <Box as="span" sx={{ fontWeight: "heading" }}>
+                      Application rejected.
+                    </Box>{" "}
+                    <Box as="span" sx={{ fontWeight: 400 }}>
+                      Reason provided: {managedRejectedReasonPublic || "NA"}
+                    </Box>
                   </Text>
                 </Alert>
               )}
@@ -3408,147 +3421,208 @@ const VolunteerRoleTemplate = (props) => {
                   minWidth: 0,
                 }}
               >
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: ["1fr", "1fr 1fr"],
-                  gap: "0.9rem",
-                  mb: "0.9rem",
-                }}
-              >
-                <Box>
-                  <Text
-                    as="label"
-                    htmlFor="volunteer-apply-first-name"
-                    sx={{
-                      fontSize: "sm",
-                      color: "text",
-                      display: "inline-flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    First name{" "}
-                    <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
-                      *
-                    </Box>
-                  </Text>
-                  <Box sx={{ position: "relative" }}>
-                    <Box
-                      as="input"
-                      id="volunteer-apply-first-name"
-                      type="text"
-                      required
-                      value={applyFormData.firstName}
-                      onChange={handleApplyFieldChange("firstName")}
-                      sx={{
-                        mt: "0.35rem",
-                        width: "100%",
-                        border: "1px solid",
-                        borderColor: "lightgray",
-                        borderRadius: "8px",
-                        px: "0.7rem",
-                        pr: "2.3rem",
-                        py: "0.55rem",
-                        fontSize: "sm",
-                      }}
-                    />
-                    {Boolean(applyFormData.firstName.trim()) && (
-                      <Box
-                        as="span"
-                        sx={{
-                          ...REQUIRED_FIELD_CHECK_SX,
-                          position: "absolute",
-                          right: "0.65rem",
-                          top: "50%",
-                          transform: "translateY(-33%)",
-                          ml: 0,
-                          pointerEvents: "none",
-                        }}
-                      >
-                        <FaCheckCircle size={20} aria-hidden="true" />
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
-                <Box>
-                  <Text
-                    as="label"
-                    htmlFor="volunteer-apply-last-name"
-                    sx={{
-                      fontSize: "sm",
-                      color: "text",
-                      display: "inline-flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    Last name{" "}
-                    <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
-                      *
-                    </Box>
-                  </Text>
-                  <Box sx={{ position: "relative" }}>
-                    <Box
-                      as="input"
-                      id="volunteer-apply-last-name"
-                      type="text"
-                      required
-                      value={applyFormData.lastName}
-                      onChange={handleApplyFieldChange("lastName")}
-                      sx={{
-                        mt: "0.35rem",
-                        width: "100%",
-                        border: "1px solid",
-                        borderColor: "lightgray",
-                        borderRadius: "8px",
-                        px: "0.7rem",
-                        pr: "2.3rem",
-                        py: "0.55rem",
-                        fontSize: "sm",
-                      }}
-                    />
-                    {Boolean(applyFormData.lastName.trim()) && (
-                      <Box
-                        as="span"
-                        sx={{
-                          ...REQUIRED_FIELD_CHECK_SX,
-                          position: "absolute",
-                          right: "0.65rem",
-                          top: "50%",
-                          transform: "translateY(-33%)",
-                          ml: 0,
-                          pointerEvents: "none",
-                        }}
-                      >
-                        <FaCheckCircle size={20} aria-hidden="true" />
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
-              </Box>
-              <Box sx={{ mb: "0.9rem" }}>
-                <Text
-                  as="label"
-                  htmlFor="volunteer-apply-email"
+                <Box
                   sx={{
-                    fontSize: "sm",
-                    color: "text",
-                    display: "inline-flex",
-                    alignItems: "center",
+                    display: "grid",
+                    gridTemplateColumns: ["1fr", "1fr 1fr"],
+                    gap: "0.9rem",
+                    mb: "0.9rem",
                   }}
                 >
-                  Email{" "}
-                  <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
-                    *
+                  <Box>
+                    <Text
+                      as="label"
+                      htmlFor="volunteer-apply-first-name"
+                      sx={{
+                        variant: "text.label",
+                        color: "text",
+                        m: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      First name{" "}
+                      <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
+                        *
+                      </Box>
+                    </Text>
+                    <Box sx={{ position: "relative" }}>
+                      <Box
+                        as="input"
+                        id="volunteer-apply-first-name"
+                        type="text"
+                        required
+                        value={applyFormData.firstName}
+                        onChange={handleApplyFieldChange("firstName")}
+                        sx={{
+                          mt: "0.35rem",
+                          width: "100%",
+                          border: "1px solid",
+                          borderColor: "lightgray",
+                          borderRadius: "8px",
+                          px: "0.7rem",
+                          pr: "2.3rem",
+                          py: "0.55rem",
+                          fontSize: "sm",
+                        }}
+                      />
+                      {Boolean(applyFormData.firstName.trim()) && (
+                        <Box
+                          as="span"
+                          sx={{
+                            ...REQUIRED_FIELD_CHECK_SX,
+                            position: "absolute",
+                            right: "0.65rem",
+                            top: "50%",
+                            transform: "translateY(-33%)",
+                            ml: 0,
+                            pointerEvents: "none",
+                          }}
+                        >
+                          <FaCheckCircle size={20} aria-hidden="true" />
+                        </Box>
+                      )}
+                    </Box>
                   </Box>
-                </Text>
-                <Box sx={{ position: "relative" }}>
+                  <Box>
+                    <Text
+                      as="label"
+                      htmlFor="volunteer-apply-last-name"
+                      sx={{
+                        variant: "text.label",
+                        color: "text",
+                        m: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      Last name{" "}
+                      <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
+                        *
+                      </Box>
+                    </Text>
+                    <Box sx={{ position: "relative" }}>
+                      <Box
+                        as="input"
+                        id="volunteer-apply-last-name"
+                        type="text"
+                        required
+                        value={applyFormData.lastName}
+                        onChange={handleApplyFieldChange("lastName")}
+                        sx={{
+                          mt: "0.35rem",
+                          width: "100%",
+                          border: "1px solid",
+                          borderColor: "lightgray",
+                          borderRadius: "8px",
+                          px: "0.7rem",
+                          pr: "2.3rem",
+                          py: "0.55rem",
+                          fontSize: "sm",
+                        }}
+                      />
+                      {Boolean(applyFormData.lastName.trim()) && (
+                        <Box
+                          as="span"
+                          sx={{
+                            ...REQUIRED_FIELD_CHECK_SX,
+                            position: "absolute",
+                            right: "0.65rem",
+                            top: "50%",
+                            transform: "translateY(-33%)",
+                            ml: 0,
+                            pointerEvents: "none",
+                          }}
+                        >
+                          <FaCheckCircle size={20} aria-hidden="true" />
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+                <Box sx={{ mb: "0.9rem" }}>
+                  <Text
+                    as="label"
+                    htmlFor="volunteer-apply-email"
+                    sx={{
+                      variant: "text.label",
+                      color: "text",
+                      m: 0,
+                      display: "inline-flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    Email{" "}
+                    <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
+                      *
+                    </Box>
+                  </Text>
+                  <Box sx={{ position: "relative" }}>
+                    <Box
+                      as="input"
+                      id="volunteer-apply-email"
+                      type="email"
+                      required
+                      value={applyFormData.email}
+                      onChange={handleApplyFieldChange("email")}
+                      sx={{
+                        mt: "0.35rem",
+                        width: "100%",
+                        border: "1px solid",
+                        borderColor: "lightgray",
+                        borderRadius: "8px",
+                        px: "0.7rem",
+                        pr: "2.3rem",
+                        py: "0.55rem",
+                        fontSize: "sm",
+                      }}
+                    />
+                    {isApplyEmailValid && (
+                      <Box
+                        as="span"
+                        sx={{
+                          ...REQUIRED_FIELD_CHECK_SX,
+                          position: "absolute",
+                          right: "0.65rem",
+                          top: "50%",
+                          transform: "translateY(-33%)",
+                          ml: 0,
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <FaCheckCircle size={20} aria-hidden="true" />
+                      </Box>
+                    )}
+                  </Box>
+                  {Boolean(applyFormData.email.trim()) &&
+                    !isApplyEmailValid && (
+                      <Text
+                        sx={{ mt: "0.3rem", fontSize: "xs", color: "#9e2a2b" }}
+                      >
+                        Enter a valid email address.
+                      </Text>
+                    )}
+                </Box>
+                <Box sx={{ mb: "0.9rem" }}>
+                  <Text
+                    as="label"
+                    htmlFor="volunteer-apply-phone"
+                    sx={{
+                      variant: "text.label",
+                      color: "text",
+                      m: 0,
+                      display: "inline-flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    Phone number
+                  </Text>
                   <Box
                     as="input"
-                    id="volunteer-apply-email"
-                    type="email"
-                    required
-                    value={applyFormData.email}
-                    onChange={handleApplyFieldChange("email")}
+                    id="volunteer-apply-phone"
+                    type="tel"
+                    value={applyFormData.phone}
+                    onChange={handleApplyFieldChange("phone")}
                     sx={{
                       mt: "0.35rem",
                       width: "100%",
@@ -3556,308 +3630,328 @@ const VolunteerRoleTemplate = (props) => {
                       borderColor: "lightgray",
                       borderRadius: "8px",
                       px: "0.7rem",
-                      pr: "2.3rem",
                       py: "0.55rem",
                       fontSize: "sm",
                     }}
                   />
-                  {isApplyEmailValid && (
+                </Box>
+                <Box sx={{ mb: "0.9rem" }}>
+                  <Text
+                    as="p"
+                    sx={{ variant: "text.label", color: "text", m: 0 }}
+                  >
+                    Have you performed this role before?{" "}
+                    <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
+                      *
+                    </Box>
+                  </Text>
+                  <Flex sx={{ gap: "1rem", mt: "0.5rem", flexWrap: "wrap" }}>
                     <Box
-                      as="span"
+                      as="label"
                       sx={{
-                        ...REQUIRED_FIELD_CHECK_SX,
-                        position: "absolute",
-                        right: "0.65rem",
-                        top: "50%",
-                        transform: "translateY(-33%)",
-                        ml: 0,
-                        pointerEvents: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        px: "0.7rem",
+                        py: "0.45rem",
+                        borderRadius: "8px",
+                        border: "1px solid",
+                        borderColor:
+                          applyFormData.hasPerformedRoleBefore === true
+                            ? "primary"
+                            : "lightgray",
+                        backgroundColor:
+                          applyFormData.hasPerformedRoleBefore === true
+                            ? "#eaf3ff"
+                            : "white",
+                        cursor: "pointer",
                       }}
                     >
-                      <FaCheckCircle size={20} aria-hidden="true" />
+                      <Box
+                        as="input"
+                        type="checkbox"
+                        checked={applyFormData.hasPerformedRoleBefore === true}
+                        onChange={handleApplyPerformedRoleBeforeChange(true)}
+                        sx={{
+                          width: "23px",
+                          height: "23px",
+                          margin: 0,
+                          accentColor: "#1f6fe5",
+                          cursor: "pointer",
+                        }}
+                      />
+                      <Text sx={{ fontSize: "sm", color: "text" }}>Yes</Text>
                     </Box>
-                  )}
+                    <Box
+                      as="label"
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        px: "0.7rem",
+                        py: "0.45rem",
+                        borderRadius: "8px",
+                        border: "1px solid",
+                        borderColor:
+                          applyFormData.hasPerformedRoleBefore === false
+                            ? "primary"
+                            : "lightgray",
+                        backgroundColor:
+                          applyFormData.hasPerformedRoleBefore === false
+                            ? "#eaf3ff"
+                            : "white",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Box
+                        as="input"
+                        type="checkbox"
+                        checked={applyFormData.hasPerformedRoleBefore === false}
+                        onChange={handleApplyPerformedRoleBeforeChange(false)}
+                        sx={{
+                          width: "23px",
+                          height: "23px",
+                          margin: 0,
+                          accentColor: "#1f6fe5",
+                          cursor: "pointer",
+                        }}
+                      />
+                      <Text sx={{ fontSize: "sm", color: "text" }}>No</Text>
+                    </Box>
+                  </Flex>
                 </Box>
-                {Boolean(applyFormData.email.trim()) && !isApplyEmailValid && (
-                  <Text sx={{ mt: "0.3rem", fontSize: "xs", color: "#9e2a2b" }}>
-                    Enter a valid email address.
+                <Box sx={{ mb: "0.9rem" }}>
+                  <Text
+                    as="label"
+                    htmlFor="volunteer-apply-referral"
+                    sx={{ variant: "text.label", color: "text", m: 0 }}
+                  >
+                    Referral (optional)
+                  </Text>
+                  <Box
+                    as="input"
+                    id="volunteer-apply-referral"
+                    type="text"
+                    value={applyFormData.referral}
+                    onChange={handleApplyFieldChange("referral")}
+                    sx={{
+                      mt: "0.35rem",
+                      width: "100%",
+                      border: "1px solid",
+                      borderColor: "lightgray",
+                      borderRadius: "8px",
+                      px: "0.7rem",
+                      py: "0.55rem",
+                      fontSize: "sm",
+                    }}
+                  />
+                </Box>
+                <Box sx={{ mb: "0.9rem" }}>
+                  <Text
+                    as="label"
+                    htmlFor="volunteer-apply-notes"
+                    sx={{ variant: "text.label", color: "text", m: 0 }}
+                  >
+                    Notes (optional)
+                  </Text>
+                  <Box
+                    as="textarea"
+                    id="volunteer-apply-notes"
+                    rows={4}
+                    value={applyFormData.notes}
+                    onChange={handleApplyFieldChange("notes")}
+                    sx={{
+                      mt: "0.35rem",
+                      width: "100%",
+                      border: "1px solid",
+                      borderColor: "lightgray",
+                      borderRadius: "8px",
+                      px: "0.7rem",
+                      py: "0.55rem",
+                      fontSize: "sm",
+                      resize: "vertical",
+                    }}
+                  />
+                </Box>
+                {applyNotice && !isApplySuccessState && (
+                  <Text
+                    sx={{
+                      fontSize: "xs",
+                      color:
+                        applyNoticeTone === "error"
+                          ? "#9e2a2b"
+                          : applyNoticeTone === "success"
+                          ? "#1f7a3f"
+                          : "darkgray",
+                      mb: "0.9rem",
+                    }}
+                  >
+                    {applyNotice}
                   </Text>
                 )}
               </Box>
-              <Box sx={{ mb: "0.9rem" }}>
-                <Text as="p" sx={{ m: 0, fontSize: "sm", color: "text" }}>
-                  Have you performed this role before?{" "}
-                  <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
-                    *
-                  </Box>
-                </Text>
-                <Flex sx={{ gap: "1rem", mt: "0.5rem", flexWrap: "wrap" }}>
-                  <Box
-                    as="label"
+              <Box
+                sx={{
+                  mt: "0.55rem",
+                  display: "grid",
+                  gridTemplateColumns: [
+                    "1fr",
+                    "minmax(0, 1fr) auto",
+                    "minmax(0, 1fr) auto",
+                  ],
+                  alignItems: "end",
+                  columnGap: "0.75rem",
+                  rowGap: "0.65rem",
+                }}
+              >
+                <Box sx={{ minWidth: 0 }}>
+                  <Text
                     sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      px: "0.7rem",
-                      py: "0.45rem",
-                      borderRadius: "8px",
-                      border: "1px solid",
-                      borderColor:
-                        applyFormData.hasPerformedRoleBefore === true
-                          ? "primary"
-                          : "lightgray",
-                      backgroundColor:
-                        applyFormData.hasPerformedRoleBefore === true
-                          ? "#eaf3ff"
-                          : "white",
-                      cursor: "pointer",
+                      mt: 0,
+                      fontSize: "12px",
+                      color: "darkgray",
+                      textAlign: "left",
+                      lineHeight: 1.45,
                     }}
                   >
-                    <Box
-                      as="input"
-                      type="checkbox"
-                      checked={applyFormData.hasPerformedRoleBefore === true}
-                      onChange={handleApplyPerformedRoleBeforeChange(true)}
-                      sx={{
-                        width: "23px",
-                        height: "23px",
-                        margin: 0,
-                        accentColor: "#1f6fe5",
-                        cursor: "pointer",
-                      }}
-                    />
-                    <Text sx={{ fontSize: "sm", color: "text" }}>Yes</Text>
-                  </Box>
-                  <Box
-                    as="label"
+                    Fields marked{" "}
+                    <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
+                      *
+                    </Box>{" "}
+                    are required.{" "}
+                  </Text>
+                  <Text
                     sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      px: "0.7rem",
-                      py: "0.45rem",
-                      borderRadius: "8px",
-                      border: "1px solid",
-                      borderColor:
-                        applyFormData.hasPerformedRoleBefore === false
-                          ? "primary"
-                          : "lightgray",
-                      backgroundColor:
-                        applyFormData.hasPerformedRoleBefore === false
-                          ? "#eaf3ff"
-                          : "white",
-                      cursor: "pointer",
+                      mt: "0.35rem",
+                      fontSize: "12px",
+                      color: "darkgray",
+                      textAlign: "left",
+                      lineHeight: 1.45,
                     }}
                   >
-                    <Box
-                      as="input"
-                      type="checkbox"
-                      checked={applyFormData.hasPerformedRoleBefore === false}
-                      onChange={handleApplyPerformedRoleBeforeChange(false)}
+                    All positions and role assignments are subject to change.
+                    Certain roles require board approval.
+                  </Text>
+                </Box>
+                <Flex
+                  sx={{
+                    justifyContent: "flex-end",
+                    gap: "0.6rem",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {isWithdrawnState && (
+                    <Button
+                      as="button"
+                      type="button"
+                      onClick={() => setShowResetApplicationConfirm(true)}
+                      disabled={isWithdrawProcessing}
                       sx={{
-                        width: "23px",
-                        height: "23px",
-                        margin: 0,
-                        accentColor: "#1f6fe5",
-                        cursor: "pointer",
+                        bg: "#f3d6d6",
+                        color: "#9a1f1f",
+                        borderRadius: "8px",
+                        px: "1rem",
+                        py: "0.55rem",
+                        fontSize: "sm",
+                        border: "1px solid",
+                        borderColor: "#e8b8b8",
+                        "&:hover": {
+                          bg: "#ecc4c4",
+                          color: "#9a1f1f",
+                        },
                       }}
-                    />
-                    <Text sx={{ fontSize: "sm", color: "text" }}>No</Text>
-                  </Box>
-                </Flex>
-              </Box>
-              <Box sx={{ mb: "0.9rem" }}>
-                <Text
-                  as="label"
-                  htmlFor="volunteer-apply-referral"
-                  sx={{ fontSize: "sm", color: "text" }}
-                >
-                  Referral (optional)
-                </Text>
-                <Box
-                  as="input"
-                  id="volunteer-apply-referral"
-                  type="text"
-                  value={applyFormData.referral}
-                  onChange={handleApplyFieldChange("referral")}
-                  sx={{
-                    mt: "0.35rem",
-                    width: "100%",
-                    border: "1px solid",
-                    borderColor: "lightgray",
-                    borderRadius: "8px",
-                    px: "0.7rem",
-                    py: "0.55rem",
-                    fontSize: "sm",
-                  }}
-                />
-              </Box>
-              <Box sx={{ mb: "0.9rem" }}>
-                <Text
-                  as="label"
-                  htmlFor="volunteer-apply-notes"
-                  sx={{ fontSize: "sm", color: "text" }}
-                >
-                  Notes (optional)
-                </Text>
-                <Box
-                  as="textarea"
-                  id="volunteer-apply-notes"
-                  rows={4}
-                  value={applyFormData.notes}
-                  onChange={handleApplyFieldChange("notes")}
-                  sx={{
-                    mt: "0.35rem",
-                    width: "100%",
-                    border: "1px solid",
-                    borderColor: "lightgray",
-                    borderRadius: "8px",
-                    px: "0.7rem",
-                    py: "0.55rem",
-                    fontSize: "sm",
-                    resize: "vertical",
-                  }}
-                />
-              </Box>
-              {applyNotice && !isApplySuccessState && (
-                <Text
-                  sx={{
-                    fontSize: "xs",
-                    color:
-                      applyNoticeTone === "error"
-                        ? "#9e2a2b"
-                        : applyNoticeTone === "success"
-                          ? "#1f7a3f"
-                          : "darkgray",
-                    mb: "0.9rem",
-                  }}
-                >
-                  {applyNotice}
-                </Text>
-              )}
-              </Box>
-              <Flex sx={{ justifyContent: "flex-end", gap: "0.6rem" }}>
-                {isWithdrawnState && (
+                    >
+                      Reset application
+                    </Button>
+                  )}
                   <Button
                     as="button"
                     type="button"
-                    onClick={() => setShowResetApplicationConfirm(true)}
+                    onClick={handleCloseApplyModal}
                     disabled={isWithdrawProcessing}
                     sx={{
-                      bg: "#f3d6d6",
-                      color: "#9a1f1f",
+                      bg: "lightgray",
+                      color: "text",
                       borderRadius: "8px",
                       px: "1rem",
                       py: "0.55rem",
                       fontSize: "sm",
-                      border: "1px solid",
-                      borderColor: "#e8b8b8",
                       "&:hover": {
-                        bg: "#ecc4c4",
+                        bg: "#d8d8d8",
+                        color: "text",
                       },
                     }}
                   >
-                    Reset application
+                    Cancel
                   </Button>
-                )}
-                <Button
-                  as="button"
-                  type="button"
-                  onClick={handleCloseApplyModal}
-                  disabled={isWithdrawProcessing}
-                  sx={{
-                    bg: "lightgray",
-                    color: "text",
-                    borderRadius: "8px",
-                    px: "1rem",
-                    py: "0.55rem",
-                    fontSize: "sm",
-                    "&:hover": {
-                      bg: "#d8d8d8",
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
-                {!isManagedApplicationRejected && (
-                  <Button
-                    as="button"
-                    type="submit"
-                    disabled={!canSubmitApplyForm}
-                    sx={{
-                      variant: "buttons.primary",
-                      borderRadius: "8px",
-                      px: "1rem",
-                      py: "0.55rem",
-                      fontSize: "sm",
-                      cursor: canSubmitApplyForm ? "pointer" : "not-allowed",
-                      opacity: canSubmitApplyForm ? 1 : 0.55,
-                      "&:disabled": {
-                        opacity: 0.55,
-                        cursor: "not-allowed",
-                        pointerEvents: "none",
-                      },
-                      "&:disabled:hover": {
-                        bg: "primary",
-                        color: "white",
-                        boxShadow: "none",
-                        transform: "none",
-                      },
-                    }}
-                  >
-                    {isApplySubmitting && !isWithdrawProcessing
-                      ? "Submitting..."
-                      : shouldShowUpdateLabel
+                  {!isManagedApplicationRejected && (
+                    <Button
+                      as="button"
+                      type="submit"
+                      disabled={!canSubmitApplyForm}
+                      sx={{
+                        variant: "buttons.primary",
+                        borderRadius: "8px",
+                        px: "1rem",
+                        py: "0.55rem",
+                        fontSize: "sm",
+                        cursor: canSubmitApplyForm ? "pointer" : "not-allowed",
+                        opacity: canSubmitApplyForm ? 1 : 0.55,
+                        "&:disabled": {
+                          opacity: 0.55,
+                          cursor: "not-allowed",
+                          pointerEvents: "none",
+                        },
+                        "&:disabled:hover": {
+                          bg: "primary",
+                          color: "white",
+                          boxShadow: "none",
+                          transform: "none",
+                        },
+                      }}
+                    >
+                      {isApplySubmitting && !isWithdrawProcessing
+                        ? "Submitting..."
+                        : shouldShowUpdateLabel
                         ? "Update"
                         : "Submit"}
-                  </Button>
-                )}
-                {canWithdrawManagedApplication && !isApplySuccessState && (
-                  <Button
-                    as="button"
-                    type="button"
-                    disabled={isApplySubmitting || isApplySuccessState}
-                    onClick={() => setShowWithdrawConfirm(true)}
-                    sx={{
-                      bg: "#b42318",
-                      color: "white",
-                      borderRadius: "8px",
-                      px: "1rem",
-                      py: "0.55rem",
-                      fontSize: "sm",
-                      cursor:
-                        !isApplySubmitting && !isApplySuccessState
-                          ? "pointer"
-                          : "not-allowed",
-                      opacity: !isApplySubmitting && !isApplySuccessState ? 1 : 0.55,
-                      "&:hover": {
-                        bg: "#991b1b",
-                      },
-                      "&:disabled": {
-                        opacity: 0.55,
-                        cursor: "not-allowed",
-                        pointerEvents: "none",
-                      },
-                    }}
+                    </Button>
+                  )}
+                  {canWithdrawManagedApplication && !isApplySuccessState && (
+                    <Button
+                      as="button"
+                      type="button"
+                      disabled={isApplySubmitting || isApplySuccessState}
+                      onClick={() => setShowWithdrawConfirm(true)}
+                      sx={{
+                        bg: "#b42318",
+                        color: "white",
+                        borderRadius: "8px",
+                        px: "1rem",
+                        py: "0.55rem",
+                        fontSize: "sm",
+                        cursor:
+                          !isApplySubmitting && !isApplySuccessState
+                            ? "pointer"
+                            : "not-allowed",
+                        opacity:
+                          !isApplySubmitting && !isApplySuccessState ? 1 : 0.55,
+                        "&:hover": {
+                          bg: "#991b1b",
+                          color: "white",
+                        },
+                        "&:disabled": {
+                          opacity: 0.55,
+                          cursor: "not-allowed",
+                          pointerEvents: "none",
+                        },
+                      }}
                     >
                       Withdraw
                     </Button>
                   )}
-              </Flex>
-              <Text
-                sx={{
-                  mt: "0.55rem",
-                  fontSize: "12px",
-                  color: "darkgray",
-                  textAlign: "right",
-                }}
-              >
-                Fields marked{" "}
-                <Box as="span" sx={{ color: "#c62828", fontWeight: 700 }}>
-                  *
-                </Box>{" "}
-                are required.
-              </Text>
+                </Flex>
+              </Box>
               {isApplySuccessState && (
                 <Box
                   sx={{
@@ -3908,6 +4002,19 @@ const VolunteerRoleTemplate = (props) => {
                     >
                       {applyNotice || "Application submitted successfully."}
                     </Text>
+                    <Text
+                      sx={{
+                        mt: "0.4rem",
+                        mb: 0,
+                        fontSize: "xs",
+                        color: "#1f7a3f",
+                        opacity: 0.95,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      If you do not receive a confirmation email within a few
+                      minutes, please check your spam or junk folder.
+                    </Text>
                     <Button
                       as="button"
                       type="button"
@@ -3922,6 +4029,7 @@ const VolunteerRoleTemplate = (props) => {
                         fontSize: "sm",
                         "&:hover": {
                           bg: "#176334",
+                          color: "white",
                         },
                       }}
                     >
@@ -3988,6 +4096,10 @@ const VolunteerRoleTemplate = (props) => {
                           fontSize: "sm",
                           border: "1px solid",
                           borderColor: "#d6d6d6",
+                          "&:hover": {
+                            bg: "#f3f3f3",
+                            color: "text",
+                          },
                         }}
                       >
                         Cancel
@@ -4005,6 +4117,7 @@ const VolunteerRoleTemplate = (props) => {
                           fontSize: "sm",
                           "&:hover": {
                             bg: "#991b1b",
+                            color: "white",
                           },
                         }}
                       >
@@ -4082,6 +4195,10 @@ const VolunteerRoleTemplate = (props) => {
                           fontSize: "sm",
                           border: "1px solid",
                           borderColor: "#d6d6d6",
+                          "&:hover": {
+                            bg: "#f3f3f3",
+                            color: "text",
+                          },
                         }}
                       >
                         Cancel
@@ -4099,6 +4216,7 @@ const VolunteerRoleTemplate = (props) => {
                           fontSize: "sm",
                           "&:hover": {
                             bg: "#991b1b",
+                            color: "white",
                           },
                         }}
                       >
@@ -4351,20 +4469,21 @@ const VolunteerRoleTemplate = (props) => {
                   otherRole?.motorsportRegEvent?.start || otherRole?.date;
                 const otherDateLabel = otherDate ? formatDate(otherDate) : null;
                 const otherImage = normalizeImageUrl(
-                  otherRole?.motorsportRegEvent?.imageUrl,
+                  otherRole?.motorsportRegEvent?.imageUrl
                 );
-                const OtherRoleIcon = getRoleIcon(otherPositionTitle);
-                const otherRoleCapColor = getVolunteerPointCapColor(
-                  otherRole?.role?.pointValue,
+                const OtherRoleIcon = getVolunteerRoleIconComponent(
+                  otherRole?.role?.icon
                 );
+                const otherRolePresentationColor =
+                  getVolunteerRolePresentationColor(otherRole?.role?.color);
                 const otherHasAssignedEvent = Boolean(
                   otherRole?.motorsportRegEvent &&
-                  (otherRole?.motorsportRegEvent?.eventId ||
-                    otherRole?.motorsportRegEvent?.name ||
-                    otherRole?.motorsportRegEvent?.start ||
-                    otherRole?.motorsportRegEvent?.venueName ||
-                    otherRole?.motorsportRegEvent?.venueCity ||
-                    otherRole?.motorsportRegEvent?.venueRegion),
+                    (otherRole?.motorsportRegEvent?.eventId ||
+                      otherRole?.motorsportRegEvent?.name ||
+                      otherRole?.motorsportRegEvent?.start ||
+                      otherRole?.motorsportRegEvent?.venueName ||
+                      otherRole?.motorsportRegEvent?.venueCity ||
+                      otherRole?.motorsportRegEvent?.venueRegion)
                 );
                 const otherVenueLine = [
                   otherRole?.motorsportRegEvent?.venueName,
@@ -4412,13 +4531,15 @@ const VolunteerRoleTemplate = (props) => {
                         sx={{
                           width: "100%",
                           height: "180px",
-                          bg: otherRoleCapColor,
+                          bg: otherRolePresentationColor || undefined,
                           color: "white",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        <OtherRoleIcon size={108} aria-hidden="true" />
+                        {OtherRoleIcon && (
+                          <OtherRoleIcon size={108} aria-hidden="true" />
+                        )}
                       </Flex>
                     )}
                     <Box sx={{ px: "1rem", pt: "0.65rem", pb: "1rem" }}>
