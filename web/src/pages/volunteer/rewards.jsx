@@ -91,21 +91,61 @@ const VolunteerRewardsPage = ({ data, errors }) => {
       question: "How do I sign up to volunteer?",
       answer: (
         <>
-          Volunteers must have a MotorsportReg.com profile with valid email
-          contact information and register for the designated volunteer event
-          listing for each Chapter event. Role descriptions are available on the
-          Chapter website{" "}
-          <Link
-            to="/volunteer/roles"
+          <Text
+            as="span"
             sx={{
-              color: "primary",
-              textDecoration: "none",
-              "&:hover": { color: "secondary" },
+              display: "block",
+              fontWeight: "heading",
+              color: "text",
+              mb: "0.35rem",
             }}
           >
-            here
-          </Link>{" "}
-          and within MSR event postings.
+            For event-based roles
+          </Text>
+          <Text as="span" sx={{ display: "block", mb: "0.85rem" }}>
+            Most event-based roles handle volunteer registration through MSR.{" "}
+            Volunteers must have a MotorsportReg.com profile with valid email
+            contact information and register for the designated volunteer event
+            listing for each Chapter event. Role descriptions are available on
+            the Chapter website{" "}
+            <Link
+              to="/volunteer/roles"
+              sx={{
+                color: "primary",
+                textDecoration: "none",
+                "&:hover": { color: "secondary" },
+              }}
+            >
+              here
+            </Link>{" "}
+            and within MSR event postings.
+          </Text>
+          <Text
+            as="span"
+            sx={{
+              display: "block",
+              fontWeight: "heading",
+              color: "text",
+              mb: "0.35rem",
+            }}
+          >
+            For club-based roles
+          </Text>
+          <Text as="span" sx={{ display: "block" }}>
+            Volunteers can apply directly on the Club volunteer listing{" "}
+            <Link
+              to="/volunteer"
+              sx={{
+                color: "primary",
+                textDecoration: "none",
+                "&:hover": { color: "secondary" },
+              }}
+            >
+              here
+            </Link>
+            . Once the application has been approved, an email confirmation
+            will be sent.
+          </Text>
         </>
       ),
     },
