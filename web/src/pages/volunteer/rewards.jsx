@@ -2,6 +2,7 @@
 import React from "react";
 import { graphql, Link } from "gatsby";
 import { Box, Heading, Text } from "@theme-ui/components";
+import { FiChevronDown } from "react-icons/fi";
 import Layout from "../../containers/layout";
 import Seo from "../../components/seo";
 import GraphQLErrorList from "../../components/graphql-error-list";
@@ -73,6 +74,94 @@ const VolunteerRewardsPage = ({ data, errors }) => {
         "Club Partner or Sponsor Coordinator",
         "Often involves Board collaboration and year-long commitment",
       ],
+    },
+  ];
+  const faqs = [
+    {
+      question: "What is the Rewards Program?",
+      answer:
+        "It is a structured, point-based program designed to increase volunteer participation, build leadership depth, and reward members who support Chapter events.",
+    },
+    {
+      question: "Who can participate?",
+      answer:
+        "The program is open to anybody willing to volunteer at 2026 Chapter events.",
+    },
+    {
+      question: "How do I sign up to volunteer?",
+      answer: (
+        <>
+          Volunteers must have a MotorsportReg.com profile with valid email
+          contact information and register for the designated volunteer event
+          listing for each Chapter event. Role descriptions are available on the
+          Chapter website{" "}
+          <Link
+            to="/volunteer/roles"
+            sx={{
+              color: "primary",
+              textDecoration: "none",
+              "&:hover": { color: "secondary" },
+            }}
+          >
+            here
+          </Link>{" "}
+          and within MSR event postings.
+        </>
+      ),
+    },
+    {
+      question: "What types of volunteer roles are available?",
+      answer:
+        "Roles range from low commitment, such as parking attendant or event assistant, to leadership positions such as event chairperson, tour leader, and program coordinator. Skill levels are categorized as entry, intermediate, and advanced. Some advanced roles require additional approvals, so review the role descriptions on the Chapter website.",
+    },
+    {
+      question: "How does the points system work?",
+      answer:
+        "Volunteers earn 1 to 10 points per task depending on responsibility level and required training. Points accumulate throughout the calendar year and determine your recognition tier.",
+    },
+    {
+      question: "What are the recognition tiers?",
+      answer: (
+        <>
+          Each tier offers increasing levels of apparel, recognition, event
+          credits, and special benefits. There are four tiers:
+          <Box
+            as="ul"
+            sx={{
+              mt: "0.65rem",
+              mb: 0,
+              pl: "1.15rem",
+              listStyleType: "disc",
+              lineHeight: 1.7,
+            }}
+          >
+            <Box as="li">Bronze: 1-5 points</Box>
+            <Box as="li">Silver: 6-11 points</Box>
+            <Box as="li">Gold: 12-19 points</Box>
+            <Box as="li">Platinum: 20+ points</Box>
+          </Box>
+        </>
+      ),
+    },
+    {
+      question: "What rewards can I earn?",
+      answer:
+        "Rewards include Chapter-branded apparel such as hats, shirts, and jackets, volunteer appreciation banquet recognition, premium merchandise, event credits, and eligibility for the grand prize trip to the BMW M Performance Center in Thermal, California.",
+    },
+    {
+      question: "Do instructors earn points?",
+      answer:
+        "Yes. HPDE and CCC instructors receive points for instructional roles and may earn additional points for volunteer activities outside the instructor program.",
+    },
+    {
+      question: "When does the program start and end?",
+      answer:
+        "The program launches March 8, 2026. Points accumulate throughout the 2026 calendar year, and tier status resets annually.",
+    },
+    {
+      question: "Why is this program important to the Chapter?",
+      answer:
+        "Member surveys indicate a desire for more events while recognizing that a small volunteer group currently carries most of the workload. This program builds a sustainable volunteer pipeline, increases event capacity, strengthens community, and supports long-term club viability.",
     },
   ];
 
@@ -197,8 +286,13 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             .
           </Heading>
           <Text
-              sx={{ variant: "styles.p", color: "text", mb: "1rem", fontSize: "16pt" }}
-            >
+            sx={{
+              variant: "styles.p",
+              color: "text",
+              mb: "1rem",
+              fontSize: "16pt",
+            }}
+          >
             Our Club thrives because of members who step up and get involved.
             The Volunteer Rewards Program is designed to recognize, reward, and
             encourage participation, from helping at a single event to leading
@@ -403,10 +497,6 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             }}
           >
             <Box as="li" sx={{ mb: "0.5rem" }}>
-              <Text as="strong">Active Club membership</Text>
-              <Text as="span"> is required for participation.</Text>
-            </Box>
-            <Box as="li" sx={{ mb: "0.5rem" }}>
               <Text as="strong">Training, certification, or experience</Text>
               <Text as="span"> may be required for certain positions.</Text>
             </Box>
@@ -425,6 +515,103 @@ const VolunteerRewardsPage = ({ data, errors }) => {
           <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
             All requirements are communicated clearly before volunteering.
           </Text>
+
+          <Box sx={{ mt: "1.25rem", mb: "0.75rem" }}>
+            <Heading as="h2" sx={{ variant: "styles.h2", mt: 0, mb: "0.5rem" }}>
+              FAQ
+            </Heading>
+            <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
+              Common questions about how the volunteer rewards program works.
+            </Text>
+            <Box
+              sx={{
+                border: "2px solid",
+                borderColor: "black",
+                borderRadius: "18px",
+                overflow: "hidden",
+                bg: "background",
+              }}
+            >
+              {faqs.map((item, index) => (
+                <Box
+                  as="details"
+                  key={item.question}
+                  sx={{
+                    borderTop: index === 0 ? "none" : "1px solid",
+                    borderTopColor: "lightgray",
+                    "&[open]": {
+                      bg: "#f5f8ff",
+                    },
+                    "&[open] .faq-icon": {
+                      transform: "rotate(180deg)",
+                    },
+                  }}
+                >
+                  <Box
+                    as="summary"
+                    sx={{
+                      listStyle: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "0.85rem",
+                      px: ["1rem", "1.25rem"],
+                      py: ["0.95rem", "1.1rem"],
+                      fontWeight: "heading",
+                      fontSize: ["sm", "md"],
+                      color: "text",
+                      "&::-webkit-details-marker": {
+                        display: "none",
+                      },
+                    }}
+                  >
+                    <Text as="span" sx={{ color: "inherit", lineHeight: 1.35 }}>
+                      {item.question}
+                    </Text>
+                    <Box
+                      as="span"
+                      className="faq-icon"
+                      sx={{
+                        flex: "0 0 auto",
+                        width: "34px",
+                        height: "34px",
+                        borderRadius: "999px",
+                        bg: "primary",
+                        color: "white",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "transform 0.2s ease",
+                      }}
+                    >
+                      <FiChevronDown size={18} />
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      px: ["1rem", "1.25rem"],
+                      pb: ["1rem", "1.15rem"],
+                      pr: ["1rem", "4rem"],
+                      color: "text",
+                    }}
+                  >
+                    <Text
+                      sx={{
+                        variant: "styles.p",
+                        mb: 0,
+                        color: "inherit",
+                        fontSize: "sm",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {item.answer}
+                    </Text>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         </Box>
       </ContentContainer>
     </Layout>
