@@ -133,7 +133,7 @@ const IndexPage = (props) => {
     : [];
   if (!site && !errors) {
     console.warn(
-      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.',
+      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
     );
   }
   const menuItems = site?.navMenu?.items || [];
@@ -153,8 +153,12 @@ const IndexPage = (props) => {
     const now = Date.now();
     return liveEvents.filter((event) => {
       if (!event?.startTime) return false;
-      const timestamp = Date.parse(event.startTime);
-      return Number.isFinite(timestamp) && timestamp >= now;
+      const startTimestamp = Date.parse(event.startTime);
+      const endTimestamp = event?.endTime ? Date.parse(event.endTime) : NaN;
+      if (Number.isFinite(endTimestamp)) {
+        return endTimestamp >= now;
+      }
+      return Number.isFinite(startTimestamp) && startTimestamp >= now;
     });
   }, [liveEvents]);
   const scopedEvents = activeOnly ? activeLiveEvents : liveEvents;
@@ -254,7 +258,7 @@ const IndexPage = (props) => {
       setSelectedYear(
         yearStrings.includes(String(currentYear))
           ? String(currentYear)
-          : yearStrings[0],
+          : yearStrings[0]
       );
     }
   }, [years, selectedYear, currentYear]);
@@ -410,7 +414,7 @@ const IndexPage = (props) => {
   const safePageIndex = Math.min(pageIndex, totalPages);
   const paginatedEvents = sortedEvents.slice(
     (safePageIndex - 1) * pageSize,
-    safePageIndex * pageSize,
+    safePageIndex * pageSize
   );
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
   const sortControlSx = {
@@ -503,85 +507,89 @@ const IndexPage = (props) => {
               sx={{
                 gridColumn: "1 / -1",
                 display: "grid",
-                gridTemplateColumns: ["1fr", "1fr 1fr", "repeat(4, minmax(0, 1fr))"],
+                gridTemplateColumns: [
+                  "1fr",
+                  "1fr 1fr",
+                  "repeat(4, minmax(0, 1fr))",
+                ],
                 gap: "0.75rem",
                 alignItems: "end",
               }}
             >
-                <FilterField label="Status">
-                  <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
-                    <FilterPillButton
-                      type="button"
-                      onClick={() => setActiveOnly(true)}
-                      active={activeOnly}
-                      activeBg="primary"
-                      activeHoverBg="secondary"
-                      sx={{ flex: "1 1 0" }}
-                    >
-                      Active
-                    </FilterPillButton>
-                    <FilterPillButton
-                      type="button"
-                      onClick={() => {
-                        setActiveOnly(false);
-                        setSelectedYear("all");
-                      }}
-                      active={!activeOnly}
-                      activeBg="primary"
-                      activeHoverBg="secondary"
-                      sx={{ flex: "1 1 0" }}
-                    >
-                      All
-                    </FilterPillButton>
-                  </FilterPillRow>
-                </FilterField>
-                <FilterField label="Category">
-                  <FilterSelect
-                    value={selectedCategoryValue}
-                    onChange={(event) => {
-                      const next = event.target.value;
-                      if (next === "all") {
-                        setSelectedCategories([]);
-                        return;
-                      }
-                      setSelectedCategories([next]);
+              <FilterField label="Status">
+                <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
+                  <FilterPillButton
+                    type="button"
+                    onClick={() => setActiveOnly(true)}
+                    active={activeOnly}
+                    activeBg="primary"
+                    activeHoverBg="secondary"
+                    sx={{ flex: "1 1 0" }}
+                  >
+                    Active
+                  </FilterPillButton>
+                  <FilterPillButton
+                    type="button"
+                    onClick={() => {
+                      setActiveOnly(false);
+                      setSelectedYear("all");
                     }}
+                    active={!activeOnly}
+                    activeBg="primary"
+                    activeHoverBg="secondary"
+                    sx={{ flex: "1 1 0" }}
                   >
-                    {categories.map((category) => (
-                      <option key={category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </FilterSelect>
-                </FilterField>
-                <FilterField label="Month">
-                  <FilterSelect
-                    id="event-month"
-                    value={selectedMonth}
-                    onChange={(event) => setSelectedMonth(event.target.value)}
-                  >
-                    {monthOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </FilterSelect>
-                </FilterField>
+                    All
+                  </FilterPillButton>
+                </FilterPillRow>
+              </FilterField>
+              <FilterField label="Category">
+                <FilterSelect
+                  value={selectedCategoryValue}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    if (next === "all") {
+                      setSelectedCategories([]);
+                      return;
+                    }
+                    setSelectedCategories([next]);
+                  }}
+                >
+                  {categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
+              <FilterField label="Month">
+                <FilterSelect
+                  id="event-month"
+                  value={selectedMonth}
+                  onChange={(event) => setSelectedMonth(event.target.value)}
+                >
+                  {monthOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
 
-                <FilterField label="Year">
-                  <FilterSelect
-                    id="event-year"
-                    value={selectedYear}
-                    onChange={(event) => setSelectedYear(event.target.value)}
-                  >
-                    <option value="all">All years</option>
-                    {years.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </FilterSelect>
-                </FilterField>
+              <FilterField label="Year">
+                <FilterSelect
+                  id="event-year"
+                  value={selectedYear}
+                  onChange={(event) => setSelectedYear(event.target.value)}
+                >
+                  <option value="all">All years</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </FilterSelect>
+              </FilterField>
             </Box>
           </FilterGrid>
         </FilterBox>
