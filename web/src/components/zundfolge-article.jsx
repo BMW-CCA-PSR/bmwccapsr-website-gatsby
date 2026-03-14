@@ -14,10 +14,13 @@ import { imageUrlFor } from "../lib/image-url";
 import ContentContainer from "./content-container";
 import { getZundfolgeUrl } from "../lib/helpers";
 import { BoxIcon } from "./box-icons";
+import StylizedLandingHeader from "./stylized-landing-header";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+
+const zundfolgeRed = "#B5322E";
 
 const ArticleNavCard = ({ post, label }) => {
   if (!post) return null;
@@ -147,151 +150,207 @@ function ZundfolgeArticle(props) {
           pt: ["6.5rem", "6.5rem", "10rem", "10rem"],
           pb: "1rem",
           width: "100%",
-          flexDirection: "row",
-          //mx: "auto",
+          flexDirection: "column",
         }}
       >
+        <StylizedLandingHeader
+          word="Zundfolge"
+          color={zundfolgeRed}
+          bleedTop="65px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          minHeight="0px"
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={[
+            "ZUNDFOLGE",
+            "1•3•4•2",
+            "ZUNDFOLGE",
+            "1•5•3•6•4•2",
+            "ZUNDFOLGE",
+          ]}
+        />
         <Flex
           sx={{
-            //pr: "16px",
-            flexDirection: "column",
+            width: "100%",
+            alignItems: "flex-start",
           }}
         >
-          <Text
-            variant="text.label"
-            sx={{
-              position: "relative",
-              zIndex: 2,
-              display: "inline-flex",
-              alignItems: "center",
-              mb: "0.25rem",
-            }}
-          >
-            <Link
-              to="/zundfolge/"
-              sx={{
-                textDecoration: "none",
-                color: "text",
-                display: "inline-flex",
-                alignItems: "center",
-                cursor: "pointer",
-                px: "0.15em",
-                mx: "-0.15em",
-                position: "relative",
-                zIndex: 3,
-              }}
-            >
-              Zundfolge
-            </Link>
-            <Text as="span" sx={{ px: "0.35em" }}>
-              /
-            </Text>
-            {cat}
-          </Text>
-          <Heading variant="styles.h1" sx={{ position: "relative", zIndex: 1 }}>
-            {title}
-            <BoxIcon
-              as="span"
-              sx={{
-                display: "inline-grid",
-                ml: "0.5rem",
-                verticalAlign: "middle",
-              }}
-            />
-          </Heading>
           <Flex
             sx={{
-              py: "0.5rem",
+              flex: "1 1 0",
+              minWidth: 0,
               width: "100%",
-              alignItems: "center",
-              gap: "0.75rem",
+              flexDirection: "column",
             }}
           >
-            {avatarUrls.length > 0 && (
-              <Box
-                sx={{
-                  position: "relative",
-                  width: `${
-                    avatarSize + (avatarUrls.length - 1) * avatarOffset
-                  }px`,
-                  height: `${avatarSize}px`,
-                  flex: "0 0 auto",
-                }}
-              >
-                {avatarUrls.map((url, index) => (
-                  <Avatar
-                    key={url}
-                    src={url}
-                    sx={{
-                      width: `${avatarSize}px`,
-                      height: `${avatarSize}px`,
-                      minWidth: `${avatarSize}px`,
-                      maxHeight: `${avatarSize}px`,
-                      position: "absolute",
-                      left: `${index * avatarOffset}px`,
-                      zIndex: avatarUrls.length - index,
-                      border: "2px solid",
-                      borderColor: "background",
-                      backgroundColor: "background",
-                    }}
-                  />
-                ))}
-              </Box>
-            )}
-            <Text sx={{ variant: "stypes.p", py: "1rem", px: "0.5rem" }}>
-              By <b>{authorString}</b> | {pubDate}
-            </Text>
-          </Flex>
-          {mainImage && mainImage.asset && (
-            <div
+            <Box
               sx={{
-                maxHeight: "500px",
-                overflow: "hidden",
-                borderRadius: "18px",
+                position: "relative",
+                height: 0,
+                mb: 0,
               }}
             >
-              <SanityImage
-                {...mainImage}
-                width={1440}
-                {...nonDraggableImageProps}
+              <Text
+                variant="text.label"
                 sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  ...nonDraggableImageSx,
+                  position: "absolute",
+                  top: "-1.2rem",
+                  left: 0,
+                  zIndex: 2,
+                  display: "inline-flex",
+                  alignItems: "center",
+                }}
+              >
+                <Link
+                  to="/zundfolge/"
+                  sx={{
+                    textDecoration: "none",
+                    color: "text",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    px: "0.15em",
+                    mx: "-0.15em",
+                    position: "relative",
+                    zIndex: 3,
+                  }}
+                >
+                  Zundfolge
+                </Link>
+                <Text as="span" sx={{ px: "0.35em" }}>
+                  /
+                </Text>
+                {cat}
+              </Text>
+            </Box>
+            <Heading
+              variant="styles.h1"
+              sx={{ position: "relative", zIndex: 1 }}
+            >
+              {title}
+              <BoxIcon
+                as="span"
+                sx={{
+                  display: "inline-grid",
+                  ml: "0.5rem",
+                  verticalAlign: "middle",
                 }}
               />
-            </div>
-          )}
-          <BannerAd {...randomizedBanner} />
-          {_rawBody && <PortableText body={_rawBody} boxed enableDropCap />}
-        </Flex>
-        <div
-          sx={
-            next || prev
-              ? {
-                  display: ["none", "none", "flex", "flex"],
-                  mx: "auto",
-                }
-              : { display: "none" }
-          }
-        >
-          <VerticalLine height="600" />
-          <div
-            sx={{
-              mx: "auto",
-            }}
-          >
-            <BoxAd {...randomizedBox} />
-            <Heading variant="styles.h3" sx={{ my: "1rem" }}>
-              Related Content
             </Heading>
-            {relatedPosts &&
-              relatedPosts
-                .slice(0, 3)
-                .map((post) => <RelatedContent key={post.id} {...post} />)}
+            <Flex
+              sx={{
+                py: "0.5rem",
+                width: "100%",
+                alignItems: "center",
+                gap: "0.75rem",
+              }}
+            >
+              {avatarUrls.length > 0 && (
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: `${
+                      avatarSize + (avatarUrls.length - 1) * avatarOffset
+                    }px`,
+                    height: `${avatarSize}px`,
+                    flex: "0 0 auto",
+                  }}
+                >
+                  {avatarUrls.map((url, index) => (
+                    <Avatar
+                      key={url}
+                      src={url}
+                      sx={{
+                        width: `${avatarSize}px`,
+                        height: `${avatarSize}px`,
+                        minWidth: `${avatarSize}px`,
+                        maxHeight: `${avatarSize}px`,
+                        position: "absolute",
+                        left: `${index * avatarOffset}px`,
+                        zIndex: avatarUrls.length - index,
+                        border: "2px solid",
+                        borderColor: "background",
+                        backgroundColor: "background",
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
+              <Text sx={{ variant: "stypes.p", py: "1rem", px: "0.5rem" }}>
+                By <b>{authorString}</b> | {pubDate}
+              </Text>
+            </Flex>
+            {mainImage && mainImage.asset && (
+              <div
+                sx={{
+                  maxHeight: "500px",
+                  overflow: "hidden",
+                  borderRadius: "18px",
+                }}
+              >
+                <SanityImage
+                  {...mainImage}
+                  width={1440}
+                  {...nonDraggableImageProps}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    ...nonDraggableImageSx,
+                  }}
+                />
+              </div>
+            )}
+            <BannerAd {...randomizedBanner} />
+            {_rawBody && <PortableText body={_rawBody} boxed enableDropCap />}
+          </Flex>
+          <div
+            sx={
+              next || prev
+                ? {
+                    display: ["none", "none", "flex", "flex"],
+                    flex: "0 0 auto",
+                    mx: "auto",
+                  }
+                : { display: "none" }
+            }
+          >
+            <VerticalLine height="600" />
+            <div
+              sx={{
+                mx: "auto",
+              }}
+            >
+              <BoxAd {...randomizedBox} />
+              <Heading variant="styles.h3" sx={{ my: "1rem" }}>
+                Related Content
+              </Heading>
+              {relatedPosts &&
+                relatedPosts
+                  .slice(0, 3)
+                  .map((post) => <RelatedContent key={post.id} {...post} />)}
+            </div>
           </div>
-        </div>
+        </Flex>
       </ContentContainer>
       {(next || prev) && (
         <Box

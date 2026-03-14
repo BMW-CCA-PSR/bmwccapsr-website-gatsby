@@ -12,6 +12,7 @@ import { randomGenerator } from "../lib/helpers";
 import { BoxAd } from "./ads";
 import ContentContainer from "./content-container";
 import { BoxIcon } from "./box-icons";
+import StylizedLandingHeader from "./stylized-landing-header";
 import { FiClock, FiShare2 } from "react-icons/fi";
 import { FaCalendarPlus } from "react-icons/fa";
 import {
@@ -270,75 +271,104 @@ function EventPage(props) {
           pt: ["6.5rem", "6.5rem", "10rem", "10rem"],
           pb: "1rem",
           width: "100%",
-          flexDirection: "row",
+          flexDirection: "column",
           mx: "auto",
         }}
       >
+        <StylizedLandingHeader
+          word="Events"
+          color="primary"
+          bleedTop="65px"
+          minHeight="0px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          rowRepeatJoiners={["   ", "         "]}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={["EVENTS"]}
+        />
         <Flex
           sx={{
-            //pr: "16px",
-            flexDirection: "column",
-            position: "relative",
-            mt: isPast ? ["3rem", "3rem", 0, 0] : 0,
+            width: "100%",
+            alignItems: "flex-start",
           }}
         >
-          {isPast && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                transform: "translateY(calc(-100% - 0.9rem))",
-                zIndex: 3,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-start",
-                width: "100%",
-                bg: "#f5d76e",
-                color: "black",
-                borderRadius: "10px",
-                px: "0.8rem",
-                py: "0.42rem",
-                fontSize: "xs",
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                fontWeight: "heading",
-                gap: "0.45rem",
-              }}
-            >
-              <FiClock size={14} aria-hidden="true" />
-              <span>This event has already passed</span>
-            </Box>
-          )}
-          <Box
+          <Flex
             sx={{
+              flex: "1 1 0",
+              minWidth: 0,
+              width: "100%",
+              flexDirection: "column",
               position: "relative",
-              zIndex: 2,
-              mb: "0.5rem",
-              width: "fit-content",
+              mt: isPast ? ["3rem", "3rem", 0, 0] : 0,
             }}
           >
-            <Text variant="text.label" sx={{ display: "inline-block" }}>
-              <Link
-                to="/events/"
+            {isPast && (
+              <Box
                 sx={{
-                  textDecoration: "none",
-                  color: "text",
-                  display: "inline-flex",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  transform: "translateY(calc(-100% - 0.9rem))",
+                  zIndex: 3,
+                  display: "flex",
                   alignItems: "center",
-                  px: "0.15em",
-                  mx: "-0.15em",
+                  justifyContent: "flex-start",
+                  width: "100%",
+                  bg: "#f5d76e",
+                  color: "black",
+                  borderRadius: "10px",
+                  px: "0.8rem",
+                  py: "0.42rem",
+                  fontSize: "xs",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  fontWeight: "heading",
+                  gap: "0.45rem",
                 }}
               >
-                Events
-              </Link>
-              <Text as="span" sx={{ px: "0.35em" }}>
-                /
-              </Text>
-              {cat ? (
+                <FiClock size={14} aria-hidden="true" />
+                <span>This event has already passed</span>
+              </Box>
+            )}
+            <Box
+              sx={{
+                position: "relative",
+                height: 0,
+                mb: 0,
+              }}
+            >
+              <Text
+                variant="text.label"
+                sx={{
+                  position: "absolute",
+                  top: "-1.2rem",
+                  left: 0,
+                  zIndex: 2,
+                  display: "inline-block",
+                }}
+              >
                 <Link
-                  to={categoryFilterLink}
+                  to="/events/"
                   sx={{
                     textDecoration: "none",
                     color: "text",
@@ -348,213 +378,232 @@ function EventPage(props) {
                     mx: "-0.15em",
                   }}
                 >
-                  {cat}
+                  Events
                 </Link>
-              ) : (
-                "All"
-              )}
+                <Text as="span" sx={{ px: "0.35em" }}>
+                  /
+                </Text>
+                {cat ? (
+                  <Link
+                    to={categoryFilterLink}
+                    sx={{
+                      textDecoration: "none",
+                      color: "text",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      px: "0.15em",
+                      mx: "-0.15em",
+                    }}
+                  >
+                    {cat}
+                  </Link>
+                ) : (
+                  "All"
+                )}
+              </Text>
+            </Box>
+            <Heading
+              variant="styles.h1"
+              sx={{ mt: 0, position: "relative", zIndex: 1 }}
+            >
+              {title}
+              <BoxIcon
+                as="span"
+                sx={{
+                  display: "inline-grid",
+                  ml: "0.5rem",
+                  verticalAlign: "middle",
+                }}
+              />
+            </Heading>
+            <Text sx={{ variant: "styles.h3", py: "1rem" }}>
+              {start}
+              {startInDays ? ` | ${startInDays}` : ""}
             </Text>
-          </Box>
-          <Heading
-            variant="styles.h1"
-            sx={{ mt: 0, position: "relative", zIndex: 1 }}
-          >
-            {title}
-            <BoxIcon
-              as="span"
+            <Box
               sx={{
-                display: "inline-grid",
-                ml: "0.5rem",
-                verticalAlign: "middle",
+                height: "1px",
+                backgroundColor: "lightgray",
+                mb: "0.7rem",
               }}
             />
-          </Heading>
-          <Text sx={{ variant: "styles.h3", py: "1rem" }}>
-            {start}
-            {startInDays ? ` | ${startInDays}` : ""}
-          </Text>
-          <Box
-            sx={{
-              height: "1px",
-              backgroundColor: "lightgray",
-              mb: "0.7rem",
-            }}
-          />
-          <Flex
-            sx={{
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "0.75rem",
-              flexWrap: "wrap",
-              mb: "0.35rem",
-            }}
-          >
-            <Text sx={{ variant: "styles.p", mb: 0 }}>
-              Last updated: {updated}
-            </Text>
-            <Flex sx={{ alignItems: "center", gap: "0.5rem", ml: "auto" }}>
-              <Box ref={calendarMenuRef} sx={{ position: "relative" }}>
+            <Flex
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "0.75rem",
+                flexWrap: "wrap",
+                mb: "0.35rem",
+              }}
+            >
+              <Text sx={{ variant: "styles.p", mb: 0 }}>
+                Last updated: {updated}
+              </Text>
+              <Flex sx={{ alignItems: "center", gap: "0.5rem", ml: "auto" }}>
+                <Box ref={calendarMenuRef} sx={{ position: "relative" }}>
+                  <Box
+                    as="button"
+                    type="button"
+                    onClick={() => setIsCalendarMenuOpen((prev) => !prev)}
+                    aria-label="Add to calendar"
+                    title="Add to calendar"
+                    sx={actionButtonSx}
+                  >
+                    <FaCalendarPlus size={13} aria-hidden="true" />
+                    Add to calendar
+                  </Box>
+                  {isCalendarMenuOpen && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "calc(100% + 6px)",
+                        right: 0,
+                        width: "170px",
+                        border: "1px solid",
+                        borderColor: "lightgray",
+                        borderRadius: "10px",
+                        backgroundColor: "white",
+                        boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+                        overflow: "hidden",
+                        zIndex: 12,
+                      }}
+                    >
+                      {googleCalendarUrl && (
+                        <a
+                          href={googleCalendarUrl}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                          onClick={() => setIsCalendarMenuOpen(false)}
+                          sx={{
+                            display: "block",
+                            px: "0.75rem",
+                            py: "0.55rem",
+                            color: "text",
+                            textDecoration: "none",
+                            fontSize: "xs",
+                            borderBottom: "1px solid",
+                            borderColor: "lightgray",
+                            "&:hover": { backgroundColor: "lightgray" },
+                          }}
+                        >
+                          Google Calendar
+                        </a>
+                      )}
+                      {outlookCalendarUrl && (
+                        <a
+                          href={outlookCalendarUrl}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                          onClick={() => setIsCalendarMenuOpen(false)}
+                          sx={{
+                            display: "block",
+                            px: "0.75rem",
+                            py: "0.55rem",
+                            color: "text",
+                            textDecoration: "none",
+                            fontSize: "xs",
+                            borderBottom: "1px solid",
+                            borderColor: "lightgray",
+                            "&:hover": { backgroundColor: "lightgray" },
+                          }}
+                        >
+                          Outlook
+                        </a>
+                      )}
+                      <Box
+                        as="button"
+                        type="button"
+                        onClick={() => {
+                          handleDownloadIcs();
+                          setIsCalendarMenuOpen(false);
+                        }}
+                        disabled={!hasCalendarData}
+                        sx={{
+                          width: "100%",
+                          textAlign: "left",
+                          px: "0.75rem",
+                          py: "0.55rem",
+                          border: 0,
+                          bg: "transparent",
+                          color: hasCalendarData ? "text" : "darkgray",
+                          fontSize: "xs",
+                          cursor: hasCalendarData ? "pointer" : "not-allowed",
+                          "&:hover": {
+                            backgroundColor: hasCalendarData
+                              ? "lightgray"
+                              : "transparent",
+                          },
+                        }}
+                      >
+                        iCal (.ics)
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
                 <Box
                   as="button"
                   type="button"
-                  onClick={() => setIsCalendarMenuOpen((prev) => !prev)}
-                  aria-label="Add to calendar"
-                  title="Add to calendar"
+                  aria-label="Share"
+                  title="Share"
+                  onClick={handleShare}
                   sx={actionButtonSx}
                 >
-                  <FaCalendarPlus size={13} aria-hidden="true" />
-                  Add to calendar
+                  <FiShare2 size={13} aria-hidden="true" />
+                  Share
                 </Box>
-                {isCalendarMenuOpen && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: "calc(100% + 6px)",
-                      right: 0,
-                      width: "170px",
-                      border: "1px solid",
-                      borderColor: "lightgray",
-                      borderRadius: "10px",
-                      backgroundColor: "white",
-                      boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
-                      overflow: "hidden",
-                      zIndex: 12,
-                    }}
-                  >
-                    {googleCalendarUrl && (
-                      <a
-                        href={googleCalendarUrl}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        onClick={() => setIsCalendarMenuOpen(false)}
-                        sx={{
-                          display: "block",
-                          px: "0.75rem",
-                          py: "0.55rem",
-                          color: "text",
-                          textDecoration: "none",
-                          fontSize: "xs",
-                          borderBottom: "1px solid",
-                          borderColor: "lightgray",
-                          "&:hover": { backgroundColor: "lightgray" },
-                        }}
-                      >
-                        Google Calendar
-                      </a>
-                    )}
-                    {outlookCalendarUrl && (
-                      <a
-                        href={outlookCalendarUrl}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        onClick={() => setIsCalendarMenuOpen(false)}
-                        sx={{
-                          display: "block",
-                          px: "0.75rem",
-                          py: "0.55rem",
-                          color: "text",
-                          textDecoration: "none",
-                          fontSize: "xs",
-                          borderBottom: "1px solid",
-                          borderColor: "lightgray",
-                          "&:hover": { backgroundColor: "lightgray" },
-                        }}
-                      >
-                        Outlook
-                      </a>
-                    )}
-                    <Box
-                      as="button"
-                      type="button"
-                      onClick={() => {
-                        handleDownloadIcs();
-                        setIsCalendarMenuOpen(false);
-                      }}
-                      disabled={!hasCalendarData}
-                      sx={{
-                        width: "100%",
-                        textAlign: "left",
-                        px: "0.75rem",
-                        py: "0.55rem",
-                        border: 0,
-                        bg: "transparent",
-                        color: hasCalendarData ? "text" : "darkgray",
-                        fontSize: "xs",
-                        cursor: hasCalendarData ? "pointer" : "not-allowed",
-                        "&:hover": {
-                          backgroundColor: hasCalendarData
-                            ? "lightgray"
-                            : "transparent",
-                        },
-                      }}
-                    >
-                      iCal (.ics)
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-              <Box
-                as="button"
-                type="button"
-                aria-label="Share"
-                title="Share"
-                onClick={handleShare}
-                sx={actionButtonSx}
-              >
-                <FiShare2 size={13} aria-hidden="true" />
-                Share
-              </Box>
+              </Flex>
             </Flex>
+            {mainImage && mainImage.asset && (
+              <div
+                sx={{
+                  maxHeight: "500px",
+                  overflow: "hidden",
+                  borderRadius: "18px",
+                }}
+              >
+                <SanityImage
+                  {...mainImage}
+                  width={1440}
+                  {...nonDraggableImageProps}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    ...nonDraggableImageSx,
+                  }}
+                />
+              </div>
+            )}
+            {_rawBody && <PortableText body={_rawBody} boxed />}
+            <EventDetails {...props} isPast={isPast} />
           </Flex>
-          {mainImage && mainImage.asset && (
+          <div
+            sx={
+              relatedEvents.length > 0
+                ? {
+                    display: ["none", "none", "flex"],
+                    flex: "0 0 auto",
+                    mx: "auto",
+                  }
+                : { display: "none" }
+            }
+          >
+            <VerticalLine height="600" />
             <div
               sx={{
-                maxHeight: "500px",
-                overflow: "hidden",
-                borderRadius: "18px",
+                mx: "auto",
               }}
             >
-              <SanityImage
-                {...mainImage}
-                width={1440}
-                {...nonDraggableImageProps}
-                sx={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  ...nonDraggableImageSx,
-                }}
-              />
+              <BoxAd {...randomizedAd} />
+              <Heading variant="styles.h3" sx={{ my: "1rem" }}>
+                More Events
+              </Heading>
+              {relatedEvents.map((event) => (
+                <RelatedContent key={event.id} {...event} />
+              ))}
             </div>
-          )}
-          {_rawBody && <PortableText body={_rawBody} boxed />}
-          <EventDetails {...props} isPast={isPast} />
-        </Flex>
-        <div
-          sx={
-            relatedEvents.length > 0
-              ? {
-                  display: ["none", "none", "flex"],
-                  mx: "auto",
-                }
-              : { display: "none" }
-          }
-        >
-          <VerticalLine height="600" />
-          <div
-            sx={{
-              mx: "auto",
-            }}
-          >
-            <BoxAd {...randomizedAd} />
-            <Heading variant="styles.h3" sx={{ my: "1rem" }}>
-              More Events
-            </Heading>
-            {relatedEvents.map((event) => (
-              <RelatedContent key={event.id} {...event} />
-            ))}
           </div>
-        </div>
+        </Flex>
       </ContentContainer>
     </section>
   );

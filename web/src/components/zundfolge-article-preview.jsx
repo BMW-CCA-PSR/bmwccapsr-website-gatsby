@@ -1,6 +1,5 @@
 /** @jsxImportSource theme-ui */
 import { format, parseISO, differenceInDays } from "date-fns";
-import { Badge } from "theme-ui";
 import { Link } from "gatsby";
 import React, { useEffect, useState } from "react";
 import { Card, Box, Text, Heading } from "theme-ui";
@@ -10,6 +9,7 @@ import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import ZundfolgePill from "./zundfolge-pill";
 
 function ZundfolgeArticlePreview(props) {
   const cat = props.category ? props.category.title : "null";
@@ -67,25 +67,7 @@ function ZundfolgeArticlePreview(props) {
         <Box p={3}>
           <div sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Text sx={{ variant: "text.label", color: "white" }}>{cat}</Text>
-            {isNew && (
-              <Badge
-                sx={{
-                  bg: "transparent",
-                  color: "white",
-                  px: 2,
-                  py: 1,
-                  borderRadius: 9999,
-                  fontWeight: 700,
-                  fontSize: "xxs",
-                  letterSpacing: "wide",
-                  textTransform: "uppercase",
-                  backgroundImage:
-                    "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-                }}
-              >
-                NEW
-              </Badge>
-            )}
+            {isNew && <ZundfolgePill>New</ZundfolgePill>}
           </div>
           <Heading
             sx={{

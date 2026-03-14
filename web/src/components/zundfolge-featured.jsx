@@ -2,19 +2,18 @@
 import React from "react";
 import { Link } from "gatsby";
 import { Box, Card, Heading, Text } from "@theme-ui/components";
-import { Badge } from "theme-ui";
-import SanityImage from "gatsby-plugin-sanity-image";
 import PortableText from "./portableText";
 import { getZundfolgeUrl } from "../lib/helpers";
+import { imageUrlFor } from "../lib/image-url";
 import { differenceInDays, parseISO } from "date-fns";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import ZundfolgePill from "./zundfolge-pill";
 
 const slantInset = "12%";
 const slantClip = `polygon(0 0, 100% 0, calc(100% - ${slantInset}) 100%, 0 100%)`;
-
 const ZundfolgeFeatured = ({ post }) => {
   if (!post) return null;
   let isNew = false;
@@ -28,6 +27,14 @@ const ZundfolgeFeatured = ({ post }) => {
   }
   const href = getZundfolgeUrl(post.slug.current);
   const excerpt = post._rawExcerpt;
+  const imageUrl = post?.mainImage?.asset
+    ? imageUrlFor(post.mainImage)
+        .width(1400)
+        .height(900)
+        .fit("crop")
+        .auto("format")
+        .url()
+    : null;
 
   return (
     <Link to={href} sx={{ textDecoration: "none", color: "inherit" }}>
@@ -43,7 +50,7 @@ const ZundfolgeFeatured = ({ post }) => {
           sx={{
             display: "grid",
             gridTemplateColumns: ["1fr", "1fr", "1.25fr 1fr"],
-            minHeight: ["240px", "300px", "360px"],
+            minHeight: ["220px", "260px", "300px"],
           }}
         >
           <Box
@@ -56,12 +63,15 @@ const ZundfolgeFeatured = ({ post }) => {
               borderBottomLeftRadius: [0, 0, "18px"],
             }}
           >
-            {post.mainImage && post.mainImage.asset && (
-              <SanityImage
-                {...post.mainImage}
+            {imageUrl && (
+              <Box
+                as="img"
+                src={imageUrl}
+                alt={post?.mainImage?.alt || post?.title || "Featured article"}
                 {...nonDraggableImageProps}
-                width={1400}
                 sx={{
+                  position: "absolute",
+                  inset: 0,
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
@@ -73,11 +83,12 @@ const ZundfolgeFeatured = ({ post }) => {
           </Box>
           <Box
             sx={{
-              p: ["1.25rem", "1.75rem", "2.5rem"],
+              py: ["1.5rem", "1.8rem", "2.2rem"],
+              px: ["1rem", "1.25rem", "1.6rem"],
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
-              gap: "0.85rem",
+              gap: "0.55rem",
               backgroundColor: "background",
             }}
           >
@@ -104,44 +115,8 @@ const ZundfolgeFeatured = ({ post }) => {
                     gap: "0.5rem",
                   }}
                 >
-                  <Badge
-                    sx={{
-                      bg: "transparent",
-                      color: "white",
-                      px: 2,
-                      py: 1,
-                      borderRadius: 9999,
-                      fontWeight: 700,
-                      fontSize: "xxs",
-                      letterSpacing: "wide",
-                      textTransform: "uppercase",
-                      backgroundImage:
-                        "linear-gradient(135deg, #b5322e 0%, #e55b57 100%)",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                    }}
-                  >
-                    Featured
-                  </Badge>
-                  {isNew && (
-                    <Badge
-                      sx={{
-                        bg: "transparent",
-                        color: "white",
-                        px: 2,
-                        py: 1,
-                        borderRadius: 9999,
-                        fontWeight: 700,
-                        fontSize: "xxs",
-                        letterSpacing: "wide",
-                        textTransform: "uppercase",
-                        backgroundImage:
-                          "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                      }}
-                    >
-                      New
-                    </Badge>
-                  )}
+                  <ZundfolgePill variant="featured">Featured</ZundfolgePill>
+                  {isNew && <ZundfolgePill>New</ZundfolgePill>}
                 </Box>
               </Box>
             </Box>

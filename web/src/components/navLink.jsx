@@ -4,6 +4,7 @@ import { Link } from "gatsby";
 import { Box } from "@theme-ui/components";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
 import { useLocation } from "@reach/router";
+import { volunteerNavBadgeStyle } from "../lib/volunteerNavBadgeStyles";
 
 const fixedSlantClip =
   "polygon(var(--nav-slant-size) 0, 100% 0, calc(100% - var(--nav-slant-size)) 100%, 0 100%)";
@@ -100,28 +101,10 @@ const volunteerStyle = {
 };
 
 const volunteerNewBadgeStyle = {
+  ...volunteerNavBadgeStyle,
   position: "absolute",
   top: "3px",
   right: "8px",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minWidth: "34px",
-  height: "16px",
-  px: "0.35rem",
-  borderRadius: 9999,
-  fontSize: "10px",
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-  color: "white",
-  fontWeight: "heading",
-  lineHeight: 1,
-  backgroundImage: "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-  pointerEvents: "none",
-  zIndex: 2,
-  WebkitTextStroke: 0,
-  textShadow: "none",
 };
 
 const NavLink = (props) => {

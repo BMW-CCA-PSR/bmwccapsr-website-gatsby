@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "gatsby";
 import { Box } from "@theme-ui/components";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
+import { volunteerNavBadgeStyle } from "../lib/volunteerNavBadgeStyles";
 
 const normalizePath = (value) => {
   if (!value) return "/";
@@ -14,26 +15,11 @@ const normalizePath = (value) => {
 };
 
 const mobileVolunteerBadgeStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minWidth: "34px",
-  height: "16px",
-  px: "0.35rem",
-  borderRadius: 9999,
-  fontSize: "10px",
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-  color: "white",
-  fontWeight: "heading",
-  lineHeight: 1,
-  backgroundImage: "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+  ...volunteerNavBadgeStyle,
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(calc(6.2ch), -50%)",
-  pointerEvents: "none",
 };
 
 const mobileVolunteerLinkStyle = {

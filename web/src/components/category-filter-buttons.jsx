@@ -103,29 +103,32 @@ const CategoryFilterButtons = ({
               justifyContent: "center",
               gap: "0.35rem",
               width: layout === "stretch" ? "100%" : "auto",
-              bg: isActive ? "#e7f0ff" : "background",
-              color: isActive ? "primary" : "text",
+              bg: isActive ? "secondary" : "background",
+              color: isActive ? "white" : "text",
               border: "1px solid",
               borderColor: isActive
-                ? "rgba(30,148,255,0.45)"
+                ? "rgba(15,23,42,0.22)"
                 : "rgba(15,23,42,0.14)",
-              borderRadius: "999px",
-              px: "1rem",
+              borderRadius: "8px",
+              px: "0.9rem",
               py: 0,
               height: "34px",
               lineHeight: 1,
-              fontWeight: 400,
               fontSize: "xs",
               textTransform: "uppercase",
               letterSpacing: "0.08em",
+              cursor: "pointer",
               transition:
                 "background-color 140ms ease, color 140ms ease, border-color 140ms ease",
               "&:hover": {
-                bg: isActive ? "#e7f0ff" : "highlight",
+                bg: isActive ? "primary" : "highlight",
                 color: "white",
                 borderColor: isActive
-                  ? "rgba(30,148,255,0.6)"
+                  ? "rgba(15,23,42,0.3)"
                   : "rgba(15,23,42,0.22)",
+              },
+              "&:active": {
+                transform: "translateY(0.5px)",
               },
             }}
           >

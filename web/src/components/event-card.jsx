@@ -1,7 +1,7 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import { Link } from "gatsby";
-import { Box, Card, Heading, Text } from "@theme-ui/components";
+import { Box, Card, Flex, Heading, Text } from "@theme-ui/components";
 import { format, parseISO } from "date-fns";
 import {
   FaCalendarAlt,
@@ -19,7 +19,10 @@ import {
 } from "../lib/nonDraggableImage";
 
 const CATEGORY_ICON_RULES = [
-  { pattern: /(drive|driving|hpde|clinic|car control|autocross|track)/i, icon: FaFlagCheckered },
+  {
+    pattern: /(drive|driving|hpde|clinic|car control|autocross|track)/i,
+    icon: FaFlagCheckered,
+  },
   { pattern: /(tour|route|road trip)/i, icon: FaRoute },
   { pattern: /(social|meet|gather|show|concours)/i, icon: FaUsers },
   { pattern: /(tech|maintenance|workshop)/i, icon: FaTools },
@@ -47,8 +50,26 @@ const statusPillBaseSx = {
   gap: "0.28rem",
 };
 
-const EventCard = ({ event, href }) => {
+const slashInset = "12%";
+
+const getExcerptText = (excerpt) => {
+  if (!excerpt) return "";
+  if (typeof excerpt === "string") return excerpt.trim();
+  if (!Array.isArray(excerpt)) return "";
+  return excerpt
+    .flatMap((block) =>
+      Array.isArray(block?.children)
+        ? block.children.map((child) => child?.text || "")
+        : [],
+    )
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const EventCard = ({ event, href, variant = "grid" }) => {
   if (!event) return null;
+
   const cityState =
     event?.address?.city && event?.address?.state
       ? `${event.address.city}, ${event.address.state}`
@@ -69,8 +90,8 @@ const EventCard = ({ event, href }) => {
   const imageSource = event?.mainImage ? buildImageObj(event.mainImage) : null;
   const imageUrl = imageSource
     ? imageUrlFor(imageSource)
-        .width(800)
-        .height(440)
+        .width(1200)
+        .height(720)
         .fit("crop")
         .auto("format")
         .url()
@@ -85,6 +106,10 @@ const EventCard = ({ event, href }) => {
     startTimestamp >= nowTimestamp &&
     startTimestamp <= upcomingCutoffTimestamp;
   const showUpcomingPill = Boolean(event?.showUpcomingPill && isUpcoming);
+  const excerptText = getExcerptText(event?._rawExcerpt);
+  const categoryIcon = getCategoryIcon(event?.category?.title);
+  const isHorizontal = variant === "horizontal";
+  const shouldCenterGridTitle = !isHorizontal && (!cityState || isOnline);
 
   const card = (
     <Card
@@ -95,173 +120,386 @@ const EventCard = ({ event, href }) => {
         width: "100%",
         height: "100%",
         borderRadius: "18px",
-        display: "flex",
-        flexDirection: "column",
-        borderStyle: "solid",
-        borderWidth: "1px",
-        borderColor: "text",
+        border: "1px solid",
+        borderColor: "black",
+        overflow: "hidden",
       }}
     >
-      {imageUrl && (
-        <Box sx={{ position: "relative" }}>
-          <Box
-            as="img"
-            src={imageUrl}
-            alt={event?.mainImage?.alt || event?.title || "Event"}
-            {...nonDraggableImageProps}
-            sx={{
-              width: "100%",
-              height: "100%",
-              maxHeight: "220px",
-              minHeight: "220px",
-              objectFit: "cover",
-              borderTopRightRadius: "15px",
-              borderTopLeftRadius: "15px",
-              ...nonDraggableImageSx,
-            }}
-          />
-          {event?.startTime && (
-            <Box
-              sx={{
-                position: "absolute",
-                backgroundColor: "white",
-                height: "65px",
-                width: "60px",
-                alignContent: "center",
-                bottom: "20px",
-                right: "20px",
-                m: "auto",
-                borderBottom: "5px",
-                borderBottomStyle: "solid",
-                borderBottomColor: "highlight",
-              }}
-            >
-              <div
-                sx={{
-                  justifyContent: "center",
-                  textAlign: "center",
-                  pt: "5px",
-                }}
-              >
-                <Text sx={{ variant: "styles.h4", display: "block" }}>
-                  {format(parseISO(event.startTime), "MMM")}
-                </Text>
-                <Text sx={{ variant: "styles.h3" }}>
-                  {format(parseISO(event.startTime), "d")}
-                </Text>
-              </div>
-            </Box>
-          )}
-        </Box>
-      )}
-      <Box
+      <Flex
         sx={{
-          py: "5px",
-          pb: "12px",
-          px: "10px",
-          display: "flex",
-          justifyContent: "center",
-          flexDirection: "column",
-          gap: "0.5rem",
+          flexDirection: isHorizontal
+            ? ["column", "column", "row", "row"]
+            : "column",
+          alignItems: "stretch",
+          height: "100%",
         }}
       >
+        {imageUrl && (
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              minHeight: isHorizontal ? ["240px", "280px", "auto"] : "220px",
+              height: isHorizontal ? ["240px", "280px", "auto"] : "220px",
+              alignSelf: "stretch",
+              flex: isHorizontal
+                ? ["0 0 auto", "0 0 auto", "1 1 42%"]
+                : "0 0 auto",
+              overflow: "hidden",
+              backgroundColor: "lightgray",
+              borderRadius: isHorizontal
+                ? ["0", "0", "18px 0 0 18px"]
+                : ["18px 18px 0 0"],
+              clipPath: isHorizontal
+                ? [
+                    "none",
+                    "none",
+                    `polygon(0 0, 100% 0, calc(100% - ${slashInset}) 100%, 0 100%)`,
+                  ]
+                : "none",
+            }}
+          >
+            <Box
+              as="img"
+              src={imageUrl}
+              alt={event?.mainImage?.alt || event?.title || "Event"}
+              {...nonDraggableImageProps}
+              sx={{
+                position: isHorizontal ? "absolute" : "relative",
+                inset: isHorizontal ? 0 : "auto",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+                ...nonDraggableImageSx,
+              }}
+            />
+            {event?.startTime && !isHorizontal && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  right: "20px",
+                  bottom: "20px",
+                  border: "1px solid",
+                  borderColor: "rgba(15, 23, 42, 0.18)",
+                  borderRadius: "12px",
+                  backgroundColor: "white",
+                  minWidth: "74px",
+                  px: "0.9rem",
+                  py: "0.55rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box sx={{ textAlign: "center" }}>
+                  <Text
+                    sx={{
+                      variant: "text.label",
+                      color: "darkgray",
+                      display: "block",
+                    }}
+                  >
+                    {format(parseISO(event.startTime), "MMM")}
+                  </Text>
+                  <Text sx={{ variant: "styles.h3", lineHeight: 1 }}>
+                    {format(parseISO(event.startTime), "d")}
+                  </Text>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        )}
         <Box
           sx={{
+            px: isHorizontal ? "1.5rem" : "1rem",
+            pt: isHorizontal ? "1rem" : "0.65rem",
+            pb: isHorizontal ? "0.75rem" : "0.55rem",
+            flex: isHorizontal
+              ? ["1 1 100%", "1 1 100%", "1 1 58%"]
+              : "1 1 auto",
             display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            flexWrap: "wrap",
+            flexDirection: "column",
+            gap: "0.22rem",
+            justifyContent: isHorizontal ? "center" : "flex-start",
           }}
         >
-          {event?.category?.title && (
-            <Text
+          {isHorizontal ? (
+            <Flex
               sx={{
-                variant: "text.label",
-                color: "black",
-                display: "inline-flex",
                 alignItems: "center",
-                gap: "0.4rem",
+                gap: "1rem",
               }}
             >
               <Box
-                as="span"
                 sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "22px",
-                  height: "22px",
-                  borderRadius: "999px",
-                  bg: "lightgray",
-                  color: "text",
-                  flex: "0 0 22px",
-                  lineHeight: 0,
+                  flex: "1 1 auto",
+                  minWidth: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.22rem",
                 }}
               >
-                {React.createElement(getCategoryIcon(event.category.title), {
-                  size: 13,
-                  "aria-hidden": "true",
-                })}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {event?.category?.title && (
+                    <Text
+                      sx={{
+                        variant: "text.label",
+                        color: "black",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                      }}
+                    >
+                      <Box
+                        as="span"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "22px",
+                          height: "22px",
+                          borderRadius: "999px",
+                          bg: "lightgray",
+                          color: "text",
+                          flex: "0 0 22px",
+                          lineHeight: 0,
+                        }}
+                      >
+                        {React.createElement(categoryIcon, {
+                          size: 13,
+                          "aria-hidden": "true",
+                        })}
+                      </Box>
+                      {event.category.title}
+                    </Text>
+                  )}
+                  {isOnline && (
+                    <Text
+                      sx={{
+                        ...statusPillBaseSx,
+                        bg: "#e6f0ff",
+                        color: "#0e4da9",
+                        borderColor: "rgba(14,77,169,0.35)",
+                      }}
+                    >
+                      <FaLaptop size={12} aria-hidden="true" />
+                      Online
+                    </Text>
+                  )}
+                  {showUpcomingPill && (
+                    <Text
+                      sx={{
+                        ...statusPillBaseSx,
+                        bg: "#e8f7ec",
+                        color: "#1f7a3f",
+                        borderColor: "rgba(31,122,63,0.35)",
+                      }}
+                    >
+                      <FaCalendarAlt size={12} aria-hidden="true" />
+                      Upcoming
+                    </Text>
+                  )}
+                </Box>
+                <Heading
+                  sx={{
+                    variant: "styles.h3",
+                    lineHeight: 1,
+                    mt: 0,
+                    mb: 0,
+                    pb: "0.02em",
+                  }}
+                >
+                  {event.title}
+                </Heading>
+                {cityState && !isOnline && (
+                  <Text
+                    sx={{
+                      variant: "styles.h5",
+                      fontWeight: "body",
+                      textTransform: "capitalize",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {cityState}
+                  </Text>
+                )}
+                {excerptText && (
+                  <Text
+                    sx={{
+                      variant: "styles.p",
+                      color: "darkgray",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      mb: 0,
+                    }}
+                  >
+                    {excerptText}
+                  </Text>
+                )}
               </Box>
-              {event.category.title}
-            </Text>
-          )}
-          {isOnline && (
-            <Text
-              sx={{
-                ...statusPillBaseSx,
-                bg: "#e6f0ff",
-                color: "#0e4da9",
-                borderColor: "rgba(14,77,169,0.35)",
-              }}
-            >
-              <FaLaptop size={12} aria-hidden="true" />
-              Online
-            </Text>
-          )}
-          {showUpcomingPill && (
-            <Text
-              sx={{
-                ...statusPillBaseSx,
-                bg: "#e8f7ec",
-                color: "#1f7a3f",
-                borderColor: "rgba(31,122,63,0.35)",
-              }}
-            >
-              <FaCalendarAlt size={12} aria-hidden="true" />
-              Upcoming
-            </Text>
+              {event?.startTime && (
+                <Box
+                  sx={{
+                    flex: "0 0 auto",
+                    border: "1px solid",
+                    borderColor: "rgba(15, 23, 42, 0.18)",
+                    borderRadius: "12px",
+                    backgroundColor: "white",
+                    px: "0.9rem",
+                    py: "0.45rem",
+                    minWidth: "74px",
+                  }}
+                >
+                  <Box sx={{ textAlign: "center" }}>
+                    <Text
+                      sx={{
+                        variant: "text.label",
+                        color: "darkgray",
+                        display: "block",
+                      }}
+                    >
+                      {format(parseISO(event.startTime), "MMM")}
+                    </Text>
+                    <Text
+                      sx={{
+                        variant: "styles.h3",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {format(parseISO(event.startTime), "d")}
+                    </Text>
+                  </Box>
+                </Box>
+              )}
+            </Flex>
+          ) : (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                {event?.category?.title && (
+                  <Text
+                    sx={{
+                      variant: "text.label",
+                      color: "black",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                    }}
+                  >
+                    <Box
+                      as="span"
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "999px",
+                        bg: "lightgray",
+                        color: "text",
+                        flex: "0 0 22px",
+                        lineHeight: 0,
+                      }}
+                    >
+                      {React.createElement(categoryIcon, {
+                        size: 13,
+                        "aria-hidden": "true",
+                      })}
+                    </Box>
+                    {event.category.title}
+                  </Text>
+                )}
+                {isOnline && (
+                  <Text
+                    sx={{
+                      ...statusPillBaseSx,
+                      bg: "#e6f0ff",
+                      color: "#0e4da9",
+                      borderColor: "rgba(14,77,169,0.35)",
+                    }}
+                  >
+                    <FaLaptop size={12} aria-hidden="true" />
+                    Online
+                  </Text>
+                )}
+                {showUpcomingPill && (
+                  <Text
+                    sx={{
+                      ...statusPillBaseSx,
+                      bg: "#e8f7ec",
+                      color: "#1f7a3f",
+                      borderColor: "rgba(31,122,63,0.35)",
+                    }}
+                  >
+                    <FaCalendarAlt size={12} aria-hidden="true" />
+                    Upcoming
+                  </Text>
+                )}
+              </Box>
+              <Heading
+                sx={{
+                  variant: "styles.h3",
+                  lineHeight: 1,
+                  mt: shouldCenterGridTitle ? "auto" : 0,
+                  mb: shouldCenterGridTitle ? "auto" : 0,
+                  pb: "0.02em",
+                }}
+              >
+                {event.title}
+              </Heading>
+              {cityState && !isOnline && (
+                <Text
+                  sx={{
+                    variant: "styles.h5",
+                    fontWeight: "body",
+                    textTransform: "capitalize",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {cityState}
+                </Text>
+              )}
+            </>
           )}
         </Box>
-        <Heading
-          sx={{
-            textDecoration: "none",
-            variant: "styles.h3",
-            mt: 0,
-            mb: 0,
-          }}
-        >
-          {event.title}
-        </Heading>
-        {cityState && !isOnline && (
-          <Text
-            sx={{
-              variant: "styles.h5",
-              fontWeight: "body",
-              textTransform: "capitalize",
-            }}
-          >
-            {cityState}
-          </Text>
-        )}
-      </Box>
+      </Flex>
     </Card>
   );
 
   if (!url) return card;
 
   return (
-    <Link to={url} sx={{ textDecoration: "none" }}>
+    <Link
+      to={url}
+      sx={{
+        textDecoration: "none",
+        display: "block",
+        width: "100%",
+        height: "100%",
+      }}
+    >
       {card}
     </Link>
   );

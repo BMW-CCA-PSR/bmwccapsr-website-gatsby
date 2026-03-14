@@ -1,5 +1,6 @@
 /** @jsxImportSource theme-ui */
 import React, { useEffect, useMemo, useState } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { graphql, Link } from "gatsby";
 import { Box, Button, Heading, Text } from "@theme-ui/components";
 import {
@@ -10,17 +11,17 @@ import {
   FaTools,
   FaUserPlus,
 } from "react-icons/fa";
+import { FiDownload } from "react-icons/fi";
 import Layout from "../../containers/layout";
 import Seo from "../../components/seo";
 import GraphQLErrorList from "../../components/graphql-error-list";
 import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
+import StylizedLandingHeader from "../../components/stylized-landing-header";
 import CategoryFilterButtons from "../../components/category-filter-buttons";
-import {
-  FilterBox,
-  FilterSearchField,
-} from "../../components/filter-ui";
+import { FilterBox, FilterSearchField } from "../../components/filter-ui";
 import { mapEdgesToNodes } from "../../lib/helpers";
+import headerLogo from "../../images/new-logo.png";
 import {
   getVolunteerRoleIconComponent,
   getVolunteerRolePresentationColor,
@@ -147,7 +148,7 @@ const getRoleBrowseTags = (name) => {
   const label = String(name || "").trim();
   if (!label) return [];
   return ROLE_BROWSE_FILTERS.filter((item) => item.pattern.test(label)).map(
-    (item) => item.value,
+    (item) => item.value
   );
 };
 
@@ -157,6 +158,11 @@ const getTabKeyForPoints = (value) => {
   if (pointValue === 3 || pointValue === 4) return "intermediate";
   if (pointValue === 5 || pointValue === 10) return "advanced";
   return null;
+};
+
+const getSkillTabMeta = (value) => {
+  const tabKey = getTabKeyForPoints(value);
+  return SKILL_TABS.find((tab) => tab.key === tabKey) || SKILL_TABS[0];
 };
 
 const getRoleScopeMeta = (value) => {
@@ -182,21 +188,318 @@ const getRoleScopeMeta = (value) => {
   return null;
 };
 
+const escapeHtml = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const buildRoleIconMarkup = (RolePresentationIcon, rolePresentationColor) => {
+  if (!RolePresentationIcon) {
+    return `<span class="role-icon role-icon-empty" aria-hidden="true"></span>`;
+  }
+
+  const svg = renderToStaticMarkup(
+    <RolePresentationIcon size={16} aria-hidden="true" focusable="false" />
+  );
+  const iconBg = rolePresentationColor || "#1f2937";
+
+  return `
+    <span
+      class="role-icon"
+      aria-hidden="true"
+      style="background:${escapeHtml(iconBg)};"
+    >
+      ${svg}
+    </span>
+  `;
+};
+
+const buildRoleExportDocument = (roles) => {
+  const generatedAt = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date());
+
+  const sections = SKILL_TABS.map((tab) => {
+    const tabRoles = roles.filter(
+      (role) => getTabKeyForPoints(role?.pointValue) === tab.key
+    );
+    if (!tabRoles.length) return "";
+
+    const cards = tabRoles.map((role) => {
+      const roleName = role?.name?.trim() || "Untitled role";
+      const descriptionText =
+        role?.description?.trim() || "No description available.";
+      const RolePresentationIcon = getVolunteerRoleIconComponent(role?.icon);
+      const rolePresentationColor = getVolunteerRolePresentationColor(
+        role?.color
+      );
+      const scopeMeta = getRoleScopeMeta(role?.roleScope);
+      const pointValue = Number(role?.pointValue);
+      const pointLabel = Number.isFinite(pointValue)
+        ? `${pointValue} point${pointValue === 1 ? "" : "s"}`
+        : "Points unavailable";
+
+      return `
+          <article class="role-card">
+            <div class="role-card-header">
+              <div class="role-title-wrap">
+                ${buildRoleIconMarkup(
+                  RolePresentationIcon,
+                  rolePresentationColor
+                )}
+                <div>
+                  <h3>${escapeHtml(roleName)}</h3>
+                  <p class="role-meta">
+                    ${escapeHtml(pointLabel)}${
+        scopeMeta ? ` • ${escapeHtml(scopeMeta.label)}` : ""
+      }
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p class="role-description">${escapeHtml(descriptionText)}</p>
+          </article>
+        `;
+    });
+    const rows = [];
+    for (let index = 0; index < cards.length; index += 2) {
+      rows.push(`
+        <div class="role-row">
+          ${cards[index]}
+          ${cards[index + 1] || ""}
+        </div>
+      `);
+    }
+
+    return `
+      <section class="role-section">
+        <div
+          class="role-section-header"
+          style="background:${escapeHtml(tab.bg)}; color:${escapeHtml(
+      tab.accent
+    )}; border-color:${escapeHtml(tab.accent)};"
+        >
+          <h2>${escapeHtml(tab.label)} Roles</h2>
+          <p>${escapeHtml(
+            `${tab.points[0]}-${
+              tab.points[tab.points.length - 1]
+            } point opportunities`
+          )}</p>
+        </div>
+        <div class="role-grid">
+          ${rows.join("")}
+        </div>
+      </section>
+    `;
+  })
+    .filter(Boolean)
+    .join("");
+
+  return `
+    <style>
+      .pdf-export-doc {
+        color-scheme: light;
+        margin: 0;
+        font-family: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+        color: #111827;
+        background: #f7f7f5;
+      }
+      .pdf-export-doc,
+      .pdf-export-doc * {
+        box-sizing: border-box;
+      }
+      .pdf-export-doc .page {
+        width: 980px;
+        max-width: 980px;
+        margin: 0;
+        padding: 40px 36px 56px;
+        background: white;
+      }
+      .pdf-export-doc .header {
+        border-bottom: 2px solid #111827;
+        padding-bottom: 18px;
+        margin-bottom: 24px;
+      }
+      .pdf-export-doc .header-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+      }
+      .pdf-export-doc .header-logo {
+        width: 128px;
+        height: 128px;
+        object-fit: contain;
+        flex: 0 0 128px;
+      }
+      .pdf-export-doc .header-copy {
+        min-width: 0;
+      }
+      .pdf-export-doc .eyebrow {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: #6b7280;
+        margin: 0 0 12px;
+      }
+      .pdf-export-doc h1 {
+        margin: 0;
+        font-size: 34px;
+        line-height: 1;
+      }
+      .pdf-export-doc .intro {
+        margin: 12px 0 0;
+        font-size: 15px;
+        line-height: 1.6;
+        color: #374151;
+        max-width: 720px;
+      }
+      .pdf-export-doc .stamp {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+      .pdf-export-doc .role-section {
+        margin-top: 24px;
+        break-inside: avoid;
+      }
+      .pdf-export-doc .role-section-header {
+        border: 1px solid;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+      }
+      .pdf-export-doc .role-section-header h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .pdf-export-doc .role-section-header p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        opacity: 0.88;
+      }
+      .pdf-export-doc .role-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .pdf-export-doc .role-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .pdf-export-doc .role-card {
+        border: 1px solid #d1d5db;
+        border-radius: 16px;
+        padding: 16px;
+        background: white;
+        break-inside: avoid;
+        min-height: 150px;
+      }
+      .pdf-export-doc .role-card-header {
+        margin-bottom: 12px;
+      }
+      .pdf-export-doc .role-title-wrap {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .pdf-export-doc .role-icon {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+      .pdf-export-doc .role-icon svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+      }
+      .pdf-export-doc .role-icon-empty {
+        background: #d1d5db;
+      }
+      .pdf-export-doc .role-card h3 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.2;
+      }
+      .pdf-export-doc .role-meta {
+        margin: 5px 0 0;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6b7280;
+      }
+      .pdf-export-doc .role-description {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #1f2937;
+        white-space: pre-wrap;
+      }
+      @media print {
+        .pdf-export-doc {
+          background: white;
+        }
+        .pdf-export-doc .page {
+          padding: 18px 18px 24px;
+        }
+      }
+    </style>
+    <div class="pdf-export-doc">
+      <main class="page">
+        <header class="header">
+          <div class="header-top">
+            <img
+              class="header-logo"
+              src="${escapeHtml(headerLogo)}"
+              alt="BMW CCA PSR logo"
+            />
+            <div class="header-copy">
+              <p class="eyebrow">BMW CCA PSR Volunteer Program</p>
+              <h1>Volunteer Roles</h1>
+              <p class="intro">
+                A printable reference of every official volunteer role, grouped by
+                skill band and formatted for board review, planning, and member
+                sharing.
+              </p>
+              <p class="stamp">Generated ${escapeHtml(generatedAt)}</p>
+            </div>
+          </div>
+        </header>
+        ${sections}
+      </main>
+    </div>
+  `;
+};
+
 const VolunteerRolesPage = ({ data, errors }) => {
   const site = data?.site;
   const menuItems = site?.navMenu?.items || [];
   const [activeTab, setActiveTab] = useState("entry");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrowseFilters, setSelectedBrowseFilters] = useState([]);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [pageByTab, setPageByTab] = useState({
     entry: 1,
     intermediate: 1,
     advanced: 1,
+    filtered: 1,
   });
 
   const roles = useMemo(
     () => (data?.roles ? mapEdgesToNodes(data.roles) : []),
-    [data?.roles],
+    [data?.roles]
   );
 
   const rolesBySkill = useMemo(() => {
@@ -244,30 +547,40 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
   const activeRoles = useMemo(
     () => filteredRolesBySkill[activeTab] || [],
-    [filteredRolesBySkill, activeTab],
+    [filteredRolesBySkill, activeTab]
   );
-  const totalPages = Math.max(1, Math.ceil(activeRoles.length / PAGE_SIZE));
-  const activePage = pageByTab[activeTab] || 1;
+  const hasAnyFilterSelections =
+    searchTerm.trim().length > 0 || selectedBrowseFilters.length > 0;
+  const isFilteredView = hasAnyFilterSelections;
+  const activeViewKey = isFilteredView ? "filtered" : activeTab;
+  const filteredRoles = useMemo(
+    () => SKILL_TABS.flatMap((tab) => filteredRolesBySkill[tab.key] || []),
+    [filteredRolesBySkill]
+  );
+  const visibleRoles = isFilteredView ? filteredRoles : activeRoles;
+  const totalPages = Math.max(1, Math.ceil(visibleRoles.length / PAGE_SIZE));
+  const activePage = pageByTab[activeViewKey] || 1;
   const safePage = Math.min(activePage, totalPages);
 
   useEffect(() => {
     if (activePage !== safePage) {
-      setPageByTab((prev) => ({ ...prev, [activeTab]: safePage }));
+      setPageByTab((prev) => ({ ...prev, [activeViewKey]: safePage }));
     }
-  }, [activePage, activeTab, safePage]);
+  }, [activePage, activeViewKey, safePage]);
 
   useEffect(() => {
     setPageByTab({
       entry: 1,
       intermediate: 1,
       advanced: 1,
+      filtered: 1,
     });
   }, [searchTerm, selectedBrowseFilters]);
 
   const paginatedRoles = useMemo(() => {
     const start = (safePage - 1) * PAGE_SIZE;
-    return activeRoles.slice(start, start + PAGE_SIZE);
-  }, [activeRoles, safePage]);
+    return visibleRoles.slice(start, start + PAGE_SIZE);
+  }, [safePage, visibleRoles]);
 
   const paddedRoles = useMemo(() => {
     const blanks = Math.max(0, PAGE_SIZE - paginatedRoles.length);
@@ -276,7 +589,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
   const paginationItems = useMemo(
     () => buildPaginationItems(safePage, totalPages),
-    [safePage, totalPages],
+    [safePage, totalPages]
   );
 
   const currentTab =
@@ -285,11 +598,200 @@ const VolunteerRolesPage = ({ data, errors }) => {
   const handleTabChange = (tabKey) => {
     setActiveTab(tabKey);
   };
-  const hasAnyFilterSelections =
-    searchTerm.trim().length > 0 || selectedBrowseFilters.length > 0;
-
   const setPageForActiveTab = (nextPage) => {
-    setPageByTab((prev) => ({ ...prev, [activeTab]: nextPage }));
+    setPageByTab((prev) => ({ ...prev, [activeViewKey]: nextPage }));
+  };
+  const handleDownloadRoles = async () => {
+    if (
+      typeof window === "undefined" ||
+      typeof document === "undefined" ||
+      roles.length === 0 ||
+      isExportingPdf
+    ) {
+      return;
+    }
+
+    setIsExportingPdf(true);
+    const captureHideStyle = document.createElement("style");
+    captureHideStyle.setAttribute("data-html2canvas-hide", "true");
+    captureHideStyle.textContent = `
+      .html2canvas-container {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        position: fixed !important;
+        left: -100000px !important;
+        top: 0 !important;
+      }
+      .html2canvas-container iframe {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(captureHideStyle);
+
+    const exportRoot = document.createElement("div");
+    exportRoot.setAttribute("aria-hidden", "true");
+    exportRoot.style.position = "absolute";
+    exportRoot.style.left = "-100000px";
+    exportRoot.style.top = "0";
+    exportRoot.style.width = "980px";
+    exportRoot.style.height = "0";
+    exportRoot.style.overflow = "hidden";
+    exportRoot.style.pointerEvents = "none";
+    exportRoot.style.background = "transparent";
+    exportRoot.style.zIndex = "-1";
+    exportRoot.innerHTML = buildRoleExportDocument(roles);
+    document.body.appendChild(exportRoot);
+
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "letter",
+        compress: true,
+      });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 28;
+      const printableWidth = pageWidth - margin * 2;
+      const printableHeight = pageHeight - margin * 2;
+
+      const exportPageWidthPx = 980;
+      const maxPageHeightPx = Math.floor(
+        (printableHeight * exportPageWidthPx) / printableWidth
+      );
+      const sourcePage = exportRoot.querySelector(".page");
+      const sourceHeader = sourcePage?.querySelector(".header");
+      const sourceSections = Array.from(
+        exportRoot.querySelectorAll(".role-section")
+      );
+
+      if (!sourcePage || !sourceHeader || sourceSections.length === 0) {
+        throw new Error("Unable to build volunteer roles export.");
+      }
+
+      sourcePage.style.position = "absolute";
+      sourcePage.style.visibility = "hidden";
+      sourcePage.style.pointerEvents = "none";
+      sourcePage.style.left = "0";
+      sourcePage.style.top = "0";
+
+      const pagesHost = document.createElement("div");
+      pagesHost.className = "pdf-export-doc";
+      pagesHost.style.position = "relative";
+      pagesHost.style.width = `${exportPageWidthPx}px`;
+      exportRoot.appendChild(pagesHost);
+
+      const createPage = () => {
+        const page = document.createElement("main");
+        page.className = "page pdf-page-instance";
+        page.appendChild(sourceHeader.cloneNode(true));
+        pagesHost.appendChild(page);
+        return page;
+      };
+
+      const createSectionShell = (sectionHeaderNode) => {
+        const section = document.createElement("section");
+        section.className = "role-section";
+        section.appendChild(sectionHeaderNode);
+        const grid = document.createElement("div");
+        grid.className = "role-grid";
+        section.appendChild(grid);
+        return { section, grid };
+      };
+
+      let currentPage = createPage();
+
+      sourceSections.forEach((sourceSection) => {
+        const sectionHeader = sourceSection
+          .querySelector(".role-section-header")
+          ?.cloneNode(true);
+        const sourceRows = Array.from(
+          sourceSection.querySelectorAll(".role-row")
+        );
+        if (!sectionHeader || sourceRows.length === 0) return;
+
+        let { section, grid } = createSectionShell(sectionHeader);
+        currentPage.appendChild(section);
+
+        if (currentPage.getBoundingClientRect().height > maxPageHeightPx) {
+          section.remove();
+          currentPage = createPage();
+          const nextSection = createSectionShell(sectionHeader.cloneNode(true));
+          section = nextSection.section;
+          grid = nextSection.grid;
+          currentPage.appendChild(section);
+        }
+
+        sourceRows.forEach((sourceRow) => {
+          const rowClone = sourceRow.cloneNode(true);
+          grid.appendChild(rowClone);
+
+          if (currentPage.getBoundingClientRect().height > maxPageHeightPx) {
+            rowClone.remove();
+
+            currentPage = createPage();
+            const nextSection = createSectionShell(
+              sectionHeader.cloneNode(true)
+            );
+            section = nextSection.section;
+            grid = nextSection.grid;
+            currentPage.appendChild(section);
+            grid.appendChild(rowClone);
+          }
+        });
+      });
+
+      const pdfPages = Array.from(
+        pagesHost.querySelectorAll(".pdf-page-instance")
+      );
+
+      for (let index = 0; index < pdfPages.length; index += 1) {
+        const pageNode = pdfPages[index];
+        const canvas = await html2canvas(pageNode, {
+          backgroundColor: "#f7f7f5",
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          removeContainer: true,
+          width: pageNode.scrollWidth,
+          height: pageNode.scrollHeight,
+          windowWidth: pageNode.scrollWidth,
+          windowHeight: pageNode.scrollHeight,
+        });
+        const imageData = canvas.toDataURL("image/png");
+        const imageHeight = (canvas.height * printableWidth) / canvas.width;
+
+        if (index > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(
+          imageData,
+          "PNG",
+          margin,
+          margin,
+          printableWidth,
+          imageHeight,
+          undefined,
+          "FAST"
+        );
+      }
+
+      pdf.save("bmw-cca-psr-volunteer-roles.pdf");
+    } finally {
+      document.body.removeChild(exportRoot);
+      if (captureHideStyle.parentNode) {
+        captureHideStyle.parentNode.removeChild(captureHideStyle);
+      }
+      setIsExportingPdf(false);
+    }
   };
 
   if (errors) {
@@ -311,15 +813,53 @@ const VolunteerRolesPage = ({ data, errors }) => {
           pb: "2rem",
         }}
       >
+        <StylizedLandingHeader
+          word="Volunteer"
+          color="secondary"
+          bleedTop="65px"
+          minHeight="0px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={["VOLUNTEER"]}
+        />
         <Box
           sx={{
             position: "relative",
-            zIndex: 2,
-            mb: "0.5rem",
-            width: "fit-content",
+            height: 0,
+            mb: 0,
           }}
         >
-          <Text variant="text.label" sx={{ display: "inline-block" }}>
+          <Text
+            variant="text.label"
+            sx={{
+              position: "absolute",
+              top: "-1.2rem",
+              left: 0,
+              zIndex: 2,
+              display: "inline-flex",
+              alignItems: "center",
+            }}
+          >
             <Link
               to="/volunteer"
               sx={{
@@ -330,6 +870,8 @@ const VolunteerRolesPage = ({ data, errors }) => {
                 cursor: "pointer",
                 px: "0.15em",
                 mx: "-0.15em",
+                position: "relative",
+                zIndex: 3,
               }}
             >
               Volunteer
@@ -341,26 +883,152 @@ const VolunteerRolesPage = ({ data, errors }) => {
           </Text>
         </Box>
 
-        <Heading
-          as="h1"
+        <Box
           sx={{
-            variant: "styles.h1",
-            mt: 0,
+            display: "flex",
+            alignItems: ["flex-start", "flex-start", "center"],
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            flexWrap: ["wrap", "wrap", "nowrap"],
             mb: "0.75rem",
-            position: "relative",
-            zIndex: 1,
           }}
         >
-          Volunteer Roles
-          <BoxIcon
-            as="span"
+          <Heading
+            as="h1"
             sx={{
-              display: "inline-grid",
-              ml: "0.5rem",
-              verticalAlign: "middle",
+              variant: "styles.h1",
+              mt: 0,
+              mb: 0,
+              position: "relative",
+              zIndex: 1,
             }}
-          />
-        </Heading>
+          >
+            Volunteer Roles
+            <BoxIcon
+              as="span"
+              sx={{
+                display: "inline-grid",
+                ml: "0.5rem",
+                verticalAlign: "middle",
+              }}
+            />
+          </Heading>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "0.5rem",
+              width: ["100%", "100%", "300px"],
+              flex: ["1 1 100%", "1 1 100%", "0 0 300px"],
+              justifyItems: ["stretch", "stretch", "end"],
+              alignSelf: ["stretch", "stretch", "flex-start"],
+            }}
+          >
+            <Button
+              type="button"
+              onClick={handleDownloadRoles}
+              disabled={roles.length === 0 || isExportingPdf}
+              sx={{
+                width: "100%",
+                px: "1rem",
+                py: "0.65rem",
+                borderRadius: "12px",
+                border: "1px solid",
+                borderColor:
+                  roles.length === 0
+                    ? "muted"
+                    : isExportingPdf
+                    ? "primary"
+                    : "secondary",
+                backgroundColor:
+                  roles.length === 0
+                    ? "muted"
+                    : isExportingPdf
+                    ? "primary"
+                    : "secondary",
+                color: "white",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.75rem",
+                appearance: "none",
+                boxShadow: "none",
+                filter: "none",
+                transform: "none",
+                transition: "none",
+                cursor:
+                  roles.length === 0
+                    ? "not-allowed"
+                    : isExportingPdf
+                    ? "progress"
+                    : "pointer",
+                fontSize: "xs",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                "&:hover, &:focus, &:active": {
+                  backgroundColor:
+                    roles.length === 0
+                      ? "muted"
+                      : isExportingPdf
+                      ? "primary"
+                      : "primary",
+                  borderColor:
+                    roles.length === 0
+                      ? "muted"
+                      : isExportingPdf
+                      ? "primary"
+                      : "primary",
+                  color: "white",
+                  boxShadow: "none",
+                  filter: "none",
+                  transform: "none",
+                  outline: "none",
+                },
+                "&:disabled": {
+                  color: roles.length === 0 ? "darkgray" : "white",
+                  cursor: isExportingPdf ? "progress" : "not-allowed",
+                  boxShadow: "none",
+                  filter: "none",
+                  transform: "none",
+                  opacity: 1,
+                },
+              }}
+            >
+              <Box
+                as="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                }}
+              >
+                <FiDownload size={30} aria-hidden="true" />
+                <Text as="span" sx={{ fontSize: "xs", color: "inherit" }}>
+                  {isExportingPdf ? "Generating PDF" : "Download"}
+                </Text>
+              </Box>
+              {isExportingPdf ? (
+                <Box
+                  as="span"
+                  sx={{
+                    width: "18px",
+                    height: "18px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "999px",
+                    border: "2px solid rgba(255,255,255,0.35)",
+                    borderTopColor: "white",
+                    animation: "spin 0.8s linear infinite",
+                    "@keyframes spin": {
+                      from: { transform: "rotate(0deg)" },
+                      to: { transform: "rotate(360deg)" },
+                    },
+                  }}
+                />
+              ) : null}
+            </Button>
+          </Box>
+        </Box>
         <Text sx={{ variant: "styles.p", fontSize: "16pt", mt: 0, mb: 0 }}>
           Explore the official role lineup our Board has defined to power every
           PSR event. Use this catalog to compare responsibilities, skill level,
@@ -431,58 +1099,100 @@ const VolunteerRolesPage = ({ data, errors }) => {
             >
               <Box
                 sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                  position: "relative",
                   borderBottom: "1px solid",
                   borderBottomColor: "black",
+                  minHeight: ["56px", "58px", "62px"],
+                  overflow: "hidden",
                 }}
               >
-                {SKILL_TABS.map((tab) => {
-                  const isActive = tab.key === activeTab;
-                  const TabIcon = tab.icon;
-                  return (
-                    <Button
-                      key={tab.key}
-                      onClick={() => handleTabChange(tab.key)}
-                      sx={{
-                        appearance: "none",
-                        border: "none",
-                        borderRadius: 0,
-                        p: ["0.85rem", "0.9rem", "1rem"],
-                        display: "inline-flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        bg: isActive ? tab.bg : "background",
-                        color: isActive ? tab.accent : "text",
-                        fontWeight: "heading",
-                        borderBottom: "4px solid",
-                        borderBottomColor: isActive
-                          ? tab.accent
-                          : "transparent",
-                        borderRight: "1px solid",
-                        borderRightColor: "black",
-                        transition:
-                          "background-color 150ms ease, color 150ms ease",
-                        ":last-of-type": {
-                          borderRight: "none",
-                        },
-                        "&:hover": {
-                          bg: isActive ? tab.bg : tab.hoverBg,
-                          color: tab.accent,
-                        },
-                      }}
-                    >
-                      <TabIcon size={18} aria-hidden="true" />
-                      <Text
-                        as="span"
-                        sx={{ fontSize: "sm", fontWeight: "heading" }}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                    opacity: isFilteredView ? 0 : 1,
+                    transform: isFilteredView
+                      ? "translateY(-8px)"
+                      : "translateY(0)",
+                    pointerEvents: isFilteredView ? "none" : "auto",
+                    transition: "opacity 200ms ease, transform 200ms ease",
+                  }}
+                >
+                  {SKILL_TABS.map((tab) => {
+                    const isActive = tab.key === activeTab;
+                    const TabIcon = tab.icon;
+                    return (
+                      <Button
+                        key={tab.key}
+                        onClick={() => handleTabChange(tab.key)}
+                        sx={{
+                          appearance: "none",
+                          border: "none",
+                          borderRadius: 0,
+                          p: ["0.85rem", "0.9rem", "1rem"],
+                          display: "inline-flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          bg: isActive ? tab.bg : "background",
+                          color: isActive ? tab.accent : "text",
+                          fontWeight: "heading",
+                          borderBottom: "4px solid",
+                          borderBottomColor: isActive
+                            ? tab.accent
+                            : "transparent",
+                          borderRight: "1px solid",
+                          borderRightColor: "black",
+                          transition:
+                            "background-color 150ms ease, color 150ms ease",
+                          ":last-of-type": {
+                            borderRight: "none",
+                          },
+                          "&:hover": {
+                            bg: isActive ? tab.bg : tab.hoverBg,
+                            color: tab.accent,
+                          },
+                        }}
                       >
-                        {tab.label}
-                      </Text>
-                    </Button>
-                  );
-                })}
+                        <TabIcon size={18} aria-hidden="true" />
+                        <Text
+                          as="span"
+                          sx={{ fontSize: "sm", fontWeight: "heading" }}
+                        >
+                          {tab.label}
+                        </Text>
+                      </Button>
+                    );
+                  })}
+                </Box>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.55rem",
+                    bg: "#eef3f5",
+                    color: "#334155",
+                    opacity: isFilteredView ? 1 : 0,
+                    transform: isFilteredView
+                      ? "translateY(0)"
+                      : "translateY(8px)",
+                    pointerEvents: isFilteredView ? "auto" : "none",
+                    transition: "opacity 200ms ease, transform 200ms ease",
+                  }}
+                >
+                  <FaCogs size={18} aria-hidden="true" />
+                  <Text
+                    as="span"
+                    sx={{ fontSize: "sm", fontWeight: "heading" }}
+                  >
+                    Filtered Roles
+                  </Text>
+                </Box>
               </Box>
 
               <Box
@@ -497,7 +1207,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
                   gap: "0.8rem",
                 }}
               >
-                {activeRoles.length === 0 ? (
+                {visibleRoles.length === 0 ? (
                   <Box
                     sx={{
                       flex: 1,
@@ -531,7 +1241,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
                       if (!role) {
                         return (
                           <Box
-                            key={`empty-role-${activeTab}-${index}`}
+                            key={`empty-role-${activeViewKey}-${index}`}
                             sx={{
                               borderRadius: "12px",
                               border: "1px dashed",
@@ -544,19 +1254,20 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
                       const roleName = role?.name?.trim() || "Untitled role";
                       const descriptionText =
-                        role?.description?.trim() || "No description available.";
-                      const RolePresentationIcon = getVolunteerRoleIconComponent(
-                        role?.icon,
-                      );
+                        role?.description?.trim() ||
+                        "No description available.";
+                      const RolePresentationIcon =
+                        getVolunteerRoleIconComponent(role?.icon);
                       const rolePresentationColor =
-                        getVolunteerRolePresentationColor(
-                          role?.color,
-                        );
+                        getVolunteerRolePresentationColor(role?.color);
                       const scopeMeta = getRoleScopeMeta(role?.roleScope);
                       const pointValue = Number(role?.pointValue);
                       const pointLabel = Number.isFinite(pointValue)
                         ? `${pointValue} pt${pointValue === 1 ? "" : "s"}`
                         : "-";
+                      const pointPillMeta = isFilteredView
+                        ? getSkillTabMeta(role?.pointValue)
+                        : currentTab;
 
                       return (
                         <Box
@@ -583,91 +1294,69 @@ const VolunteerRolesPage = ({ data, errors }) => {
                               left: 0,
                               right: 0,
                               height: "16px",
-                              backgroundColor: rolePresentationColor || undefined,
+                              backgroundColor:
+                                rolePresentationColor || undefined,
                             }}
                           />
 
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            justifyContent: "space-between",
-                            gap: "0.75rem",
-                            mb: "0.35rem",
-                          }}
-                        >
                           <Box
                             sx={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "0.5rem",
-                              minWidth: 0,
-                              flex: "1 1 auto",
+                              display: "flex",
+                              alignItems: "flex-start",
+                              justifyContent: "space-between",
+                              gap: "0.75rem",
+                              mb: "0.35rem",
                             }}
                           >
-                            {RolePresentationIcon && (
-                              <Box
-                                as="span"
-                                sx={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  width: "24px",
-                                  height: "24px",
-                                  borderRadius: "999px",
-                                  bg: rolePresentationColor || undefined,
-                                  color: "white",
-                                  flex: "0 0 24px",
-                                }}
-                              >
-                                <RolePresentationIcon size={13} aria-hidden="true" />
-                              </Box>
-                            )}
-                            <Heading
-                              as="h3"
+                            <Box
                               sx={{
-                                variant: "styles.h3",
-                                mt: 0,
-                                mb: 0,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
                                 minWidth: 0,
-                                fontSize: ["1.2rem", "1.28rem", "1.36rem"],
-                                lineHeight: 1.2,
-                                display: "-webkit-box",
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: "vertical",
-                                overflow: "hidden",
+                                flex: "1 1 auto",
                               }}
                             >
-                              {roleName}
-                            </Heading>
-                          </Box>
+                              {RolePresentationIcon && (
+                                <Box
+                                  as="span"
+                                  sx={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: "24px",
+                                    height: "24px",
+                                    borderRadius: "999px",
+                                    bg: rolePresentationColor || undefined,
+                                    color: "white",
+                                    flex: "0 0 24px",
+                                  }}
+                                >
+                                  <RolePresentationIcon
+                                    size={13}
+                                    aria-hidden="true"
+                                  />
+                                </Box>
+                              )}
+                              <Heading
+                                as="h3"
+                                sx={{
+                                  variant: "styles.h3",
+                                  mt: 0,
+                                  mb: 0,
+                                  minWidth: 0,
+                                  fontSize: ["1.2rem", "1.28rem", "1.36rem"],
+                                  lineHeight: 1.2,
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                {roleName}
+                              </Heading>
+                            </Box>
 
-                          <Box
-                            as="span"
-                            sx={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: "0.28rem",
-                              flex: "0 0 auto",
-                              minWidth: "70px",
-                              textAlign: "center",
-                              px: "0.55rem",
-                              py: "0.35rem",
-                              borderRadius: "999px",
-                              bg: currentTab.bg,
-                              color: currentTab.accent,
-                              fontWeight: "heading",
-                              fontSize: "xs",
-                              lineHeight: 1,
-                              border: "1px solid",
-                              borderColor: "rgba(0,0,0,0.2)",
-                            }}
-                          >
-                            <FaStar size={11} aria-hidden="true" />
-                            {pointLabel}
-                          </Box>
-                          {scopeMeta && (
                             <Box
                               as="span"
                               sx={{
@@ -676,49 +1365,73 @@ const VolunteerRolesPage = ({ data, errors }) => {
                                 justifyContent: "center",
                                 gap: "0.28rem",
                                 flex: "0 0 auto",
+                                minWidth: "70px",
                                 textAlign: "center",
                                 px: "0.55rem",
                                 py: "0.35rem",
                                 borderRadius: "999px",
-                                bg: scopeMeta.bg,
-                                color: scopeMeta.color,
+                                bg: pointPillMeta.bg,
+                                color: pointPillMeta.accent,
                                 fontWeight: "heading",
                                 fontSize: "xs",
                                 lineHeight: 1,
-                                border: "1px solid",
-                                borderColor: scopeMeta.borderColor,
+                                border: "1px solid black",
                               }}
                             >
-                              <scopeMeta.icon size={11} aria-hidden="true" />
-                              {scopeMeta.label}
+                              <FaStar size={11} aria-hidden="true" />
+                              {pointLabel}
                             </Box>
-                          )}
-                        </Box>
+                            {scopeMeta && (
+                              <Box
+                                as="span"
+                                sx={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  gap: "0.28rem",
+                                  flex: "0 0 auto",
+                                  textAlign: "center",
+                                  px: "0.55rem",
+                                  py: "0.35rem",
+                                  borderRadius: "999px",
+                                  bg: scopeMeta.bg,
+                                  color: scopeMeta.color,
+                                  fontWeight: "heading",
+                                  fontSize: "xs",
+                                  lineHeight: 1,
+                                  border: "1px solid black",
+                                }}
+                              >
+                                <scopeMeta.icon size={11} aria-hidden="true" />
+                                {scopeMeta.label}
+                              </Box>
+                            )}
+                          </Box>
 
-                        <Box
-                          sx={{
-                            height: "1px",
-                            backgroundColor: "lightgray",
-                            mb: "0.45rem",
-                          }}
-                        />
+                          <Box
+                            sx={{
+                              height: "1px",
+                              backgroundColor: "lightgray",
+                              mb: "0.45rem",
+                            }}
+                          />
 
-                        <Text
-                          sx={{
-                            variant: "styles.p",
-                            color: "text",
-                            mb: 0,
-                            fontSize: "0.95rem",
-                            lineHeight: 1.35,
-                            whiteSpace: "pre-line",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 4,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {descriptionText}
-                        </Text>
+                          <Text
+                            sx={{
+                              variant: "styles.p",
+                              color: "text",
+                              mb: 0,
+                              fontSize: "0.95rem",
+                              lineHeight: 1.35,
+                              whiteSpace: "pre-line",
+                              display: "-webkit-box",
+                              WebkitLineClamp: 4,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {descriptionText}
+                          </Text>
                         </Box>
                       );
                     })}

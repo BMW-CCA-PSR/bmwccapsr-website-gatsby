@@ -9,6 +9,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
+import StylizedLandingHeader from "../components/stylized-landing-header";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
 import { BoxIcon } from "../components/box-icons";
 import { FiHelpCircle, FiMaximize2, FiShare2, FiX } from "react-icons/fi";
@@ -764,6 +765,7 @@ const VolunteerRoleTemplate = (props) => {
   const toastTimeoutRef = React.useRef(null);
   const roleSlug = role?.slug?.current;
   const positionId = role?._id;
+  const initialRoleActive = role?.active ?? null;
   const applicationStorageKey = React.useMemo(
     () => getApplicationSessionStorageKey(positionId),
     [positionId]
@@ -784,7 +786,7 @@ const VolunteerRoleTemplate = (props) => {
   React.useEffect(() => {
     setResolvedEvent(null);
     setResolvedEventCoordinates(null);
-    setResolvedRoleActive(role?.active ?? null);
+    setResolvedRoleActive(initialRoleActive);
     setAssignedApplicationCount(null);
     setIsCalendarMenuOpen(false);
     setIsApplyModalOpen(false);
@@ -805,7 +807,7 @@ const VolunteerRoleTemplate = (props) => {
       referral: "",
       notes: "",
     });
-  }, [roleSlug]);
+  }, [initialRoleActive, roleSlug]);
 
   const persistManagedApplication = React.useCallback(
     (nextSession) => {
@@ -1870,27 +1872,74 @@ const VolunteerRoleTemplate = (props) => {
           pb: "2rem",
         }}
       >
+        <StylizedLandingHeader
+          word="Volunteer"
+          color="secondary"
+          bleedTop="65px"
+          minHeight="0px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={["VOLUNTEER"]}
+        />
         <Box
           sx={{
             position: "relative",
-            zIndex: 2,
-            mb: "0.5rem",
-            width: "fit-content",
+            height: 0,
+            mb: 0,
           }}
         >
-          <Link
-            to="/volunteer"
+          <Text
+            variant="text.label"
             sx={{
-              color: "text",
-              textDecoration: "none",
+              position: "absolute",
+              top: "-1.2rem",
+              left: 0,
+              zIndex: 2,
               display: "inline-flex",
               alignItems: "center",
-              px: "0.15em",
-              mx: "-0.15em",
             }}
           >
-            ← Back to volunteer positions
-          </Link>
+            <Link
+              to="/volunteer"
+              sx={{
+                textDecoration: "none",
+                color: "text",
+                display: "inline-flex",
+                alignItems: "center",
+                cursor: "pointer",
+                px: "0.15em",
+                mx: "-0.15em",
+                position: "relative",
+                zIndex: 3,
+              }}
+            >
+              Volunteer
+            </Link>
+            <Text as="span" sx={{ px: "0.35em" }}>
+              /
+            </Text>
+            Positions
+          </Text>
         </Box>
         <Heading
           as="h1"

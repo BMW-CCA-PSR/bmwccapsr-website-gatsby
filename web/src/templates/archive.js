@@ -8,6 +8,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
+import StylizedLandingHeader from "../components/stylized-landing-header";
 
 const zundfolgeRed = "#B5322E";
 
@@ -22,7 +23,7 @@ export const query = graphql`
   }
 `;
 
-const IndexPage = props => {
+const IndexPage = (props) => {
   const { data, errors } = props;
 
   const site = (data || {}).site;
@@ -35,8 +36,8 @@ const IndexPage = props => {
   // Load manifest once, derive years and default selected year
   useEffect(() => {
     fetch("/zundfolge/manifest.json")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setManifest(data);
         const parsedYears = Object.keys(data)
           .map((y) => parseInt(y, 10))
@@ -47,7 +48,7 @@ const IndexPage = props => {
           setSelectedYear((prev) => prev ?? parsedYears[0]);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to load manifest", err);
         setYears([]);
       });
@@ -58,7 +59,18 @@ const IndexPage = props => {
     if (!selectedYear || !manifest) return;
 
     const monthNames = [
-      'January','February','March','April','May','June','July','August','September','October','November','December'
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ];
 
     function parseMonths(entry) {
@@ -89,7 +101,7 @@ const IndexPage = props => {
       // Month names
       const monthNameIdx = monthNames
         .map((n, i) => ({ i: i + 1, re: new RegExp(n.toLowerCase()) }))
-        .find(obj => obj.re.test(lc));
+        .find((obj) => obj.re.test(lc));
       if (monthNameIdx) return [monthNameIdx.i];
       return [];
     }
@@ -102,23 +114,30 @@ const IndexPage = props => {
         return `Qtr ${indexInYear + 1}`;
       }
       if (totalCount === 6) {
-        if (months.length === 2) return `${toName(months[0]).slice(0,3)}/${toName(months[1]).slice(0,3)}`;
+        if (months.length === 2)
+          return `${toName(months[0]).slice(0, 3)}/${toName(months[1]).slice(
+            0,
+            3
+          )}`;
         if (months.length === 1) {
           const m = months[0];
           const start = m % 2 === 0 ? m - 1 : m;
           const end = Math.min(start + 1, 12);
-          return `${toName(start).slice(0,3)}/${toName(end).slice(0,3)}`;
+          return `${toName(start).slice(0, 3)}/${toName(end).slice(0, 3)}`;
         }
-        return '';
+        return "";
       }
       // Default monthly (or irregular) handling
       if (months.length === 2) {
-        return `${toName(months[0]).slice(0,3)}/${toName(months[1]).slice(0,3)}`; // handles 11.12 -> Nov/Dec
+        return `${toName(months[0]).slice(0, 3)}/${toName(months[1]).slice(
+          0,
+          3
+        )}`; // handles 11.12 -> Nov/Dec
       }
       if (months.length === 1) {
         return toName(months[0]);
       }
-      return '';
+      return "";
     }
 
     function monthKey(entry, fallbackIndex) {
@@ -130,7 +149,10 @@ const IndexPage = props => {
     const entries = manifest[String(selectedYear)] || [];
     const total = entries.length;
     // Sort by month for yearly/bimonthly cases (>= 6 entries). Preserve order for 4 (quarterly)
-    const sorted = total >= 6 ? entries.slice().sort((a, b) => monthKey(a, 0) - monthKey(b, 0)) : entries;
+    const sorted =
+      total >= 6
+        ? entries.slice().sort((a, b) => monthKey(a, 0) - monthKey(b, 0))
+        : entries;
     const mapped = sorted.map((name, idx) => {
       const jpg = `https://bmw-club-psr.s3.amazonaws.com/zundfolge/${selectedYear}/${name}.jpg`;
       const base = name; // original manifest token
@@ -157,7 +179,10 @@ const IndexPage = props => {
   const menuItems = site.navMenu && (site.navMenu.items || []);
 
   // years are derived from manifest; fallback if fetch fails
-  const fallbackYears = years && years.length ? years : Array.from({ length: 2022 - 1970 }, (_, i) => 1970 + i).reverse();
+  const fallbackYears =
+    years && years.length
+      ? years
+      : Array.from({ length: 2022 - 1970 }, (_, i) => 1970 + i).reverse();
 
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
@@ -166,33 +191,93 @@ const IndexPage = props => {
         description="BMW CCA PSR Zundfolge Online"
         keywords={site.keywords || []}
       />
-      <ContentContainer sx ={{
-        pl: ["16px", "16px", "50px", "100px"],
-        pr: ["16px", "16px", "50px", "100px"],
-        //pr: "16px",
-        pt: ["6.5rem","6.5rem","10rem","10rem"],
-        pb: "1rem",
-      }}>
+      <ContentContainer
+        sx={{
+          pl: ["16px", "16px", "50px", "100px"],
+          pr: ["16px", "16px", "50px", "100px"],
+          //pr: "16px",
+          pt: ["6.5rem", "6.5rem", "10rem", "10rem"],
+          pb: "1rem",
+        }}
+      >
         <h1 hidden>Welcome to {site.title}</h1>
+        <StylizedLandingHeader
+          word="Zundfolge"
+          color={zundfolgeRed}
+          bleedTop="65px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          minHeight="0px"
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={[
+            "ZUNDFOLGE",
+            "1•3•4•2",
+            "ZUNDFOLGE",
+            "1•5•3•6•4•2",
+            "ZUNDFOLGE",
+          ]}
+        />
         <Heading sx={{ variant: "styles.h1", pb: "1rem" }}>
-          <Box as="span" sx={{ color: zundfolgeRed }}>Zündfolge</Box> Archive
+          <Box as="span" sx={{ color: zundfolgeRed }}>
+            Zündfolge
+          </Box>{" "}
+          Archive
           <BoxIcon
             as="span"
             sx={{
               display: "inline-grid",
               ml: "0.5rem",
-              verticalAlign: "middle"
+              verticalAlign: "middle",
             }}
           />
         </Heading>
         <Text>
-          Since its founding, the Puget Sound chapter of the BMW CCA has published{" "}
-          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>Zündfolge</Box>
-          —a printed newsletter dedicated to informing members about upcoming events, technical tips, club news, and shared experiences with the marque. From 1970 through 2021,{" "}
-          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>Zündfolge</Box>{" "}
-          chronicled the life and passion of our BMW community in the Pacific Northwest. This archive serves as a curated digital record of that legacy, preserving over five decades of enthusiasm, expertise, and camaraderie.
+          Since its founding, the Puget Sound chapter of the BMW CCA has
+          published{" "}
+          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>
+            Zündfolge
+          </Box>
+          —a printed newsletter dedicated to informing members about upcoming
+          events, technical tips, club news, and shared experiences with the
+          marque. From 1970 through 2021,{" "}
+          <Box as="span" sx={{ color: zundfolgeRed, fontStyle: "italic" }}>
+            Zündfolge
+          </Box>{" "}
+          chronicled the life and passion of our BMW community in the Pacific
+          Northwest. This archive serves as a curated digital record of that
+          legacy, preserving over five decades of enthusiasm, expertise, and
+          camaraderie.
         </Text>
-        <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>All Issues</Heading>
+        <Heading
+          sx={{
+            variant: "styles.h3",
+            borderBottomStyle: "solid",
+            pb: "3px",
+            borderBottomWidth: "3px",
+            my: "0.5rem",
+          }}
+        >
+          All Issues
+        </Heading>
         {/*
         <div sx={{display: "flex", flexDirection: "column", mt: 3}}>
           <Heading sx={{variant: "styles.h3", borderBottomStyle: "solid", pb: "3px", borderBottomWidth: "3px", my: "0.5rem"}}>Issues by Decade</Heading>
@@ -248,8 +333,15 @@ const IndexPage = props => {
           </div>
         </div>
         */}
-        <div sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))", gap: "6px", mb: "2rem" }}>
-          {fallbackYears.map(year => (
+        <div
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))",
+            gap: "6px",
+            mb: "2rem",
+          }}
+        >
+          {fallbackYears.map((year) => (
             <button
               key={year}
               onClick={() => setSelectedYear(year)}
@@ -272,12 +364,28 @@ const IndexPage = props => {
 
         {selectedYear && (
           <div>
-            <Heading as="h4" sx={{ mt: "1rem", mb: "0.5rem" }}>{selectedYear}</Heading>
-            <div sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", mt: "1rem" }}>
+            <Heading as="h4" sx={{ mt: "1rem", mb: "0.5rem" }}>
+              {selectedYear}
+            </Heading>
+            <div
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "20px",
+                mt: "1rem",
+              }}
+            >
               {issues.map((issue) => {
                 return (
-                  <div key={issue.jpg} sx={{ textAlign: "center", width: "198px", mx: "auto" }}>
-                    <a href={issue.pdfUrl} target="_blank" rel="noopener noreferrer">
+                  <div
+                    key={issue.jpg}
+                    sx={{ textAlign: "center", width: "198px", mx: "auto" }}
+                  >
+                    <a
+                      href={issue.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <img
                         src={issue.jpg}
                         alt={`Zündfolge ${selectedYear} Issue ${issue.label}`}
@@ -286,15 +394,18 @@ const IndexPage = props => {
                           height: "255px",
                           borderRadius: "4px",
                           boxShadow: "0 0 6px rgba(0,0,0,0.2)",
-                          transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                          transition:
+                            "transform 0.2s ease, box-shadow 0.2s ease",
                           ":hover": {
                             transform: "scale(1.05)",
-                            boxShadow: "0 0 12px rgba(0,0,0,0.3)"
-                          }
+                            boxShadow: "0 0 12px rgba(0,0,0,0.3)",
+                          },
                         }}
                       />
                     </a>
-                    <Text sx={{ mt: 2, fontWeight: "bold" }}>{issue.label}</Text>
+                    <Text sx={{ mt: 2, fontWeight: "bold" }}>
+                      {issue.label}
+                    </Text>
                   </div>
                 );
               })}

@@ -129,7 +129,7 @@ export const FilterPillButton = ({
         "background-color 140ms ease, color 140ms ease, border-color 140ms ease",
       "&:hover": {
         bg: active ? activeHoverBg : "highlight",
-        color: active ? "white" : "text",
+        color: "white",
         borderColor: active ? "rgba(15,23,42,0.3)" : "rgba(15,23,42,0.22)",
       },
       "&:active": {

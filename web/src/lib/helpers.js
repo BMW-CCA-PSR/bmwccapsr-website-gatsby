@@ -6,7 +6,7 @@ export function cn(...args) {
 
 export function mapEdgesToNodes(data) {
   if (!data.edges) return [];
-  return data.edges.map(edge => edge.node);
+  return data.edges.map((edge) => edge.node);
 }
 
 export function filterOutDocsWithoutSlugs({ slug }) {
@@ -14,7 +14,7 @@ export function filterOutDocsWithoutSlugs({ slug }) {
 }
 
 export function filterOutDocsPublishedInTheFuture({ publishedAt }) {
-  if (process.env.NODE_ENV !== "production") {
+  if (!publishedAt) {
     return true;
   }
   return !isFuture(parseISO(publishedAt));
@@ -46,7 +46,7 @@ export function getVolunteerRoleUrl(slug) {
 
 export function buildImageObj(source = { asset: {} }) {
   const imageObj = {
-    asset: { _ref: source.asset._ref || source.asset._id }
+    asset: { _ref: source.asset._ref || source.asset._id },
   };
 
   if (source.crop) imageObj.crop = source.crop;
@@ -60,15 +60,15 @@ export function toPlainText(blocks) {
     return "";
   }
   return blocks
-    .map(block => {
+    .map((block) => {
       if (block._type !== "block" || !block.children) {
         return "";
       }
-      return block.children.map(child => child.text).join("");
+      return block.children.map((child) => child.text).join("");
     })
     .join("\n\n");
 }
 
 export function randomGenerator(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

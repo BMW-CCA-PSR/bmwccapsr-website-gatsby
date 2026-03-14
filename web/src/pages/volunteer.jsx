@@ -14,6 +14,7 @@ import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
+import StylizedLandingHeader from "../components/stylized-landing-header";
 import { Client } from "../services/FetchClient";
 import {
   FilterBox,
@@ -751,6 +752,35 @@ const VolunteerPage = (props) => {
           pb: "2rem",
         }}
       >
+        <StylizedLandingHeader
+          word="Volunteer"
+          color="secondary"
+          bleedTop="65px"
+          minHeight="0px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={["VOLUNTEER"]}
+        />
         <Flex
           sx={{
             alignItems: ["flex-start", "flex-start", "flex-start"],

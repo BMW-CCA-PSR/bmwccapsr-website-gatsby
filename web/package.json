@@ -38,6 +38,8 @@
     "gatsby-source-sanity": "^7.4.2",
     "gatsby-transformer-sharp": "^4.5.0",
     "gbimage-bridge": "^0.2.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.0",
     "mapbox-gl": "^3.18.1",
     "prettier": "^2.3.2",
     "querystring": "^0.2.1",

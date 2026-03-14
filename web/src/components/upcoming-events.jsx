@@ -6,7 +6,7 @@ import { BoxIcon } from "./box-icons";
 import { outline } from "./event-slider";
 import { Client } from "../services/FetchClient";
 import EventCard from "./event-card";
-import { FiArrowRightCircle } from "react-icons/fi";
+import { FiArrowRightCircle, FiChevronRight } from "react-icons/fi";
 
 const UpcomingEvents = (props) => {
   const fetchedEventLimit = 4;
@@ -181,7 +181,13 @@ const UpcomingEvents = (props) => {
         </ul>
         <Box sx={{ mt: "1.5rem", mb: "2rem", textAlign: "center" }}>
           <Link to="/events" sx={{ ...outline, bg: "background" }}>
-            More Events
+            <Box
+              as="span"
+              sx={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+            >
+              More Events
+              <FiChevronRight size={16} aria-hidden="true" />
+            </Box>
           </Link>
         </Box>
       </Box>

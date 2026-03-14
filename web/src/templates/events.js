@@ -1,15 +1,17 @@
 /** @jsxImportSource theme-ui */
 import React, { useEffect, useMemo, useState } from "react";
-import { graphql } from "gatsby";
+import { graphql, Link } from "gatsby";
 import { mapEdgesToNodes, filterOutDocsWithoutSlugs } from "../lib/helpers";
-import { Box, Button, Heading, Text } from "@theme-ui/components";
-import { FiSliders } from "react-icons/fi";
+import { Box, Button, Card, Flex, Heading, Text } from "@theme-ui/components";
+import { FaCalendarAlt } from "react-icons/fa";
+import { FiArrowRight, FiGrid, FiList, FiSliders } from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
 import EventPagePreview from "../components/event-page-preview";
 import ContentContainer from "../components/content-container";
 import { BoxIcon } from "../components/box-icons";
+import StylizedLandingHeader from "../components/stylized-landing-header";
 import { Client } from "../services/FetchClient";
 import {
   FilterBox,
@@ -67,6 +69,8 @@ const sortOptions = [
   { value: "titleAsc", label: "Title: A-Z" },
   { value: "titleDesc", label: "Title: Z-A" },
 ];
+
+const EVENT_VIEW_STORAGE_KEY = "bmwcca-events-view-mode";
 
 export const query = graphql`
   query EventPageQuery($skip: Int!, $limit: Int!) {
@@ -146,6 +150,7 @@ const IndexPage = (props) => {
   const [activeOnly, setActiveOnly] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSort, setSelectedSort] = useState("dateAsc");
+  const [viewMode, setViewMode] = useState("grid");
   const [pageIndex, setPageIndex] = useState(currentPage || 1);
   const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
   const locationSearch = props.location?.search || "";
@@ -207,6 +212,19 @@ const IndexPage = (props) => {
       isMounted = false;
     };
   }, [sanity]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const storedViewMode = window.localStorage.getItem(EVENT_VIEW_STORAGE_KEY);
+    if (storedViewMode === "grid" || storedViewMode === "horizontal") {
+      setViewMode(storedViewMode);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(EVENT_VIEW_STORAGE_KEY, viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     if (hasInitializedFilters) return;
@@ -440,6 +458,12 @@ const IndexPage = (props) => {
       borderColor: "#90b4f8",
     },
   };
+  const viewToggleButtonSx = {
+    ...sortControlSx,
+    minWidth: "42px",
+    px: "0.65rem",
+    color: viewMode === "horizontal" ? "primary" : "text",
+  };
 
   if (errors) {
     return (
@@ -465,30 +489,147 @@ const IndexPage = (props) => {
         }}
       >
         <h1 hidden>Welcome to {site.title}</h1>
-        <Box
+        <StylizedLandingHeader
+          word="Events"
+          color="primary"
+          bleedTop="65px"
+          minHeight="0px"
+          topInset={["11rem", "12rem", "15rem", "17rem"]}
+          patternViewportInset={[
+            "0 0 1rem 0",
+            "0 0 1.25rem 0",
+            "0 0 1.6rem 0",
+            "0 0 2rem 0",
+          ]}
+          rowCount={22}
+          rowRepeatCount={30}
+          textFontSize={["30px", "36px", "46px", "56px"]}
+          rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+          rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+          rowOverflow="visible"
+          textLineHeight={0.94}
+          textTranslateY="0%"
+          patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+          patternTransform={[
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-4%) rotate(-45deg) scale(1.08)",
+            "translateY(-2%) rotate(-45deg) scale(1.1)",
+            "translateY(-2%) rotate(-45deg) scale(1.12)",
+          ]}
+          rowContents={["EVENTS"]}
+        />
+        <Flex
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
-            pb: "0.35rem",
+            alignItems: ["flex-start", "flex-start", "flex-start"],
+            justifyContent: "space-between",
+            flexWrap: ["wrap", "wrap", "wrap", "nowrap"],
+            gap: "1rem",
+            pb: "0.75rem",
           }}
         >
-          <Heading sx={{ variant: "styles.h1", mb: 0 }}>Events</Heading>
-          <BoxIcon />
-        </Box>
-        <Text
-          sx={{
-            variant: "styles.p",
-            fontSize: "16pt",
-            color: "text",
-            maxWidth: "760px",
-            mb: "0.75rem",
-          }}
-        >
-          Discover upcoming drives, clinics, social gatherings, and club
-          meetings across the region. Use the filters below to find events that
-          fit your interests and schedule.
-        </Text>
+          <Box
+            sx={{
+              flex: "1 1 auto",
+              minWidth: 0,
+              maxWidth: ["100%", "100%", "100%", "calc(100% - 316px)"],
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                pb: "0.35rem",
+              }}
+            >
+              <Heading sx={{ variant: "styles.h1", mb: 0 }}>Events</Heading>
+              <BoxIcon />
+            </Box>
+            <Text
+              sx={{
+                variant: "styles.p",
+                fontSize: "16pt",
+                color: "text",
+                maxWidth: "760px",
+                mb: 0,
+              }}
+            >
+              Discover upcoming drives, clinics, social gatherings, and club
+              meetings across the region. Use the filters below to find events
+              that fit your interests and schedule.
+            </Text>
+          </Box>
+          <Box
+            sx={{
+              display: "grid",
+              gap: "0.5rem",
+              width: ["100%", "100%", "100%", "300px"],
+              flex: ["1 1 100%", "1 1 100%", "1 1 100%", "0 0 300px"],
+              justifyItems: ["stretch", "stretch", "stretch", "end"],
+              alignSelf: ["stretch", "stretch", "stretch", "flex-start"],
+              backgroundColor: "lightgray",
+              borderRadius: "12px",
+              p: ["0.75rem", "0.85rem", "0.95rem"],
+            }}
+          >
+            <Link
+              to="/events/kalendar"
+              sx={{ textDecoration: "none", width: "100%", display: "block" }}
+            >
+              <Card
+                sx={{
+                  width: "100%",
+                  px: "1rem",
+                  py: "0.65rem",
+                  borderRadius: "12px",
+                  border: "1px solid",
+                  borderColor: "primary",
+                  backgroundColor: "primary",
+                  color: "white",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.75rem",
+                  fontSize: "xs",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  "&:hover": {
+                    backgroundColor: "primary",
+                    borderColor: "primary",
+                    color: "white",
+                  },
+                }}
+              >
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <FaCalendarAlt size={30} />
+                  <Text as="span" sx={{ fontSize: "xs", color: "inherit" }}>
+                    Kalendar
+                  </Text>
+                </Box>
+                <Box
+                  as="span"
+                  sx={{
+                    width: "20px",
+                    height: "20px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: "0 0 20px",
+                  }}
+                >
+                  <FiArrowRight size={20} />
+                </Box>
+              </Card>
+            </Link>
+          </Box>
+        </Flex>
         <FilterBox>
           <FilterGrid sx={{ gridTemplateColumns: ["1fr"] }}>
             <Box sx={{ gridColumn: "1 / -1" }}>
@@ -596,7 +737,7 @@ const IndexPage = (props) => {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "minmax(0, 1fr) auto",
+            gridTemplateColumns: ["1fr", "1fr", "minmax(0, 1fr) auto"],
             columnGap: "0.75rem",
             rowGap: "0.25rem",
             alignItems: "end",
@@ -621,44 +762,78 @@ const IndexPage = (props) => {
             sx={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "0.45rem",
-              justifySelf: "end",
-              ...sortControlSx,
+              gap: "0.5rem",
+              justifySelf: ["stretch", "stretch", "end"],
+              flexWrap: "wrap",
             }}
           >
-            <FiSliders size={20} />
-            <FilterSelect
-              aria-label="Sort events"
-              value={selectedSort}
-              onChange={(event) => setSelectedSort(event.target.value)}
+            <Box
               sx={{
-                minWidth: "170px",
-                bg: "transparent",
-                border: "none",
-                color: "text",
-                fontSize: "xs",
-                fontWeight: "heading",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                py: 0,
-                px: 0,
-                cursor: "pointer",
-                "&:focus": {
-                  outline: "none",
-                  boxShadow: "none",
-                },
-                "&:focus-visible": {
-                  outline: "none",
-                  boxShadow: "none",
-                },
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                ...sortControlSx,
               }}
             >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FilterSelect>
+              <FiSliders size={20} />
+              <FilterSelect
+                aria-label="Sort events"
+                value={selectedSort}
+                onChange={(event) => setSelectedSort(event.target.value)}
+                sx={{
+                  minWidth: "170px",
+                  bg: "transparent",
+                  border: "none",
+                  color: "text",
+                  fontSize: "xs",
+                  fontWeight: "heading",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  py: 0,
+                  px: 0,
+                  cursor: "pointer",
+                  "&:focus": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                  "&:focus-visible": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </FilterSelect>
+            </Box>
+            <Button
+              type="button"
+              aria-label={
+                viewMode === "grid"
+                  ? "Switch to horizontal event cards"
+                  : "Switch to grid event cards"
+              }
+              title={
+                viewMode === "grid"
+                  ? "Switch to horizontal event cards"
+                  : "Switch to grid event cards"
+              }
+              onClick={() =>
+                setViewMode((current) =>
+                  current === "grid" ? "horizontal" : "grid"
+                )
+              }
+              sx={viewToggleButtonSx}
+            >
+              {viewMode === "grid" ? (
+                <FiList size={18} aria-hidden="true" />
+              ) : (
+                <FiGrid size={18} aria-hidden="true" />
+              )}
+            </Button>
           </Box>
         </Box>
         <div>
@@ -667,12 +842,15 @@ const IndexPage = (props) => {
               listStyle: "none",
               display: "grid",
               gridGap: 3,
-              gridTemplateColumns: [
-                "1fr",
-                "1fr",
-                "repeat(2, minmax(0, 1fr))",
-                "repeat(2, minmax(0, 1fr))",
-              ],
+              gridTemplateColumns:
+                viewMode === "horizontal"
+                  ? ["1fr"]
+                  : [
+                      "1fr",
+                      "1fr",
+                      "repeat(2, minmax(0, 1fr))",
+                      "repeat(2, minmax(0, 1fr))",
+                    ],
               m: 0,
               p: 0,
             }}
@@ -680,8 +858,13 @@ const IndexPage = (props) => {
             {paginatedEvents &&
               paginatedEvents.map((node, index) => {
                 return (
-                  <li key={index}>
-                    <EventPagePreview {...node} isInList showUpcomingPill />
+                  <li key={index} sx={{ height: "100%" }}>
+                    <EventPagePreview
+                      {...node}
+                      isInList
+                      showUpcomingPill
+                      variant={viewMode}
+                    />
                   </li>
                 );
               })}

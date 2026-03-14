@@ -1,6 +1,9 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { getZundfolgeUrl } from "../lib/helpers";
+import {
+  filterOutDocsPublishedInTheFuture,
+  getZundfolgeUrl,
+} from "../lib/helpers";
 import PortableText from "./portableText";
 import SanityImage from "gatsby-plugin-sanity-image";
 import {
@@ -11,22 +14,22 @@ import {
   Text,
   Flex,
   Avatar,
-  Badge,
 } from "@theme-ui/components";
 import { Link } from "gatsby";
 import { imageUrlFor } from "../lib/image-url";
 import { BoxIcon } from "./box-icons";
 import { outline } from "./event-slider";
-import { differenceInDays, format, parseISO } from "date-fns";
+import { differenceInDays, parseISO } from "date-fns";
+import { FiChevronRight } from "react-icons/fi";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import ZundfolgePill from "./zundfolge-pill";
 
 const slantLeftClip = "polygon(12% 0, 100% 0, 100% 100%, 0 100%)";
 const slantRightClip = "polygon(0 0, 100% 0, 88% 100%, 0 100%)";
 const zundfolgeRed = "#B5322E";
-
 const StoryImg = (props) => {
   return (
     <SanityImage
@@ -92,7 +95,7 @@ function StoryRow(props) {
       if (!props.node.publishedAt) return false;
       const days = differenceInDays(
         new Date(),
-        parseISO(props.node.publishedAt)
+        parseISO(props.node.publishedAt),
       );
       return days <= 14;
     } catch (_) {
@@ -120,26 +123,7 @@ function StoryRow(props) {
             <Text sx={{ variant: "text.label", color: "black" }}>
               {props.node.category.title}
             </Text>
-            {isNew && (
-              <Badge
-                sx={{
-                  bg: "transparent",
-                  color: "white",
-                  px: 2,
-                  py: 1,
-                  borderRadius: 9999,
-                  fontWeight: 700,
-                  fontSize: "xxs",
-                  letterSpacing: "wide",
-                  textTransform: "uppercase",
-                  backgroundImage:
-                    "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                }}
-              >
-                NEW
-              </Badge>
-            )}
+            {isNew && <ZundfolgePill>New</ZundfolgePill>}
           </Box>
         )}
         <Heading
@@ -174,13 +158,7 @@ function StoryRow(props) {
             }}
           >
             {authorString}
-            {props.node.publishedAt ? " | " : ""}
           </Text>
-          {props.node.publishedAt && (
-            <Text sx={{ variant: "stypes.p", py: "1rem", color: "black" }}>
-              {format(parseISO(props.node.publishedAt), "MMM d, yyyy")}
-            </Text>
-          )}
         </Flex>
         <Text
           sx={{
@@ -223,7 +201,7 @@ function StoryRowFlipped(props) {
       if (!props.node.publishedAt) return false;
       const days = differenceInDays(
         new Date(),
-        parseISO(props.node.publishedAt)
+        parseISO(props.node.publishedAt),
       );
       return days <= 14;
     } catch (_) {
@@ -258,26 +236,7 @@ function StoryRowFlipped(props) {
             <Text sx={{ variant: "text.label", color: "black" }}>
               {props.node.category.title}
             </Text>
-            {isNew && (
-              <Badge
-                sx={{
-                  bg: "transparent",
-                  color: "white",
-                  px: 2,
-                  py: 1,
-                  borderRadius: 9999,
-                  fontWeight: 700,
-                  fontSize: "xxs",
-                  letterSpacing: "wide",
-                  textTransform: "uppercase",
-                  backgroundImage:
-                    "linear-gradient(135deg, #27d07e 0%, #06b7a6 100%)",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
-                }}
-              >
-                NEW
-              </Badge>
-            )}
+            {isNew && <ZundfolgePill>New</ZundfolgePill>}
           </Box>
         )}
         <Heading
@@ -312,13 +271,7 @@ function StoryRowFlipped(props) {
             }}
           >
             {authorString}
-            {props.node.publishedAt ? " | " : ""}
           </Text>
-          {props.node.publishedAt && (
-            <Text sx={{ variant: "stypes.p", py: "1rem", color: "black" }}>
-              {format(parseISO(props.node.publishedAt), "MMM d, yyyy")}
-            </Text>
-          )}
         </Flex>
         <Text
           sx={{
@@ -334,6 +287,11 @@ function StoryRowFlipped(props) {
 }
 
 function ZundfolgeLatest(props) {
+  const visibleEdges = Array.isArray(props.edges)
+    ? props.edges.filter((edge) =>
+        filterOutDocsPublishedInTheFuture(edge?.node || {}),
+      )
+    : [];
   return (
     <Container
       sx={{
@@ -394,7 +352,7 @@ function ZundfolgeLatest(props) {
         />
       </Box>
 
-      {props.edges.slice(0, 3).map((c, i) => {
+      {visibleEdges.slice(0, 3).map((c, i) => {
         const href = getZundfolgeUrl(c.node.slug.current);
         return (
           <Link
@@ -432,7 +390,13 @@ function ZundfolgeLatest(props) {
         }}
       >
         <Link to="/zundfolge/" sx={outline}>
-          More Articles
+          <Box
+            as="span"
+            sx={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+          >
+            More Articles
+            <FiChevronRight size={16} aria-hidden="true" />
+          </Box>
         </Link>
       </Box>
     </Container>
