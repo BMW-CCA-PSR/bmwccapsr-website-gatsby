@@ -155,14 +155,6 @@ const Dropdown = (props) => {
     if (handleNonVolunteerHoverChange) handleNonVolunteerHoverChange(false);
   };
 
-  const activeLinkStyles = isChildActive
-    ? {
-        color: "background",
-        "--nav-bg-opacity": 1,
-        WebkitTextStroke: "0.35px currentColor",
-        textShadow: "0 0 0.01px currentColor",
-      }
-    : {};
   return (
     <ul
       sx={{
@@ -188,6 +180,10 @@ const Dropdown = (props) => {
       >
         <button
           type="button"
+          className="desktop-nav-button"
+          data-desktop-nav-button="true"
+          data-nav-highlight-mode="shared"
+          data-nav-active={isChildActive ? "true" : "false"}
           onFocus={openMenu}
           onBlur={(event) => {
             const nextTarget = event.relatedTarget;
@@ -213,7 +209,7 @@ const Dropdown = (props) => {
             textAlign: "center",
             justifyContent: "center",
             width: "100%",
-            color: isChildActive ? "background" : "darkgray",
+            color: "darkgray",
             background: "none",
             border: "none",
             font: "inherit",
@@ -222,6 +218,17 @@ const Dropdown = (props) => {
             "--nav-slant-size": "14px",
             "--nav-bg-opacity": 0,
             transition: "color 160ms ease",
+            "&:focus-visible": {
+              color: "background",
+              outline: "none",
+            },
+            '&[data-nav-highlight-mode="shared"]::before': {
+              display: "none",
+            },
+            '&[data-nav-highlight-mode="shared"][data-nav-indicator-active="true"]':
+              {
+                color: "background",
+              },
             "&::before": {
               content: '""',
               position: "absolute",
@@ -239,7 +246,6 @@ const Dropdown = (props) => {
                   "--nav-bg-opacity": 1,
                 }
               : {}),
-            ...activeLinkStyles,
           }}
           aria-haspopup={subLinks.length > 0 ? true : false}
           aria-expanded={subLinks.length > 0 ? isOpen : undefined}
@@ -261,7 +267,7 @@ const Dropdown = (props) => {
                 height: "2px",
                 mt: "0.22rem",
                 borderRadius: "999px",
-                bg: "currentColor",
+                bg: "gray",
                 opacity: 0,
                 transform: "scaleX(0.72)",
                 transformOrigin: "center",
@@ -270,7 +276,12 @@ const Dropdown = (props) => {
               "&.dropdown-label--active::after": {
                 opacity: 1,
                 transform: "scaleX(1)",
+                bg: "gray",
               },
+              'button[data-nav-highlight-mode="shared"][data-nav-indicator-active="true"] &.dropdown-label--active::after':
+                {
+                  bg: "background",
+                },
             }}
           >
             {props.title}
@@ -284,18 +295,15 @@ const Dropdown = (props) => {
               textTransform: "none",
               p: "0.45rem",
               display: "grid",
-              gridTemplateColumns: "minmax(185px, 0.9fr) minmax(200px, 1.1fr)",
-              columnGap: "0.45rem",
               width: "min(520px, calc(100vw - 40px))",
               backgroundColor: "primary",
               visibility: isOpen && isPanelPositioned ? "visible" : "hidden",
               opacity: isOpen && isPanelPositioned ? 1 : 0,
               position: "absolute",
               marginTop: 0,
-              top: "calc(100% - 1px)",
+              top: "100%",
               left: 0,
               transform: `translateX(${panelShiftX}px)`,
-              transition: "opacity 130ms ease",
               textAlign: "center",
               right: "auto",
               cursor: "pointer",
@@ -304,169 +312,187 @@ const Dropdown = (props) => {
               overflow: "hidden",
               maxHeight: "70vh",
               pointerEvents: isOpen && isPanelPositioned ? "auto" : "none",
-              boxShadow:
-                "0 12px 18px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.12)",
             }}
             aria-label="submenu"
           >
             <Box
-              as="ul"
               sx={{
-                listStyle: "none",
-                m: 0,
-                p: 0,
-                width: "100%",
-                backgroundColor: "transparent",
-                overflowY: "auto",
+                display: "grid",
+                gridTemplateColumns: "minmax(220px, 1fr) minmax(220px, 1fr)",
+                columnGap: "0.45rem",
+                minHeight: "100%",
               }}
             >
-              {subLinks.map((subLink, index) => {
-                const destinationPath = getDestinationPath(subLink);
-                const linkTitle =
-                  subLink?.title ||
-                  destinationPath ||
-                  subLink?.href ||
-                  `Link ${index + 1}`;
-                const rowKey = subLink._key || `${linkTitle}-${index}`;
-                const rowSx = {
-                  width: "auto",
-                  textDecoration: "none",
-                  color: "background",
-                  py: "0.46rem",
-                  px: "0.72rem",
-                  mx: "0.16rem",
-                  my: "0.14rem",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  lineHeight: 1.2,
-                  minHeight: "3.35rem",
-                  backgroundColor:
-                    index === selectedIndex ? "secondary" : "transparent",
-                  transition: "background-color 120ms ease",
-                  "&:hover": {
-                    backgroundColor: "secondary",
-                  },
-                };
-                const MenuIcon = MENU_ICON_MAP[subLink?.icon];
-                const linkContent = (
-                  <Box
-                    as="span"
-                    sx={{
-                      width: "100%",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "flex-start",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    {MenuIcon ? (
-                      <Box
-                        as="span"
-                        sx={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flex: "0 0 auto",
-                          width: "30px",
-                          height: "30px",
-                          borderRadius: "999px",
-                          bg: "rgba(255,255,255,0.16)",
-                          lineHeight: 0,
-                        }}
-                      >
-                        <MenuIcon size={20} aria-hidden="true" />
-                      </Box>
-                    ) : null}
+              <Box
+                as="ul"
+                sx={{
+                  listStyle: "none",
+                  m: 0,
+                  p: 0,
+                  width: "100%",
+                  backgroundColor: "transparent",
+                  maxHeight: "calc(70vh - 0.9rem)",
+                  overflowY: "auto",
+                }}
+              >
+                {subLinks.map((subLink, index) => {
+                  const destinationPath = getDestinationPath(subLink);
+                  const linkTitle =
+                    subLink?.title ||
+                    destinationPath ||
+                    subLink?.href ||
+                    `Link ${index + 1}`;
+                  const rowKey = subLink._key || `${linkTitle}-${index}`;
+                  const rowSx = {
+                    width: "auto",
+                    textDecoration: "none",
+                    color: "background",
+                    py: "0.46rem",
+                    px: "0.72rem",
+                    mx: "0.16rem",
+                    my: "0.14rem",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    lineHeight: 1.2,
+                    minHeight: "3.35rem",
+                    backgroundColor:
+                      index === selectedIndex ? "secondary" : "transparent",
+                    transition: "background-color 120ms ease",
+                    "&:hover": {
+                      backgroundColor: "secondary",
+                    },
+                  };
+                  const MenuIcon = MENU_ICON_MAP[subLink?.icon];
+                  const linkContent = (
                     <Box
                       as="span"
                       sx={{
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "normal",
-                        overflowWrap: "anywhere",
-                        textAlign: "left",
+                        width: "100%",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                        gap: "0.5rem",
                       }}
                     >
-                      {linkTitle}
+                      {MenuIcon ? (
+                        <Box
+                          as="span"
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flex: "0 0 auto",
+                            width: "30px",
+                            height: "30px",
+                            borderRadius: "999px",
+                            bg: "rgba(255,255,255,0.16)",
+                            lineHeight: 0,
+                          }}
+                        >
+                          <MenuIcon size={20} aria-hidden="true" />
+                        </Box>
+                      ) : null}
+                      <Box
+                        as="span"
+                        sx={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "normal",
+                          overflowWrap: "anywhere",
+                          textAlign: "left",
+                        }}
+                      >
+                        {linkTitle}
+                      </Box>
                     </Box>
-                  </Box>
-                );
-                return (
-                  <li key={rowKey}>
-                    {subLink?.href ? (
-                      <OutboundLink
-                        href={subLink.href}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        onClick={closeMenu}
-                        onMouseEnter={() => setHoveredIndex(index)}
-                        sx={rowSx}
-                      >
-                        {linkContent}
-                      </OutboundLink>
-                    ) : (
-                      <Link
-                        to={destinationPath || "/"}
-                        onClick={closeMenu}
-                        onMouseEnter={() => setHoveredIndex(index)}
-                        sx={rowSx}
-                      >
-                        {linkContent}
-                      </Link>
-                    )}
-                  </li>
-                );
-              })}
-            </Box>
-            <Box
-              sx={{
-                bg: "background",
-                color: "text",
-                p: "0.7rem",
-                textAlign: "left",
-                display: "flex",
-                flexDirection: "column",
-                minHeight: "100%",
-                borderRadius: "12px",
-                overflowY: "auto",
-              }}
-            >
-              {selectedImageUrl ? (
-                <Box
-                  as="img"
-                  src={selectedImageUrl}
-                  alt={selectedTitle}
+                  );
+                  return (
+                    <li key={rowKey}>
+                      {subLink?.href ? (
+                        <OutboundLink
+                          href={subLink.href}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                          onClick={closeMenu}
+                          onMouseEnter={() => setHoveredIndex(index)}
+                          sx={rowSx}
+                        >
+                          {linkContent}
+                        </OutboundLink>
+                      ) : (
+                        <Link
+                          to={destinationPath || "/"}
+                          onClick={closeMenu}
+                          onMouseEnter={() => setHoveredIndex(index)}
+                          sx={rowSx}
+                        >
+                          {linkContent}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </Box>
+              <Box
+                sx={{
+                  bg: "background",
+                  color: "text",
+                  p: "0.7rem",
+                  textAlign: "left",
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: "100%",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                }}
+              >
+                {selectedImageUrl ? (
+                  <Box
+                    as="img"
+                    src={selectedImageUrl}
+                    alt={selectedTitle}
+                    sx={{
+                      display: "block",
+                      width: "100%",
+                      height: "112px",
+                      objectFit: "cover",
+                      borderRadius: "10px",
+                      mb: "0.5rem",
+                    }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "112px",
+                      borderRadius: "10px",
+                      mb: "0.5rem",
+                      bg: "lightgray",
+                    }}
+                  />
+                )}
+                <Text
                   sx={{
-                    display: "block",
-                    width: "100%",
-                    height: "112px",
-                    objectFit: "cover",
-                    borderRadius: "10px",
-                    mb: "0.5rem",
+                    variant: "styles.p",
+                    fontSize: "xs",
+                    mb: 0,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 8,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
                   }}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    width: "100%",
-                    height: "112px",
-                    borderRadius: "10px",
-                    mb: "0.5rem",
-                    bg: "lightgray",
-                  }}
-                />
-              )}
-              <Text sx={{ variant: "styles.p", fontSize: "xs", mb: 0 }}>
-                {selectedDescription ||
-                  selectedDestination ||
-                  selectedSubLink?.href ||
-                  "Select a page to view details."}
-              </Text>
+                >
+                  {selectedDescription ||
+                    selectedDestination ||
+                    selectedSubLink?.href ||
+                    "Select a page to view details."}
+                </Text>
+              </Box>
             </Box>
           </Box>
         ) : null}

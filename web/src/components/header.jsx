@@ -2,8 +2,15 @@
 import { useBreakpointIndex } from "@theme-ui/match-media";
 import { Container, Flex, Divider, MenuButton, Close, Text } from "theme-ui";
 import { Link } from "gatsby";
-import React, { useState, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useLocation } from "@reach/router";
+import { animate } from "animejs";
 import Dropdown from "./dropdown";
 import NavLink from "./navLink";
 import Logo from "./logo";
@@ -31,12 +38,17 @@ const isVolunteerMenuItem = (item) => {
   return normalizePath(getItemPath(item)) === "/volunteer";
 };
 
+const fixedSlantClip =
+  "polygon(var(--nav-slant-size) 0, 100% 0, calc(100% - var(--nav-slant-size)) 100%, 0 100%)";
+
+const DESKTOP_NAV_BUTTON_SELECTOR = '[data-desktop-nav-button="true"]';
+
+const DESKTOP_SHARED_HIGHLIGHT_SELECTOR =
+  '[data-desktop-nav-button="true"][data-nav-highlight-mode="shared"]';
+
 const MOBILE_LOGO_MAX_SCALE = 0.9;
 const MOBILE_LOGO_MIN_SCALE = 0.5;
 const MOBILE_LOGO_SCROLL_RANGE = 140;
-const DESKTOP_LOGO_MAX_SCALE = 1;
-const DESKTOP_LOGO_MIN_SCALE = 0.88;
-const DESKTOP_LOGO_SCROLL_RANGE = 220;
 
 const getMobileLogoScale = (scrollY = 0) => {
   if (scrollY <= 0) return MOBILE_LOGO_MAX_SCALE;
@@ -47,14 +59,8 @@ const getMobileLogoScale = (scrollY = 0) => {
   );
 };
 
-const getDesktopLogoScale = (scrollY = 0) => {
-  if (scrollY <= 0) return DESKTOP_LOGO_MAX_SCALE;
-  const progress = Math.min(scrollY / DESKTOP_LOGO_SCROLL_RANGE, 1);
-  return (
-    DESKTOP_LOGO_MAX_SCALE -
-    progress * (DESKTOP_LOGO_MAX_SCALE - DESKTOP_LOGO_MIN_SCALE)
-  );
-};
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   const [isToggledOn, setToggle] = useState(false);
@@ -62,9 +68,10 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   const [isOtherDesktopNavHovered, setIsOtherDesktopNavHovered] =
     useState(false);
   const [mobileLogoScale, setMobileLogoScale] = useState(MOBILE_LOGO_MAX_SCALE);
-  const [desktopLogoScale, setDesktopLogoScale] = useState(
-    DESKTOP_LOGO_MAX_SCALE
-  );
+  const desktopNavRef = useRef(null);
+  const desktopNavIndicatorRef = useRef(null);
+  const desktopNavAnimationRef = useRef(null);
+  const hasInitializedDesktopNavIndicatorRef = useRef(false);
   const toggle = () => setToggle(!isToggledOn);
   const index = useBreakpointIndex();
   const location = useLocation();
@@ -99,12 +106,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
     const updateLogoScale = () => {
       const scrollY = window.scrollY || 0;
       const nextMobileScale = getMobileLogoScale(scrollY);
-      const nextDesktopScale = getDesktopLogoScale(scrollY);
       setMobileLogoScale((prev) =>
         Math.abs(prev - nextMobileScale) < 0.001 ? prev : nextMobileScale
-      );
-      setDesktopLogoScale((prev) =>
-        Math.abs(prev - nextDesktopScale) < 0.001 ? prev : nextDesktopScale
       );
     };
     updateLogoScale();
@@ -115,8 +118,144 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
       window.removeEventListener("resize", updateLogoScale);
     };
   }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const navList = desktopNavRef.current;
+    const indicator = desktopNavIndicatorRef.current;
+    if (index <= 2 || !navList || !indicator) {
+      if (indicator) {
+        indicator.style.opacity = "0";
+        indicator.style.width = "0px";
+        indicator.style.transform = "translateX(0px)";
+      }
+      hasInitializedDesktopNavIndicatorRef.current = false;
+      desktopNavAnimationRef.current?.cancel();
+      desktopNavAnimationRef.current = null;
+      return undefined;
+    }
+
+    const prefersReducedMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)"
+    )?.matches;
+    const buttons = Array.from(
+      navList.querySelectorAll(DESKTOP_NAV_BUTTON_SELECTOR)
+    );
+    const sharedButtons = Array.from(
+      navList.querySelectorAll(DESKTOP_SHARED_HIGHLIGHT_SELECTOR)
+    );
+
+    const cancelAnimation = () => {
+      desktopNavAnimationRef.current?.cancel();
+      desktopNavAnimationRef.current = null;
+    };
+
+    const setIndicatorStyles = (x, width, opacity) => {
+      indicator.style.opacity = String(opacity);
+      indicator.style.width = `${width}px`;
+      indicator.style.transform = `translateX(${x}px)`;
+    };
+
+    const setIndicatorActiveButton = (activeButton) => {
+      sharedButtons.forEach((button) => {
+        button.dataset.navIndicatorActive =
+          activeButton === button ? "true" : "false";
+      });
+    };
+
+    const getActiveButton = () =>
+      sharedButtons.find((button) => button.dataset.navActive === "true") ||
+      null;
+
+    const moveIndicator = (button, immediate = false) => {
+      if (!button) {
+        setIndicatorActiveButton(null);
+        cancelAnimation();
+        indicator.style.opacity = "0";
+        return;
+      }
+      setIndicatorActiveButton(button);
+
+      const navRect = navList.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+      const nextX = buttonRect.left - navRect.left;
+      const nextWidth = buttonRect.width;
+
+      if (immediate || prefersReducedMotion) {
+        cancelAnimation();
+        setIndicatorStyles(nextX, nextWidth, 1);
+        return;
+      }
+
+      indicator.style.opacity = "1";
+      cancelAnimation();
+      desktopNavAnimationRef.current = animate(indicator, {
+        x: nextX,
+        width: nextWidth,
+        opacity: 1,
+        duration: 320,
+        ease: "outExpo",
+      });
+    };
+
+    const initialTarget = getActiveButton();
+    moveIndicator(
+      initialTarget,
+      !hasInitializedDesktopNavIndicatorRef.current || prefersReducedMotion
+    );
+    hasInitializedDesktopNavIndicatorRef.current = true;
+
+    const handlePointerEnter = (event) => {
+      if (event.currentTarget.dataset.navHighlightMode === "shared") {
+        moveIndicator(event.currentTarget);
+        return;
+      }
+      moveIndicator(null);
+    };
+
+    const handleFocus = (event) => {
+      if (event.currentTarget.dataset.navHighlightMode === "shared") {
+        moveIndicator(event.currentTarget);
+        return;
+      }
+      moveIndicator(null);
+    };
+
+    const handlePointerLeave = () => {
+      moveIndicator(getActiveButton());
+    };
+
+    const handleFocusOut = (event) => {
+      if (!navList.contains(event.relatedTarget)) {
+        moveIndicator(getActiveButton());
+      }
+    };
+
+    const handleResize = () => {
+      moveIndicator(getActiveButton(), true);
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("pointerenter", handlePointerEnter);
+      button.addEventListener("focus", handleFocus);
+    });
+    navList.addEventListener("pointerleave", handlePointerLeave);
+    navList.addEventListener("focusout", handleFocusOut);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      buttons.forEach((button) => {
+        button.removeEventListener("pointerenter", handlePointerEnter);
+        button.removeEventListener("focus", handleFocus);
+      });
+      navList.removeEventListener("pointerleave", handlePointerLeave);
+      navList.removeEventListener("focusout", handleFocusOut);
+      window.removeEventListener("resize", handleResize);
+      cancelAnimation();
+    };
+  }, [index, location.pathname, navMenuItems]);
+
   const mobileLogoTransform = `scale(${mobileLogoScale})`;
-  const desktopLogoTransform = `scale(${desktopLogoScale})`;
 
   return (
     <>
@@ -174,8 +313,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                     transform: [
                       mobileLogoTransform,
                       mobileLogoTransform,
-                      desktopLogoTransform,
-                      desktopLogoTransform,
+                      "none",
+                      "none",
                     ],
                     transformOrigin: [
                       "top left",
@@ -192,45 +331,78 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                 {showNav && navMenuItems && (
                   <div sx={{ height: "60px", pr: "1rem" }}>
                     {index > 2 ? (
-                      <ul
+                      <div
                         sx={{
-                          justifyContent: "end",
-                          alignItems: "center",
+                          position: "relative",
                           display: "inline-flex",
                           height: "100%",
-                          p: "0px",
-                          m: "0px",
                         }}
                       >
-                        {navMenuItems.map((i, index) => {
-                          if (i.navigationItemUrl) {
-                            return (
-                              <Dropdown
-                                key={i._key || `desktop-dropdown-${index}`}
-                                {...i}
-                                onVolunteerHoverChange={setIsVolunteerHovered}
-                                onNonVolunteerHoverChange={
-                                  setIsOtherDesktopNavHovered
-                                }
-                              />
-                            );
-                          }
-                          if (i._type === "link") {
-                            return (
-                              <NavLink
-                                key={i._key || `desktop-link-${index}`}
-                                {...i}
-                                sx={{ height: "100%" }}
-                                onVolunteerHoverChange={setIsVolunteerHovered}
-                                onNonVolunteerHoverChange={
-                                  setIsOtherDesktopNavHovered
-                                }
-                              />
-                            );
-                          }
-                          return null;
-                        })}
-                      </ul>
+                        <div
+                          ref={desktopNavIndicatorRef}
+                          aria-hidden="true"
+                          sx={{
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            width: 0,
+                            height: "100%",
+                            backgroundColor: "primary",
+                            opacity: 0,
+                            transform: "translateX(0px)",
+                            transformOrigin: "left center",
+                            pointerEvents: "none",
+                            "--nav-slant-size": "14px",
+                            clipPath: fixedSlantClip,
+                            WebkitClipPath: fixedSlantClip,
+                            zIndex: 0,
+                            boxShadow:
+                              "0 12px 18px rgba(0, 0, 0, 0.08), 0 3px 6px rgba(0, 0, 0, 0.06)",
+                          }}
+                        />
+                        <ul
+                          ref={desktopNavRef}
+                          sx={{
+                            justifyContent: "end",
+                            alignItems: "center",
+                            display: "inline-flex",
+                            height: "100%",
+                            p: "0px",
+                            m: "0px",
+                            position: "relative",
+                            zIndex: 1,
+                          }}
+                        >
+                          {navMenuItems.map((i, index) => {
+                            if (i.navigationItemUrl) {
+                              return (
+                                <Dropdown
+                                  key={i._key || `desktop-dropdown-${index}`}
+                                  {...i}
+                                  onVolunteerHoverChange={setIsVolunteerHovered}
+                                  onNonVolunteerHoverChange={
+                                    setIsOtherDesktopNavHovered
+                                  }
+                                />
+                              );
+                            }
+                            if (i._type === "link") {
+                              return (
+                                <NavLink
+                                  key={i._key || `desktop-link-${index}`}
+                                  {...i}
+                                  sx={{ height: "100%" }}
+                                  onVolunteerHoverChange={setIsVolunteerHovered}
+                                  onNonVolunteerHoverChange={
+                                    setIsOtherDesktopNavHovered
+                                  }
+                                />
+                              );
+                            }
+                            return null;
+                          })}
+                        </ul>
+                      </div>
                     ) : (
                       <div
                         sx={{ display: "inline-flex", alignItems: "center" }}

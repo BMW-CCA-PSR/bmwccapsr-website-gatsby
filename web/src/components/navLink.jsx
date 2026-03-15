@@ -46,7 +46,7 @@ const style = {
       height: "2px",
       mt: "0.22rem",
       borderRadius: "999px",
-      bg: "currentColor",
+      bg: "gray",
       opacity: 0,
       transform: "scaleX(0.72)",
       transformOrigin: "center",
@@ -55,6 +55,7 @@ const style = {
     "&.nav-link-content--active::after": {
       opacity: 1,
       transform: "scaleX(1)",
+      bg: "gray",
     },
   },
   "&::before": {
@@ -68,10 +69,28 @@ const style = {
     transition: "opacity 160ms ease",
     zIndex: 0,
   },
+  '&[data-nav-highlight-mode="shared"]::before': {
+    display: "none",
+  },
+  '&[data-nav-highlight-mode="shared"][data-nav-indicator-active="true"]': {
+    color: "background",
+  },
+  '&[data-nav-highlight-mode="shared"][data-nav-indicator-active="true"] .nav-link-content.nav-link-content--active::after':
+    {
+      bg: "background",
+    },
+  '&[data-nav-highlight-mode="cta"] .nav-link-content.nav-link-content--active::after':
+    {
+      bg: "background",
+    },
   ":hover": {
     cursor: "pointer",
     color: "background",
     "--nav-bg-opacity": 1,
+  },
+  ":focus-visible": {
+    color: "background",
+    outline: "none",
   },
 };
 
@@ -121,6 +140,7 @@ const NavLink = (props) => {
       : "/";
     const normalizedPath = normalizePath(path);
     const isVolunteerButton = !subMenu && normalizedPath === "/volunteer";
+    const isSharedDesktopButton = !subMenu && !isVolunteerButton;
     const isActive =
       !subMenu &&
       (path === "/"
@@ -134,6 +154,8 @@ const NavLink = (props) => {
             WebkitTextStroke: "0.35px currentColor",
             textShadow: "0 0 0.01px currentColor",
           }
+        : isSharedDesktopButton
+        ? {}
         : {
             color: "background",
             "--nav-bg-opacity": 1,
@@ -146,9 +168,18 @@ const NavLink = (props) => {
       : isVolunteerButton
       ? volunteerStyle
       : style;
+    const desktopButtonProps = subMenu
+      ? {}
+      : {
+          className: "desktop-nav-button",
+          "data-desktop-nav-button": "true",
+          "data-nav-highlight-mode": isVolunteerButton ? "cta" : "shared",
+          "data-nav-active": isActive ? "true" : "false",
+        };
     return (
       <Link
         to={path}
+        {...desktopButtonProps}
         onMouseEnter={() => {
           if (subMenu) return;
           if (isVolunteerButton) {
@@ -215,14 +246,25 @@ const NavLink = (props) => {
         href={props.href}
         rel="noopener noreferrer"
         target="_blank"
-        sx={{ textDecoration: "none", color: "white" }}
+        className={subMenu ? undefined : "desktop-nav-button"}
+        data-desktop-nav-button={subMenu ? undefined : "true"}
+        data-nav-highlight-mode={subMenu ? undefined : "shared"}
+        data-nav-active={subMenu ? undefined : "false"}
+        sx={{ textDecoration: "none", color: "inherit" }}
       >
         <Box sx={subMenu ? styleWithSubMenu : style}>{props.title}</Box>
       </OutboundLink>
     );
   } else {
     return (
-      <Link to={"/"} sx={subMenu ? styleWithSubMenu : style}>
+      <Link
+        to={"/"}
+        className={subMenu ? undefined : "desktop-nav-button"}
+        data-desktop-nav-button={subMenu ? undefined : "true"}
+        data-nav-highlight-mode={subMenu ? undefined : "shared"}
+        data-nav-active={subMenu ? undefined : "false"}
+        sx={subMenu ? styleWithSubMenu : style}
+      >
         <Box>{props.title}</Box>
       </Link>
     );

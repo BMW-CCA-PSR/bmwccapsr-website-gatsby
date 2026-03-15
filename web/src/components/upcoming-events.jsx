@@ -129,9 +129,13 @@ const UpcomingEvents = (props) => {
                   justifyContent: "center",
                   p: ["1.5rem", "1.75rem", "2rem"],
                   overflow: "hidden",
-                  "&:hover .volunteer-arrow-bg": {
-                    transform: "translateY(-50%) translateX(12px) scale(1.08)",
-                    color: "rgba(255,255,255,0.4)",
+                  transition:
+                    "transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease",
+                  boxShadow: "0 0 0 rgba(0,0,0,0)",
+                  "&:hover, &:focus-within": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.2)",
+                    bg: "#0a5abf",
                   },
                 }}
               >
@@ -164,22 +168,32 @@ const UpcomingEvents = (props) => {
                 </Text>
                 <Box
                   as="span"
-                  className="volunteer-arrow-bg"
                   sx={{
                     position: "absolute",
-                    right: ["0.25rem", "0.5rem", "0.75rem"],
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "rgba(255,255,255,0.26)",
+                    inset: 0,
+                    overflow: "hidden",
                     pointerEvents: "none",
                     zIndex: 0,
-                    transition: "transform 220ms ease, color 220ms ease",
                   }}
                 >
-                  <FiArrowRightCircle size={170} />
+                  <Box
+                    as="span"
+                    className="volunteer-arrow-bg"
+                    sx={{
+                      position: "absolute",
+                      right: ["-132px", "-126px", "-120px"],
+                      top: "calc(50% + 155px)",
+                      transform: "translateY(-50%)",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#e6edf5",
+                      pointerEvents: "none",
+                      transition: "color 220ms ease",
+                    }}
+                  >
+                    <FiArrowRightCircle size={340} />
+                  </Box>
                 </Box>
               </Card>
             </Link>
