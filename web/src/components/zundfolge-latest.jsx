@@ -95,7 +95,7 @@ function StoryRow(props) {
       if (!props.node.publishedAt) return false;
       const days = differenceInDays(
         new Date(),
-        parseISO(props.node.publishedAt),
+        parseISO(props.node.publishedAt)
       );
       return days <= 14;
     } catch (_) {
@@ -124,12 +124,26 @@ function StoryRow(props) {
             <Text sx={{ variant: "text.label", color: "black" }}>
               {props.node.category.title}
             </Text>
-            {isNew && <ZundfolgePill>New</ZundfolgePill>}
+            {isNew && (
+              <Box
+                as="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  transform: "translateY(-1px)",
+                }}
+              >
+                <ZundfolgePill>New</ZundfolgePill>
+              </Box>
+            )}
           </Box>
         )}
         <Heading
           sx={{
             variant: "styles.h3",
+            fontSize: ["32px", "34px", "36px", "36px"],
+            lineHeight: [1.02, 1.03, 1.03, 1.03],
+            mt: ["0.18rem", "0.2rem", "0.24rem", "0.24rem"],
             mb: ["0.85rem", "1rem", "1rem", "1rem"],
             color: "darkgray",
           }}
@@ -139,8 +153,8 @@ function StoryRow(props) {
         <Flex
           sx={{
             display: ["none", "none", "flex", "flex"],
-            py: "0.5rem",
-            pb: "0px",
+            pt: 0,
+            pb: "0.05rem",
             alignItems: "center",
             flexWrap: "wrap",
           }}
@@ -154,7 +168,7 @@ function StoryRow(props) {
           <Text
             sx={{
               variant: "stypes.p",
-              py: "1rem",
+              py: "0.05rem",
               px: "0.5rem",
               color: `black`,
             }}
@@ -210,7 +224,7 @@ function StoryRowFlipped(props) {
       if (!props.node.publishedAt) return false;
       const days = differenceInDays(
         new Date(),
-        parseISO(props.node.publishedAt),
+        parseISO(props.node.publishedAt)
       );
       return days <= 14;
     } catch (_) {
@@ -246,12 +260,26 @@ function StoryRowFlipped(props) {
             <Text sx={{ variant: "text.label", color: "black" }}>
               {props.node.category.title}
             </Text>
-            {isNew && <ZundfolgePill>New</ZundfolgePill>}
+            {isNew && (
+              <Box
+                as="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  transform: "translateY(-1px)",
+                }}
+              >
+                <ZundfolgePill>New</ZundfolgePill>
+              </Box>
+            )}
           </Box>
         )}
         <Heading
           sx={{
             variant: "styles.h3",
+            fontSize: ["32px", "34px", "36px", "36px"],
+            lineHeight: [1.02, 1.03, 1.03, 1.03],
+            mt: ["0.18rem", "0.2rem", "0.24rem", "0.24rem"],
             mb: ["0.85rem", "1rem", "1rem", "1rem"],
             color: "darkgray",
           }}
@@ -261,8 +289,8 @@ function StoryRowFlipped(props) {
         <Flex
           sx={{
             display: ["none", "none", "flex", "flex"],
-            py: "0.5rem",
-            pb: "0px",
+            pt: 0,
+            pb: "0.05rem",
             alignItems: "center",
             flexWrap: "wrap",
           }}
@@ -276,7 +304,7 @@ function StoryRowFlipped(props) {
           <Text
             sx={{
               variant: "stypes.p",
-              py: "1rem",
+              py: "0.05rem",
               px: "0.5rem",
               color: `black`,
             }}
@@ -307,7 +335,7 @@ function StoryRowFlipped(props) {
 function ZundfolgeLatest(props) {
   const visibleEdges = Array.isArray(props.edges)
     ? props.edges.filter((edge) =>
-        filterOutDocsPublishedInTheFuture(edge?.node || {}),
+        filterOutDocsPublishedInTheFuture(edge?.node || {})
       )
     : [];
   return (

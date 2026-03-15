@@ -206,7 +206,7 @@ const toTitleCaseWords = (value) =>
     .map((word) =>
       /^[A-Z0-9]+$/.test(word)
         ? word
-        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`,
+        : `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`
     )
     .join(" ");
 
@@ -347,7 +347,7 @@ const VolunteerPage = (props) => {
   const roleNodes = useMemo(
     () =>
       (data || {}).roles ? sortVolunteerRoles(mapEdgesToNodes(data.roles)) : [],
-    [data],
+    [data]
   );
   const sanity = useMemo(() => new Client(), []);
   const [roles, setRoles] = useState(roleNodes);
@@ -372,7 +372,7 @@ const VolunteerPage = (props) => {
   const menuItems = site?.navMenu?.items || [];
   const activeRoles = useMemo(
     () => roles.filter((role) => role?.active !== false),
-    [roles],
+    [roles]
   );
   const rolesByStatus = useMemo(() => {
     if (statusFilter === "all") return roles;
@@ -380,13 +380,13 @@ const VolunteerPage = (props) => {
     return activeRoles.filter((role) => {
       const hasAssignedEvent = Boolean(
         role?.motorsportRegEvent &&
-        (role?.motorsportRegEvent?.eventId ||
-          role?.motorsportRegEvent?.name ||
-          role?.motorsportRegEvent?.start ||
-          role?.motorsportRegEvent?.url ||
-          role?.motorsportRegEvent?.venueName ||
-          role?.motorsportRegEvent?.venueCity ||
-          role?.motorsportRegEvent?.venueRegion),
+          (role?.motorsportRegEvent?.eventId ||
+            role?.motorsportRegEvent?.name ||
+            role?.motorsportRegEvent?.start ||
+            role?.motorsportRegEvent?.url ||
+            role?.motorsportRegEvent?.venueName ||
+            role?.motorsportRegEvent?.venueCity ||
+            role?.motorsportRegEvent?.venueRegion)
       );
       if (!hasAssignedEvent) return true;
       const eventDate = role?.motorsportRegEvent?.start || role?.date;
@@ -431,25 +431,25 @@ const VolunteerPage = (props) => {
   }
   if (selectedRole !== "all") {
     filterLabelParts.push(
-      roleLabels.get(selectedRole) || formatRoleFilterLabel(selectedRole),
+      roleLabels.get(selectedRole) || formatRoleFilterLabel(selectedRole)
     );
   }
   if (selectedSkill !== "all") {
     filterLabelParts.push(
       skillLevelOptions.find((option) => option.value === selectedSkill)
-        ?.label || selectedSkill,
+        ?.label || selectedSkill
     );
   }
   if (selectedScope !== "all") {
     filterLabelParts.push(
       scopeOptions.find((option) => option.value === selectedScope)?.label ||
-        selectedScope,
+        selectedScope
     );
   }
   if (selectedSort !== "dateAsc") {
     filterLabelParts.push(
       sortOptions.find((option) => option.value === selectedSort)?.label ||
-        selectedSort,
+        selectedSort
     );
   }
   const hasAnyFilterSelections =
@@ -499,13 +499,13 @@ const VolunteerPage = (props) => {
     }
     const hasAssignedEvent = Boolean(
       role?.motorsportRegEvent &&
-      (role?.motorsportRegEvent?.eventId ||
-        role?.motorsportRegEvent?.name ||
-        role?.motorsportRegEvent?.start ||
-        role?.motorsportRegEvent?.url ||
-        role?.motorsportRegEvent?.venueName ||
-        role?.motorsportRegEvent?.venueCity ||
-        role?.motorsportRegEvent?.venueRegion),
+        (role?.motorsportRegEvent?.eventId ||
+          role?.motorsportRegEvent?.name ||
+          role?.motorsportRegEvent?.start ||
+          role?.motorsportRegEvent?.url ||
+          role?.motorsportRegEvent?.venueName ||
+          role?.motorsportRegEvent?.venueCity ||
+          role?.motorsportRegEvent?.venueRegion)
     );
     return (hasAssignedEvent ? "event" : "program") === selectedScope;
   });
@@ -572,7 +572,7 @@ const VolunteerPage = (props) => {
   const safePageIndex = Math.min(pageIndex, totalPages);
   const paginatedRoles = sortedRoles.slice(
     (safePageIndex - 1) * pageSize,
-    safePageIndex * pageSize,
+    safePageIndex * pageSize
   );
   const nowTimestamp = Date.now();
   const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
@@ -607,7 +607,7 @@ const VolunteerPage = (props) => {
         }
       }
     },
-    [roleNodes.length, sanity],
+    [roleNodes.length, sanity]
   );
 
   useEffect(() => {
@@ -655,7 +655,7 @@ const VolunteerPage = (props) => {
     if (typeof window === "undefined") return;
     try {
       const storedViewMode = window.localStorage.getItem(
-        VOLUNTEER_VIEW_STORAGE_KEY,
+        VOLUNTEER_VIEW_STORAGE_KEY
       );
       if (storedViewMode === "grid" || storedViewMode === "horizontal") {
         setViewMode(storedViewMode);
@@ -750,7 +750,7 @@ const VolunteerPage = (props) => {
       Object.keys(window.localStorage).forEach((key) => {
         if (!key.startsWith(VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX)) return;
         const positionId = key.slice(
-          VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX.length,
+          VOLUNTEER_APPLICATION_SESSION_KEY_PREFIX.length
         );
         if (!positionId) return;
         try {
@@ -1365,7 +1365,7 @@ const VolunteerPage = (props) => {
               }
               onClick={() =>
                 setViewMode((current) =>
-                  current === "horizontal" ? "grid" : "horizontal",
+                  current === "horizontal" ? "grid" : "horizontal"
                 )
               }
               sx={{
@@ -1406,31 +1406,31 @@ const VolunteerPage = (props) => {
                 ? VOLUNTEER_LANDING_STATUS_CAP_META[landingStatusKey] || null
                 : null;
               const imageUrl = normalizeImageUrl(
-                role?.motorsportRegEvent?.imageUrl,
+                role?.motorsportRegEvent?.imageUrl
               );
               const normalizedRoleScope = String(role?.role?.roleScope || "")
                 .trim()
                 .toLowerCase();
               const hasAssignedEvent = Boolean(
                 role?.motorsportRegEvent &&
-                (role?.motorsportRegEvent?.eventId ||
-                  role?.motorsportRegEvent?.name ||
-                  role?.motorsportRegEvent?.start ||
-                  role?.motorsportRegEvent?.url ||
-                  role?.motorsportRegEvent?.venueName ||
-                  role?.motorsportRegEvent?.venueCity ||
-                  role?.motorsportRegEvent?.venueRegion),
+                  (role?.motorsportRegEvent?.eventId ||
+                    role?.motorsportRegEvent?.name ||
+                    role?.motorsportRegEvent?.start ||
+                    role?.motorsportRegEvent?.url ||
+                    role?.motorsportRegEvent?.venueName ||
+                    role?.motorsportRegEvent?.venueCity ||
+                    role?.motorsportRegEvent?.venueRegion)
               );
               const roleDate = role?.date || role?.motorsportRegEvent?.start;
               const roleStartTimestamp = roleDate ? Date.parse(roleDate) : NaN;
               const registrationStartDate = parseCalendarDate(
-                role?.motorsportRegEvent?.registrationStart,
+                role?.motorsportRegEvent?.registrationStart
               );
               const registrationEndDate = parseCalendarDate(
-                role?.motorsportRegEvent?.registrationEnd,
+                role?.motorsportRegEvent?.registrationEnd
               );
               const hasRegistrationWindow = Boolean(
-                registrationStartDate || registrationEndDate,
+                registrationStartDate || registrationEndDate
               );
               const isRegistrationOpen = hasRegistrationWindow
                 ? (!registrationStartDate ||
@@ -1445,9 +1445,9 @@ const VolunteerPage = (props) => {
                 ? isRegistrationOpen === true
                 : Boolean(
                     hasAssignedEvent &&
-                    roleEventDateToken &&
-                    todayToken &&
-                    roleEventDateToken > todayToken,
+                      roleEventDateToken &&
+                      todayToken &&
+                      roleEventDateToken > todayToken
                   );
               const isUpcoming =
                 Number.isFinite(roleStartTimestamp) &&
@@ -1458,7 +1458,7 @@ const VolunteerPage = (props) => {
                 : null;
               const showDateBadge = Boolean(
                 roleDate &&
-                (normalizedRoleScope === "event" || hasAssignedEvent),
+                  (normalizedRoleScope === "event" || hasAssignedEvent)
               );
               const hasDuration =
                 role?.duration !== undefined &&
@@ -1476,8 +1476,8 @@ const VolunteerPage = (props) => {
                 role?.membershipRequired === true
                   ? "Membership required"
                   : role?.membershipRequired === false
-                    ? "No membership required"
-                    : null;
+                  ? "No membership required"
+                  : null;
               const secondaryMetaParts = [
                 showDateBadge ? null : formattedDate,
                 durationLabel,
@@ -1494,14 +1494,14 @@ const VolunteerPage = (props) => {
                 ? getVolunteerRoleUrl(role.slug.current)
                 : null;
               const RolePresentationIcon = getVolunteerRoleIconComponent(
-                role?.role?.icon,
+                role?.role?.icon
               );
               const roleDescription = role?.role?.description?.trim() || "";
               const skillLevelLabel = formatSkillLevel(role?.skillLevel);
               const skillTone = getSkillTone(role?.skillLevel);
               const SkillIcon = getSkillIcon(role?.skillLevel);
               const assignedVolunteerCount = Number(
-                role?.assignedVolunteerCount,
+                role?.assignedVolunteerCount
               );
               const isNonEventFilled =
                 !hasAssignedEvent &&
@@ -1658,7 +1658,7 @@ const VolunteerPage = (props) => {
                           : ["1rem", "1.15rem", "1.5rem", "1.5rem"],
                         py: isGridDesktop
                           ? ["0.9rem", "1rem", "1.05rem", "1.05rem"]
-                          : ["0.9rem", "1rem", "1.5rem", "1.5rem"],
+                          : ["0.9rem", "1rem", "1.2rem", "1.2rem"],
                         flex: isGridDesktop
                           ? "1 1 auto"
                           : ["1 1 100%", "1 1 100%", "1 1 60%"],
@@ -1760,7 +1760,15 @@ const VolunteerPage = (props) => {
                         }}
                       >
                         <Box sx={{ minWidth: 0, flex: "1 1 auto" }}>
-                          <Heading as="h3" sx={{ variant: "styles.h3", mb: 0 }}>
+                          <Heading
+                            as="h3"
+                            sx={{
+                              variant: "styles.h3",
+                              fontSize: ["26px", "28px", null, null],
+                              lineHeight: [1.03, 1.05, null, null],
+                              mb: [0, 0, "0.4rem", "0.4rem"],
+                            }}
+                          >
                             {getPositionTitle(role)}
                           </Heading>
                           {hasAssignedEvent &&

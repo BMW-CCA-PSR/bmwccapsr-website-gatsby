@@ -101,9 +101,13 @@ function ZundfolgeArticlePreview(props) {
               color: "white",
               fontSize: compactMobile
                 ? ["26px", "28px", null, null]
-                : undefined,
-              lineHeight: compactMobile ? [1.03, 1.05, null, null] : undefined,
-              mt: compactMobile ? ["0.15rem", "0.2rem", null, null] : undefined,
+                : [null, null, "28px", "28px"],
+              lineHeight: compactMobile
+                ? [1.03, 1.05, null, null]
+                : [null, null, 1.05, 1.05],
+              mt: compactMobile
+                ? ["0.15rem", "0.2rem", null, null]
+                : [null, null, "0.2rem", "0.2rem"],
               mb: 0,
               display: compactMobile
                 ? ["-webkit-box", "-webkit-box", null, null]
