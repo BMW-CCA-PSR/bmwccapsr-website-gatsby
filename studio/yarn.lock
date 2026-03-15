@@ -8658,9 +8658,9 @@ sanity-plugin-social-preview@^0.1.5:
   dependencies:
     "@sanity/image-url" "^0.140.22"
 
-sanity-secrets@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.npmjs.org/sanity-secrets/-/sanity-secrets-0.0.5.tgz"
+sanity-secrets@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/sanity-secrets/-/sanity-secrets-0.1.0.tgz#87c4ea6e3568957dad98d5b191655e582f0a9cc8"
 
 sax@~1.2.4:
   version "1.2.4"
