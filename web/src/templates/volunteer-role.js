@@ -11,7 +11,7 @@ import Layout from "../containers/layout";
 import ContentContainer from "../components/content-container";
 import StylizedLandingHeader from "../components/stylized-landing-header";
 import { OutboundLink } from "gatsby-plugin-google-gtag";
-import { BoxIcon } from "../components/box-icons";
+import { BoxIconTitleLockup } from "../components/box-icons";
 import { FiHelpCircle, FiMaximize2, FiShare2, FiX } from "react-icons/fi";
 import {
   FaCalendarPlus,
@@ -72,13 +72,13 @@ const isVolunteerPositionActive = (position, todayToken) => {
   const positionEvent = position?.motorsportRegEvent;
   const hasAssignedEvent = Boolean(
     positionEvent &&
-      (positionEvent?.eventId ||
-        positionEvent?.name ||
-        positionEvent?.start ||
-        positionEvent?.url ||
-        positionEvent?.venueName ||
-        positionEvent?.venueCity ||
-        positionEvent?.venueRegion)
+    (positionEvent?.eventId ||
+      positionEvent?.name ||
+      positionEvent?.start ||
+      positionEvent?.url ||
+      positionEvent?.venueName ||
+      positionEvent?.venueCity ||
+      positionEvent?.venueRegion),
   );
 
   if (!hasAssignedEvent) return true;
@@ -273,7 +273,7 @@ const PositionEventMap = ({
     zoom: 13.8,
   });
   const [activeMapStyle, setActiveMapStyle] = React.useState(
-    VOLUNTEER_POSITION_MAP_STYLE
+    VOLUNTEER_POSITION_MAP_STYLE,
   );
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -292,7 +292,7 @@ const PositionEventMap = ({
     setActiveMapStyle((prev) =>
       prev === VOLUNTEER_POSITION_MAP_FALLBACK_STYLE
         ? prev
-        : VOLUNTEER_POSITION_MAP_FALLBACK_STYLE
+        : VOLUNTEER_POSITION_MAP_FALLBACK_STYLE,
     );
   }, []);
 
@@ -722,16 +722,16 @@ const VolunteerRoleTemplate = (props) => {
   const role = data?.role;
   const otherRoles = React.useMemo(
     () => (data?.otherRoles ? mapEdgesToNodes(data.otherRoles) : []),
-    [data?.otherRoles]
+    [data?.otherRoles],
   );
   const menuItems = site?.navMenu?.items || [];
   const sanity = React.useMemo(() => new Client(), []);
   const [resolvedRole, setResolvedRole] = React.useState(role?.role || null);
   const [resolvedEvent, setResolvedEvent] = React.useState(
-    role?.motorsportRegEvent || null
+    role?.motorsportRegEvent || null,
   );
   const [resolvedRoleActive, setResolvedRoleActive] = React.useState(
-    role?.active ?? null
+    role?.active ?? null,
   );
   const [assignedApplicationCount, setAssignedApplicationCount] =
     React.useState(null);
@@ -768,11 +768,11 @@ const VolunteerRoleTemplate = (props) => {
   const initialRoleActive = role?.active ?? null;
   const applicationStorageKey = React.useMemo(
     () => getApplicationSessionStorageKey(positionId),
-    [positionId]
+    [positionId],
   );
   const pointsBannerStorageKey = React.useMemo(
     () => getPointsBannerSessionStorageKey(positionId),
-    [positionId]
+    [positionId],
   );
 
   React.useEffect(() => {
@@ -822,13 +822,13 @@ const VolunteerRoleTemplate = (props) => {
         }
         window.localStorage.setItem(
           applicationStorageKey,
-          JSON.stringify(nextSession)
+          JSON.stringify(nextSession),
         );
       } catch (_error) {
         // ignore storage errors
       }
     },
-    [applicationStorageKey]
+    [applicationStorageKey],
   );
 
   React.useEffect(() => {
@@ -873,13 +873,13 @@ const VolunteerRoleTemplate = (props) => {
     const params = new URLSearchParams(window.location.search);
     const shouldOpenManage = params.get("manage") === "1";
     const applicationId = normalizeManageQueryValue(
-      params.get("applicationId")
+      params.get("applicationId"),
     );
     const linkedPositionId = normalizeManageQueryValue(
-      params.get("positionId")
+      params.get("positionId"),
     );
     const intent = normalizeManageQueryValue(
-      params.get("intent")
+      params.get("intent"),
     ).toLowerCase();
 
     if (!applicationId) {
@@ -1019,9 +1019,17 @@ const VolunteerRoleTemplate = (props) => {
     }
     try {
       const dismissedValue = window.sessionStorage.getItem(
-        pointsBannerStorageKey
+        pointsBannerStorageKey,
       );
-      setShowPointsBanner(dismissedValue !== "1");
+      const isMobileViewport = window.matchMedia("(max-width: 767px)").matches;
+      if (dismissedValue === "1" || isMobileViewport) {
+        setShowPointsBanner(false);
+        if (isMobileViewport) {
+          window.sessionStorage.setItem(pointsBannerStorageKey, "1");
+        }
+        return;
+      }
+      setShowPointsBanner(true);
     } catch (_error) {
       setShowPointsBanner(true);
     }
@@ -1046,7 +1054,7 @@ const VolunteerRoleTemplate = (props) => {
       ...(role?.motorsportRegEvent || {}),
       ...(resolvedEvent || {}),
     }),
-    [role?.motorsportRegEvent, resolvedEvent]
+    [role?.motorsportRegEvent, resolvedEvent],
   );
   const roleReference = resolvedRole || role?.role || null;
   const positionTitle = roleReference?.name?.trim() || "Untitled role";
@@ -1055,13 +1063,13 @@ const VolunteerRoleTemplate = (props) => {
   const PositionRoleIcon = getVolunteerRoleIconComponent(roleReference?.icon);
   const hasEventAssigned = Boolean(
     event &&
-      (event?.eventId ||
-        event?.name ||
-        event?.start ||
-        event?.url ||
-        event?.venueName ||
-        event?.venueCity ||
-        event?.venueRegion)
+    (event?.eventId ||
+      event?.name ||
+      event?.start ||
+      event?.url ||
+      event?.venueName ||
+      event?.venueCity ||
+      event?.venueRegion),
   );
   const eventDateRange = formatDateRange(event?.start, event?.end);
   const roleDate = formatDate(role?.date);
@@ -1073,7 +1081,7 @@ const VolunteerRoleTemplate = (props) => {
   const registrationEndDate = parseCalendarDate(event?.registrationEnd);
   const registrationEndLabel = formatDate(event?.registrationEnd);
   const hasRegistrationWindow = Boolean(
-    registrationStartDate || registrationEndDate
+    registrationStartDate || registrationEndDate,
   );
   const nowTime = Date.now();
   const isRegistrationOpen = hasRegistrationWindow
@@ -1085,10 +1093,10 @@ const VolunteerRoleTemplate = (props) => {
   const shouldDisableEventMsrcLink =
     hasRegistrationWindow && isRegistrationOpen === false;
   const mapLatitude = Number.parseFloat(
-    String(event?.latitude ?? resolvedEventCoordinates?.latitude ?? "")
+    String(event?.latitude ?? resolvedEventCoordinates?.latitude ?? ""),
   );
   const mapLongitude = Number.parseFloat(
-    String(event?.longitude ?? resolvedEventCoordinates?.longitude ?? "")
+    String(event?.longitude ?? resolvedEventCoordinates?.longitude ?? ""),
   );
   const hasMapCoordinates =
     hasEventAssigned &&
@@ -1106,7 +1114,7 @@ const VolunteerRoleTemplate = (props) => {
       otherRoles
         .filter((candidate) => isVolunteerPositionActive(candidate, todayToken))
         .slice(0, 2),
-    [otherRoles, todayToken]
+    [otherRoles, todayToken],
   );
   const showOtherRoles = activeOtherRoles.length > 0;
   const skillLevelLabel = formatSkillLevel(role?.skillLevel);
@@ -1162,7 +1170,7 @@ const VolunteerRoleTemplate = (props) => {
         details: calendarDescription,
         location: venueLine || "",
         dates: `${toGoogleCalendarStamp(
-          calendarStartDate
+          calendarStartDate,
         )}/${toGoogleCalendarStamp(finalCalendarEndDate)}`,
       }).toString()}`
     : null;
@@ -1176,7 +1184,7 @@ const VolunteerRoleTemplate = (props) => {
           location: venueLine || "",
           startdt: calendarStartDate.toISOString(),
           enddt: finalCalendarEndDate.toISOString(),
-        }
+        },
       ).toString()}`
     : null;
 
@@ -1256,7 +1264,7 @@ const VolunteerRoleTemplate = (props) => {
         }
       };
     },
-    [applyNotice]
+    [applyNotice],
   );
 
   const handleApplyPerformedRoleBeforeChange = React.useCallback(
@@ -1273,7 +1281,7 @@ const VolunteerRoleTemplate = (props) => {
         }
       };
     },
-    [applyNotice]
+    [applyNotice],
   );
 
   const isApplyEmailValid = React.useMemo(() => {
@@ -1328,13 +1336,13 @@ const VolunteerRoleTemplate = (props) => {
     managedStatusKey === "withdrawn" ||
     managedStatusKey === "expired";
   const managedRejectedReasonPublic = normalizeManageQueryValue(
-    managedApplication?.rejectedReasonPublic
+    managedApplication?.rejectedReasonPublic,
   );
   const managedApplicationStatus = getApplicationStatusMeta(
-    managedApplication?.status
+    managedApplication?.status,
   );
   const managedApplicationSubmittedLabel = formatDateTime(
-    managedApplication?.submittedAt
+    managedApplication?.submittedAt,
   );
   const shouldDisableApply = isMsrManagedVolunteerEvent || isNonEventFilled;
   const isManagedFormDirty = React.useMemo(() => {
@@ -1403,7 +1411,7 @@ const VolunteerRoleTemplate = (props) => {
     if (!VOLUNTEER_APPS_API_URL) {
       setApplyNoticeTone("error");
       setApplyNotice(
-        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL."
+        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL.",
       );
       return;
     }
@@ -1423,7 +1431,7 @@ const VolunteerRoleTemplate = (props) => {
             positionId,
             applicationId: managedApplication?.applicationId,
           }),
-        }
+        },
       );
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.ok) {
@@ -1453,7 +1461,7 @@ const VolunteerRoleTemplate = (props) => {
       setApplyNoticeTone("error");
       setApplyNotice(
         error?.message ||
-          "We couldn’t withdraw your application right now. Please try again."
+          "We couldn’t withdraw your application right now. Please try again.",
       );
     } finally {
       setIsWithdrawProcessing(false);
@@ -1489,7 +1497,7 @@ const VolunteerRoleTemplate = (props) => {
               positionId,
               applicationId: applicationIdToLoad,
             }),
-          }
+          },
         );
         const payload = await response.json().catch(() => null);
         if (!response.ok || !payload?.ok || !payload?.application) {
@@ -1534,7 +1542,7 @@ const VolunteerRoleTemplate = (props) => {
         if (shouldShowBusy) setIsApplySubmitting(false);
       }
     },
-    [persistManagedApplication, positionId]
+    [persistManagedApplication, positionId],
   );
 
   React.useEffect(() => {
@@ -1544,7 +1552,7 @@ const VolunteerRoleTemplate = (props) => {
     let isCancelled = false;
     loadManagedApplication(
       manageLinkRequest.applicationId,
-      manageLinkRequest.intent
+      manageLinkRequest.intent,
     ).finally(() => {
       if (isCancelled) return;
       setManageLinkRequest(null);
@@ -1625,7 +1633,7 @@ const VolunteerRoleTemplate = (props) => {
     if (!VOLUNTEER_APPS_API_URL) {
       setApplyNoticeTone("error");
       setApplyNotice(
-        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL."
+        "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL.",
       );
       return;
     }
@@ -1646,7 +1654,7 @@ const VolunteerRoleTemplate = (props) => {
             positionId,
             applicationId: managedApplication.applicationId,
           }),
-        }
+        },
       );
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload?.ok) {
@@ -1677,7 +1685,7 @@ const VolunteerRoleTemplate = (props) => {
       setApplyNoticeTone("error");
       setApplyNotice(
         error?.message ||
-          "We couldn’t reset your application right now. Please try again."
+          "We couldn’t reset your application right now. Please try again.",
       );
     } finally {
       setIsWithdrawProcessing(false);
@@ -1705,7 +1713,7 @@ const VolunteerRoleTemplate = (props) => {
       if (!VOLUNTEER_APPS_API_URL) {
         setApplyNoticeTone("error");
         setApplyNotice(
-          "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL."
+          "Applications API is not configured. Set GATSBY_VOLUNTEER_APPS_API_URL.",
         );
         return;
       }
@@ -1778,12 +1786,12 @@ const VolunteerRoleTemplate = (props) => {
           showToast("Application updated.");
         } else if (payload?.deduped) {
           setApplyNotice(
-            "You already have an active application for this position. We’ve kept your existing submission."
+            "You already have an active application for this position. We’ve kept your existing submission.",
           );
           showToast("Application already on file.");
         } else {
           setApplyNotice(
-            "Application submitted. You should receive a confirmation email shortly."
+            "Application submitted. You should receive a confirmation email shortly.",
           );
           showToast("Application submitted.");
         }
@@ -1791,7 +1799,7 @@ const VolunteerRoleTemplate = (props) => {
         setApplyNoticeTone("error");
         setApplyNotice(
           error?.message ||
-            "We couldn’t submit your application right now. Please try again."
+            "We couldn’t submit your application right now. Please try again.",
         );
       } finally {
         setIsApplySubmitting(false);
@@ -1809,7 +1817,7 @@ const VolunteerRoleTemplate = (props) => {
       persistManagedApplication,
       positionId,
       showToast,
-    ]
+    ],
   );
 
   const iconActionButtonSx = {
@@ -1945,26 +1953,22 @@ const VolunteerRoleTemplate = (props) => {
           as="h1"
           sx={{
             variant: "styles.h1",
+            fontSize: "xl",
+            "@media screen and (max-width: 767px)": {
+              fontSize: "46px",
+            },
             mt: 0,
             mb: "0.5rem",
             position: "relative",
             zIndex: 1,
           }}
         >
-          {positionTitle}
-          <BoxIcon
-            as="span"
-            sx={{
-              display: "inline-grid",
-              ml: "0.5rem",
-              verticalAlign: "middle",
-            }}
-          />
+          <BoxIconTitleLockup text={positionTitle} />
         </Heading>
         <Flex
           sx={{
             mt: "2rem",
-            gap: "1.5rem",
+            gap: ["1rem", "1rem", "1.5rem", "1.5rem"],
             flexDirection: ["column", "column", "row", "row"],
             alignItems: "stretch",
           }}
@@ -2037,7 +2041,7 @@ const VolunteerRoleTemplate = (props) => {
                   minHeight: ["220px", "260px", "320px"],
                   borderRadius: "18px",
                   overflow: "hidden",
-                  mb: "1rem",
+                  mb: [0, 0, "1rem", "1rem"],
                 }}
               >
                 <Flex
@@ -2467,6 +2471,7 @@ const VolunteerRoleTemplate = (props) => {
                       borderColor: "lightgray",
                       flex: "1 1 auto",
                       minHeight: ["220px", "240px", "280px"],
+                      height: ["220px", "240px", "auto"],
                     }}
                   >
                     <PositionEventMap
@@ -2475,7 +2480,7 @@ const VolunteerRoleTemplate = (props) => {
                       title={event?.name}
                       token={mapboxToken}
                       showZoomControls={false}
-                      height="100%"
+                      height={["220px", "240px", "100%"]}
                     />
                   </Box>
                 )}
@@ -3183,20 +3188,21 @@ const VolunteerRoleTemplate = (props) => {
             zIndex: 12000,
             bg: "rgba(38, 42, 48, 0.72)",
             display: "flex",
-            alignItems: "center",
+            alignItems: ["flex-start", "flex-start", "center"],
             justifyContent: "center",
-            p: ["0", "0", "1.5rem"],
-            overflowY: "auto",
+            p: [0, 0, "1.5rem"],
+            overflowY: ["hidden", "hidden", "auto"],
           }}
         >
           <Card
             onClick={(event) => event.stopPropagation()}
             sx={{
               width: ["100%", "100%", "min(720px, 92vw)"],
-              height: ["100vh", "100vh", "auto"],
-              maxHeight: ["100vh", "100vh", "92vh"],
-              borderRadius: ["0", "0", "18px"],
-              border: ["0", "0", "1px solid"],
+              height: ["100dvh", "100dvh", "auto"],
+              maxHeight: ["100dvh", "100dvh", "92vh"],
+              minHeight: ["100dvh", "100dvh", "auto"],
+              borderRadius: [0, 0, "18px"],
+              border: [0, 0, "1px solid"],
               borderColor: "black",
               overflow: "hidden",
               backgroundColor: "background",
@@ -3210,7 +3216,12 @@ const VolunteerRoleTemplate = (props) => {
                 backgroundColor: "secondary",
                 color: "white",
                 px: ["1.2rem", "1.3rem", "1.45rem"],
-                py: ["0.85rem", "0.95rem", "1.05rem"],
+                pt: [
+                  "calc(0.9rem + env(safe-area-inset-top))",
+                  "calc(0.95rem + env(safe-area-inset-top))",
+                  "1.05rem",
+                ],
+                pb: ["0.85rem", "0.95rem", "1.05rem"],
                 pr: "4.1rem",
                 display: "flex",
                 alignItems: "center",
@@ -3284,8 +3295,12 @@ const VolunteerRoleTemplate = (props) => {
               disabled={isWithdrawProcessing}
               sx={{
                 position: "absolute",
-                top: "10px",
-                right: "10px",
+                top: [
+                  "calc(10px + env(safe-area-inset-top))",
+                  "calc(10px + env(safe-area-inset-top))",
+                  "10px",
+                ],
+                right: ["10px", "10px", "10px"],
                 width: "48px",
                 height: "48px",
                 borderRadius: "999px",
@@ -3453,10 +3468,33 @@ const VolunteerRoleTemplate = (props) => {
                     gap: "0.45rem",
                   }}
                 >
-                  <FaCheckCircle size={20} aria-hidden="true" />
-                  <Text sx={{ m: 0, fontSize: "sm", color: "inherit" }}>
-                    Great news. You have been assigned to this role. Your
-                    application is now read-only.
+                  <Box
+                    as={FaCheckCircle}
+                    aria-hidden="true"
+                    sx={{
+                      flexShrink: 0,
+                      fontSize: "20px",
+                    }}
+                  />
+                  <Text sx={{ m: 0, fontSize: "sm", color: "text" }}>
+                    <Box
+                      as="span"
+                      sx={{
+                        color: "#1f7a3f",
+                        fontWeight: "heading",
+                      }}
+                    >
+                      Great news. You have been assigned to this role.
+                    </Box>{" "}
+                    <Box
+                      as="span"
+                      sx={{
+                        color: "text",
+                        fontWeight: "normal",
+                      }}
+                    >
+                      Someone from the Club will reach out with next steps.
+                    </Box>
                   </Text>
                 </Alert>
               )}
@@ -3830,8 +3868,8 @@ const VolunteerRoleTemplate = (props) => {
                         applyNoticeTone === "error"
                           ? "#9e2a2b"
                           : applyNoticeTone === "success"
-                          ? "#1f7a3f"
-                          : "darkgray",
+                            ? "#1f7a3f"
+                            : "darkgray",
                       mb: "0.9rem",
                     }}
                   >
@@ -3962,8 +4000,8 @@ const VolunteerRoleTemplate = (props) => {
                       {isApplySubmitting && !isWithdrawProcessing
                         ? "Submitting..."
                         : shouldShowUpdateLabel
-                        ? "Update"
-                        : "Submit"}
+                          ? "Update"
+                          : "Submit"}
                     </Button>
                   )}
                   {canWithdrawManagedApplication && !isApplySuccessState && (
@@ -4004,14 +4042,14 @@ const VolunteerRoleTemplate = (props) => {
               {isApplySuccessState && (
                 <Box
                   sx={{
-                    position: "absolute",
+                    position: ["fixed", "fixed", "absolute"],
                     inset: 0,
                     bg: "rgba(46, 52, 58, 0.32)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 2,
+                    zIndex: [12020, 12020, 2],
                   }}
                 >
                   <Box
@@ -4090,14 +4128,14 @@ const VolunteerRoleTemplate = (props) => {
               {showWithdrawConfirm && (
                 <Box
                   sx={{
-                    position: "absolute",
+                    position: ["fixed", "fixed", "absolute"],
                     inset: 0,
                     bg: "rgba(46, 52, 58, 0.42)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 3,
+                    zIndex: [12020, 12020, 3],
                   }}
                 >
                   <Box
@@ -4179,14 +4217,14 @@ const VolunteerRoleTemplate = (props) => {
               {showResetApplicationConfirm && (
                 <Box
                   sx={{
-                    position: "absolute",
+                    position: ["fixed", "fixed", "absolute"],
                     inset: 0,
                     bg: "rgba(46, 52, 58, 0.42)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 3,
+                    zIndex: [12020, 12020, 3],
                   }}
                 >
                   <Box
@@ -4278,14 +4316,14 @@ const VolunteerRoleTemplate = (props) => {
               {isWithdrawProcessing && (
                 <Box
                   sx={{
-                    position: "absolute",
+                    position: ["fixed", "fixed", "absolute"],
                     inset: 0,
                     bg: "rgba(46, 52, 58, 0.55)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 4,
+                    zIndex: [12020, 12020, 4],
                   }}
                 >
                   <Box
@@ -4334,14 +4372,14 @@ const VolunteerRoleTemplate = (props) => {
               {isApplySubmitting && !isWithdrawProcessing && (
                 <Box
                   sx={{
-                    position: "absolute",
+                    position: ["fixed", "fixed", "absolute"],
                     inset: 0,
                     bg: "rgba(46, 52, 58, 0.45)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 3,
+                    zIndex: [12020, 12020, 3],
                   }}
                 >
                   <Box
@@ -4518,21 +4556,21 @@ const VolunteerRoleTemplate = (props) => {
                   otherRole?.motorsportRegEvent?.start || otherRole?.date;
                 const otherDateLabel = otherDate ? formatDate(otherDate) : null;
                 const otherImage = normalizeImageUrl(
-                  otherRole?.motorsportRegEvent?.imageUrl
+                  otherRole?.motorsportRegEvent?.imageUrl,
                 );
                 const OtherRoleIcon = getVolunteerRoleIconComponent(
-                  otherRole?.role?.icon
+                  otherRole?.role?.icon,
                 );
                 const otherRolePresentationColor =
                   getVolunteerRolePresentationColor(otherRole?.role?.color);
                 const otherHasAssignedEvent = Boolean(
                   otherRole?.motorsportRegEvent &&
-                    (otherRole?.motorsportRegEvent?.eventId ||
-                      otherRole?.motorsportRegEvent?.name ||
-                      otherRole?.motorsportRegEvent?.start ||
-                      otherRole?.motorsportRegEvent?.venueName ||
-                      otherRole?.motorsportRegEvent?.venueCity ||
-                      otherRole?.motorsportRegEvent?.venueRegion)
+                  (otherRole?.motorsportRegEvent?.eventId ||
+                    otherRole?.motorsportRegEvent?.name ||
+                    otherRole?.motorsportRegEvent?.start ||
+                    otherRole?.motorsportRegEvent?.venueName ||
+                    otherRole?.motorsportRegEvent?.venueCity ||
+                    otherRole?.motorsportRegEvent?.venueRegion),
                 );
                 const otherVenueLine = [
                   otherRole?.motorsportRegEvent?.venueName,

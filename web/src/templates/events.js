@@ -4,7 +4,13 @@ import { graphql, Link } from "gatsby";
 import { mapEdgesToNodes, filterOutDocsWithoutSlugs } from "../lib/helpers";
 import { Box, Button, Card, Flex, Heading, Text } from "@theme-ui/components";
 import { FaCalendarAlt } from "react-icons/fa";
-import { FiArrowRight, FiGrid, FiList, FiSliders } from "react-icons/fi";
+import {
+  FiArrowRight,
+  FiChevronDown,
+  FiGrid,
+  FiList,
+  FiSliders,
+} from "react-icons/fi";
 import GraphQLErrorList from "../components/graphql-error-list";
 import Seo from "../components/seo";
 import Layout from "../containers/layout";
@@ -14,7 +20,6 @@ import { BoxIcon } from "../components/box-icons";
 import StylizedLandingHeader from "../components/stylized-landing-header";
 import { Client } from "../services/FetchClient";
 import {
-  FilterBox,
   FilterField,
   FilterGrid,
   FilterPillButton,
@@ -73,7 +78,7 @@ const sortOptions = [
 const EVENT_VIEW_STORAGE_KEY = "bmwcca-events-view-mode";
 
 export const query = graphql`
-  query EventPageQuery($skip: Int!, $limit: Int!) {
+  query EventPageQuery {
     site: sanitySiteSettings(_id: { regex: "/(drafts.|)siteSettings/" }) {
       title
       navMenu {
@@ -81,8 +86,6 @@ export const query = graphql`
       }
     }
     events: allSanityEvent(
-      limit: $limit
-      skip: $skip
       sort: { fields: [startTime], order: ASC }
       filter: { slug: { current: { ne: null } } }
     ) {
@@ -137,7 +140,7 @@ const IndexPage = (props) => {
     : [];
   if (!site && !errors) {
     console.warn(
-      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
+      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.',
     );
   }
   const menuItems = site?.navMenu?.items || [];
@@ -153,6 +156,7 @@ const IndexPage = (props) => {
   const [viewMode, setViewMode] = useState("grid");
   const [pageIndex, setPageIndex] = useState(currentPage || 1);
   const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const locationSearch = props.location?.search || "";
   const activeLiveEvents = useMemo(() => {
     const now = Date.now();
@@ -276,7 +280,7 @@ const IndexPage = (props) => {
       setSelectedYear(
         yearStrings.includes(String(currentYear))
           ? String(currentYear)
-          : yearStrings[0]
+          : yearStrings[0],
       );
     }
   }, [years, selectedYear, currentYear]);
@@ -374,6 +378,13 @@ const IndexPage = (props) => {
   const eventsHeading = activeOnly
     ? "Upcoming events"
     : "All events (including historical)";
+
+  useEffect(() => {
+    if (hasAnyFilterSelections) {
+      setMobileFiltersOpen(true);
+    }
+  }, [hasAnyFilterSelections]);
+
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredEvents = scopedEvents.filter((event) => {
     if (!event?.startTime) return false;
@@ -432,7 +443,7 @@ const IndexPage = (props) => {
   const safePageIndex = Math.min(pageIndex, totalPages);
   const paginatedEvents = sortedEvents.slice(
     (safePageIndex - 1) * pageSize,
-    safePageIndex * pageSize
+    safePageIndex * pageSize,
   );
   const paginationItems = buildPaginationItems(safePageIndex, totalPages);
   const sortControlSx = {
@@ -561,13 +572,15 @@ const IndexPage = (props) => {
           </Box>
           <Box
             sx={{
-              display: "grid",
+              display: ["none", "none", "grid", "grid"],
               gap: "0.5rem",
               width: ["100%", "100%", "100%", "300px"],
               flex: ["1 1 100%", "1 1 100%", "1 1 100%", "0 0 300px"],
               justifyItems: ["stretch", "stretch", "stretch", "end"],
               alignSelf: ["stretch", "stretch", "stretch", "flex-start"],
               backgroundColor: "lightgray",
+              border: "1px solid",
+              borderColor: "black",
               borderRadius: "12px",
               p: ["0.75rem", "0.85rem", "0.95rem"],
             }}
@@ -630,110 +643,211 @@ const IndexPage = (props) => {
             </Link>
           </Box>
         </Flex>
-        <FilterBox>
-          <FilterGrid sx={{ gridTemplateColumns: ["1fr"] }}>
-            <Box sx={{ gridColumn: "1 / -1" }}>
-              <FilterSearchField
-                label="Search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search events, venue, category"
-                clearLabel="Reset filters"
-                clearDisabled={!hasAnyFilterSelections}
-                onClear={handleResetFilters}
-              />
-            </Box>
-
-            <Box
+        <Box
+          sx={{
+            mt: "0.75rem",
+            mb: "1.5rem",
+            border: ["1px solid", "1px solid", "none"],
+            borderColor: ["black", "black", "transparent"],
+            borderRadius: ["12px", "12px", 0],
+            bg: ["lightgray", "lightgray", "transparent"],
+            overflow: "hidden",
+          }}
+        >
+          <Button
+            type="button"
+            aria-expanded={mobileFiltersOpen}
+            aria-controls="events-filter-panel"
+            onClick={() => setMobileFiltersOpen((open) => !open)}
+            sx={{
+              display: ["inline-flex", "inline-flex", "none"],
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.5rem",
+              px: "1rem",
+              py: "0.7rem",
+              borderRadius: [
+                0,
+                0,
+                mobileFiltersOpen ? "12px 12px 0 0" : "12px",
+              ],
+              border: ["none", "none", "1px solid"],
+              borderColor: ["transparent", "transparent", "black"],
+              bg: "lightgray",
+              color: "text",
+              fontSize: "sm",
+              fontWeight: "heading",
+              lineHeight: 1.1,
+              cursor: "pointer",
+              boxShadow: "none",
+              "&:hover": {
+                bg: "muted",
+              },
+            }}
+          >
+            <Text as="span" sx={{ fontSize: "inherit", color: "inherit" }}>
+              Filter
+            </Text>
+            <Flex
+              as="span"
               sx={{
-                gridColumn: "1 / -1",
-                display: "grid",
-                gridTemplateColumns: [
-                  "1fr",
-                  "1fr 1fr",
-                  "repeat(4, minmax(0, 1fr))",
-                ],
-                gap: "0.75rem",
-                alignItems: "end",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "transform 180ms ease",
+                transform: mobileFiltersOpen
+                  ? "rotate(180deg)"
+                  : "rotate(0deg)",
               }}
             >
-              <FilterField label="Status">
-                <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
-                  <FilterPillButton
-                    type="button"
-                    onClick={() => setActiveOnly(true)}
-                    active={activeOnly}
-                    activeBg="primary"
-                    activeHoverBg="secondary"
-                    sx={{ flex: "1 1 0" }}
-                  >
-                    Active
-                  </FilterPillButton>
-                  <FilterPillButton
-                    type="button"
-                    onClick={() => {
-                      setActiveOnly(false);
-                      setSelectedYear("all");
-                    }}
-                    active={!activeOnly}
-                    activeBg="primary"
-                    activeHoverBg="secondary"
-                    sx={{ flex: "1 1 0" }}
-                  >
-                    All
-                  </FilterPillButton>
-                </FilterPillRow>
-              </FilterField>
-              <FilterField label="Category">
-                <FilterSelect
-                  value={selectedCategoryValue}
-                  onChange={(event) => {
-                    const next = event.target.value;
-                    if (next === "all") {
-                      setSelectedCategories([]);
-                      return;
-                    }
-                    setSelectedCategories([next]);
+              <FiChevronDown size={18} />
+            </Flex>
+          </Button>
+
+          <Box
+            id="events-filter-panel"
+            sx={{
+              overflow: "hidden",
+              maxHeight: [
+                mobileFiltersOpen ? "1200px" : 0,
+                mobileFiltersOpen ? "1200px" : 0,
+                "none",
+              ],
+              opacity: [
+                mobileFiltersOpen ? 1 : 0,
+                mobileFiltersOpen ? 1 : 0,
+                1,
+              ],
+              pointerEvents: [
+                mobileFiltersOpen ? "auto" : "none",
+                mobileFiltersOpen ? "auto" : "none",
+                "auto",
+              ],
+              transition:
+                "max-height 220ms ease, opacity 180ms ease, padding 180ms ease",
+            }}
+          >
+            <Box
+              sx={{
+                mt: [0, 0, "0.75rem"],
+                mb: 0,
+                border: ["none", "none", "1px solid"],
+                borderColor: ["transparent", "transparent", "black"],
+                borderRadius: [0, 0, "12px"],
+                borderTopColor: ["transparent", "transparent", "black"],
+                bg: ["lightgray", "lightgray", "lightgray"],
+                boxShadow: "none",
+                p: ["1rem", "1.25rem"],
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+              }}
+            >
+              <FilterGrid sx={{ gridTemplateColumns: ["1fr"] }}>
+                <Box sx={{ gridColumn: "1 / -1" }}>
+                  <FilterSearchField
+                    label="Search"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder="Search events, venue, category"
+                    clearLabel="Reset filters"
+                    clearDisabled={!hasAnyFilterSelections}
+                    onClear={handleResetFilters}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    gridColumn: "1 / -1",
+                    display: "grid",
+                    gridTemplateColumns: [
+                      "1fr",
+                      "1fr 1fr",
+                      "repeat(4, minmax(0, 1fr))",
+                    ],
+                    gap: "0.75rem",
+                    alignItems: "end",
                   }}
                 >
-                  {categories.map((category) => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </FilterSelect>
-              </FilterField>
-              <FilterField label="Month">
-                <FilterSelect
-                  id="event-month"
-                  value={selectedMonth}
-                  onChange={(event) => setSelectedMonth(event.target.value)}
-                >
-                  {monthOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </FilterSelect>
-              </FilterField>
+                  <FilterField label="Status">
+                    <FilterPillRow sx={{ flexWrap: "nowrap", width: "100%" }}>
+                      <FilterPillButton
+                        type="button"
+                        onClick={() => setActiveOnly(true)}
+                        active={activeOnly}
+                        activeBg="primary"
+                        activeHoverBg="secondary"
+                        sx={{ flex: "1 1 0" }}
+                      >
+                        Active
+                      </FilterPillButton>
+                      <FilterPillButton
+                        type="button"
+                        onClick={() => {
+                          setActiveOnly(false);
+                          setSelectedYear("all");
+                        }}
+                        active={!activeOnly}
+                        activeBg="primary"
+                        activeHoverBg="secondary"
+                        sx={{ flex: "1 1 0" }}
+                      >
+                        All
+                      </FilterPillButton>
+                    </FilterPillRow>
+                  </FilterField>
+                  <FilterField label="Category">
+                    <FilterSelect
+                      value={selectedCategoryValue}
+                      onChange={(event) => {
+                        const next = event.target.value;
+                        if (next === "all") {
+                          setSelectedCategories([]);
+                          return;
+                        }
+                        setSelectedCategories([next]);
+                      }}
+                    >
+                      {categories.map((category) => (
+                        <option key={category.value} value={category.value}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </FilterSelect>
+                  </FilterField>
+                  <FilterField label="Month">
+                    <FilterSelect
+                      id="event-month"
+                      value={selectedMonth}
+                      onChange={(event) => setSelectedMonth(event.target.value)}
+                    >
+                      {monthOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </FilterSelect>
+                  </FilterField>
 
-              <FilterField label="Year">
-                <FilterSelect
-                  id="event-year"
-                  value={selectedYear}
-                  onChange={(event) => setSelectedYear(event.target.value)}
-                >
-                  <option value="all">All years</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </FilterSelect>
-              </FilterField>
+                  <FilterField label="Year">
+                    <FilterSelect
+                      id="event-year"
+                      value={selectedYear}
+                      onChange={(event) => setSelectedYear(event.target.value)}
+                    >
+                      <option value="all">All years</option>
+                      {years.map((year) => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </FilterSelect>
+                  </FilterField>
+                </Box>
+              </FilterGrid>
             </Box>
-          </FilterGrid>
-        </FilterBox>
+          </Box>
+        </Box>
         <Box
           sx={{
             display: "grid",
@@ -760,7 +874,7 @@ const IndexPage = (props) => {
           </Heading>
           <Box
             sx={{
-              display: "inline-flex",
+              display: ["none", "none", "inline-flex"],
               alignItems: "center",
               gap: "0.5rem",
               justifySelf: ["stretch", "stretch", "end"],
@@ -823,7 +937,7 @@ const IndexPage = (props) => {
               }
               onClick={() =>
                 setViewMode((current) =>
-                  current === "grid" ? "horizontal" : "grid"
+                  current === "grid" ? "horizontal" : "grid",
                 )
               }
               sx={viewToggleButtonSx}
@@ -864,6 +978,7 @@ const IndexPage = (props) => {
                       isInList
                       showUpcomingPill
                       variant={viewMode}
+                      compactMobile
                     />
                   </li>
                 );

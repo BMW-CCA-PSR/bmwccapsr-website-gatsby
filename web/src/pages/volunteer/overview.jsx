@@ -224,7 +224,24 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               },
               {
                 title: "Apply or Register",
-                body: "For event-based roles, volunteer registration is handled through MSR registration*. For club-based roles, apply through the position listing page with your name, email, and optional phone number.",
+                body: (
+                  <>
+                    For event-based roles, volunteer registration is handled
+                    through MSR registration*. For club-based roles, apply
+                    through the{" "}
+                    <Link
+                      to="/volunteer"
+                      sx={{
+                        color: "primary",
+                        textDecoration: "none",
+                        "&:hover": { color: "secondary" },
+                      }}
+                    >
+                      position listing page
+                    </Link>{" "}
+                    with your name, email, and optional phone number.
+                  </>
+                ),
               },
               {
                 title: "Show Up Ready",
@@ -244,27 +261,27 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                       index === 0
                         ? "18px 18px 0 0"
                         : index === 3
-                        ? "0 0 18px 18px"
-                        : "0",
+                          ? "0 0 18px 18px"
+                          : "0",
                       index === 0
                         ? "18px 18px 0 0"
                         : index === 3
-                        ? "0 0 18px 18px"
-                        : "0",
+                          ? "0 0 18px 18px"
+                          : "0",
                       index === 0
                         ? "18px 0 0 0"
                         : index === 1
-                        ? "0 18px 0 0"
-                        : index === 2
-                        ? "0 0 0 18px"
-                        : "0 0 18px 0",
+                          ? "0 18px 0 0"
+                          : index === 2
+                            ? "0 0 0 18px"
+                            : "0 0 18px 0",
                       index === 0
                         ? "18px 0 0 0"
                         : index === 1
-                        ? "0 18px 0 0"
-                        : index === 2
-                        ? "0 0 0 18px"
-                        : "0 0 18px 0",
+                          ? "0 18px 0 0"
+                          : index === 2
+                            ? "0 0 0 18px"
+                            : "0 0 18px 0",
                     ],
                     mt: [
                       index === 0 ? 0 : "-1px",
@@ -281,6 +298,8 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                     px: ["1rem", "1rem", "1.2rem", "1.35rem"],
                     py: ["0.8rem", "0.8rem", "0.95rem", "1rem"],
                     overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
                     zIndex: 0,
                     transition:
                       "background-color 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
@@ -298,7 +317,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                       position: "absolute",
                       top: ["-34px", "-38px", "-50px", "-54px"],
                       left: ["-10px", "-10px", "-12px", "-14px"],
-                      fontSize: ["320px", "360px", "500px", "500px"],
+                      fontSize: ["340px", "390px", "540px", "560px"],
                       fontStyle: "italic",
                       fontWeight: "heading",
                       lineHeight: 0.82,
@@ -313,14 +332,17 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                     sx={{
                       position: "relative",
                       zIndex: 1,
-                      alignItems: "flex-start",
-                      gap: "0.7rem",
+                      width: "100%",
                     }}
                   >
                     <Text
                       as="span"
                       sx={{
-                        fontSize: "36pt",
+                        position: "absolute",
+                        top: "50%",
+                        left: 0,
+                        transform: "translateY(-50%)",
+                        fontSize: ["40pt", "42pt", "44pt", "46pt"],
                         fontWeight: "heading",
                         lineHeight: 1,
                         color: "primary",
@@ -329,7 +351,12 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                     >
                       {stepNumber}
                     </Text>
-                    <Box sx={{ minWidth: 0 }}>
+                    <Box
+                      sx={{
+                        minWidth: 0,
+                        pl: ["2.8rem", "3rem", "3.2rem", "3.35rem"],
+                      }}
+                    >
                       <Heading
                         as="h3"
                         sx={{
@@ -410,7 +437,72 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 },
               }}
             >
-              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+              <Flex
+                sx={{
+                  display: ["flex", "flex", "none", "none"],
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  gap: "1rem",
+                  width: "100%",
+                }}
+              >
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: "0 0 auto",
+                    p: "0.35rem",
+                  }}
+                >
+                  <FaUserPlus size={42} />
+                </Box>
+                <Box sx={{ minWidth: 0, textAlign: "left" }}>
+                  <Heading
+                    as="h3"
+                    sx={{
+                      variant: "styles.h3",
+                      fontSize: ["1.3rem", "1.35rem", null, null],
+                      mt: 0,
+                      mb: "0.35rem",
+                    }}
+                  >
+                    Entry
+                  </Heading>
+                  <Text
+                    sx={{
+                      variant: "styles.p",
+                      fontSize: ["0.95rem", "1rem", null, null],
+                      mt: 0,
+                      mb: 0,
+                      textAlign: "left",
+                    }}
+                  >
+                    Great for first-time volunteers
+                    <Box as="span" sx={{ display: "block" }}>
+                      and limited availability.
+                    </Box>
+                    <Box
+                      as="span"
+                      sx={{
+                        display: "block",
+                        mt: "0.35rem",
+                        fontWeight: "heading",
+                      }}
+                    >
+                      Points: 1-2
+                    </Box>
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex
+                sx={{
+                  display: ["none", "none", "flex", "flex"],
+                  alignItems: "center",
+                  gap: "0.65rem",
+                }}
+              >
                 <FaUserPlus size={32} />
                 <Heading
                   as="h3"
@@ -428,6 +520,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                   variant: "styles.p",
                   fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
                   mt: "0.5rem",
+                  display: ["none", "none", "block", "block"],
                 }}
               >
                 Great for first-time volunteers
@@ -465,7 +558,72 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 },
               }}
             >
-              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+              <Flex
+                sx={{
+                  display: ["flex", "flex", "none", "none"],
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  gap: "1rem",
+                  width: "100%",
+                }}
+              >
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: "0 0 auto",
+                    p: "0.35rem",
+                  }}
+                >
+                  <FaTools size={42} />
+                </Box>
+                <Box sx={{ minWidth: 0, textAlign: "left" }}>
+                  <Heading
+                    as="h3"
+                    sx={{
+                      variant: "styles.h3",
+                      fontSize: ["1.3rem", "1.35rem", null, null],
+                      mt: 0,
+                      mb: "0.35rem",
+                    }}
+                  >
+                    Intermediate
+                  </Heading>
+                  <Text
+                    sx={{
+                      variant: "styles.p",
+                      fontSize: ["0.95rem", "1rem", null, null],
+                      mt: 0,
+                      mb: 0,
+                      textAlign: "left",
+                    }}
+                  >
+                    Ideal for members ready
+                    <Box as="span" sx={{ display: "block" }}>
+                      to take on more responsibility.
+                    </Box>
+                    <Box
+                      as="span"
+                      sx={{
+                        display: "block",
+                        mt: "0.35rem",
+                        fontWeight: "heading",
+                      }}
+                    >
+                      Points: 3-4
+                    </Box>
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex
+                sx={{
+                  display: ["none", "none", "flex", "flex"],
+                  alignItems: "center",
+                  gap: "0.65rem",
+                }}
+              >
                 <FaTools size={32} />
                 <Heading
                   as="h3"
@@ -483,6 +641,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                   variant: "styles.p",
                   fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
                   mt: "0.5rem",
+                  display: ["none", "none", "block", "block"],
                 }}
               >
                 Ideal for members ready
@@ -520,7 +679,72 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 },
               }}
             >
-              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+              <Flex
+                sx={{
+                  display: ["flex", "flex", "none", "none"],
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                  gap: "1rem",
+                  width: "100%",
+                }}
+              >
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flex: "0 0 auto",
+                    p: "0.35rem",
+                  }}
+                >
+                  <FaAward size={42} />
+                </Box>
+                <Box sx={{ minWidth: 0, textAlign: "left" }}>
+                  <Heading
+                    as="h3"
+                    sx={{
+                      variant: "styles.h3",
+                      fontSize: ["1.3rem", "1.35rem", null, null],
+                      mt: 0,
+                      mb: "0.35rem",
+                    }}
+                  >
+                    Advanced
+                  </Heading>
+                  <Text
+                    sx={{
+                      variant: "styles.p",
+                      fontSize: ["0.95rem", "1rem", null, null],
+                      mt: 0,
+                      mb: 0,
+                      textAlign: "left",
+                    }}
+                  >
+                    Best for experienced volunteers
+                    <Box as="span" sx={{ display: "block" }}>
+                      with specialized skills.
+                    </Box>
+                    <Box
+                      as="span"
+                      sx={{
+                        display: "block",
+                        mt: "0.35rem",
+                        fontWeight: "heading",
+                      }}
+                    >
+                      Points: 5 or 10
+                    </Box>
+                  </Text>
+                </Box>
+              </Flex>
+              <Flex
+                sx={{
+                  display: ["none", "none", "flex", "flex"],
+                  alignItems: "center",
+                  gap: "0.65rem",
+                }}
+              >
                 <FaAward size={32} />
                 <Heading
                   as="h3"
@@ -538,6 +762,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                   variant: "styles.p",
                   fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
                   mt: "0.5rem",
+                  display: ["none", "none", "block", "block"],
                 }}
               >
                 Best for experienced volunteers

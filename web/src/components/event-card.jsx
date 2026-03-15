@@ -67,7 +67,12 @@ const getExcerptText = (excerpt) => {
     .trim();
 };
 
-const EventCard = ({ event, href, variant = "grid" }) => {
+const EventCard = ({
+  event,
+  href,
+  variant = "grid",
+  compactMobile = false,
+}) => {
   if (!event) return null;
 
   const cityState =
@@ -110,6 +115,18 @@ const EventCard = ({ event, href, variant = "grid" }) => {
   const categoryIcon = getCategoryIcon(event?.category?.title);
   const isHorizontal = variant === "horizontal";
   const shouldCenterGridTitle = !isHorizontal && (!cityState || isOnline);
+  const compactGridImageHeight = compactMobile
+    ? ["180px", "190px", "220px", "220px"]
+    : "220px";
+  const compactGridDateCard = compactMobile
+    ? {
+        right: ["14px", "16px", "20px", "20px"],
+        bottom: ["14px", "16px", "20px", "20px"],
+        minWidth: ["64px", "68px", "74px", "74px"],
+        px: ["0.65rem", "0.75rem", "0.9rem", "0.9rem"],
+        py: ["0.4rem", "0.48rem", "0.55rem", "0.55rem"],
+      }
+    : {};
 
   const card = (
     <Card
@@ -139,8 +156,12 @@ const EventCard = ({ event, href, variant = "grid" }) => {
             sx={{
               position: "relative",
               width: "100%",
-              minHeight: isHorizontal ? ["240px", "280px", "auto"] : "220px",
-              height: isHorizontal ? ["240px", "280px", "auto"] : "220px",
+              minHeight: isHorizontal
+                ? ["240px", "280px", "auto"]
+                : compactGridImageHeight,
+              height: isHorizontal
+                ? ["240px", "280px", "auto"]
+                : compactGridImageHeight,
               alignSelf: "stretch",
               flex: isHorizontal
                 ? ["0 0 auto", "0 0 auto", "1 1 42%"]
@@ -190,6 +211,7 @@ const EventCard = ({ event, href, variant = "grid" }) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  ...compactGridDateCard,
                 }}
               >
                 <Box sx={{ textAlign: "center" }}>
@@ -212,9 +234,21 @@ const EventCard = ({ event, href, variant = "grid" }) => {
         )}
         <Box
           sx={{
-            px: isHorizontal ? "1.5rem" : "1rem",
-            pt: isHorizontal ? "1rem" : "0.65rem",
-            pb: isHorizontal ? "0.75rem" : "0.55rem",
+            px: isHorizontal
+              ? "1.5rem"
+              : compactMobile
+                ? ["0.85rem", "0.92rem", "1rem", "1rem"]
+                : "1rem",
+            pt: isHorizontal
+              ? "1rem"
+              : compactMobile
+                ? ["0.5rem", "0.58rem", "0.65rem", "0.65rem"]
+                : "0.65rem",
+            pb: isHorizontal
+              ? "0.75rem"
+              : compactMobile
+                ? ["0.45rem", "0.5rem", "0.55rem", "0.55rem"]
+                : "0.55rem",
             flex: isHorizontal
               ? ["1 1 100%", "1 1 100%", "1 1 58%"]
               : "1 1 auto",
@@ -458,6 +492,9 @@ const EventCard = ({ event, href, variant = "grid" }) => {
               <Heading
                 sx={{
                   variant: "styles.h3",
+                  fontSize: compactMobile
+                    ? ["24px", "26px", "md", "md"]
+                    : undefined,
                   lineHeight: 1,
                   mt: shouldCenterGridTitle ? "auto" : 0,
                   mb: shouldCenterGridTitle ? "auto" : 0,

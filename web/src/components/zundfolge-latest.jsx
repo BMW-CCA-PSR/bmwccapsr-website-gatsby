@@ -112,7 +112,8 @@ function StoryRow(props) {
       <Box
         sx={{
           px: "1.5rem",
-          py: "1.5rem",
+          pt: "1.5rem",
+          pb: ["0.85rem", "1rem", "1.5rem", "1.5rem"],
           flex: ["1 1 100%", "1 1 100%", "1 1 60%"],
         }}
       >
@@ -129,7 +130,7 @@ function StoryRow(props) {
         <Heading
           sx={{
             variant: "styles.h3",
-            marginbottom: "2rem",
+            mb: ["0.85rem", "1rem", "1rem", "1rem"],
             color: "darkgray",
           }}
         >
@@ -137,6 +138,7 @@ function StoryRow(props) {
         </Heading>
         <Flex
           sx={{
+            display: ["none", "none", "flex", "flex"],
             py: "0.5rem",
             pb: "0px",
             alignItems: "center",
@@ -160,14 +162,21 @@ function StoryRow(props) {
             {authorString}
           </Text>
         </Flex>
-        <Text
+        <Box
           sx={{
             variant: "styles.p",
             color: "black",
+            lineHeight: [1.35, 1.35, "body", "body"],
+            "& p": {
+              lineHeight: [1.35, 1.35, "body", "body"],
+            },
+            "& p:last-of-type": {
+              mb: 0,
+            },
           }}
         >
           {text ? <PortableText body={text} /> : null}
-        </Text>
+        </Box>
       </Box>
       {img && (
         <SlantedStoryImg
@@ -225,7 +234,8 @@ function StoryRowFlipped(props) {
       <Box
         sx={{
           px: "1.5rem",
-          py: "1.5rem",
+          pt: "1.5rem",
+          pb: ["0.85rem", "1rem", "1.5rem", "1.5rem"],
           flex: ["1 1 100%", "1 1 100%", "1 1 60%"],
         }}
       >
@@ -242,7 +252,7 @@ function StoryRowFlipped(props) {
         <Heading
           sx={{
             variant: "styles.h3",
-            marginbottom: "2rem",
+            mb: ["0.85rem", "1rem", "1rem", "1rem"],
             color: "darkgray",
           }}
         >
@@ -250,6 +260,7 @@ function StoryRowFlipped(props) {
         </Heading>
         <Flex
           sx={{
+            display: ["none", "none", "flex", "flex"],
             py: "0.5rem",
             pb: "0px",
             alignItems: "center",
@@ -273,14 +284,21 @@ function StoryRowFlipped(props) {
             {authorString}
           </Text>
         </Flex>
-        <Text
+        <Box
           sx={{
             variant: "styles.p",
             color: "black",
+            lineHeight: [1.35, 1.35, "body", "body"],
+            "& p": {
+              lineHeight: [1.35, 1.35, "body", "body"],
+            },
+            "& p:last-of-type": {
+              mb: 0,
+            },
           }}
         >
           {text ? <PortableText body={text} /> : null}
-        </Text>
+        </Box>
       </Box>
     </Flex>
   );

@@ -50,8 +50,8 @@ const isStaticFooterDestination = (href, external) => {
   const normalized = external
     ? href
     : href.endsWith("/") && href !== "/"
-    ? href.slice(0, -1)
-    : href;
+      ? href.slice(0, -1)
+      : href;
 
   if (external) {
     return STATIC_FOOTER_EXTERNAL_PATHS.has(normalized);
@@ -164,7 +164,7 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
 
   const allMenus = data?.allSanityNavigationMenu?.nodes || [];
   const referencedDropdownTitles = new Set(
-    navMenuItems.map((item) => item?.navigationItemUrl?.title).filter(Boolean)
+    navMenuItems.map((item) => item?.navigationItemUrl?.title).filter(Boolean),
   );
 
   const groupedMenuLinks = navMenuItems
@@ -213,7 +213,7 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
             links,
           };
         })
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
   const menuGroupCount = groupedMenuLinks.length;
@@ -302,9 +302,11 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: ["1fr", "repeat(2, minmax(0, 1fr))"],
-              gap: "0.45rem 0.9rem",
+              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gap: "0.4rem 0.85rem",
               px: "0.85rem",
+              fontSize: ["20px", "20px"],
+              lineHeight: 1.35,
             }}
           >
             <Link
@@ -312,6 +314,8 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               sx={{
                 textDecoration: "none",
                 color: "gray",
+                fontSize: "inherit",
+                lineHeight: "inherit",
                 ":hover": { color: "background" },
               }}
             >
@@ -322,6 +326,8 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               sx={{
                 textDecoration: "none",
                 color: "gray",
+                fontSize: "inherit",
+                lineHeight: "inherit",
                 ":hover": { color: "background" },
               }}
             >
@@ -332,6 +338,8 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               sx={{
                 textDecoration: "none",
                 color: "gray",
+                fontSize: "inherit",
+                lineHeight: "inherit",
                 ":hover": { color: "background" },
               }}
             >
@@ -342,6 +350,8 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               sx={{
                 textDecoration: "none",
                 color: "gray",
+                fontSize: "inherit",
+                lineHeight: "inherit",
                 ":hover": { color: "background" },
               }}
             >
@@ -352,6 +362,8 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
               sx={{
                 textDecoration: "none",
                 color: "gray",
+                fontSize: "inherit",
+                lineHeight: "inherit",
                 ":hover": { color: "background" },
               }}
             >
@@ -367,6 +379,8 @@ const Footer = ({ siteTitle, navMenuItems = [] }) => {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "0.35rem",
+                fontSize: "inherit",
+                lineHeight: "inherit",
                 ":hover": { color: "background" },
               }}
             >

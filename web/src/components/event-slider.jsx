@@ -112,12 +112,14 @@ const EventSlider = (props) => {
         width: "100%",
         height: "100%",
         alignItems: "center",
-        py: "20px",
-        px: "1rem",
+        py: [0, 0, "20px", "20px"],
+        px: [0, 0, "1rem", "1rem"],
+        minHeight: ["30px", "30px", "auto", "auto"],
       }}
     >
       <Flex
         sx={{
+          display: ["none", "none", "flex", "flex"],
           flexDirection: ["column", "column", "row", "row"],
           alignItems: "center",
           justifyContent: "center",

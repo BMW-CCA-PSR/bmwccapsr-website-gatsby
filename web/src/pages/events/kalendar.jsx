@@ -154,12 +154,12 @@ const EventCalendarPage = ({ data, errors }) => {
   const events = useMemo(
     () =>
       (data?.events ? mapEdgesToNodes(data.events) : []).filter(
-        filterOutDocsWithoutSlugs
+        filterOutDocsWithoutSlugs,
       ),
-    [data?.events]
+    [data?.events],
   );
   const [visibleMonth, setVisibleMonth] = useState(() =>
-    startOfMonth(new Date())
+    startOfMonth(new Date()),
   );
   const [hoverPreview, setHoverPreview] = useState(null);
 
@@ -178,7 +178,7 @@ const EventCalendarPage = ({ data, errors }) => {
       const next = grouped.get(key) || [];
       next.push(event);
       next.sort(
-        (a, b) => Date.parse(a?.startTime || 0) - Date.parse(b?.startTime || 0)
+        (a, b) => Date.parse(a?.startTime || 0) - Date.parse(b?.startTime || 0),
       );
       grouped.set(key, next);
     });
@@ -191,7 +191,7 @@ const EventCalendarPage = ({ data, errors }) => {
         if (!event?.startTime) return false;
         return isSameMonth(parseISO(event.startTime), visibleMonth);
       }),
-    [events, visibleMonth]
+    [events, visibleMonth],
   );
 
   useEffect(() => {
@@ -218,7 +218,7 @@ const EventCalendarPage = ({ data, errors }) => {
     link.href = url;
     link.download = `bmw-cca-psr-events-${format(
       visibleMonth,
-      "MMMM-yyyy"
+      "MMMM-yyyy",
     ).toLowerCase()}.ics`;
     document.body.appendChild(link);
     link.click();
@@ -310,18 +310,28 @@ const EventCalendarPage = ({ data, errors }) => {
         <Box
           sx={{
             display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
+            alignItems: "flex-start",
             pb: "0.35rem",
           }}
         >
           <Heading sx={{ variant: "styles.h1", mb: 0 }}>
             Events{" "}
-            <Box as="span" sx={{ color: "secondary" }}>
+            <Box
+              as="span"
+              sx={{
+                color: "secondary",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.75rem",
+              }}
+            >
               Kalendar
+              <BoxIcon
+                as="span"
+                sx={{ display: "inline-grid", verticalAlign: "middle" }}
+              />
             </Box>
           </Heading>
-          <BoxIcon />
         </Box>
         <Text
           sx={{
@@ -535,8 +545,8 @@ const EventCalendarPage = ({ data, errors }) => {
                           color: isToday
                             ? "white"
                             : inVisibleMonth
-                            ? "text"
-                            : "gray",
+                              ? "text"
+                              : "gray",
                           fontWeight: "heading",
                           mb: "0.45rem",
                         }}
@@ -575,11 +585,11 @@ const EventCalendarPage = ({ data, errors }) => {
                                     rect.left +
                                       rect.width / 2 -
                                       CALENDAR_PREVIEW_WIDTH / 2,
-                                    12
+                                    12,
                                   ),
                                   window.innerWidth -
                                     CALENDAR_PREVIEW_WIDTH -
-                                    12
+                                    12,
                                 );
                                 setHoverPreview({
                                   event,
@@ -597,11 +607,11 @@ const EventCalendarPage = ({ data, errors }) => {
                                     rect.left +
                                       rect.width / 2 -
                                       CALENDAR_PREVIEW_WIDTH / 2,
-                                    12
+                                    12,
                                   ),
                                   window.innerWidth -
                                     CALENDAR_PREVIEW_WIDTH -
-                                    12
+                                    12,
                                 );
                                 setHoverPreview({
                                   event,
@@ -721,7 +731,7 @@ const EventCalendarPage = ({ data, errors }) => {
               >
                 {format(
                   parseISO(hoverPreview.event.startTime),
-                  "EEEE, MMM d · h:mm a"
+                  "EEEE, MMM d · h:mm a",
                 )}
               </Text>
               <Text
@@ -862,7 +872,7 @@ const EventCalendarPage = ({ data, errors }) => {
                             >
                               {format(
                                 parseISO(event.startTime),
-                                "EEEE, MMM d, yyyy"
+                                "EEEE, MMM d, yyyy",
                               )}
                               {" · "}
                               {locationLabel}

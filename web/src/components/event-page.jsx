@@ -1,5 +1,5 @@
 /** @jsxImportSource theme-ui */
-import { format, formatDistanceStrict } from "date-fns";
+import { format } from "date-fns";
 import React from "react";
 import SanityImage from "gatsby-plugin-sanity-image";
 import PortableText from "./portableText";
@@ -11,7 +11,7 @@ import EventDetails from "./event-detail";
 import { randomGenerator } from "../lib/helpers";
 import { BoxAd } from "./ads";
 import ContentContainer from "./content-container";
-import { BoxIcon } from "./box-icons";
+import { BoxIconTitleLockup } from "./box-icons";
 import StylizedLandingHeader from "./stylized-landing-header";
 import { FiClock, FiShare2 } from "react-icons/fi";
 import { FaCalendarPlus } from "react-icons/fa";
@@ -87,9 +87,6 @@ function EventPage(props) {
   const [isCalendarMenuOpen, setIsCalendarMenuOpen] = React.useState(false);
   const calendarMenuRef = React.useRef(null);
   const isPast = startTime ? new Date(startTime) < new Date() : false;
-  const startInDays = startTime
-    ? formatDistanceStrict(new Date(startTime), new Date(), { addSuffix: true })
-    : null;
   var start = startTime && format(new Date(startTime), "MMMM do, yyyy");
   var updated = _updatedAt && format(new Date(_updatedAt), "MMMM do, yyyy");
   const cat = category.title;
@@ -159,7 +156,7 @@ function EventPage(props) {
         details: calendarDescription,
         location: eventLocation || "",
         dates: `${toGoogleCalendarStamp(
-          calendarStartDate
+          calendarStartDate,
         )}/${toGoogleCalendarStamp(finalCalendarEndDate)}`,
       }).toString()}`
     : null;
@@ -173,7 +170,7 @@ function EventPage(props) {
           location: eventLocation || "",
           startdt: calendarStartDate.toISOString(),
           enddt: finalCalendarEndDate.toISOString(),
-        }
+        },
       ).toString()}`
     : null;
 
@@ -247,8 +244,10 @@ function EventPage(props) {
     border: "1px solid",
     borderColor: "gray",
     borderRadius: "8px",
-    px: "0.65rem",
+    px: ["0.5rem", "0.55rem", "0.65rem", "0.65rem"],
     py: "0.25rem",
+    minWidth: ["36px", "38px", "auto", "auto"],
+    height: ["36px", "38px", "auto", "auto"],
     fontSize: "xs",
     fontWeight: "heading",
     textTransform: "uppercase",
@@ -404,22 +403,18 @@ function EventPage(props) {
             </Box>
             <Heading
               variant="styles.h1"
-              sx={{ mt: 0, position: "relative", zIndex: 1 }}
+              sx={{
+                mt: 0,
+                position: "relative",
+                zIndex: 1,
+                fontSize: "xl",
+                "@media screen and (max-width: 767px)": {
+                  fontSize: "46px",
+                },
+              }}
             >
-              {title}
-              <BoxIcon
-                as="span"
-                sx={{
-                  display: "inline-grid",
-                  ml: "0.5rem",
-                  verticalAlign: "middle",
-                }}
-              />
+              <BoxIconTitleLockup text={title} />
             </Heading>
-            <Text sx={{ variant: "styles.h3", py: "1rem" }}>
-              {start}
-              {startInDays ? ` | ${startInDays}` : ""}
-            </Text>
             <Box
               sx={{
                 height: "1px",
@@ -450,7 +445,12 @@ function EventPage(props) {
                     sx={actionButtonSx}
                   >
                     <FaCalendarPlus size={13} aria-hidden="true" />
-                    Add to calendar
+                    <Box
+                      as="span"
+                      sx={{ display: ["none", "none", "inline", "inline"] }}
+                    >
+                      Add to calendar
+                    </Box>
                   </Box>
                   {isCalendarMenuOpen && (
                     <Box
@@ -549,7 +549,12 @@ function EventPage(props) {
                   sx={actionButtonSx}
                 >
                   <FiShare2 size={13} aria-hidden="true" />
-                  Share
+                  <Box
+                    as="span"
+                    sx={{ display: ["none", "none", "inline", "inline"] }}
+                  >
+                    Share
+                  </Box>
                 </Box>
               </Flex>
             </Flex>
