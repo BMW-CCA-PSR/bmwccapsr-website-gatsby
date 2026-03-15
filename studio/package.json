@@ -37,7 +37,7 @@
     "sanity-plugin-leaflet-input": "^1.0.1",
     "sanity-plugin-media": "^1.4.0",
     "sanity-plugin-social-preview": "^0.1.5",
-    "sanity-secrets": "^0.0.5",
+    "sanity-secrets": "^0.1.0",
     "styled-components": "^5.2.0"
   },
   "devDependencies": {
