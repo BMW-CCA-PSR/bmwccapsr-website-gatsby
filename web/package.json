@@ -12,7 +12,8 @@
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "generate": "graphql-codegen"
+    "generate": "graphql-codegen",
+    "postinstall": "npm install --no-save --ignore-scripts @lmdb/lmdb-linux-x64@2.5.3 @parcel/watcher-linux-x64-glibc@2.3.0 2>/dev/null || true"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
@@ -63,5 +64,9 @@
     "@graphql-codegen/cli": "^2.0.1",
     "@sanity/block-content-to-react": "^3.0.0",
     "typescript": "^4.3.5"
+  },
+  "optionalDependencies": {
+    "@lmdb/lmdb-linux-x64": "2.5.3",
+    "@parcel/watcher-linux-x64-glibc": "2.3.0"
   }
 }
