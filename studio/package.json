@@ -22,7 +22,7 @@
     "@sanity/default-login": "^2.27.0",
     "@sanity/desk-tool": "^2.36.2",
     "@sanity/vision": "^2.27.2",
-    "@use-gesture/react": "^10.2.4",
+    "@use-gesture/react": "^10.3.1",
     "prop-types": "^15.7",
     "react": "^17.0",
     "react-dom": "^17.0",
