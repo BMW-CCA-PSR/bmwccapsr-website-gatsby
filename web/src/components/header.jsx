@@ -35,7 +35,7 @@ const MOBILE_LOGO_MAX_SCALE = 0.9;
 const MOBILE_LOGO_MIN_SCALE = 0.5;
 const MOBILE_LOGO_SCROLL_RANGE = 140;
 const DESKTOP_LOGO_MAX_SCALE = 1;
-const DESKTOP_LOGO_MIN_SCALE = 0.92;
+const DESKTOP_LOGO_MIN_SCALE = 0.88;
 const DESKTOP_LOGO_SCROLL_RANGE = 220;
 
 const getMobileLogoScale = (scrollY = 0) => {

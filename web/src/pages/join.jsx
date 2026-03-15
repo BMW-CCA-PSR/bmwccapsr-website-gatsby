@@ -9,6 +9,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import ContentContainer from "../components/content-container";
 import PortableText from "../components/portableText";
 import { BoxIcon } from "../components/box-icons";
+import StylizedLandingHeader from "../components/stylized-landing-header";
 
 const baseJoinUrl = "https://www.bmwcca.org/join";
 const heroImage = "/images/bmw-join-image.jpg";
@@ -62,6 +63,22 @@ const primaryButton = {
     bg: "highlight",
     transform: "translateY(-1px)",
   },
+};
+
+const joinSectionBoxIconSx = {
+  display: "inline-grid",
+  ml: "0.45rem",
+  verticalAlign: "middle",
+  position: "relative",
+  top: "-0.04em",
+  gridTemplateColumns: "repeat(2, 13px)",
+  gridTemplateRows: "repeat(2, 13px)",
+};
+
+const joinHighlightsBoxIconSx = {
+  ...joinSectionBoxIconSx,
+  gridTemplateColumns: "repeat(2, 14px)",
+  gridTemplateRows: "repeat(2, 14px)",
 };
 
 const QrLandingPage = (props) => {
@@ -153,6 +170,38 @@ const QrLandingPage = (props) => {
             pb: "2rem",
           }}
         >
+          <StylizedLandingHeader
+            word="Welcome"
+            color="gray"
+            bleedTop="65px"
+            topInset={["11rem", "12rem", "15rem", "17rem"]}
+            minHeight="0px"
+            patternViewportInset={[
+              "0 0 1rem 0",
+              "0 0 1.25rem 0",
+              "0 0 1.6rem 0",
+              "0 0 2rem 0",
+            ]}
+            rowCount={22}
+            rowRepeatCount={30}
+            textFontSize={["30px", "36px", "46px", "56px"]}
+            rowHeight={["1.55rem", "1.8rem", "2.25rem", "2.7rem"]}
+            rowGap={["0.08rem", "0.1rem", "0.12rem", "0.16rem"]}
+            rowOverflow="visible"
+            textLineHeight={0.94}
+            textTranslateY="0%"
+            patternInset={["-44% -70%", "-44% -70%", "-46% -58%", "-48% -52%"]}
+            patternTransform={[
+              "translateY(-4%) rotate(-45deg) scale(1.08)",
+              "translateY(-4%) rotate(-45deg) scale(1.08)",
+              "translateY(-2%) rotate(-45deg) scale(1.1)",
+              "translateY(-2%) rotate(-45deg) scale(1.12)",
+            ]}
+            rowContents={[
+              "WELCOME",
+              "WILLKOMMEN",
+            ]}
+          />
           <Box
             sx={{
               backgroundImage:
@@ -271,14 +320,7 @@ const QrLandingPage = (props) => {
             >
               <Heading as="h2" sx={{ variant: "styles.h2", mb: "0.25rem" }}>
                 Event highlights for {eventYear}
-                <BoxIcon
-                  as="span"
-                  sx={{
-                    display: "inline-grid",
-                    ml: "0.5rem",
-                    verticalAlign: "middle",
-                  }}
-                />
+                <BoxIcon as="span" sx={joinHighlightsBoxIconSx} />
               </Heading>
               <Link
                 to="/events"
@@ -754,14 +796,7 @@ const QrLandingPage = (props) => {
           >
             <Heading as="h2" sx={{ variant: "styles.h2", mb: "0.25rem" }}>
               Member benefits
-              <BoxIcon
-                as="span"
-                sx={{
-                  display: "inline-grid",
-                  ml: "0.5rem",
-                  verticalAlign: "middle",
-                }}
-              />
+              <BoxIcon as="span" sx={joinSectionBoxIconSx} />
             </Heading>
             <Box
               as="hr"
