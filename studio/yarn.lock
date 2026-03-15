@@ -2384,15 +2384,15 @@
   version "3.0.0"
   resolved "https://registry.npmjs.org/@types/warning/-/warning-3.0.0.tgz"
 
-"@use-gesture/core@10.2.4":
-  version "10.2.4"
-  resolved "https://registry.npmjs.org/@use-gesture/core/-/core-10.2.4.tgz"
+"@use-gesture/core@10.3.1":
+  version "10.3.1"
+  resolved "https://registry.yarnpkg.com/@use-gesture/core/-/core-10.3.1.tgz#976c9421e905f0079d49822cfd5c2e56b808fc56"
 
-"@use-gesture/react@^10.2.4":
-  version "10.2.4"
-  resolved "https://registry.npmjs.org/@use-gesture/react/-/react-10.2.4.tgz"
+"@use-gesture/react@^10.3.1":
+  version "10.3.1"
+  resolved "https://registry.yarnpkg.com/@use-gesture/react/-/react-10.3.1.tgz#17a743a894d9bd9a0d1980c618f37f0164469867"
   dependencies:
-    "@use-gesture/core" "10.2.4"
+    "@use-gesture/core" "10.3.1"
 
 "@virtuoso.dev/react-urx@^0.2.5":
   version "0.2.12"
