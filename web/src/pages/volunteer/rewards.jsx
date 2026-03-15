@@ -9,6 +9,7 @@ import GraphQLErrorList from "../../components/graphql-error-list";
 import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
 import StylizedLandingHeader from "../../components/stylized-landing-header";
+import PermalinkHeading from "../../components/permalink-heading";
 
 export const query = graphql`
   query VolunteerRewardsPageQuery {
@@ -411,12 +412,15 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             on a leadership role, your contribution matters.
           </Text>
 
-          <Heading
+          <PermalinkHeading
             as="h2"
+            id="how-the-program-works"
+            linkText="How the Program Works"
+            component={Heading}
             sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
           >
             How the Program Works
-          </Heading>
+          </PermalinkHeading>
           <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
             Members earn Volunteer Points by supporting Club activities. Points
             are awarded based on the skill level, responsibility, and time
@@ -437,8 +441,11 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             .
           </Text>
 
-          <Heading
+          <PermalinkHeading
             as="h3"
+            id="volunteer-point-levels"
+            linkText="Volunteer Point Levels"
+            component={Heading}
             sx={{ variant: "styles.h3", mt: "1.25rem", mb: "0.5rem" }}
           >
             Volunteer Point Levels
@@ -455,7 +462,7 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             >
               *
             </Text>
-          </Heading>
+          </PermalinkHeading>
           <Box
             sx={{
               mt: "0.75rem",
@@ -582,8 +589,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                       color: "text",
                       mt: 0,
                       mb: 0,
-                      fontSize: ["1.05rem", "1.15rem", null, null],
-                      lineHeight: [1.08, 1.1, null, null],
+                      fontSize: ["1.18rem", "1.3rem", "1.45rem", "1.55rem"],
+                      lineHeight: [1.08, 1.1, 1.12, 1.12],
                     }}
                   >
                     {level.heading}
@@ -658,12 +665,15 @@ const VolunteerRewardsPage = ({ data, errors }) => {
             </Text>
           </Box>
 
-          <Heading
+          <PermalinkHeading
             as="h2"
+            id="eligibility-and-requirements"
+            linkText="Eligibility and Requirements"
+            component={Heading}
             sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
           >
             Eligibility & Requirements
-          </Heading>
+          </PermalinkHeading>
           <Box
             as="ul"
             sx={{
@@ -694,9 +704,15 @@ const VolunteerRewardsPage = ({ data, errors }) => {
           </Text>
 
           <Box sx={{ mt: "1.25rem", mb: "0.75rem" }}>
-            <Heading as="h2" sx={{ variant: "styles.h2", mt: 0, mb: "0.5rem" }}>
+            <PermalinkHeading
+              as="h2"
+              id="faq"
+              linkText="FAQ"
+              component={Heading}
+              sx={{ variant: "styles.h2", mt: 0, mb: "0.5rem" }}
+            >
               FAQ
-            </Heading>
+            </PermalinkHeading>
             <Text sx={{ variant: "styles.p", color: "text", mb: "1rem" }}>
               Common questions about how the volunteer rewards program works.
             </Text>

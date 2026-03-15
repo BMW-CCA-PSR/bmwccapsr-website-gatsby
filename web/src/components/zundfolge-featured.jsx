@@ -129,6 +129,7 @@ const ZundfolgeFeatured = ({ post }) => {
                 sx={{
                   variant: "styles.p",
                   color: "gray",
+                  pr: ["0.15rem", "0.25rem", "0.9rem"],
                   lineHeight: [1.35, 1.4, null],
                   "& p": {
                     lineHeight: [1.35, 1.4, null],

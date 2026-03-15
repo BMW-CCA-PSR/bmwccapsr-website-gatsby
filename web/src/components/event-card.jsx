@@ -60,7 +60,7 @@ const getExcerptText = (excerpt) => {
     .flatMap((block) =>
       Array.isArray(block?.children)
         ? block.children.map((child) => child?.text || "")
-        : [],
+        : []
     )
     .join(" ")
     .replace(/\s+/g, " ")
@@ -72,6 +72,7 @@ const EventCard = ({
   href,
   variant = "grid",
   compactMobile = false,
+  titleSx,
 }) => {
   if (!event) return null;
 
@@ -237,18 +238,18 @@ const EventCard = ({
             px: isHorizontal
               ? "1.5rem"
               : compactMobile
-                ? ["0.85rem", "0.92rem", "1rem", "1rem"]
-                : "1rem",
+              ? ["0.85rem", "0.92rem", "1rem", "1rem"]
+              : "1rem",
             pt: isHorizontal
               ? "1rem"
               : compactMobile
-                ? ["0.5rem", "0.58rem", "0.65rem", "0.65rem"]
-                : "0.65rem",
+              ? ["0.5rem", "0.58rem", "0.65rem", "0.65rem"]
+              : "0.65rem",
             pb: isHorizontal
               ? "0.75rem"
               : compactMobile
-                ? ["0.45rem", "0.5rem", "0.55rem", "0.55rem"]
-                : "0.55rem",
+              ? ["0.45rem", "0.5rem", "0.55rem", "0.55rem"]
+              : "0.55rem",
             flex: isHorizontal
               ? ["1 1 100%", "1 1 100%", "1 1 58%"]
               : "1 1 auto",
@@ -499,6 +500,7 @@ const EventCard = ({
                   mt: shouldCenterGridTitle ? "auto" : 0,
                   mb: shouldCenterGridTitle ? "auto" : 0,
                   pb: "0.02em",
+                  ...(titleSx || {}),
                 }}
               >
                 {event.title}

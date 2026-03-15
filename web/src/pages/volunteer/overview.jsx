@@ -15,6 +15,7 @@ import GraphQLErrorList from "../../components/graphql-error-list";
 import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
 import StylizedLandingHeader from "../../components/stylized-landing-header";
+import PermalinkHeading from "../../components/permalink-heading";
 
 export const query = graphql`
   query VolunteerOverviewPageQuery {
@@ -184,12 +185,15 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           />
         </Flex>
         <Box>
-          <Heading
+          <PermalinkHeading
             as="h2"
+            id="getting-started"
+            linkText="Getting Started"
+            component={Heading}
             sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
           >
             Getting Started
-          </Heading>
+          </PermalinkHeading>
           <Box
             sx={{
               display: "grid",
@@ -261,27 +265,27 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                       index === 0
                         ? "18px 18px 0 0"
                         : index === 3
-                          ? "0 0 18px 18px"
-                          : "0",
+                        ? "0 0 18px 18px"
+                        : "0",
                       index === 0
                         ? "18px 18px 0 0"
                         : index === 3
-                          ? "0 0 18px 18px"
-                          : "0",
+                        ? "0 0 18px 18px"
+                        : "0",
                       index === 0
                         ? "18px 0 0 0"
                         : index === 1
-                          ? "0 18px 0 0"
-                          : index === 2
-                            ? "0 0 0 18px"
-                            : "0 0 18px 0",
+                        ? "0 18px 0 0"
+                        : index === 2
+                        ? "0 0 0 18px"
+                        : "0 0 18px 0",
                       index === 0
                         ? "18px 0 0 0"
                         : index === 1
-                          ? "0 18px 0 0"
-                          : index === 2
-                            ? "0 0 0 18px"
-                            : "0 0 18px 0",
+                        ? "0 18px 0 0"
+                        : index === 2
+                        ? "0 0 0 18px"
+                        : "0 0 18px 0",
                     ],
                     mt: [
                       index === 0 ? 0 : "-1px",
@@ -399,12 +403,15 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             *An active MSR account with a good email attached is required for
             volunteer assignment and attribution.
           </Text>
-          <Heading
+          <PermalinkHeading
             as="h2"
+            id="skill-level-guide"
+            linkText="Skill Level Guide"
+            component={Heading}
             sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
           >
             Skill Level Guide
-          </Heading>
+          </PermalinkHeading>
           <Text sx={{ variant: "styles.p", mb: "1.5rem" }}>
             Points are tied first to expected time and effort, and second to the
             role/skill level. Higher point values generally mean a larger
@@ -795,12 +802,15 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             Volunteer Program Chair when deemed necessary.
           </Text>
 
-          <Heading
+          <PermalinkHeading
             as="h2"
+            id="role-scope"
+            linkText="Role Scope"
+            component={Heading}
             sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
           >
             Role Scope
-          </Heading>
+          </PermalinkHeading>
           <Text sx={{ variant: "styles.p", mb: "0.75rem" }}>
             The Club is seeking volunteers for both event-based and club-based
             roles. Some opportunities support a specific event date, while
@@ -936,12 +946,15 @@ const VolunteerOverviewPage = ({ data, errors }) => {
             </Box>
           </Box>
 
-          <Heading
+          <PermalinkHeading
             as="h2"
+            id="why-volunteer"
+            linkText="Why Volunteer"
+            component={Heading}
             sx={{ variant: "styles.h2", mt: "1.25rem", mb: "0.5rem" }}
           >
             Why Volunteer?
-          </Heading>
+          </PermalinkHeading>
           <Box
             as="ul"
             sx={{

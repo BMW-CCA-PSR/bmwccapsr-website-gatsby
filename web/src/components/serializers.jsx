@@ -7,10 +7,15 @@ import InstagramEmbed from "react-instagram-embed";
 import SanityImage from "gatsby-plugin-sanity-image";
 import { FiMaximize2, FiX } from "react-icons/fi";
 import { Box, Text } from "@theme-ui/components";
+import PermalinkHeading from "./permalink-heading";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import {
+  getPortableTextBlockText,
+  slugifyHeadingText,
+} from "../lib/permalinkHeadings";
 
 var style = {
   textDecoration: "none",
@@ -262,15 +267,56 @@ const serializers = {
       return null;
     },
     block(props) {
+      const headingText = getPortableTextBlockText(props.node);
+      const headingId = ["h2", "h3", "h4"].includes(props.node.style)
+        ? slugifyHeadingText(headingText)
+        : null;
+
       switch (props.node.style) {
         case "h1":
           return <Themed.h1 sx={headingSx}>{props.children}</Themed.h1>;
         case "h2":
-          return <Themed.h2 sx={headingSx}>{props.children}</Themed.h2>;
+          return headingId ? (
+            <PermalinkHeading
+              as="h2"
+              id={headingId}
+              linkText={headingText}
+              component={Themed.h2}
+              sx={headingSx}
+            >
+              {props.children}
+            </PermalinkHeading>
+          ) : (
+            <Themed.h2 sx={headingSx}>{props.children}</Themed.h2>
+          );
         case "h3":
-          return <Themed.h3 sx={headingSx}>{props.children}</Themed.h3>;
+          return headingId ? (
+            <PermalinkHeading
+              as="h3"
+              id={headingId}
+              linkText={headingText}
+              component={Themed.h3}
+              sx={headingSx}
+            >
+              {props.children}
+            </PermalinkHeading>
+          ) : (
+            <Themed.h3 sx={headingSx}>{props.children}</Themed.h3>
+          );
         case "h4":
-          return <Themed.h4 sx={headingSx}>{props.children}</Themed.h4>;
+          return headingId ? (
+            <PermalinkHeading
+              as="h4"
+              id={headingId}
+              linkText={headingText}
+              component={Themed.h4}
+              sx={headingSx}
+            >
+              {props.children}
+            </PermalinkHeading>
+          ) : (
+            <Themed.h4 sx={headingSx}>{props.children}</Themed.h4>
+          );
         case "h5":
           return <Themed.h5 sx={headingSx}>{props.children}</Themed.h5>;
         case "h6":

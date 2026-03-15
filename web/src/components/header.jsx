@@ -31,9 +31,12 @@ const isVolunteerMenuItem = (item) => {
   return normalizePath(getItemPath(item)) === "/volunteer";
 };
 
-const MOBILE_LOGO_MAX_SCALE = 0.86;
+const MOBILE_LOGO_MAX_SCALE = 0.9;
 const MOBILE_LOGO_MIN_SCALE = 0.5;
 const MOBILE_LOGO_SCROLL_RANGE = 140;
+const DESKTOP_LOGO_MAX_SCALE = 1;
+const DESKTOP_LOGO_MIN_SCALE = 0.92;
+const DESKTOP_LOGO_SCROLL_RANGE = 220;
 
 const getMobileLogoScale = (scrollY = 0) => {
   if (scrollY <= 0) return MOBILE_LOGO_MAX_SCALE;
@@ -44,12 +47,24 @@ const getMobileLogoScale = (scrollY = 0) => {
   );
 };
 
+const getDesktopLogoScale = (scrollY = 0) => {
+  if (scrollY <= 0) return DESKTOP_LOGO_MAX_SCALE;
+  const progress = Math.min(scrollY / DESKTOP_LOGO_SCROLL_RANGE, 1);
+  return (
+    DESKTOP_LOGO_MAX_SCALE -
+    progress * (DESKTOP_LOGO_MAX_SCALE - DESKTOP_LOGO_MIN_SCALE)
+  );
+};
+
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   const [isToggledOn, setToggle] = useState(false);
   const [isVolunteerHovered, setIsVolunteerHovered] = useState(false);
   const [isOtherDesktopNavHovered, setIsOtherDesktopNavHovered] =
     useState(false);
   const [mobileLogoScale, setMobileLogoScale] = useState(MOBILE_LOGO_MAX_SCALE);
+  const [desktopLogoScale, setDesktopLogoScale] = useState(
+    DESKTOP_LOGO_MAX_SCALE
+  );
   const toggle = () => setToggle(!isToggledOn);
   const index = useBreakpointIndex();
   const location = useLocation();
@@ -61,8 +76,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
       ? "primary"
       : "secondary"
     : isVolunteerHovered
-      ? "secondary"
-      : "primary";
+    ? "secondary"
+    : "primary";
   useEffect(() => {
     const html = document.querySelector("html");
     isToggledOn
@@ -82,13 +97,14 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
     const updateLogoScale = () => {
-      if (index > 2) {
-        setMobileLogoScale(1);
-        return;
-      }
-      const nextScale = getMobileLogoScale(window.scrollY || 0);
+      const scrollY = window.scrollY || 0;
+      const nextMobileScale = getMobileLogoScale(scrollY);
+      const nextDesktopScale = getDesktopLogoScale(scrollY);
       setMobileLogoScale((prev) =>
-        Math.abs(prev - nextScale) < 0.001 ? prev : nextScale,
+        Math.abs(prev - nextMobileScale) < 0.001 ? prev : nextMobileScale
+      );
+      setDesktopLogoScale((prev) =>
+        Math.abs(prev - nextDesktopScale) < 0.001 ? prev : nextDesktopScale
       );
     };
     updateLogoScale();
@@ -98,8 +114,9 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
       window.removeEventListener("scroll", updateLogoScale);
       window.removeEventListener("resize", updateLogoScale);
     };
-  }, [index]);
+  }, []);
   const mobileLogoTransform = `scale(${mobileLogoScale})`;
+  const desktopLogoTransform = `scale(${desktopLogoScale})`;
 
   return (
     <>
@@ -141,18 +158,31 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
                   id="siteTitle"
                   to="/"
                   sx={{
+                    "--desktop-logo-gap": "16px",
+                    "--desktop-logo-width": "clamp(130px, 14vw, 175px)",
                     color: "text",
                     textDecoration: "none",
                     display: "flex",
                     position: "absolute",
                     zIndex: 1250,
-                    left: ["16px", "16px", "24px", "32px"],
+                    left: [
+                      "16px",
+                      "16px",
+                      "max(24px, calc((100vw - 1000px) / 2 - var(--desktop-logo-width) - var(--desktop-logo-gap)))",
+                      "max(32px, calc((100vw - 1000px) / 2 - var(--desktop-logo-width) - var(--desktop-logo-gap)))",
+                    ],
                     transform: [
                       mobileLogoTransform,
                       mobileLogoTransform,
-                      "none",
+                      desktopLogoTransform,
+                      desktopLogoTransform,
                     ],
-                    transformOrigin: "top left",
+                    transformOrigin: [
+                      "top left",
+                      "top left",
+                      "top right",
+                      "top right",
+                    ],
                     transition: "transform 90ms linear",
                   }}
                 >

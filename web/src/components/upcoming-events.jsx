@@ -99,7 +99,13 @@ const UpcomingEvents = (props) => {
         >
           {displayEvents.map((event, index) => (
             <li key={event?._id || index}>
-              <EventCard event={event} />
+              <EventCard
+                event={event}
+                titleSx={{
+                  fontSize: ["26px", "28px", "30px", "30px"],
+                  lineHeight: [1.02, 1.03, 1.04, 1.04],
+                }}
+              />
             </li>
           ))}
           <li key="volunteer-promo-card">
@@ -183,7 +189,11 @@ const UpcomingEvents = (props) => {
           <Link to="/events" sx={{ ...outline, bg: "background" }}>
             <Box
               as="span"
-              sx={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+              }}
             >
               More Events
               <FiChevronRight size={16} aria-hidden="true" />
