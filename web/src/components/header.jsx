@@ -31,13 +31,17 @@ const isVolunteerMenuItem = (item) => {
   return normalizePath(getItemPath(item)) === "/volunteer";
 };
 
+const MOBILE_LOGO_MAX_SCALE = 0.86;
 const MOBILE_LOGO_MIN_SCALE = 0.5;
 const MOBILE_LOGO_SCROLL_RANGE = 140;
 
 const getMobileLogoScale = (scrollY = 0) => {
-  if (scrollY <= 0) return 1;
+  if (scrollY <= 0) return MOBILE_LOGO_MAX_SCALE;
   const progress = Math.min(scrollY / MOBILE_LOGO_SCROLL_RANGE, 1);
-  return 1 - progress * (1 - MOBILE_LOGO_MIN_SCALE);
+  return (
+    MOBILE_LOGO_MAX_SCALE -
+    progress * (MOBILE_LOGO_MAX_SCALE - MOBILE_LOGO_MIN_SCALE)
+  );
 };
 
 const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
@@ -45,7 +49,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
   const [isVolunteerHovered, setIsVolunteerHovered] = useState(false);
   const [isOtherDesktopNavHovered, setIsOtherDesktopNavHovered] =
     useState(false);
-  const [mobileLogoScale, setMobileLogoScale] = useState(1);
+  const [mobileLogoScale, setMobileLogoScale] = useState(MOBILE_LOGO_MAX_SCALE);
   const toggle = () => setToggle(!isToggledOn);
   const index = useBreakpointIndex();
   const location = useLocation();
@@ -57,8 +61,8 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
       ? "primary"
       : "secondary"
     : isVolunteerHovered
-    ? "secondary"
-    : "primary";
+      ? "secondary"
+      : "primary";
   useEffect(() => {
     const html = document.querySelector("html");
     isToggledOn
@@ -84,7 +88,7 @@ const Header = ({ showNav, siteTitle, scrolled, navMenuItems = [] }) => {
       }
       const nextScale = getMobileLogoScale(window.scrollY || 0);
       setMobileLogoScale((prev) =>
-        Math.abs(prev - nextScale) < 0.001 ? prev : nextScale
+        Math.abs(prev - nextScale) < 0.001 ? prev : nextScale,
       );
     };
     updateLogoScale();

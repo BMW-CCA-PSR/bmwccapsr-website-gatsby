@@ -162,7 +162,7 @@ const IndexPage = (props) => {
   }
 
   const site = (data || {}).site;
-  const postNodes = (data || {}).posts
+  const allPostNodes = (data || {}).posts
     ? mapEdgesToNodes(data.posts)
         .filter(filterOutDocsWithoutSlugs)
         .filter(futureFilter)
@@ -174,16 +174,12 @@ const IndexPage = (props) => {
     : null;
   if (!site) {
     console.warn(
-      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.'
+      'Missing "Site settings". Open the studio at http://localhost:3333 and add some content to "Site settings" and restart the development server.',
     );
   }
   const menuItems = site.navMenu && (site.navMenu.items || []);
-  const indexToRemove = 0;
-  const numberToRemove = 4;
-  var galleryNodes = [];
-  if (isFirst) {
-    galleryNodes = postNodes.splice(indexToRemove, numberToRemove);
-  }
+  const galleryNodes = isFirst ? allPostNodes.slice(0, 4) : [];
+  const listPostNodes = isFirst ? allPostNodes.slice(4) : allPostNodes;
   return (
     <Layout textWhite={false} navMenuItems={menuItems}>
       <Seo
@@ -320,7 +316,7 @@ const IndexPage = (props) => {
               <Card
                 sx={{
                   backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%), url(${withPrefix(
-                    "/images/zundfolge-archive-collage.png"
+                    "/images/zundfolge-archive-collage.png",
                   )})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -376,23 +372,59 @@ const IndexPage = (props) => {
           {isFirst ? "Latest Stories" : "Older Stories"}
         </Heading>
         <div>
-          {isFirst && <ZundfolgeArticleGallery nodes={galleryNodes} />}
+          {isFirst && (
+            <Box sx={{ display: ["none", "none", "block", "block"] }}>
+              <ZundfolgeArticleGallery nodes={galleryNodes} />
+            </Box>
+          )}
+          {isFirst && (
+            <ul
+              sx={{
+                listStyle: "none",
+                display: ["grid", "grid", "none", "none"],
+                gridGap: [2, "0.8rem", 3, 3],
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(max(250px, 35vw), 1fr))",
+                gridAutoRows: [
+                  "minmax(50px, 190px)",
+                  "minmax(50px, 210px)",
+                  "minmax(50px, 300px)",
+                  "minmax(50px, 300px)",
+                ],
+                m: 0,
+                p: 0,
+              }}
+            >
+              {allPostNodes.map((node, index) => {
+                return (
+                  <li key={`mobile-post-${index}`}>
+                    <ZundfolgeArticlePreview {...node} compactMobile />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           <ul
             sx={{
               listStyle: "none",
-              display: "grid",
-              gridGap: 3,
+              display: isFirst ? ["none", "none", "grid", "grid"] : "grid",
+              gridGap: [2, "0.8rem", 3, 3],
               gridTemplateColumns:
                 "repeat(auto-fit, minmax(max(250px, 35vw), 1fr))",
-              gridAutoRows: "minmax(50px, 300px)",
+              gridAutoRows: [
+                "minmax(50px, 190px)",
+                "minmax(50px, 210px)",
+                "minmax(50px, 300px)",
+                "minmax(50px, 300px)",
+              ],
               m: 0,
               p: 0,
             }}
           >
-            {postNodes.map((node, index) => {
+            {listPostNodes.map((node, index) => {
               return (
-                <li key={index}>
-                  <ZundfolgeArticlePreview {...node} />
+                <li key={`desktop-post-${index}`}>
+                  <ZundfolgeArticlePreview {...node} compactMobile />
                 </li>
               );
             })}

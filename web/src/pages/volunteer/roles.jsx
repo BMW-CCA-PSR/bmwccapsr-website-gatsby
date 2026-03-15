@@ -11,7 +11,7 @@ import {
   FaTools,
   FaUserPlus,
 } from "react-icons/fa";
-import { FiDownload } from "react-icons/fi";
+import { FiChevronDown, FiDownload } from "react-icons/fi";
 import Layout from "../../containers/layout";
 import Seo from "../../components/seo";
 import GraphQLErrorList from "../../components/graphql-error-list";
@@ -19,7 +19,7 @@ import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
 import StylizedLandingHeader from "../../components/stylized-landing-header";
 import CategoryFilterButtons from "../../components/category-filter-buttons";
-import { FilterBox, FilterSearchField } from "../../components/filter-ui";
+import { FilterSearchField } from "../../components/filter-ui";
 import { mapEdgesToNodes } from "../../lib/helpers";
 import headerLogo from "../../images/new-logo.png";
 import {
@@ -148,7 +148,7 @@ const getRoleBrowseTags = (name) => {
   const label = String(name || "").trim();
   if (!label) return [];
   return ROLE_BROWSE_FILTERS.filter((item) => item.pattern.test(label)).map(
-    (item) => item.value
+    (item) => item.value,
   );
 };
 
@@ -202,7 +202,7 @@ const buildRoleIconMarkup = (RolePresentationIcon, rolePresentationColor) => {
   }
 
   const svg = renderToStaticMarkup(
-    <RolePresentationIcon size={16} aria-hidden="true" focusable="false" />
+    <RolePresentationIcon size={16} aria-hidden="true" focusable="false" />,
   );
   const iconBg = rolePresentationColor || "#1f2937";
 
@@ -226,7 +226,7 @@ const buildRoleExportDocument = (roles) => {
 
   const sections = SKILL_TABS.map((tab) => {
     const tabRoles = roles.filter(
-      (role) => getTabKeyForPoints(role?.pointValue) === tab.key
+      (role) => getTabKeyForPoints(role?.pointValue) === tab.key,
     );
     if (!tabRoles.length) return "";
 
@@ -236,7 +236,7 @@ const buildRoleExportDocument = (roles) => {
         role?.description?.trim() || "No description available.";
       const RolePresentationIcon = getVolunteerRoleIconComponent(role?.icon);
       const rolePresentationColor = getVolunteerRolePresentationColor(
-        role?.color
+        role?.color,
       );
       const scopeMeta = getRoleScopeMeta(role?.roleScope);
       const pointValue = Number(role?.pointValue);
@@ -250,14 +250,14 @@ const buildRoleExportDocument = (roles) => {
               <div class="role-title-wrap">
                 ${buildRoleIconMarkup(
                   RolePresentationIcon,
-                  rolePresentationColor
+                  rolePresentationColor,
                 )}
                 <div>
                   <h3>${escapeHtml(roleName)}</h3>
                   <p class="role-meta">
                     ${escapeHtml(pointLabel)}${
-        scopeMeta ? ` • ${escapeHtml(scopeMeta.label)}` : ""
-      }
+                      scopeMeta ? ` • ${escapeHtml(scopeMeta.label)}` : ""
+                    }
                   </p>
                 </div>
               </div>
@@ -281,14 +281,14 @@ const buildRoleExportDocument = (roles) => {
         <div
           class="role-section-header"
           style="background:${escapeHtml(tab.bg)}; color:${escapeHtml(
-      tab.accent
-    )}; border-color:${escapeHtml(tab.accent)};"
+            tab.accent,
+          )}; border-color:${escapeHtml(tab.accent)};"
         >
           <h2>${escapeHtml(tab.label)} Roles</h2>
           <p>${escapeHtml(
             `${tab.points[0]}-${
               tab.points[tab.points.length - 1]
-            } point opportunities`
+            } point opportunities`,
           )}</p>
         </div>
         <div class="role-grid">
@@ -489,6 +489,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
   const [activeTab, setActiveTab] = useState("entry");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrowseFilters, setSelectedBrowseFilters] = useState([]);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [pageByTab, setPageByTab] = useState({
     entry: 1,
@@ -499,7 +500,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
   const roles = useMemo(
     () => (data?.roles ? mapEdgesToNodes(data.roles) : []),
-    [data?.roles]
+    [data?.roles],
   );
 
   const rolesBySkill = useMemo(() => {
@@ -547,7 +548,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
   const activeRoles = useMemo(
     () => filteredRolesBySkill[activeTab] || [],
-    [filteredRolesBySkill, activeTab]
+    [filteredRolesBySkill, activeTab],
   );
   const hasAnyFilterSelections =
     searchTerm.trim().length > 0 || selectedBrowseFilters.length > 0;
@@ -555,7 +556,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
   const activeViewKey = isFilteredView ? "filtered" : activeTab;
   const filteredRoles = useMemo(
     () => SKILL_TABS.flatMap((tab) => filteredRolesBySkill[tab.key] || []),
-    [filteredRolesBySkill]
+    [filteredRolesBySkill],
   );
   const visibleRoles = isFilteredView ? filteredRoles : activeRoles;
   const totalPages = Math.max(1, Math.ceil(visibleRoles.length / PAGE_SIZE));
@@ -577,6 +578,12 @@ const VolunteerRolesPage = ({ data, errors }) => {
     });
   }, [searchTerm, selectedBrowseFilters]);
 
+  useEffect(() => {
+    if (hasAnyFilterSelections) {
+      setMobileFiltersOpen(true);
+    }
+  }, [hasAnyFilterSelections]);
+
   const paginatedRoles = useMemo(() => {
     const start = (safePage - 1) * PAGE_SIZE;
     return visibleRoles.slice(start, start + PAGE_SIZE);
@@ -589,7 +596,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
   const paginationItems = useMemo(
     () => buildPaginationItems(safePage, totalPages),
-    [safePage, totalPages]
+    [safePage, totalPages],
   );
 
   const currentTab =
@@ -664,12 +671,12 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
       const exportPageWidthPx = 980;
       const maxPageHeightPx = Math.floor(
-        (printableHeight * exportPageWidthPx) / printableWidth
+        (printableHeight * exportPageWidthPx) / printableWidth,
       );
       const sourcePage = exportRoot.querySelector(".page");
       const sourceHeader = sourcePage?.querySelector(".header");
       const sourceSections = Array.from(
-        exportRoot.querySelectorAll(".role-section")
+        exportRoot.querySelectorAll(".role-section"),
       );
 
       if (!sourcePage || !sourceHeader || sourceSections.length === 0) {
@@ -713,7 +720,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
           .querySelector(".role-section-header")
           ?.cloneNode(true);
         const sourceRows = Array.from(
-          sourceSection.querySelectorAll(".role-row")
+          sourceSection.querySelectorAll(".role-row"),
         );
         if (!sectionHeader || sourceRows.length === 0) return;
 
@@ -738,7 +745,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
 
             currentPage = createPage();
             const nextSection = createSectionShell(
-              sectionHeader.cloneNode(true)
+              sectionHeader.cloneNode(true),
             );
             section = nextSection.section;
             grid = nextSection.grid;
@@ -749,7 +756,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
       });
 
       const pdfPages = Array.from(
-        pagesHost.querySelectorAll(".pdf-page-instance")
+        pagesHost.querySelectorAll(".pdf-page-instance"),
       );
 
       for (let index = 0; index < pdfPages.length; index += 1) {
@@ -780,7 +787,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
           printableWidth,
           imageHeight,
           undefined,
-          "FAST"
+          "FAST",
         );
       }
 
@@ -928,6 +935,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
               onClick={handleDownloadRoles}
               disabled={roles.length === 0 || isExportingPdf}
               sx={{
+                display: ["none", "none", "inline-flex", "inline-flex"],
                 width: "100%",
                 px: "1rem",
                 py: "0.65rem",
@@ -937,16 +945,15 @@ const VolunteerRolesPage = ({ data, errors }) => {
                   roles.length === 0
                     ? "muted"
                     : isExportingPdf
-                    ? "primary"
-                    : "secondary",
+                      ? "primary"
+                      : "secondary",
                 backgroundColor:
                   roles.length === 0
                     ? "muted"
                     : isExportingPdf
-                    ? "primary"
-                    : "secondary",
+                      ? "primary"
+                      : "secondary",
                 color: "white",
-                display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.75rem",
@@ -959,8 +966,8 @@ const VolunteerRolesPage = ({ data, errors }) => {
                   roles.length === 0
                     ? "not-allowed"
                     : isExportingPdf
-                    ? "progress"
-                    : "pointer",
+                      ? "progress"
+                      : "pointer",
                 fontSize: "xs",
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
@@ -969,14 +976,14 @@ const VolunteerRolesPage = ({ data, errors }) => {
                     roles.length === 0
                       ? "muted"
                       : isExportingPdf
-                      ? "primary"
-                      : "primary",
+                        ? "primary"
+                        : "primary",
                   borderColor:
                     roles.length === 0
                       ? "muted"
                       : isExportingPdf
-                      ? "primary"
-                      : "primary",
+                        ? "primary"
+                        : "primary",
                   color: "white",
                   boxShadow: "none",
                   filter: "none",
@@ -1049,41 +1056,143 @@ const VolunteerRolesPage = ({ data, errors }) => {
           </Box>
         ) : (
           <>
-            <FilterBox sx={{ mb: "1rem" }}>
-              <FilterSearchField
-                label="Search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search role name or description"
-                clearLabel="Clear role filters"
-                clearDisabled={!hasAnyFilterSelections}
-                onClear={() => {
-                  setSearchTerm("");
-                  setSelectedBrowseFilters([]);
-                }}
-                fieldSx={{ mb: "1rem" }}
-              />
-              <Box
+            <Box
+              sx={{
+                mt: "0.75rem",
+                mb: "1rem",
+                border: ["1px solid", "1px solid", "none"],
+                borderColor: ["black", "black", "transparent"],
+                borderRadius: ["12px", "12px", 0],
+                bg: ["lightgray", "lightgray", "transparent"],
+                overflow: "hidden",
+              }}
+            >
+              <Button
+                type="button"
+                aria-expanded={mobileFiltersOpen}
+                aria-controls="volunteer-filter-panel"
+                onClick={() => setMobileFiltersOpen((open) => !open)}
                 sx={{
-                  "& button": {
-                    mr: "0.6rem",
-                    mb: "0.35rem",
+                  display: ["inline-flex", "inline-flex", "none"],
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.5rem",
+                  px: "1rem",
+                  py: "0.7rem",
+                  borderRadius: [
+                    0,
+                    0,
+                    mobileFiltersOpen ? "12px 12px 0 0" : "12px",
+                  ],
+                  border: ["none", "none", "1px solid"],
+                  borderColor: ["transparent", "transparent", "black"],
+                  bg: "lightgray",
+                  color: "text",
+                  fontSize: "sm",
+                  fontWeight: "heading",
+                  lineHeight: 1.1,
+                  cursor: "pointer",
+                  boxShadow: "none",
+                  "&:hover": {
+                    bg: "muted",
                   },
                 }}
               >
-                <CategoryFilterButtons
-                  categories={ROLE_BROWSE_FILTERS.map((item) => ({
-                    value: item.value,
-                    label: item.label,
-                  }))}
-                  selectedCategories={selectedBrowseFilters}
-                  onChange={setSelectedBrowseFilters}
-                  showAll={false}
-                  layout="stretch"
-                  stretchColumns={5}
-                />
+                <Text as="span" sx={{ fontSize: "inherit", color: "inherit" }}>
+                  Filter
+                </Text>
+                <Box
+                  as="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "transform 180ms ease",
+                    transform: mobileFiltersOpen
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                  }}
+                >
+                  <FiChevronDown size={18} />
+                </Box>
+              </Button>
+
+              <Box
+                id="volunteer-filter-panel"
+                sx={{
+                  overflow: "hidden",
+                  maxHeight: [
+                    mobileFiltersOpen ? "1200px" : 0,
+                    mobileFiltersOpen ? "1200px" : 0,
+                    "none",
+                  ],
+                  opacity: [
+                    mobileFiltersOpen ? 1 : 0,
+                    mobileFiltersOpen ? 1 : 0,
+                    1,
+                  ],
+                  pointerEvents: [
+                    mobileFiltersOpen ? "auto" : "none",
+                    mobileFiltersOpen ? "auto" : "none",
+                    "auto",
+                  ],
+                  transition:
+                    "max-height 220ms ease, opacity 180ms ease, padding 180ms ease",
+                }}
+              >
+                <Box
+                  sx={{
+                    mt: [0, 0, "0.75rem"],
+                    mb: 0,
+                    border: ["none", "none", "1px solid"],
+                    borderColor: ["transparent", "transparent", "black"],
+                    borderRadius: [0, 0, "12px"],
+                    borderTopColor: ["transparent", "transparent", "black"],
+                    bg: ["lightgray", "lightgray", "lightgray"],
+                    boxShadow: "none",
+                    p: ["1rem", "1.25rem"],
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <FilterSearchField
+                    label="Search"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder="Search role name or description"
+                    clearLabel="Clear role filters"
+                    clearDisabled={!hasAnyFilterSelections}
+                    onClear={() => {
+                      setSearchTerm("");
+                      setSelectedBrowseFilters([]);
+                    }}
+                    fieldSx={{ mb: "1rem" }}
+                  />
+                  <Box
+                    sx={{
+                      "& button": {
+                        mr: "0.6rem",
+                        mb: "0.35rem",
+                      },
+                    }}
+                  >
+                    <CategoryFilterButtons
+                      categories={ROLE_BROWSE_FILTERS.map((item) => ({
+                        value: item.value,
+                        label: item.label,
+                      }))}
+                      selectedCategories={selectedBrowseFilters}
+                      onChange={setSelectedBrowseFilters}
+                      showAll={false}
+                      layout="stretch"
+                      stretchColumns={5}
+                    />
+                  </Box>
+                </Box>
               </Box>
-            </FilterBox>
+            </Box>
 
             <Box
               sx={{
@@ -1135,7 +1244,8 @@ const VolunteerRolesPage = ({ data, errors }) => {
                           display: "inline-flex",
                           justifyContent: "center",
                           alignItems: "center",
-                          gap: "0.5rem",
+                          flexDirection: ["column", "column", "row", "row"],
+                          gap: ["0.2rem", "0.25rem", "0.5rem", "0.5rem"],
                           bg: isActive ? tab.bg : "background",
                           color: isActive ? tab.accent : "text",
                           fontWeight: "heading",
@@ -1159,7 +1269,12 @@ const VolunteerRolesPage = ({ data, errors }) => {
                         <TabIcon size={18} aria-hidden="true" />
                         <Text
                           as="span"
-                          sx={{ fontSize: "sm", fontWeight: "heading" }}
+                          sx={{
+                            fontSize: ["14px", "15px", "sm", "sm"],
+                            fontWeight: "heading",
+                            lineHeight: 1,
+                            textAlign: "center",
+                          }}
                         >
                           {tab.label}
                         </Text>
@@ -1188,7 +1303,10 @@ const VolunteerRolesPage = ({ data, errors }) => {
                   <FaCogs size={18} aria-hidden="true" />
                   <Text
                     as="span"
-                    sx={{ fontSize: "sm", fontWeight: "heading" }}
+                    sx={{
+                      fontSize: ["12px", "13px", "sm", "sm"],
+                      fontWeight: "heading",
+                    }}
                   >
                     Filtered Roles
                   </Text>

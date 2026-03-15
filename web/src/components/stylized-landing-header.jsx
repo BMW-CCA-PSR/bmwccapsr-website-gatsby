@@ -46,13 +46,13 @@ const StylizedLandingHeader = ({
   const topInsetValues = normalizeResponsiveValue(topInset);
   const bleedTopValues = normalizeResponsiveValue(
     bleedTop,
-    topInsetValues.length
+    topInsetValues.length,
   );
   const combinedPaddingTop = topInsetValues.map((value, index) =>
-    addLengths(value, bleedTopValues[index])
+    addLengths(value, bleedTopValues[index]),
   );
   const combinedMarginTop = topInsetValues.map((value, index) =>
-    subtractLengths(value, bleedTopValues[index])
+    subtractLengths(value, bleedTopValues[index]),
   );
 
   return (
@@ -61,6 +61,12 @@ const StylizedLandingHeader = ({
         position: "relative",
         mt: combinedMarginTop,
         pt: combinedPaddingTop,
+        transform: [
+          "translateY(-0.6rem)",
+          "translateY(-0.7rem)",
+          "none",
+          "none",
+        ],
         minHeight,
         overflow: "hidden",
       }}
@@ -113,7 +119,7 @@ const StylizedLandingHeader = ({
                 }}
               >
                 {Array.from({ length: rowRepeatCount }, () => rowContent).join(
-                  "   "
+                  "   ",
                 )}
               </Text>
             </Box>

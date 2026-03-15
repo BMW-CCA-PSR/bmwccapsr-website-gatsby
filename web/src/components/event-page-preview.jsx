@@ -3,8 +3,10 @@ import React from "react";
 import EventCard from "./event-card";
 
 function EventPagePreview(props) {
-  const { variant, ...event } = props;
-  return <EventCard event={event} variant={variant} />;
+  const { variant, compactMobile, ...event } = props;
+  return (
+    <EventCard event={event} variant={variant} compactMobile={compactMobile} />
+  );
 }
 
 export default EventPagePreview;

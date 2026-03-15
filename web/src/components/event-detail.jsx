@@ -122,10 +122,10 @@ function EventDetails(props) {
     .join(" ")
     .toLowerCase();
   const hasOnlineKeyword = /(zoom|online|remote|virtual|teams|meet)/i.test(
-    onlineText
+    onlineText,
   );
   const isOnline = Boolean(
-    props.onlineEvent || props.onlineLink || hasOnlineKeyword
+    props.onlineEvent || props.onlineLink || hasOnlineKeyword,
   );
   const calendarStartDate = startDate;
   const calendarEndDate = endDate;
@@ -157,7 +157,7 @@ function EventDetails(props) {
         details: calendarDescription,
         location: eventLocation || "",
         dates: `${toGoogleCalendarStamp(
-          calendarStartDate
+          calendarStartDate,
         )}/${toGoogleCalendarStamp(finalCalendarEndDate)}`,
       }).toString()}`
     : null;
@@ -171,7 +171,7 @@ function EventDetails(props) {
           location: eventLocation || "",
           startdt: calendarStartDate.toISOString(),
           enddt: finalCalendarEndDate.toISOString(),
-        }
+        },
       ).toString()}`
     : null;
 
@@ -180,20 +180,20 @@ function EventDetails(props) {
     process.env.GATSBY_MAPBOX_TOKEN ||
     DEFAULT_MAPBOX_PUBLIC_TOKEN;
   const hasValidAddress = Boolean(
-    !isOnline && address.line1 && address.city && address.state
+    !isOnline && address.line1 && address.city && address.state,
   );
   const explicitLatitude = Number.parseFloat(
-    String(props?.location?.lat ?? "")
+    String(props?.location?.lat ?? ""),
   );
   const explicitLongitude = Number.parseFloat(
-    String(props?.location?.lng ?? "")
+    String(props?.location?.lng ?? ""),
   );
   const hasExplicitCoordinates =
     Number.isFinite(explicitLatitude) && Number.isFinite(explicitLongitude);
   const [resolvedMapCoords, setResolvedMapCoords] = React.useState(
     hasExplicitCoordinates
       ? { latitude: explicitLatitude, longitude: explicitLongitude }
-      : null
+      : null,
   );
 
   React.useEffect(() => {
@@ -247,10 +247,10 @@ function EventDetails(props) {
       try {
         const response = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            fullAddress
+            fullAddress,
           )}.json?access_token=${encodeURIComponent(
-            mapboxToken
-          )}&limit=1&autocomplete=false&country=US`
+            mapboxToken,
+          )}&limit=1&autocomplete=false&country=US`,
         );
         if (!response.ok) {
           if (isCurrent) setResolvedMapCoords(null);
@@ -431,11 +431,6 @@ function EventDetails(props) {
           >
             {props.title}
           </Text>
-          {start && (
-            <Text as="div" sx={{ fontSize: "sm", color: "gray", mt: "0.1rem" }}>
-              {start}
-            </Text>
-          )}
         </Box>
       )}
 
@@ -447,6 +442,9 @@ function EventDetails(props) {
         }}
       >
         <Box sx={{ width: "100%" }}>
+          <Text sx={detailLabelSx}>Date</Text>
+          <Text sx={detailValueSx}>{start || "TBD"}</Text>
+
           <Text sx={detailLabelSx}>Time</Text>
           <Text sx={detailValueSx}>{startTimeLabel || "TBD"}</Text>
 

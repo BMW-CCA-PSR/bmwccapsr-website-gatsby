@@ -13,7 +13,7 @@ import { Avatar } from "theme-ui";
 import { imageUrlFor } from "../lib/image-url";
 import ContentContainer from "./content-container";
 import { getZundfolgeUrl } from "../lib/helpers";
-import { BoxIcon } from "./box-icons";
+import { BoxIconTitleLockup } from "./box-icons";
 import StylizedLandingHeader from "./stylized-landing-header";
 import {
   nonDraggableImageProps,
@@ -119,7 +119,7 @@ function ZundfolgeArticle(props) {
       ? formatDistance(new Date(publishedAt), new Date())
       : format(new Date(publishedAt), "MMMM do, yyyy"));
   const authorString = String(
-    authors.map((author) => ` ${author.author.name}`)
+    authors.map((author) => ` ${author.author.name}`),
   );
   const cat = category.title;
   const randomBoxPosition = randomGenerator(0, boxes.edges.length - 1);
@@ -138,7 +138,7 @@ function ZundfolgeArticle(props) {
         .height(avatarSize)
         .fit("fill")
         .auto("format")
-        .url()
+        .url(),
     );
   return (
     <article>
@@ -244,17 +244,16 @@ function ZundfolgeArticle(props) {
             </Box>
             <Heading
               variant="styles.h1"
-              sx={{ position: "relative", zIndex: 1 }}
+              sx={{
+                position: "relative",
+                zIndex: 1,
+                fontSize: "xl",
+                "@media screen and (max-width: 767px)": {
+                  fontSize: "46px",
+                },
+              }}
             >
-              {title}
-              <BoxIcon
-                as="span"
-                sx={{
-                  display: "inline-grid",
-                  ml: "0.5rem",
-                  verticalAlign: "middle",
-                }}
-              />
+              <BoxIconTitleLockup text={title} />
             </Heading>
             <Flex
               sx={{

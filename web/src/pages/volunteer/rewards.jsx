@@ -27,6 +27,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
   const pointLevels = [
     {
       points: "1   \n2",
+      accentBg: "#e8f7ec",
+      accentColor: "#1f7a3f",
       heading: "Event Support Roles",
       lead: "Ideal for first-time volunteers or members with limited availability.",
       bullets: [
@@ -41,6 +43,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
     },
     {
       points: "3   \n4",
+      accentBg: "#fff6d5",
+      accentColor: "#8b6b00",
       heading: "Operational & Event Leadership",
       lead: "For members interested in taking on increased responsibility.",
       bullets: [
@@ -54,6 +58,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
     },
     {
       points: "5",
+      accentBg: "#ffe6e6",
+      accentColor: "#9a1f1f",
       heading: "Specialized & Certified Roles",
       lead: "Designed for members with specialized expertise or formal certification.",
       bullets: [
@@ -65,6 +71,8 @@ const VolunteerRewardsPage = ({ data, errors }) => {
     },
     {
       points: "10",
+      accentBg: "#e6f0ff",
+      accentColor: "#2357b3",
       heading: "Ongoing Leadership Roles",
       lead: "For members who provide sustained leadership and accountability throughout the year.",
       bullets: [
@@ -317,54 +325,76 @@ const VolunteerRewardsPage = ({ data, errors }) => {
         <Box>
           <Heading
             as="h2"
-            sx={{ variant: "styles.h2", mt: "1rem", mb: "0.5rem" }}
+            sx={{
+              variant: "styles.h2",
+              mt: "1rem",
+              mb: "0.5rem",
+              lineHeight: [1.24, 1.2, null, null],
+            }}
           >
-            Your{" "}
-            <Box
+            <Text
               as="span"
-              sx={{
-                bg: "primary",
-                color: "white",
-                px: "0.35em",
-                py: "0.05em",
-                borderRadius: "6px",
-                display: "inline-block",
-                lineHeight: 1.05,
-              }}
+              sx={{ display: ["block", "block", "inline", "inline"] }}
             >
-              Time
-            </Box>
-            . Your{" "}
-            <Box
+              Your{" "}
+              <Box
+                as="span"
+                sx={{
+                  bg: "primary",
+                  color: "white",
+                  px: ["0.18em", "0.22em", "0.35em", "0.35em"],
+                  py: "0.05em",
+                  borderRadius: "6px",
+                  display: "inline-block",
+                  lineHeight: 1.05,
+                }}
+              >
+                Time
+              </Box>
+              .
+            </Text>{" "}
+            <Text
               as="span"
-              sx={{
-                bg: "primary",
-                color: "white",
-                px: "0.35em",
-                py: "0.05em",
-                borderRadius: "6px",
-                display: "inline-block",
-                lineHeight: 1.05,
-              }}
+              sx={{ display: ["block", "block", "inline", "inline"] }}
             >
-              Impact
-            </Box>
-            . Your{" "}
-            <Box
+              Your{" "}
+              <Box
+                as="span"
+                sx={{
+                  bg: "primary",
+                  color: "white",
+                  px: ["0.18em", "0.22em", "0.35em", "0.35em"],
+                  py: "0.05em",
+                  borderRadius: "6px",
+                  display: "inline-block",
+                  lineHeight: 1.05,
+                }}
+              >
+                Impact
+              </Box>
+              .
+            </Text>{" "}
+            <Text
               as="span"
-              sx={{
-                bg: "primary",
-                color: "white",
-                px: "0.35em",
-                py: "0.05em",
-                borderRadius: "6px",
-                display: "inline-block",
-                lineHeight: 1.05,
-              }}
+              sx={{ display: ["block", "block", "inline", "inline"] }}
             >
-              Rewards
-            </Box>
-            .
+              Your{" "}
+              <Box
+                as="span"
+                sx={{
+                  bg: "primary",
+                  color: "white",
+                  px: ["0.18em", "0.22em", "0.35em", "0.35em"],
+                  py: "0.05em",
+                  borderRadius: "6px",
+                  display: "inline-block",
+                  lineHeight: 1.05,
+                }}
+              >
+                Rewards
+              </Box>
+              .
+            </Text>
           </Heading>
           <Text
             sx={{
@@ -442,9 +472,9 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                 key={level.heading}
                 sx={{
                   display: "flex",
-                  flexDirection: ["column", "row"],
-                  gap: "1rem",
-                  alignItems: ["flex-start", "center"],
+                  flexDirection: ["row", "row", "row"],
+                  gap: ["0.85rem", "1rem", "1rem"],
+                  alignItems: ["stretch", "stretch", "center"],
                   px: ["1rem", "1.25rem"],
                   py: ["1rem", "1.25rem"],
                   borderTop: index === 0 ? "none" : "1px solid",
@@ -460,8 +490,65 @@ const VolunteerRewardsPage = ({ data, errors }) => {
               >
                 <Box
                   sx={{
-                    flex: ["0 0 auto", "0 0 25%"],
-                    display: "flex",
+                    display: ["flex", "flex", "none", "none"],
+                    flex: "0 0 78px",
+                    alignSelf: "stretch",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      minHeight: "100%",
+                      px: "0.35rem",
+                      py: "0.65rem",
+                      borderRadius: "16px",
+                      backgroundColor: level.accentBg,
+                      color: level.accentColor,
+                      border: "1px solid",
+                      borderColor: "rgba(15,23,42,0.1)",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)",
+                    }}
+                  >
+                    <Text
+                      as="span"
+                      sx={{
+                        fontSize: "10px",
+                        fontWeight: "heading",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                        lineHeight: 1,
+                        opacity: 0.8,
+                        mb: "0.2rem",
+                      }}
+                    >
+                      Points
+                    </Text>
+                    <Text
+                      as="span"
+                      sx={{
+                        fontSize: ["34px", "38px"],
+                        fontStyle: "italic",
+                        fontWeight: "heading",
+                        letterSpacing: "-0.04em",
+                        lineHeight: 0.84,
+                        whiteSpace: "pre-wrap",
+                        textAlign: "center",
+                      }}
+                    >
+                      {level.points}
+                    </Text>
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    display: ["none", "none", "flex", "flex"],
+                    flex: ["0 0 auto", "0 0 auto", "0 0 25%"],
                     justifyContent: "center",
                     alignItems: "center",
                     textAlign: "center",
@@ -487,7 +574,7 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                     {level.points}
                   </Text>
                 </Box>
-                <Box>
+                <Box sx={{ flex: "1 1 auto", minWidth: 0 }}>
                   <Heading
                     as="h4"
                     sx={{
@@ -495,13 +582,21 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                       color: "text",
                       mt: 0,
                       mb: 0,
+                      fontSize: ["1.05rem", "1.15rem", null, null],
+                      lineHeight: [1.08, 1.1, null, null],
                     }}
                   >
                     {level.heading}
                   </Heading>
                   <Text
                     as="strong"
-                    sx={{ display: "block", mt: "0.35rem", color: "text" }}
+                    sx={{
+                      display: "block",
+                      mt: "0.35rem",
+                      color: "text",
+                      fontSize: ["0.95rem", "1rem", null, null],
+                      lineHeight: [1.35, 1.4, null, null],
+                    }}
                   >
                     {level.lead}
                   </Text>
@@ -510,8 +605,9 @@ const VolunteerRewardsPage = ({ data, errors }) => {
                     sx={{
                       pl: "1.25rem",
                       mt: "0.5rem",
-                      lineHeight: "body",
+                      lineHeight: [1.45, 1.5, "body"],
                       listStyleType: "disc",
+                      fontSize: ["0.92rem", "0.98rem", null, null],
                     }}
                   >
                     {level.bullets.map((item) => (

@@ -50,16 +50,17 @@ const ZundfolgeFeatured = ({ post }) => {
           sx={{
             display: "grid",
             gridTemplateColumns: ["1fr", "1fr", "1.25fr 1fr"],
-            minHeight: ["220px", "260px", "300px"],
+            minHeight: ["320px", "380px", "300px"],
           }}
         >
           <Box
             sx={{
               position: "relative",
-              minHeight: "100%",
+              minHeight: ["180px", "220px", "100%"],
               overflow: "hidden",
               clipPath: ["none", "none", slantClip],
               borderTopLeftRadius: "18px",
+              borderTopRightRadius: ["18px", "18px", 0],
               borderBottomLeftRadius: [0, 0, "18px"],
             }}
           >
@@ -124,7 +125,17 @@ const ZundfolgeFeatured = ({ post }) => {
               {post.title}
             </Heading>
             {excerpt && (
-              <Text sx={{ variant: "styles.p", color: "gray" }}>
+              <Text
+                sx={{
+                  variant: "styles.p",
+                  color: "gray",
+                  lineHeight: [1.35, 1.4, null],
+                  "& p": {
+                    lineHeight: [1.35, 1.4, null],
+                    my: 0,
+                  },
+                }}
+              >
                 <PortableText body={excerpt} />
               </Text>
             )}

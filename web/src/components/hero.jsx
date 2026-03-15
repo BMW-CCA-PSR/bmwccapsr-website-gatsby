@@ -1,66 +1,76 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import CTALink from "./CTALink";
-import SanityImage from "gatsby-plugin-sanity-image"
-import { Heading, Text } from "theme-ui"
+import SanityImage from "gatsby-plugin-sanity-image";
+import { Heading, Text } from "theme-ui";
 import { BoxIcon } from "./box-icons";
 import ContentContainer from "./content-container";
 
 function Hero(props) {
-  const image = props.image
+  const image = props.image;
+  const headingText = String(props.heading || "");
+  const hasLongMobileHeading = headingText.trim().length > 50;
   const colorOverride =
-    typeof props.colors === "string" ? props.colors : props.colors?.value
-  let fontColor = "#000"
+    typeof props.colors === "string" ? props.colors : props.colors?.value;
+  let fontColor = "#000";
   if (
     props.image &&
     props.image.asset &&
     props.image.asset.metadata &&
     props.image.asset.metadata.palette
   ) {
-    fontColor = props.image.asset.metadata.palette.dominant.foreground
+    fontColor = props.image.asset.metadata.palette.dominant.foreground;
   }
-  fontColor = colorOverride ? colorOverride : fontColor
+  fontColor = colorOverride ? colorOverride : fontColor;
   return (
     <div
       sx={{
         width: "100%",
-        height: props.isHomepage ? 480 : 360,
+        height: props.isHomepage ? [430, 450, 480, 480] : [320, 340, 360, 360],
         position: "relative",
-      }}>
+      }}
+    >
       {/* background image component */}
-      {
-        props.image &&
-        props.image.asset &&
-        <SanityImage {...image} width={1440}
+      {props.image && props.image.asset && (
+        <SanityImage
+          {...image}
+          width={1440}
           sx={{
-            position: "absolute", 
-            width: "100%", 
-            height: "100%", 
+            position: "absolute",
+            width: "100%",
+            height: "100%",
             objectFit: "cover",
             zIndex: "-1",
-          }} />
-        }
-        <div
+          }}
+        />
+      )}
+      <div
+        sx={{
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 35%, rgba(0,0,0,0) 60%), rgba(120, 120, 120, 0.38)",
+          height: "100%",
+          zIndex: "0",
+        }}
+      >
+        {/* inner text component / content div */}
+        <ContentContainer
           sx={{
-            background:
-              "linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.3) 35%, rgba(0,0,0,0) 60%), rgba(120, 120, 120, 0.38)",
-            height: "100%",
-            zIndex: "0"
+            px: ["16px", "16px", "50px", "100px"],
+            //paddingRight: ["20px", "50px", "100px", "400px"],
+            pt: ["120px", "120px", "160px", "160px"],
           }}
         >
-        {/* inner text component / content div */}
-        <ContentContainer sx={{
-          px: ["16px","16px","50px","100px"],
-          //paddingRight: ["20px", "50px", "100px", "400px"],
-          pt: ["120px", "120px","160px", "160px"]
-        }}>
-          <Text variant="text.label" sx={{color: `${fontColor}`}}>{props.label}</Text>
+          <Text variant="text.label" sx={{ color: `${fontColor}` }}>
+            {props.label}
+          </Text>
           <Heading
             sx={{
-              fontSize: ["50px", "xl"],
+              fontSize: hasLongMobileHeading
+                ? ["42px", "46px", "xl", "xl"]
+                : ["50px", "50px", "xl", "xl"],
               color: `${fontColor}`,
               lineHeight: ["40px", "60px"],
-              textTransform: "none"
+              textTransform: "none",
             }}
           >
             {props.heading}
@@ -69,20 +79,21 @@ function Hero(props) {
               sx={{
                 display: "inline-grid",
                 ml: "0.5rem",
-                verticalAlign: "middle"
+                verticalAlign: "middle",
               }}
             />
           </Heading>
-          <div sx={{py: "20px"}}>
-            <Text variant="styles.h3" sx={{color: `${fontColor}`, fontWeight: 400}}>
+          <div sx={{ pt: "20px", pb: ["10px", "12px", "20px", "20px"] }}>
+            <Text
+              variant="styles.h3"
+              sx={{ color: `${fontColor}`, fontWeight: 400 }}
+            >
               {props.tagline}
             </Text>
           </div>
-          {props.cta && props.cta.title && (
-            <CTALink {...props.cta} />
-          )}
-          </ContentContainer>
-        </div>
+          {props.cta && props.cta.title && <CTALink {...props.cta} />}
+        </ContentContainer>
+      </div>
     </div>
   );
 }
