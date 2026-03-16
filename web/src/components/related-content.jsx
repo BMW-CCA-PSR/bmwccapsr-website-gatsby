@@ -138,7 +138,7 @@ function RelatedContent(props) {
       >
         <div>
           {mainImage && mainImage.asset && (
-            <div sx={{ position: "relative" }}>
+            <div sx={{ position: "relative", height: "180px" }}>
               <SanityImage
                 {...mainImage}
                 {...nonDraggableImageProps}
@@ -146,7 +146,6 @@ function RelatedContent(props) {
                 sx={{
                   width: "100%",
                   height: "100%",
-                  maxHeight: "200px",
                   objectFit: "cover",
                   borderTopLeftRadius: "18px",
                   borderTopRightRadius: "18px",
@@ -156,45 +155,53 @@ function RelatedContent(props) {
               <Box
                 sx={{
                   position: "absolute",
-                  backgroundColor: "white",
-                  height: "65px",
-                  width: "60px",
-                  alignContent: "center",
-                  bottom: "20px",
                   right: "20px",
-                  m: "auto",
-                  borderBottom: "5px",
-                  borderBottomStyle: "solid",
-                  borderBottomColor: "highlight",
+                  bottom: "20px",
+                  border: "1px solid",
+                  borderColor: "rgba(15, 23, 42, 0.18)",
+                  borderRadius: "12px",
+                  backgroundColor: "white",
+                  minWidth: "74px",
+                  px: "0.9rem",
+                  py: "0.55rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <div
+                <Box
                   sx={{
-                    justifyContent: "center",
                     textAlign: "center",
-                    pt: "5px",
                   }}
                 >
-                  <Text sx={{ variant: "styles.h4", display: "block" }}>
+                  <Text
+                    sx={{
+                      variant: "text.label",
+                      color: "darkgray",
+                      display: "block",
+                    }}
+                  >
                     {format(parseISO(startTime), "MMM")}
                   </Text>
-                  <Text sx={{ variant: "styles.h3" }}>
+                  <Text sx={{ variant: "styles.h3", lineHeight: 1 }}>
                     {format(parseISO(startTime), "d")}
                   </Text>
-                </div>
+                </Box>
               </Box>
             </div>
           )}
         </div>
         <Box
-          p={3}
           sx={{
+            px: 3,
+            pt: "0.8rem",
+            pb: "0.9rem",
             display: "flex",
             flexDirection: "column",
-            gap: "0.5rem",
+            gap: "0.16rem",
           }}
         >
-          <Flex sx={{ alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+          <Flex sx={{ alignItems: "center", gap: "0.32rem", flexWrap: "wrap" }}>
             <Text sx={{ variant: "text.label" }}>{cat}</Text>
             {isUpcoming && (
               <Text
@@ -210,7 +217,10 @@ function RelatedContent(props) {
               </Text>
             )}
           </Flex>
-          <Heading sx={{ textDecoration: "none", mt: 0, mb: 0 }} variant="styles.h4">
+          <Heading
+            sx={{ textDecoration: "none", mt: 0, mb: 0, lineHeight: 0.98 }}
+            variant="styles.h4"
+          >
             {title}
           </Heading>
           {!isOnline && (
@@ -219,6 +229,9 @@ function RelatedContent(props) {
                 variant: "styles.h5",
                 textTransform: "capitalize",
                 fontWeight: "body",
+                mt: 0,
+                mb: 0,
+                lineHeight: 1.1,
               }}
             >
               {cityState}
