@@ -265,16 +265,19 @@ const MapCard = ({
           border: "1px solid",
           overflow: "hidden",
           position: "relative",
+          width: "100%",
+          height,
+          p: 0,
         }}
       >
-        <Box sx={{ position: "relative" }}>
+        <Box sx={{ position: "relative", height: "100%" }}>
           <MapCanvas
             latitude={parsedLatitude}
             longitude={parsedLongitude}
             title={title}
             token={token}
             showZoomControls={showZoomControls}
-            height={height}
+            height="100%"
             interactive={false}
             controlsTop="8px"
           />

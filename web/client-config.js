@@ -4,6 +4,11 @@ module.exports = {
     dataset: process.env.GATSBY_SANITY_DATASET || "production",
     useCdn: false,
     apiVersion: "2021-08-31",
-    token: process.env.GATSBY_SANITY_TOKEN || undefined,
+    // Keep auth tokens out of browser fetches. Public-read event queries should
+    // run without Authorization headers to avoid silent CORS/auth failures.
+    token:
+      typeof window === "undefined"
+        ? process.env.GATSBY_SANITY_TOKEN || undefined
+        : undefined,
   },
 };

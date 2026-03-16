@@ -1,20 +1,22 @@
 {
-  "name": "amplify-infra",
-  "version": "0.1.0",
+  "name": "aws-infra",
+  "version": "0.2.0",
   "bin": {
-    "amplify-infra": "bin/amplify-infra.js"
+    "aws-infra": "bin/aws-infra.ts"
   },
   "scripts": {
     "build": "tsc",
+    "build:lambda": "node -e \"require('fs').mkdirSync('lambda-dist',{recursive:true})\" && npx esbuild lambda/msr-events-sync.ts --bundle --platform=node --format=cjs --target=node18 --external:crypto --external:buffer --external:path --external:fs --external:util --external:./xhr-sync-worker.js --outfile=lambda-dist/msr-events-sync.js && cp node_modules/jsdom/lib/jsdom/living/xhr/xhr-sync-worker.js lambda-dist/xhr-sync-worker.js",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "npm run build:lambda && cdk"
   },
   "devDependencies": {
     "@aws-cdk/assert": "^1.119.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "aws-cdk": "1.117.0",
+    "esbuild": "^0.19.12",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^10.2.0",
@@ -37,9 +39,15 @@
     "@aws-cdk/aws-route53": "^1.119.0",
     "@aws-cdk/aws-secretsmanager": "^1.119.0",
     "@aws-cdk/core": "^1.119.0",
+    "@aws-sdk/client-eventbridge": "3.917.0",
+    "@aws-sdk/client-dynamodb": "3.917.0",
+    "@aws-sdk/client-secrets-manager": "3.917.0",
+    "@aws-sdk/util-dynamodb": "3.917.0",
+    "@portabletext/html": "^1.0.0",
     "docker": "^1.0.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "jsdom": "^22.1.0",
     "source-map-support": "^0.5.16"
   }
 }

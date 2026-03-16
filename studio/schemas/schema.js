@@ -8,6 +8,7 @@ import siteSettings from './documents/siteSettings'
 import route from './documents/route'
 import event from './documents/event'
 import eventCategory from './documents/eventCategory'
+import sourceSettings from './documents/sourceSettings'
 import tier from './documents/tier'
 import advertiser from './documents/advertiser'
 import advertiserCategory from './documents/advertiserCategory'
@@ -50,6 +51,7 @@ import joinEventSection from './objects/joinEventSection'
 import joinBenefitItem from './objects/joinBenefitItem'
 import joinHero from './objects/joinHero'
 import motorsportRegEvent from './objects/motorsportRegEvent'
+import recentSyncRun from './objects/recentSyncRun'
 
 export default [
     variation,
@@ -72,6 +74,7 @@ export default [
     navItem,
     event,
     eventCategory,
+    sourceSettings,
     tier,
     advertiser,
     advertiserCategory,
@@ -100,5 +103,6 @@ export default [
     joinBenefitItem,
     joinHero,
     pdfUpload,
-    motorsportRegEvent
+    motorsportRegEvent,
+    recentSyncRun
 ]

@@ -6,6 +6,7 @@ import { EcsInfraStack } from '../lib/ecs-infra-stack';
 import { PipelineInfraStack } from '../lib/pipeline-infra-stack';
 import { ClusterInfraStack } from '../lib/cluster-infra-stack';
 import { VolunteerAppsApiStack } from "../lib/volunteer-apps-api-stack";
+import { MsrSanityEventsSyncStack } from "../lib/msr-sanity-events-sync-stack";
 
 const env = { 
   account: '992166107237', 
@@ -27,7 +28,8 @@ class GatsbyPreviewInfraStack extends cdk.Stack {
 
 // stacks
 const app = new cdk.App();
-new GatsbyPreviewInfraStack(app, 'GatsbyPreviewInfraStack', {env: env});
-new AmplifyInfraStack(app, 'AmplifyInfraStack',{env: env});
+new GatsbyPreviewInfraStack(app, 'GatsbyPreviewInfraStack', { env });
+new AmplifyInfraStack(app, 'AmplifyInfraStack', { env });
 new VolunteerAppsApiStack(app, "VolunteerAppsApiStack", { env });
+new MsrSanityEventsSyncStack(app, "MsrSanityEventsSyncStack", { env });
 app.synth();

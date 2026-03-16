@@ -39,7 +39,7 @@ function RelatedContent(props) {
     onlineEvent,
   } = props;
   const isArticle = publishedAt ? true : false;
-  const cat = category.title;
+  const cat = category?.title || "Events";
   var cityState = null;
   const locationText = [
     venueName,

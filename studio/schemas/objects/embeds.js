@@ -1,4 +1,4 @@
-import { MdVideocam, MdPhotoCamera } from 'react-icons/md'
+import { MdVideocam } from 'react-icons/md'
 import EmbedPlayer from '../components/preview/EmbedPlayer'
 
 export const videoEmbed = {
@@ -12,8 +12,10 @@ export const videoEmbed = {
       name: 'url',
     },
   ],
-  components: {
+  preview: {
     select: { url: 'url' },
+  },
+  components: {
     preview: EmbedPlayer,
   },
 }

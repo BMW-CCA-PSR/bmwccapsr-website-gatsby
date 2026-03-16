@@ -79,6 +79,7 @@ function EventPage(props) {
     prev,
     boxes,
     endTime,
+    sourceRegisterLink,
     website,
     onlineLink,
     venueName,
@@ -89,7 +90,7 @@ function EventPage(props) {
   const isPast = startTime ? new Date(startTime) < new Date() : false;
   var start = startTime && format(new Date(startTime), "MMMM do, yyyy");
   var updated = _updatedAt && format(new Date(_updatedAt), "MMMM do, yyyy");
-  const cat = category.title;
+  const cat = category?.title || "Events";
   const categoryFilterLink = cat
     ? `/events/?category=${encodeURIComponent(cat)}&active=1`
     : "/events/?active=1";
@@ -103,7 +104,6 @@ function EventPage(props) {
       return Number.isFinite(timestamp) && timestamp >= now;
     });
   }, [next, prev]);
-
   React.useEffect(() => {
     if (!isCalendarMenuOpen) return undefined;
     const handlePointerDown = (event) => {
@@ -143,7 +143,9 @@ function EventPage(props) {
   const calendarDescription = `Event: ${title || "BMW CCA PSR Event"}${
     start ? ` on ${start}` : ""
   }`;
+  const registerLink = String(sourceRegisterLink || "").trim();
   const eventUrl =
+    registerLink ||
     website ||
     onlineLink ||
     (typeof window !== "undefined" ? window.location.href : "");
@@ -327,7 +329,7 @@ function EventPage(props) {
                   top: 0,
                   left: 0,
                   right: 0,
-                  transform: "translateY(calc(-100% - 0.9rem))",
+                  transform: "translateY(calc(-100% - 1.7rem))",
                   zIndex: 3,
                   display: "flex",
                   alignItems: "center",

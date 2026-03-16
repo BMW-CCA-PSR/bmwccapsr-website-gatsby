@@ -146,6 +146,18 @@ function PortableText(props) {
                 {props.children}
               </Themed.blockquote>
             );
+          case "normalCenter":
+            return (
+              <Themed.p sx={{ mb: 3, lineHeight: "body", textAlign: "center" }}>
+                {props.children}
+              </Themed.p>
+            );
+          case "normalRight":
+            return (
+              <Themed.p sx={{ mb: 3, lineHeight: "body", textAlign: "right" }}>
+                {props.children}
+              </Themed.p>
+            );
           default: {
             const isDropCap = dropCapKey && props.node._key === dropCapKey;
             return (
