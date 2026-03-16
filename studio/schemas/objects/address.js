@@ -31,5 +31,10 @@ export default {
               ],
             }
         },
+        {
+            name: 'postalCode',
+            type: 'string',
+            title: 'Postal Code',
+        },
     ]
 }

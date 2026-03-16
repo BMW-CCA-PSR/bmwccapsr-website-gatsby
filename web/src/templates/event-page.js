@@ -17,6 +17,13 @@ export const query = graphql`
     }
     event: sanityEvent(id: { eq: $id }) {
       id
+      source
+      sourceRegisterLink
+      sourceRegistrationOpenAt
+      sourceRegistrationCloseAt
+      sourceRegistrationCount
+      sourceConfirmedCount
+      sourceWaitlistCount
       startTime
       endTime
       cost
@@ -29,6 +36,7 @@ export const query = graphql`
         line2
         state
         city
+        postalCode
       }
       category {
         _id
@@ -46,10 +54,10 @@ export const query = graphql`
       slug {
         current
       }
-      # location {
-      #   lat
-      #   lng
-      # }
+      location {
+        lat
+        lng
+      }
       _rawExcerpt(resolveReferences: { maxDepth: 5 })
       _rawBody(resolveReferences: { maxDepth: 5 })
       _updatedAt(locale: "en_US")
@@ -76,6 +84,7 @@ export const query = graphql`
         line2
         city
         state
+        postalCode
       }
       startTime
     }
@@ -101,6 +110,7 @@ export const query = graphql`
         line2
         city
         state
+        postalCode
       }
       startTime
     }

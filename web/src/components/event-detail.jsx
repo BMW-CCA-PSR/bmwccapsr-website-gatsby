@@ -8,6 +8,7 @@ import {
   FaClock,
   FaDollarSign,
   FaIdBadge,
+  FaRoute,
   FaTag,
   FaUsers,
 } from "react-icons/fa";
@@ -140,14 +141,36 @@ function EventDetails(props) {
   const eventLocation = [props.venueName, address.city, address.state]
     .filter(Boolean)
     .join(", ");
+  const source = String(props.source || "").trim().toLowerCase();
+  const isMsrEvent = source === "msr";
+  const registerLink = String(props.sourceRegisterLink || "").trim();
   const calendarTitle = props.title || "BMW CCA PSR Event";
   const calendarDescription = `Event: ${props.title || "BMW CCA PSR Event"}${
     start ? ` on ${start}` : ""
   }`;
   const eventUrl =
+    registerLink ||
     props.website ||
     props.onlineLink ||
     (typeof window !== "undefined" ? window.location.href : "");
+  const registrationOpenAt = parseCalendarDate(props.sourceRegistrationOpenAt);
+  const registrationCloseAt = parseCalendarDate(props.sourceRegistrationCloseAt);
+  const hasRegistrationWindow = Boolean(registrationOpenAt || registrationCloseAt);
+  const nowTime = Date.now();
+  const isRegistrationOpen = hasRegistrationWindow
+    ? (!registrationOpenAt || nowTime >= registrationOpenAt.getTime()) &&
+      (!registrationCloseAt || nowTime <= registrationCloseAt.getTime())
+    : null;
+  const registrationEndsLabel = registrationCloseAt
+    ? format(registrationCloseAt, "MMM d, yyyy h:mm a")
+    : null;
+  const useCompactCalendarAction = isMsrEvent && Boolean(registerLink);
+  const normalizedVenueName = String(props.venueName || "")
+    .trim()
+    .toLowerCase();
+  const showTrackMapLink =
+    normalizedVenueName === "pacific" ||
+    normalizedVenueName === "pacific raceways";
   const hasCalendarData =
     Boolean(calendarStartDate) && Boolean(finalCalendarEndDate);
   const googleCalendarUrl = hasCalendarData
@@ -374,8 +397,116 @@ function EventDetails(props) {
       color: "primary",
     },
   };
+  const registerButtonSx = {
+    variant: "buttons.primary",
+    flex: "1 1 auto",
+    minWidth: 0,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "8px",
+    border: 0,
+    px: "0.9rem",
+    py: "0.5rem",
+    fontSize: "xs",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    textDecoration: "none",
+    whiteSpace: "nowrap",
+    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
+    transition: "background-color 0.5s ease-out",
+    "&:hover": {
+      color: "white",
+      bg: "highlight",
+    },
+  };
   const hasMembershipRequired =
     props.membershipRequired !== undefined && props.membershipRequired !== null;
+  const calendarMenu = isCalendarMenuOpen ? (
+    <Box
+      sx={{
+        position: "absolute",
+        top: "calc(100% + 6px)",
+        right: 0,
+        width: "170px",
+        border: "1px solid",
+        borderColor: "lightgray",
+        borderRadius: "10px",
+        backgroundColor: "white",
+        boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+        overflow: "hidden",
+        zIndex: 12,
+      }}
+    >
+      {googleCalendarUrl && (
+        <a
+          href={googleCalendarUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+          onClick={() => setIsCalendarMenuOpen(false)}
+          sx={{
+            display: "block",
+            px: "0.75rem",
+            py: "0.55rem",
+            color: "text",
+            textDecoration: "none",
+            fontSize: "xs",
+            borderBottom: "1px solid",
+            borderColor: "lightgray",
+            "&:hover": { backgroundColor: "lightgray" },
+          }}
+        >
+          Google Calendar
+        </a>
+      )}
+      {outlookCalendarUrl && (
+        <a
+          href={outlookCalendarUrl}
+          rel="noopener noreferrer"
+          target="_blank"
+          onClick={() => setIsCalendarMenuOpen(false)}
+          sx={{
+            display: "block",
+            px: "0.75rem",
+            py: "0.55rem",
+            color: "text",
+            textDecoration: "none",
+            fontSize: "xs",
+            borderBottom: "1px solid",
+            borderColor: "lightgray",
+            "&:hover": { backgroundColor: "lightgray" },
+          }}
+        >
+          Outlook
+        </a>
+      )}
+      <Box
+        as="button"
+        type="button"
+        onClick={() => {
+          handleDownloadIcs();
+          setIsCalendarMenuOpen(false);
+        }}
+        disabled={!hasCalendarData}
+        sx={{
+          width: "100%",
+          textAlign: "left",
+          px: "0.75rem",
+          py: "0.55rem",
+          border: 0,
+          bg: "transparent",
+          color: hasCalendarData ? "text" : "darkgray",
+          fontSize: "xs",
+          cursor: hasCalendarData ? "pointer" : "not-allowed",
+          "&:hover": {
+            backgroundColor: hasCalendarData ? "lightgray" : "transparent",
+          },
+        }}
+      >
+        iCal (.ics)
+      </Box>
+    </Box>
+  ) : null;
 
   return (
     <Box
@@ -441,7 +572,15 @@ function EventDetails(props) {
           p: 3,
         }}
       >
-        <Box sx={{ width: "100%" }}>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            alignItems: "flex-start",
+          }}
+        >
           <Text sx={detailLabelSx}>Date</Text>
           <Text sx={detailValueSx}>{start || "TBD"}</Text>
 
@@ -496,6 +635,60 @@ function EventDetails(props) {
               {!props.cost || props.cost === 0 ? "Free" : `$${props.cost}`}
             </Box>
           </Box>
+          {isMsrEvent && hasRegistrationWindow && (
+            <>
+              <Text sx={detailLabelSx}>Status</Text>
+              <Box
+                as="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem",
+                  px: "0.6rem",
+                  py: "0.18rem",
+                  borderRadius: "999px",
+                  bg: isRegistrationOpen ? "#e8f7ec" : "#fde8e8",
+                  color: isRegistrationOpen ? "#1f7a3f" : "#9a1f1f",
+                  fontSize: "xs",
+                  fontWeight: "heading",
+                  mb: "0.55rem",
+                }}
+              >
+                <Box
+                  as="span"
+                  sx={{
+                    width: "7px",
+                    height: "7px",
+                    borderRadius: "999px",
+                    bg: isRegistrationOpen ? "#1f7a3f" : "#9a1f1f",
+                  }}
+                />
+                {isRegistrationOpen ? "Open" : "Closed"}
+              </Box>
+              {registrationEndsLabel && (
+                <>
+                  <Text sx={detailLabelSx}>Register by</Text>
+                  <Text sx={{ ...detailValueSx, mb: "0.65rem" }}>
+                    {registrationEndsLabel}
+                  </Text>
+                </>
+              )}
+            </>
+          )}
+          {isMsrEvent && (
+            <>
+              <Text sx={detailLabelSx}>Signups / Waitlist</Text>
+              <Text sx={detailValueSx}>
+                {Number.isFinite(Number(props.sourceRegistrationCount))
+                  ? Number(props.sourceRegistrationCount)
+                  : 0}
+                {" / "}
+                {Number.isFinite(Number(props.sourceWaitlistCount))
+                  ? Number(props.sourceWaitlistCount)
+                  : 0}
+              </Text>
+            </>
+          )}
           {hasMembershipRequired && (
             <>
               <Text sx={detailLabelSx}>Membership required</Text>
@@ -588,7 +781,7 @@ function EventDetails(props) {
               )}
             </>
           )}
-          {props.website && (
+          {!isMsrEvent && props.website && (
             <>
               <Text sx={detailLabelSx}>Website</Text>
               <Text
@@ -613,129 +806,60 @@ function EventDetails(props) {
               gap: "0.5rem",
             }}
           >
-            <Box
-              ref={calendarMenuRef}
-              sx={{ position: "relative", flex: "1 1 auto" }}
-            >
-              <Box
-                as="button"
-                type="button"
-                onClick={() =>
-                  hasCalendarData && setIsCalendarMenuOpen((prev) => !prev)
-                }
-                aria-label="Add to calendar"
-                title="Add to calendar"
-                disabled={!hasCalendarData}
-                sx={{
-                  variant: "buttons.primary",
-                  width: "100%",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "0.4rem",
-                  borderRadius: "8px",
-                  border: 0,
-                  boxShadow: "none",
-                  px: "0.9rem",
-                  py: "0.5rem",
-                  fontSize: "xs",
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
-                  cursor: hasCalendarData ? "pointer" : "not-allowed",
-                  opacity: hasCalendarData ? 1 : 0.6,
-                }}
+            {useCompactCalendarAction ? (
+              <a
+                href={registerLink}
+                rel="noopener noreferrer"
+                target="_blank"
+                sx={registerButtonSx}
               >
-                <FaCalendarPlus size={15} aria-hidden="true" />
-                Add to calendar
-              </Box>
-              {isCalendarMenuOpen && (
+                Register
+              </a>
+            ) : (
+              <Box ref={calendarMenuRef} sx={{ position: "relative", flex: "1 1 auto" }}>
                 <Box
+                  as="button"
+                  type="button"
+                  onClick={() =>
+                    hasCalendarData && setIsCalendarMenuOpen((prev) => !prev)
+                  }
+                  aria-label="Add to calendar"
+                  title="Add to calendar"
+                  disabled={!hasCalendarData}
                   sx={{
-                    position: "absolute",
-                    top: "calc(100% + 6px)",
-                    right: 0,
-                    width: "170px",
-                    border: "1px solid",
-                    borderColor: "lightgray",
-                    borderRadius: "10px",
-                    backgroundColor: "white",
-                    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
-                    overflow: "hidden",
-                    zIndex: 12,
+                    ...registerButtonSx,
+                    width: "100%",
+                    cursor: hasCalendarData ? "pointer" : "not-allowed",
+                    opacity: hasCalendarData ? 1 : 0.6,
                   }}
                 >
-                  {googleCalendarUrl && (
-                    <a
-                      href={googleCalendarUrl}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      onClick={() => setIsCalendarMenuOpen(false)}
-                      sx={{
-                        display: "block",
-                        px: "0.75rem",
-                        py: "0.55rem",
-                        color: "text",
-                        textDecoration: "none",
-                        fontSize: "xs",
-                        borderBottom: "1px solid",
-                        borderColor: "lightgray",
-                        "&:hover": { backgroundColor: "lightgray" },
-                      }}
-                    >
-                      Google Calendar
-                    </a>
-                  )}
-                  {outlookCalendarUrl && (
-                    <a
-                      href={outlookCalendarUrl}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                      onClick={() => setIsCalendarMenuOpen(false)}
-                      sx={{
-                        display: "block",
-                        px: "0.75rem",
-                        py: "0.55rem",
-                        color: "text",
-                        textDecoration: "none",
-                        fontSize: "xs",
-                        borderBottom: "1px solid",
-                        borderColor: "lightgray",
-                        "&:hover": { backgroundColor: "lightgray" },
-                      }}
-                    >
-                      Outlook
-                    </a>
-                  )}
-                  <Box
-                    as="button"
-                    type="button"
-                    onClick={() => {
-                      handleDownloadIcs();
-                      setIsCalendarMenuOpen(false);
-                    }}
-                    disabled={!hasCalendarData}
-                    sx={{
-                      width: "100%",
-                      textAlign: "left",
-                      px: "0.75rem",
-                      py: "0.55rem",
-                      border: 0,
-                      bg: "transparent",
-                      color: hasCalendarData ? "text" : "darkgray",
-                      fontSize: "xs",
-                      cursor: hasCalendarData ? "pointer" : "not-allowed",
-                      "&:hover": {
-                        backgroundColor: hasCalendarData
-                          ? "lightgray"
-                          : "transparent",
-                      },
-                    }}
-                  >
-                    iCal (.ics)
-                  </Box>
+                  Add to calendar
                 </Box>
-              )}
-            </Box>
+                {calendarMenu}
+              </Box>
+            )}
+            {useCompactCalendarAction && (
+              <Box ref={calendarMenuRef} sx={{ position: "relative" }}>
+                <Box
+                  as="button"
+                  type="button"
+                  onClick={() =>
+                    hasCalendarData && setIsCalendarMenuOpen((prev) => !prev)
+                  }
+                  aria-label="Add to calendar"
+                  title="Add to calendar"
+                  disabled={!hasCalendarData}
+                  sx={{
+                    ...iconActionButtonSx,
+                    opacity: hasCalendarData ? 1 : 0.6,
+                    cursor: hasCalendarData ? "pointer" : "not-allowed",
+                  }}
+                >
+                  <FaCalendarPlus size={16} aria-hidden="true" />
+                </Box>
+                {calendarMenu}
+              </Box>
+            )}
             <Box
               as="button"
               type="button"
@@ -749,7 +873,14 @@ function EventDetails(props) {
           </Flex>
         </Box>
 
-        <Box sx={{ width: "100%" }}>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}
+        >
           {isOnline ? (
             <>
               <Text sx={detailLabelSx}>Online event</Text>
@@ -801,15 +932,60 @@ function EventDetails(props) {
                 </>
               )}
 
+              {showTrackMapLink && (
+                <Box
+                  as="a"
+                  href="https://pacificraceways.com/road-course-track-map/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  sx={{
+                    mt: "0.25rem",
+                    mb: "0.65rem",
+                    display: "flex",
+                    width: "100%",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.4rem",
+                    px: "0.9rem",
+                    minHeight: "42px",
+                    borderRadius: "8px",
+                    border: "1px solid",
+                    borderColor: "lightgray",
+                    bg: "lightgray",
+                    color: "text",
+                    textDecoration: "none",
+                    fontSize: "xs",
+                    fontWeight: "heading",
+                    letterSpacing: "0.06em",
+                    textTransform: "uppercase",
+                    transition: "background-color 150ms ease",
+                    "&:hover": {
+                      backgroundColor: "#d8d8d8",
+                    },
+                  }}
+                >
+                  <FaRoute size={13} aria-hidden="true" />
+                  View Track Map
+                </Box>
+              )}
+
               {hasValidAddress && resolvedMapCoords && (
-                <Box sx={{ mt: "0.35rem" }}>
+                <Box
+                  sx={{
+                    mt: "0.35rem",
+                    alignSelf: "stretch",
+                    flex: ["0 0 auto", "0 0 auto", "1 1 auto"],
+                    minHeight: ["200px", "210px", "260px"],
+                    display: "flex",
+                  }}
+                >
                   <MapCard
                     latitude={resolvedMapCoords.latitude}
                     longitude={resolvedMapCoords.longitude}
                     title={props.title}
                     token={mapboxToken}
                     showZoomControls={false}
-                    height={["200px", "210px", "220px"]}
+                    height="100%"
                   />
                 </Box>
               )}

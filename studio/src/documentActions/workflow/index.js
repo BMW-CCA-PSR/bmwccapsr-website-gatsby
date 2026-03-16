@@ -6,14 +6,16 @@ import {RequestChangesAction} from './RequestChangesAction'
 import {RequestReviewAction} from './RequestReviewAction'
 import {SyncAction} from './SyncAction'
 import {UnpublishAction} from './Unpublish'
+import {SyncWithMsrAction} from '../msrSyncAction'
 
 export function resolveWorkflowActions(/* docInfo */) {
   return [
+    SyncWithMsrAction,
+    PublishAction,
     SyncAction,
     RequestReviewAction,
     ApproveAction,
     RequestChangesAction,
-    PublishAction,
     UnpublishAction,
     DiscardChangesAction,
     DeleteAction

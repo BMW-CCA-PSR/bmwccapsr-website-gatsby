@@ -87,6 +87,27 @@ const getPostAuthorRefs = (post) => {
 
 exports.createSchemaCustomization = ({ actions, schema }) => {
   actions.createTypes(`
+    type SanityEventGeopoint {
+      lat: Float
+      lng: Float
+      alt: Float
+    }
+
+    extend type SanityAddress {
+      postalCode: String
+    }
+
+    extend type SanityEvent {
+      source: String
+      sourceRegisterLink: String
+      sourceRegistrationOpenAt: Date @dateformat
+      sourceRegistrationCloseAt: Date @dateformat
+      sourceRegistrationCount: Float
+      sourceConfirmedCount: Float
+      sourceWaitlistCount: Float
+      location: SanityEventGeopoint
+    }
+
     extend type SanityMotorsportRegEvent {
       origin: String
       sanityEventId: String
@@ -101,6 +122,16 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
     }
   `);
   actions.createTypes([
+    schema.buildObjectType({
+      name: "SanityAddress",
+      fields: {
+        line1: { type: "String" },
+        line2: { type: "String" },
+        city: { type: "String" },
+        state: { type: "String" },
+        postalCode: { type: "String" },
+      },
+    }),
     schema.buildObjectType({
       name: "SanityJoinHero",
       fields: {

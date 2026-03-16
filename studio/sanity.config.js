@@ -7,7 +7,8 @@ import { unsplashImageAsset } from "sanity-plugin-asset-source-unsplash";
 import {media} from 'sanity-plugin-media'
 import schemas from "./schemas/schema";
 import deskStructure from "./deskStructure";
-import { netlifyWidget } from "sanity-plugin-dashboard-widget-netlify";
+import { SyncWithMsrAction } from "./src/documentActions/msrSyncAction";
+import { ApplyMsrSourceSettingsAction } from "./src/documentActions/msrSourceSettingsAction";
 
 const vars = {
   apiId:
@@ -48,31 +49,67 @@ const StudioIcon = () =>
     })
   );
 
+const isSameAction = (action, targetAction) =>
+  action === targetAction || action?.name === targetAction?.name;
+
+const isPublishAction = (action) =>
+  action === "publish" ||
+  action?.name === "publish" ||
+  action?.action === "publish";
+
+const isScheduledPublishAction = (action) => {
+  const candidates = [
+    action,
+    action?.name,
+    action?.action,
+    action?.title,
+  ]
+    .map((value) => String(value || "").toLowerCase())
+    .filter(Boolean);
+
+  return candidates.some(
+    (value) =>
+      value.includes("schedule") && value.includes("publish")
+  );
+};
+
+const orderEventActions = (previousActions = []) => {
+  const withoutSync = previousActions.filter(
+    (action) => !isSameAction(action, SyncWithMsrAction)
+  );
+  return [SyncWithMsrAction, ...withoutSync];
+};
+
 export default defineConfig({
   title: "BMW CCA PSR Website",
   icon: StudioIcon,
   projectId: "clgsgxc0",
   dataset: "production",
+  document: {
+    actions: (previousActions, context) => {
+      const schemaTypeName =
+        typeof context?.schemaType === "string"
+          ? context.schemaType
+          : context?.schemaType?.name;
+      if (schemaTypeName === "sourceSettings") {
+        const withoutApply = previousActions.filter((action) => {
+          if (action === ApplyMsrSourceSettingsAction) return false;
+          if (isPublishAction(action)) return false;
+          if (isScheduledPublishAction(action)) return false;
+          return true;
+        });
+        return [ApplyMsrSourceSettingsAction, ...withoutApply];
+      }
+      if (schemaTypeName !== "event") return previousActions;
+      return orderEventActions(previousActions);
+    },
+  },
   plugins: [
     deskTool({
       structure: deskStructure,
     }),
     unsplashImageAsset(),
     media(),
-    vars.apiId && vars.buildHookId
-      ? netlifyWidget({
-          title: 'My Netlify deploys',
-          sites: [
-            {
-              title: 'Sanity Studio',
-              apiId: vars.apiId,
-              buildHookId: vars.buildHookId,
-              name: 'bmw-club-psr',
-              url: 'https://bmw-club-psr.org'
-            },
-          ]
-        })
-      : null
   ].filter(Boolean),
   schema: {
     types: schemas,

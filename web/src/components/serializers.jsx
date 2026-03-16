@@ -339,6 +339,18 @@ const serializers = {
               {props.children}
             </Themed.blockquote>
           );
+        case "normalCenter":
+          return (
+            <Themed.p sx={{ ...paragraphSx, textAlign: "center" }}>
+              {props.children}
+            </Themed.p>
+          );
+        case "normalRight":
+          return (
+            <Themed.p sx={{ ...paragraphSx, textAlign: "right" }}>
+              {props.children}
+            </Themed.p>
+          );
         default:
           return <Themed.p sx={paragraphSx}>{props.children}</Themed.p>;
       }

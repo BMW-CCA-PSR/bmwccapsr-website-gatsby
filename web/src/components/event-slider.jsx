@@ -85,7 +85,11 @@ const EventSlider = (props) => {
     const eventNodes = Array.isArray(props.edges)
       ? props.edges.map((edge) => edge?.node).filter(Boolean)
       : [];
-    return eventNodes[0] || null;
+    const filtered = eventNodes.filter((item) => {
+      const name = String(item?.title || "").toLowerCase();
+      return !name.includes("board meeting");
+    });
+    return filtered[0] || null;
   }, [props.edges]);
   const [event, setEvent] = useState(initialEvent);
 
@@ -94,7 +98,12 @@ const EventSlider = (props) => {
     const fetchEvent = async () => {
       const response = await sanity.fetchEvents();
       if (!isMounted) return;
-      const nextEvent = Array.isArray(response) ? response[0] || null : null;
+      const normalized = Array.isArray(response) ? response : [];
+      const filtered = normalized.filter((item) => {
+        const name = String(item?.title || "").toLowerCase();
+        return !name.includes("board meeting");
+      });
+      const nextEvent = filtered[0] || null;
       setEvent(nextEvent);
     };
     fetchEvent().catch(() => {

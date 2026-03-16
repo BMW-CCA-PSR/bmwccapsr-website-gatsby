@@ -139,6 +139,23 @@ export default (S) =>
               S.documentTypeListItem("eventCategory")
                 .title("Categories")
                 .icon(CatIcon),
+              S.listItem()
+                .title("Sources")
+                .icon(MdBuild)
+                .child(
+                  S.list()
+                    .title("Sources")
+                    .items([
+                      S.listItem()
+                        .title("MSR")
+                        .child(
+                          S.document()
+                            .schemaType("sourceSettings")
+                            .documentId("source-settings-msr")
+                            .title("MSR Source Settings"),
+                        ),
+                    ]),
+                ),
             ]),
         ),
       // advertisers

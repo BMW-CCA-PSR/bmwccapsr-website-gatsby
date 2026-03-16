@@ -18,6 +18,8 @@ export default {
       // and decide how it will be formatted or displayed where your content is used.
       styles: [
         { title: 'Normal', value: 'normal' },
+        { title: 'Normal Center', value: 'normalCenter' },
+        { title: 'Normal Right', value: 'normalRight' },
         { title: 'H1', value: 'h1' },
         { title: 'H2', value: 'h2' },
         { title: 'H3', value: 'h3' },
@@ -73,7 +75,7 @@ export default {
       type: 'mainImage',
       options: { hotspot: true }
     },
-    // { type: 'videoEmbed' },
+    { type: 'videoEmbed' },
     { type: 'file', title: 'File Reference'}
   ]
 }

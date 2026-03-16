@@ -79,6 +79,7 @@ function EventPage(props) {
     prev,
     boxes,
     endTime,
+    sourceRegisterLink,
     website,
     onlineLink,
     venueName,
@@ -89,21 +90,26 @@ function EventPage(props) {
   const isPast = startTime ? new Date(startTime) < new Date() : false;
   var start = startTime && format(new Date(startTime), "MMMM do, yyyy");
   var updated = _updatedAt && format(new Date(_updatedAt), "MMMM do, yyyy");
-  const cat = category.title;
+  const cat = category?.title || "Events";
   const categoryFilterLink = cat
     ? `/events/?category=${encodeURIComponent(cat)}&active=1`
     : "/events/?active=1";
-  const randomAdPosition = randomGenerator(0, boxes.edges.length - 1);
-  const randomizedAd = boxes.edges[randomAdPosition].node;
+  const boxEdges = Array.isArray(boxes?.edges) ? boxes.edges : [];
+  const randomAdPosition =
+    boxEdges.length > 0 ? randomGenerator(0, boxEdges.length - 1) : -1;
+  const randomizedAd =
+    randomAdPosition >= 0 ? boxEdges[randomAdPosition]?.node || null : null;
   const relatedEvents = React.useMemo(() => {
-    const now = Date.now();
+    const seenIds = new Set();
     return [next, prev].filter((event) => {
-      if (!event?.startTime) return false;
+      if (!event?.id || !event?.startTime) return false;
       const timestamp = Date.parse(event.startTime);
-      return Number.isFinite(timestamp) && timestamp >= now;
+      if (!Number.isFinite(timestamp) || seenIds.has(event.id)) return false;
+      seenIds.add(event.id);
+      return true;
     });
   }, [next, prev]);
-
+  const showSidebar = Boolean(randomizedAd) || relatedEvents.length > 0;
   React.useEffect(() => {
     if (!isCalendarMenuOpen) return undefined;
     const handlePointerDown = (event) => {
@@ -143,7 +149,9 @@ function EventPage(props) {
   const calendarDescription = `Event: ${title || "BMW CCA PSR Event"}${
     start ? ` on ${start}` : ""
   }`;
+  const registerLink = String(sourceRegisterLink || "").trim();
   const eventUrl =
+    registerLink ||
     website ||
     onlineLink ||
     (typeof window !== "undefined" ? window.location.href : "");
@@ -308,8 +316,38 @@ function EventPage(props) {
           sx={{
             width: "100%",
             alignItems: "flex-start",
+            position: "relative",
           }}
         >
+          {isPast && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                transform: "translateY(calc(-100% - 1.7rem))",
+                zIndex: 3,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-start",
+                width: "100%",
+                bg: "#f5d76e",
+                color: "black",
+                borderRadius: "10px",
+                px: "0.8rem",
+                py: "0.42rem",
+                fontSize: "xs",
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                fontWeight: "heading",
+                gap: "0.45rem",
+              }}
+            >
+              <FiClock size={14} aria-hidden="true" />
+              <span>This event has already passed</span>
+            </Box>
+          )}
           <Flex
             sx={{
               flex: "1 1 0",
@@ -320,35 +358,6 @@ function EventPage(props) {
               mt: isPast ? ["3rem", "3rem", 0, 0] : 0,
             }}
           >
-            {isPast && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  transform: "translateY(calc(-100% - 0.9rem))",
-                  zIndex: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  width: "100%",
-                  bg: "#f5d76e",
-                  color: "black",
-                  borderRadius: "10px",
-                  px: "0.8rem",
-                  py: "0.42rem",
-                  fontSize: "xs",
-                  letterSpacing: "0.05em",
-                  textTransform: "uppercase",
-                  fontWeight: "heading",
-                  gap: "0.45rem",
-                }}
-              >
-                <FiClock size={14} aria-hidden="true" />
-                <span>This event has already passed</span>
-              </Box>
-            )}
             <Box
               sx={{
                 position: "relative",
@@ -584,7 +593,7 @@ function EventPage(props) {
           </Flex>
           <div
             sx={
-              relatedEvents.length > 0
+              showSidebar
                 ? {
                     display: ["none", "none", "flex"],
                     flex: "0 0 auto",
@@ -599,13 +608,17 @@ function EventPage(props) {
                 mx: "auto",
               }}
             >
-              <BoxAd {...randomizedAd} />
-              <Heading variant="styles.h3" sx={{ my: "1rem" }}>
-                More Events
-              </Heading>
-              {relatedEvents.map((event) => (
-                <RelatedContent key={event.id} {...event} />
-              ))}
+              {randomizedAd && <BoxAd {...randomizedAd} />}
+              {relatedEvents.length > 0 && (
+                <>
+                  <Heading variant="styles.h3" sx={{ my: "1rem" }}>
+                    More Events
+                  </Heading>
+                  {relatedEvents.map((event) => (
+                    <RelatedContent key={event.id} {...event} />
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </Flex>

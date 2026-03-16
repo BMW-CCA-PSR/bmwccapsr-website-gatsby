@@ -24,7 +24,7 @@ export class Client {
 
   fetchUpcomingEvents = (limit = 2) => {
     return this.client.fetch(
-      `*[_type == "event" && dateTime(startTime) > dateTime(now()) && !(lower(title) match "*board meeting*")] | order(startTime asc)[0...${limit}]{
+      `*[_type == "event" && defined(slug.current) && dateTime(startTime) > dateTime(now()) && !(lower(title) match "*board meeting*")] | order(startTime asc)[0...${limit}]{
         _id,
         title,
         onlineEvent,
@@ -154,7 +154,7 @@ export class Client {
 
   fetchEvents = () => {
     return this.client.fetch(
-      `*[_type == "event" && (
+      `*[_type == "event" && defined(slug.current) && !(lower(title) match "*board meeting*") && (
           (defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
           (!defined(endTime) && dateTime(startTime) >= dateTime(now()))
         )] | order(startTime asc){
@@ -178,7 +178,7 @@ export class Client {
 
   fetchAllEvents = () => {
     return this.client.fetch(
-      `*[_type == "event"] | order(startTime asc){
+      `*[_type == "event" && defined(slug.current)] | order(startTime asc){
         _id,
         title,
         onlineEvent,
