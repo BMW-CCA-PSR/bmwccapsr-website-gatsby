@@ -2327,7 +2327,7 @@ const VolunteerRoleTemplate = (props) => {
                           }}
                         >
                           <FaGlobe size={14} aria-hidden="true" />
-                          Open event in MSR
+                          Register
                         </Flex>
                       </OutboundLink>
                     ) : (
@@ -2353,7 +2353,7 @@ const VolunteerRoleTemplate = (props) => {
                           filter: "saturate(0.35)",
                         }}
                       >
-                        Open event in MSR
+                        Register
                       </Box>
                     )}
                     <Box

@@ -424,7 +424,6 @@ function EventDetails(props) {
     transition: "background-color 150ms ease, color 150ms ease",
     "&:hover": {
       backgroundColor: "#d8d8d8",
-      color: "primary",
     },
   };
   const registerButtonSx = {
@@ -823,7 +822,7 @@ function EventDetails(props) {
           )}
           <Flex
             sx={{
-              mt: "0.65rem",
+              mt: "auto",
               width: "100%",
               alignItems: "stretch",
               gap: "0.5rem",
@@ -836,7 +835,16 @@ function EventDetails(props) {
                 target="_blank"
                 sx={registerButtonSx}
               >
-                Register
+                <Flex
+                  sx={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.35rem",
+                  }}
+                >
+                  <FaGlobe size={14} aria-hidden="true" />
+                  Register
+                </Flex>
               </a>
             ) : (
               <Box ref={calendarMenuRef} sx={{ position: "relative", flex: "1 1 auto" }}>
