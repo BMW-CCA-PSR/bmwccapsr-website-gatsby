@@ -20,6 +20,11 @@ import { BoxIcon } from "../components/box-icons";
 import StylizedLandingHeader from "../components/stylized-landing-header";
 import { Client } from "../services/FetchClient";
 import {
+  getEventEndBoundaryTimestamp,
+  getEventStartDate,
+  getEventStartTimestamp,
+} from "../lib/event-dates";
+import {
   FilterField,
   FilterGrid,
   FilterPillButton,
@@ -161,13 +166,8 @@ const IndexPage = (props) => {
   const activeLiveEvents = useMemo(() => {
     const now = Date.now();
     return liveEvents.filter((event) => {
-      if (!event?.startTime) return false;
-      const startTimestamp = Date.parse(event.startTime);
-      const endTimestamp = event?.endTime ? Date.parse(event.endTime) : NaN;
-      if (Number.isFinite(endTimestamp)) {
-        return endTimestamp >= now;
-      }
-      return Number.isFinite(startTimestamp) && startTimestamp >= now;
+      const endTimestamp = getEventEndBoundaryTimestamp(event);
+      return Number.isFinite(endTimestamp) && endTimestamp >= now;
     });
   }, [liveEvents]);
   const scopedEvents = activeOnly ? activeLiveEvents : liveEvents;
@@ -185,16 +185,18 @@ const IndexPage = (props) => {
   const allYears = useMemo(() => {
     const unique = new Set();
     liveEvents.forEach((event) => {
-      if (!event?.startTime) return;
-      unique.add(new Date(event.startTime).getFullYear());
+      const startDate = getEventStartDate(event);
+      if (!startDate) return;
+      unique.add(startDate.getFullYear());
     });
     return Array.from(unique).sort((a, b) => b - a);
   }, [liveEvents]);
   const years = useMemo(() => {
     const unique = new Set();
     scopedEvents.forEach((event) => {
-      if (!event?.startTime) return;
-      unique.add(new Date(event.startTime).getFullYear());
+      const startDate = getEventStartDate(event);
+      if (!startDate) return;
+      unique.add(startDate.getFullYear());
     });
     return Array.from(unique).sort((a, b) => b - a);
   }, [scopedEvents]);
@@ -387,8 +389,8 @@ const IndexPage = (props) => {
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const filteredEvents = scopedEvents.filter((event) => {
-    if (!event?.startTime) return false;
-    const eventDate = new Date(event.startTime);
+    const eventDate = getEventStartDate(event);
+    if (!eventDate) return false;
     const eventYear = eventDate.getFullYear();
     const eventMonth = eventDate.getMonth();
     const haystack = [
@@ -417,7 +419,7 @@ const IndexPage = (props) => {
     const list = [...filteredEvents];
     list.sort((a, b) => {
       if (selectedSort === "dateDesc") {
-        return Date.parse(b?.startTime || 0) - Date.parse(a?.startTime || 0);
+        return getEventStartTimestamp(b) - getEventStartTimestamp(a);
       }
       if (selectedSort === "titleAsc") {
         return String(a?.title || "").localeCompare(String(b?.title || ""));
@@ -425,7 +427,7 @@ const IndexPage = (props) => {
       if (selectedSort === "titleDesc") {
         return String(b?.title || "").localeCompare(String(a?.title || ""));
       }
-      return Date.parse(a?.startTime || 0) - Date.parse(b?.startTime || 0);
+      return getEventStartTimestamp(a) - getEventStartTimestamp(b);
     });
     return list;
   }, [filteredEvents, selectedSort]);

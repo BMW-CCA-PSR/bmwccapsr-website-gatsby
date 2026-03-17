@@ -71,6 +71,8 @@ type SanityEventSnapshot = {
   sourceHash?: string;
   title?: string;
   cost?: number | null;
+  startDate?: string;
+  endDate?: string;
   startTime?: string;
   endTime?: string;
   onlineEvent?: boolean;
@@ -87,7 +89,6 @@ type SanityEventSnapshot = {
   sourceIsPublic?: boolean;
   sourceRegistrationCount?: number;
   sourceConfirmedCount?: number;
-  sourceWaitlistCount?: number;
   sourceLastRegistrantUpdateAt?: string;
   venueName?: string;
   category?: {
@@ -112,6 +113,8 @@ type ComparableEventShape = {
   title: string;
   categoryRef: string;
   cost: number | null;
+  startDate: string;
+  endDate: string;
   startTime: string;
   endTime: string;
   onlineEvent: boolean;
@@ -130,7 +133,6 @@ type ComparableEventShape = {
   sourceIsPublic: boolean;
   sourceRegistrationCount: number;
   sourceConfirmedCount: number;
-  sourceWaitlistCount: number;
   sourceLastRegistrantUpdateAt: string;
   venueName: string;
   address: {
@@ -272,6 +274,20 @@ const extractMsrEventIdFromDocumentId = (documentId?: string): string => {
 };
 
 const MSR_DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+const normalizeMsrDate = (value?: string): string => {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  if (MSR_DATE_ONLY_PATTERN.test(raw)) return raw;
+
+  const normalized = raw.replace(" ", "T");
+  const prefix = normalized.slice(0, 10);
+  if (MSR_DATE_ONLY_PATTERN.test(prefix)) return prefix;
+
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toISOString().slice(0, 10);
+};
 
 const msrDateToIso = (value: string, boundary: "start" | "end"): string => {
   const raw = String(value || "").trim();
@@ -1128,6 +1144,8 @@ const buildComparableEventShape = (
     `https://www.motorsportreg.com${String(event.uri || "").trim()}`;
   const { cost, sourceCostText } = parseCostInfo(event.description);
   const location = normalizeLocation(event);
+  const startDate = normalizeMsrDate(event.start);
+  const endDate = normalizeMsrDate(event.end) || startDate;
   const { startTime, endTime } = deriveStartAndEndTime(event.start, event.end);
 
   const body = convertHtmlToPortableText(String(event.description || "").trim());
@@ -1166,6 +1184,8 @@ const buildComparableEventShape = (
       title: cleanMsrEventTitle(event.name),
       categoryRef: String(categoryRef || "").trim(),
       cost,
+      startDate,
+      endDate,
       startTime,
       endTime,
       onlineEvent: false,
@@ -1179,7 +1199,6 @@ const buildComparableEventShape = (
       sourceIsPublic: Boolean(event.public),
       sourceRegistrationCount: attendeeSummary.total,
       sourceConfirmedCount: attendeeSummary.confirmedCount,
-      sourceWaitlistCount: attendeeSummary.waitlistCount,
       sourceLastRegistrantUpdateAt: attendeeSummary.lastRegistrantUpdateAt,
       venueName: String(event.venue?.name || "").trim(),
       address: {
@@ -1231,6 +1250,8 @@ const buildComparableFromSanity = (
     snapshot.cost === null || snapshot.cost === undefined
       ? null
       : Number(snapshot.cost),
+  startDate: String(snapshot.startDate || "").trim(),
+  endDate: String(snapshot.endDate || "").trim(),
   startTime: String(snapshot.startTime || "").trim(),
   endTime: String(snapshot.endTime || "").trim(),
   onlineEvent: Boolean(snapshot.onlineEvent),
@@ -1251,7 +1272,6 @@ const buildComparableFromSanity = (
   sourceIsPublic: Boolean(snapshot.sourceIsPublic),
   sourceRegistrationCount: Number(snapshot.sourceRegistrationCount || 0),
   sourceConfirmedCount: Number(snapshot.sourceConfirmedCount || 0),
-  sourceWaitlistCount: Number(snapshot.sourceWaitlistCount || 0),
   sourceLastRegistrantUpdateAt: String(
     snapshot.sourceLastRegistrantUpdateAt || ""
   ).trim(),
@@ -1293,6 +1313,8 @@ const getSanitySnapshots = async (
     sourceHash,
     title,
     cost,
+    startDate,
+    endDate,
     startTime,
     endTime,
     onlineEvent,
@@ -1306,7 +1328,6 @@ const getSanitySnapshots = async (
     sourceIsPublic,
     sourceRegistrationCount,
     sourceConfirmedCount,
-    sourceWaitlistCount,
     sourceLastRegistrantUpdateAt,
     venueName,
     category,
@@ -1335,7 +1356,9 @@ const slugifySegment = (value: string): string =>
     .replace(/--+/g, "-");
 
 const buildSlugCurrent = (candidate: CandidateEvent): string => {
-  const monthPrefix = candidate.startTime
+  const monthPrefix = candidate.startDate
+    ? candidate.startDate.slice(0, 7).split("-").join("/")
+    : candidate.startTime
     ? candidate.startTime.slice(0, 7).split("-").join("/")
     : "events";
   const titleSegment =
@@ -1352,6 +1375,8 @@ const buildSanitySetAndUnset = (
     _type: "event",
     title: candidate.title,
     source: candidate.source,
+    startDate: candidate.startDate,
+    endDate: candidate.endDate,
     startTime: candidate.startTime,
     endTime: candidate.endTime,
     onlineEvent: candidate.onlineEvent,
@@ -1361,7 +1386,6 @@ const buildSanitySetAndUnset = (
     sourceIsPublic: candidate.sourceIsPublic,
     sourceRegistrationCount: candidate.sourceRegistrationCount,
     sourceConfirmedCount: candidate.sourceConfirmedCount,
-    sourceWaitlistCount: candidate.sourceWaitlistCount,
   };
   const unset: string[] = [];
 
@@ -1403,6 +1427,7 @@ const buildSanitySetAndUnset = (
     "sourceLastRegistrantUpdateAt",
     candidate.sourceLastRegistrantUpdateAt
   );
+  unset.push("sourceWaitlistCount");
   setStringOrUnset("venueName", candidate.venueName);
 
   if (candidate.body.length > 0) {

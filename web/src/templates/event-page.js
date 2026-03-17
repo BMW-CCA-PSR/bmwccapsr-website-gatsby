@@ -23,7 +23,6 @@ export const query = graphql`
       sourceRegistrationCloseAt
       sourceRegistrationCount
       sourceConfirmedCount
-      sourceWaitlistCount
       startTime
       endTime
       cost

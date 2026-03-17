@@ -19,13 +19,11 @@ import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
-
-const parseCalendarDate = (value) => {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed;
-};
+import {
+  getEventEndBoundaryTimestamp,
+  getEventEndDate,
+  getEventStartDate,
+} from "../lib/event-dates";
 
 const toGoogleCalendarStamp = (value) =>
   value
@@ -74,10 +72,12 @@ function EventPage(props) {
     category,
     title,
     mainImage,
+    startDate,
     startTime,
     next,
     prev,
     boxes,
+    endDate,
     endTime,
     sourceRegisterLink,
     website,
@@ -87,8 +87,18 @@ function EventPage(props) {
   } = props;
   const [isCalendarMenuOpen, setIsCalendarMenuOpen] = React.useState(false);
   const calendarMenuRef = React.useRef(null);
-  const isPast = startTime ? new Date(startTime) < new Date() : false;
-  var start = startTime && format(new Date(startTime), "MMMM do, yyyy");
+  const eventStartDate = getEventStartDate({ startDate, startTime, endDate, endTime });
+  const eventEndDate = getEventEndDate({ startDate, startTime, endDate, endTime });
+  const eventEndBoundaryTimestamp = getEventEndBoundaryTimestamp({
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+  });
+  const isPast =
+    Number.isFinite(eventEndBoundaryTimestamp) &&
+    eventEndBoundaryTimestamp < Date.now();
+  var start = eventStartDate && format(eventStartDate, "MMMM do, yyyy");
   var updated = _updatedAt && format(new Date(_updatedAt), "MMMM do, yyyy");
   const cat = category?.title || "Events";
   const categoryFilterLink = cat
@@ -102,11 +112,11 @@ function EventPage(props) {
   const relatedEvents = React.useMemo(() => {
     const seenIds = new Set();
     return [next, prev].filter((event) => {
-      if (!event?.id || !event?.startTime) return false;
-      const timestamp = Date.parse(event.startTime);
+      if (!event?.id) return false;
+      const timestamp = getEventEndBoundaryTimestamp(event);
       if (!Number.isFinite(timestamp) || seenIds.has(event.id)) return false;
       seenIds.add(event.id);
-      return true;
+      return timestamp >= Date.now();
     });
   }, [next, prev]);
   const showSidebar = Boolean(randomizedAd) || relatedEvents.length > 0;
@@ -133,15 +143,8 @@ function EventPage(props) {
     };
   }, [isCalendarMenuOpen]);
 
-  const calendarStartDate = parseCalendarDate(startTime);
-  const calendarEndDate = parseCalendarDate(endTime);
-  const defaultCalendarEndDate = calendarStartDate
-    ? new Date(calendarStartDate.getTime() + 2 * 60 * 60 * 1000)
-    : null;
-  const finalCalendarEndDate =
-    calendarEndDate && calendarStartDate && calendarEndDate > calendarStartDate
-      ? calendarEndDate
-      : defaultCalendarEndDate;
+  const calendarStartDate = eventStartDate;
+  const finalCalendarEndDate = eventEndDate;
   const eventLocation = [venueName, address?.city, address?.state]
     .filter(Boolean)
     .join(", ");

@@ -1,6 +1,12 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { format, differenceInHours } from "date-fns";
+import {
+  differenceInCalendarDays,
+  differenceInMinutes,
+  format,
+  isValid,
+  parseISO,
+} from "date-fns";
 import { Text, Flex, Box } from "@theme-ui/components";
 import { FiClock, FiShare2, FiSlash } from "react-icons/fi";
 import {
@@ -13,13 +19,11 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import MapCard from "./map-card";
-
-const parseCalendarDate = (value) => {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed;
-};
+import {
+  getEventEndDate,
+  getEventStartDate,
+  parseEventDateValue,
+} from "../lib/event-dates";
 
 const toGoogleCalendarStamp = (value) =>
   value
@@ -33,6 +37,13 @@ const escapeIcsText = (value = "") =>
     .replace(/\n/g, "\\n")
     .replace(/;/g, "\\;")
     .replace(/,/g, "\\,");
+
+const parseEventDateTimeValue = (value) => {
+  const normalized = String(value || "").trim();
+  if (!normalized) return null;
+  const parsed = parseISO(normalized);
+  return isValid(parsed) ? parsed : null;
+};
 
 const buildIcsPayload = ({ title, description, location, start, end, url }) => {
   const uid = `${Date.now()}-psr@bmwccapsr.org`;
@@ -101,13 +112,12 @@ function EventDetails(props) {
   const [isCalendarMenuOpen, setIsCalendarMenuOpen] = React.useState(false);
   const calendarMenuRef = React.useRef(null);
 
-  const startDate = parseCalendarDate(startTime);
-  const endDate = parseCalendarDate(endTime);
+  const startDate = getEventStartDate(props);
+  const endDate = getEventEndDate(props);
   const start = startDate ? format(startDate, "eeee MMMM do, yyyy") : null;
-  const startTimeLabel = startDate ? format(startDate, "p") : null;
-  const numHours =
+  const dayCount =
     startDate && endDate
-      ? differenceInHours(new Date(endDate), new Date(startDate))
+      ? differenceInCalendarDays(endDate, startDate) + 1
       : null;
 
   const onlineText = [
@@ -128,6 +138,26 @@ function EventDetails(props) {
   const isOnline = Boolean(
     props.onlineEvent || props.onlineLink || hasOnlineKeyword,
   );
+  const startDateTime = parseEventDateTimeValue(startTime);
+  const endDateTime = parseEventDateTimeValue(endTime);
+  const durationMinutes =
+    startDateTime && endDateTime
+      ? differenceInMinutes(endDateTime, startDateTime)
+      : NaN;
+  const onlineLengthLabel = Number.isFinite(durationMinutes) && durationMinutes > 0
+    ? (() => {
+        const hours = Math.floor(durationMinutes / 60);
+        const minutes = durationMinutes % 60;
+        if (hours && minutes) return `${hours}h ${minutes}m`;
+        if (hours) return `${hours}h`;
+        return `${minutes}m`;
+      })()
+    : "TBD";
+  const lengthLabel = isOnline
+    ? onlineLengthLabel
+    : Number.isFinite(dayCount) && dayCount > 0
+      ? `${dayCount} day${dayCount === 1 ? "" : "s"}`
+      : "TBD";
   const calendarStartDate = startDate;
   const calendarEndDate = endDate;
   const defaultCalendarEndDate = calendarStartDate
@@ -153,8 +183,8 @@ function EventDetails(props) {
     props.website ||
     props.onlineLink ||
     (typeof window !== "undefined" ? window.location.href : "");
-  const registrationOpenAt = parseCalendarDate(props.sourceRegistrationOpenAt);
-  const registrationCloseAt = parseCalendarDate(props.sourceRegistrationCloseAt);
+  const registrationOpenAt = parseEventDateValue(props.sourceRegistrationOpenAt);
+  const registrationCloseAt = parseEventDateValue(props.sourceRegistrationCloseAt);
   const hasRegistrationWindow = Boolean(registrationOpenAt || registrationCloseAt);
   const nowTime = Date.now();
   const isRegistrationOpen = hasRegistrationWindow
@@ -162,7 +192,7 @@ function EventDetails(props) {
       (!registrationCloseAt || nowTime <= registrationCloseAt.getTime())
     : null;
   const registrationEndsLabel = registrationCloseAt
-    ? format(registrationCloseAt, "MMM d, yyyy h:mm a")
+    ? format(registrationCloseAt, "MMM d, yyyy")
     : null;
   const useCompactCalendarAction = isMsrEvent && Boolean(registerLink);
   const normalizedVenueName = String(props.venueName || "")
@@ -584,20 +614,17 @@ function EventDetails(props) {
           <Text sx={detailLabelSx}>Date</Text>
           <Text sx={detailValueSx}>{start || "TBD"}</Text>
 
-          <Text sx={detailLabelSx}>Time</Text>
-          <Text sx={detailValueSx}>{startTimeLabel || "TBD"}</Text>
-
-          <Text sx={detailLabelSx}>Length</Text>
-          <Box as="span" sx={neutralDetailPillSx}>
-            <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
-              <FaClock size={12} aria-hidden="true" />
-            </Box>
-            <Box as="span">
-              {Number.isFinite(numHours) && numHours > 0
-                ? `${numHours} hours`
-                : "TBD"}
-            </Box>
-          </Box>
+          {!isMsrEvent && (
+            <>
+              <Text sx={detailLabelSx}>Length</Text>
+              <Box as="span" sx={neutralDetailPillSx}>
+                <Box as="span" sx={{ display: "inline-flex", lineHeight: 0 }}>
+                  <FaClock size={12} aria-hidden="true" />
+                </Box>
+                <Box as="span">{lengthLabel}</Box>
+              </Box>
+            </>
+          )}
 
           <Text sx={detailLabelSx}>Cost</Text>
           <Box as="span" sx={neutralDetailPillSx}>
@@ -677,14 +704,10 @@ function EventDetails(props) {
           )}
           {isMsrEvent && (
             <>
-              <Text sx={detailLabelSx}>Signups / Waitlist</Text>
+              <Text sx={detailLabelSx}>Signups</Text>
               <Text sx={detailValueSx}>
                 {Number.isFinite(Number(props.sourceRegistrationCount))
                   ? Number(props.sourceRegistrationCount)
-                  : 0}
-                {" / "}
-                {Number.isFinite(Number(props.sourceWaitlistCount))
-                  ? Number(props.sourceWaitlistCount)
                   : 0}
               </Text>
             </>

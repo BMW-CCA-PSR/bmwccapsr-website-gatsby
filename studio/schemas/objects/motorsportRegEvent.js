@@ -29,13 +29,13 @@ export default {
     },
     {
       name: "start",
-      type: "datetime",
+      type: "date",
       title: "Start date",
       readOnly: true,
     },
     {
       name: "end",
-      type: "datetime",
+      type: "date",
       title: "End date",
       readOnly: true,
     },

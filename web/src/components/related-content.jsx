@@ -1,6 +1,6 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { getEventsUrl, getZundfolgeUrl } from "../lib/helpers";
 import { Link } from "gatsby";
 import { Heading, Text, Box, Card, Flex } from "@theme-ui/components";
@@ -10,6 +10,10 @@ import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import {
+  getEventStartDate,
+  getEventStartTimestamp,
+} from "../lib/event-dates";
 
 const statusPillBaseSx = {
   variant: "text.label",
@@ -33,7 +37,6 @@ function RelatedContent(props) {
     slug,
     publishedAt,
     category,
-    startTime,
     address,
     venueName,
     onlineEvent,
@@ -53,7 +56,8 @@ function RelatedContent(props) {
     .toLowerCase();
   const hasOnlineKeyword = /(zoom|online|remote)/i.test(locationText);
   const isOnline = Boolean(onlineEvent) || hasOnlineKeyword;
-  const startTimestamp = startTime ? Date.parse(startTime) : NaN;
+  const eventDate = getEventStartDate(props);
+  const startTimestamp = getEventStartTimestamp(props);
   const nowTimestamp = Date.now();
   const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
   const isUpcoming =
@@ -181,10 +185,10 @@ function RelatedContent(props) {
                       display: "block",
                     }}
                   >
-                    {format(parseISO(startTime), "MMM")}
+                    {eventDate ? format(eventDate, "MMM") : ""}
                   </Text>
                   <Text sx={{ variant: "styles.h3", lineHeight: 1 }}>
-                    {format(parseISO(startTime), "d")}
+                    {eventDate ? format(eventDate, "d") : ""}
                   </Text>
                 </Box>
               </Box>

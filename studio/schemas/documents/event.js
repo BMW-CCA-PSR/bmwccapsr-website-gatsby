@@ -14,6 +14,8 @@ export default {
     initialValue: () => ({
         title: 'change me',
         source: 'manual',
+    startDate: new Date().toISOString().slice(0, 10),
+    endDate: new Date().toISOString().slice(0, 10),
         startTime: new Date().toISOString(),
         endTime: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString(),
         slug: {
@@ -125,8 +127,8 @@ export default {
         {
             name: 'sourceRegistrationCount',
             type: 'number',
-            title: 'Registration Count',
-            description: 'Latest attendee/registration count from the source system.',
+          title: 'Signups',
+          description: 'Latest signup count from the source system.',
             fieldset: 'sourceRegistrations',
             hidden: ({ document }) => !isMsrSource(document),
         },
@@ -139,14 +141,6 @@ export default {
             hidden: ({ document }) => !isMsrSource(document),
         },
         {
-            name: 'sourceWaitlistCount',
-            type: 'number',
-            title: 'Waitlist Count',
-            description: 'Count of waitlisted attendees from the source system.',
-            fieldset: 'sourceRegistrations',
-            hidden: ({ document }) => !isMsrSource(document),
-        },
-        {
             name: 'sourceLastRegistrantUpdateAt',
             type: 'datetime',
             title: 'Last Registrant Update',
@@ -155,20 +149,51 @@ export default {
             hidden: ({ document }) => !isMsrSource(document),
         },
         {
+            name: 'startDate',
+            type: 'date',
+            title: 'Start Date',
+            description: 'Required event start date. MSR imports map directly to this field.',
+            fieldset: 'eventDates',
+            validation: Rule =>
+              Rule.custom((value, context) => {
+                if (value || context?.document?.startTime) return true
+                return 'You have to select a start date.'
+              }),
+        },
+        {
+            name: 'endDate',
+            type: 'date',
+            title: 'End Date',
+            description: 'Required event end date. Use the same date for single-day events.',
+            fieldset: 'eventDates',
+            validation: Rule =>
+              Rule.custom((value, context) => {
+                if (value || context?.document?.endTime) return true
+                return 'You have to select an end date.'
+              }),
+        },
+        {
             name: 'startTime',
             type: 'datetime',
             title: 'Start Time',
-            description: 'The start date/time of the event.',
+            description: 'Optional exact start date/time when this event needs a published time.',
             fieldset: 'eventDates',
-            validation: Rule => Rule.error('You have to select a start time.').required(),
         },
         {
             name: 'endTime',
             type: 'datetime',
             title: 'End Time',
-            description: 'The end date/time of the event.',
+            description: 'Optional exact end date/time when this event needs a published time.',
             fieldset: 'eventDates',
-            validation: Rule => Rule.error('End time must be later than start time.').required().min(Rule.valueOfField('startTime'))
+            validation: Rule =>
+              Rule.custom((value, context) => {
+                if (!value) return true
+                const startTime = context?.document?.startTime
+                if (!startTime) return true
+                return value >= startTime
+                  ? true
+                  : 'End time must be later than start time.'
+              })
         },
         {
             name: 'onlineEvent',
@@ -198,11 +223,7 @@ export default {
                 .replace(/\s+/g, '-')
                 .replace(/[^\w\/\-]+/g, '')
                 .replace(/\-\-+/g, '-'),
-                // date string represented as "2022-01-01" -- substring values are as follows:
-                // 10 == "2020/01/01/"
-                // 7 == "2020/01"
-                // 4 == "2020"
-                source: doc => `${doc.startTime.substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
+                source: doc => `${String(doc.startDate || doc.startTime || '').substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
             },
         },
         {
@@ -325,16 +346,17 @@ export default {
     preview: {
         select: {
             title: 'title',
+          startDate: 'startDate',
             startTime: 'startTime',
             slug: 'slug',
             media: 'mainImage',
         },
-        prepare({ title = 'No title', startTime, slug = {}, media }) {
+        prepare({ title = 'No title', startDate, startTime, slug = {}, media }) {
             const path = `/events/${slug.current}`
             return {
                 title,
                 media,
-                subtitle: startTime ? path : 'Missing event start date',
+            subtitle: (startDate || startTime) ? path : 'Missing event start date',
             }
         },
     },

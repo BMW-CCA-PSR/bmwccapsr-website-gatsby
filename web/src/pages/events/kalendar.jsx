@@ -4,12 +4,12 @@ import { graphql, Link } from "gatsby";
 import {
   addMonths,
   eachDayOfInterval,
+  endOfDay,
   endOfMonth,
   endOfWeek,
   format,
   isSameDay,
   isSameMonth,
-  parseISO,
   startOfMonth,
   startOfWeek,
   subMonths,
@@ -29,18 +29,16 @@ import {
   getEventsUrl,
   mapEdgesToNodes,
 } from "../../lib/helpers";
+import {
+  getEventEndDate,
+  getEventStartDate,
+  getEventStartTimestamp,
+} from "../../lib/event-dates";
 
 const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const CALENDAR_PREVIEW_WIDTH = 220;
 
 const toDayKey = (value) => format(value, "yyyy-MM-dd");
-
-const toCalendarDate = (value) => {
-  if (!value) return null;
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return null;
-  return parsed;
-};
 
 const toIcsStamp = (value) =>
   value
@@ -58,11 +56,9 @@ const escapeIcsText = (value = "") =>
 const buildMonthIcsPayload = ({ events, visibleMonth }) => {
   const createdAt = toIcsStamp(new Date());
   const eventLines = events.flatMap((event, index) => {
-    const start = toCalendarDate(event?.startTime);
+    const start = getEventStartDate(event);
     if (!start) return [];
-    const end =
-      toCalendarDate(event?.endTime) ||
-      new Date(start.getTime() + 2 * 60 * 60 * 1000);
+    const end = endOfDay(getEventEndDate(event) || start);
     const slug = event?.slug?.current;
     const url = slug ? `https://bmwccapsr.org${getEventsUrl(slug)}` : null;
     const location = event?.onlineEvent
@@ -172,14 +168,12 @@ const EventCalendarPage = ({ data, errors }) => {
   const eventsByDay = useMemo(() => {
     const grouped = new Map();
     events.forEach((event) => {
-      if (!event?.startTime) return;
-      const eventDate = parseISO(event.startTime);
+      const eventDate = getEventStartDate(event);
+      if (!eventDate) return;
       const key = toDayKey(eventDate);
       const next = grouped.get(key) || [];
       next.push(event);
-      next.sort(
-        (a, b) => Date.parse(a?.startTime || 0) - Date.parse(b?.startTime || 0),
-      );
+      next.sort((a, b) => getEventStartTimestamp(a) - getEventStartTimestamp(b));
       grouped.set(key, next);
     });
     return grouped;
@@ -188,8 +182,8 @@ const EventCalendarPage = ({ data, errors }) => {
   const visibleMonthEvents = useMemo(
     () =>
       events.filter((event) => {
-        if (!event?.startTime) return false;
-        return isSameMonth(parseISO(event.startTime), visibleMonth);
+        const eventDate = getEventStartDate(event);
+        return eventDate ? isSameMonth(eventDate, visibleMonth) : false;
       }),
     [events, visibleMonth],
   );
@@ -637,16 +631,6 @@ const EventCalendarPage = ({ data, errors }) => {
                               >
                                 <Text
                                   sx={{
-                                    fontSize: "11px",
-                                    fontWeight: "heading",
-                                    lineHeight: 1.25,
-                                    display: "block",
-                                  }}
-                                >
-                                  {format(parseISO(event.startTime), "h:mm a")}
-                                </Text>
-                                <Text
-                                  sx={{
                                     fontSize: "12px",
                                     lineHeight: 1.3,
                                     display: "-webkit-box",
@@ -729,10 +713,9 @@ const EventCalendarPage = ({ data, errors }) => {
                   lineHeight: 1.35,
                 }}
               >
-                {format(
-                  parseISO(hoverPreview.event.startTime),
-                  "EEEE, MMM d · h:mm a",
-                )}
+                {getEventStartDate(hoverPreview.event)
+                  ? format(getEventStartDate(hoverPreview.event), "EEEE, MMM d")
+                  : "Date TBD"}
               </Text>
               <Text
                 sx={{
@@ -871,7 +854,7 @@ const EventCalendarPage = ({ data, errors }) => {
                               }}
                             >
                               {format(
-                                parseISO(event.startTime),
+                                getEventStartDate(event),
                                 "EEEE, MMM d, yyyy",
                               )}
                               {" · "}

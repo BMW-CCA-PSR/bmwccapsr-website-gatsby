@@ -38,11 +38,14 @@ const EVENT_SOURCE = {
 };
 
 const SANITY_EVENT_QUERY = `*[_type == "event" && (
-  (defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
-  (!defined(endTime) && dateTime(startTime) >= dateTime(now()))
-)] | order(startTime asc){
+  (defined(endDate) && dateTime(endDate + "T23:59:59Z") >= dateTime(now())) ||
+  (!defined(endDate) && defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
+  (!defined(endDate) && !defined(endTime) && dateTime(coalesce(startDate, startTime)) >= dateTime(now()))
+)] | order(coalesce(startDate, startTime) asc){
   _id,
   title,
+  startDate,
+  endDate,
   startTime,
   endTime,
   onlineLink,
@@ -102,6 +105,17 @@ const normalizeDateTimeValue = (value) => {
     return `${normalized.replace(" ", "T")}:00`;
   }
   return normalized;
+};
+
+const normalizeDateValue = (value) => {
+  if (!value) return null;
+  const normalized = String(value).trim();
+  if (!normalized) return null;
+  const dateOnlyMatch = normalized.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (dateOnlyMatch?.[1]) return dateOnlyMatch[1];
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed.toISOString().slice(0, 10);
 };
 
 const parseCoordinate = (value) => {
@@ -340,8 +354,8 @@ const buildMsrEventOption = (event) => {
     eventId: event?.id ? String(event.id) : null,
     sanityEventId: null,
     name: cleanedName || rawName,
-    start: normalizeDateTimeValue(event?.start || event?.start_date || null),
-    end: normalizeDateTimeValue(event?.end || event?.end_date || null),
+    start: normalizeDateValue(event?.start || event?.start_date || null),
+    end: normalizeDateValue(event?.end || event?.end_date || null),
     url: event?.detailuri || event?.detail_url || event?.url || null,
     venueName: venue?.name || null,
     venueCity: venue?.city || null,
@@ -371,8 +385,8 @@ const buildSanityEventOption = (event) => {
     eventId: null,
     sanityEventId: event?._id || null,
     name: cleanedName || rawName,
-    start: normalizeDateTimeValue(event?.startTime || null),
-    end: normalizeDateTimeValue(event?.endTime || null),
+    start: normalizeDateValue(event?.startDate || event?.startTime || null),
+    end: normalizeDateValue(event?.endDate || event?.endTime || null),
     url: buildPublicEventUrl(event?.slug?.current) || event?.onlineLink || null,
     venueName: event?.venueName || null,
     venueCity: event?.address?.city || null,
@@ -400,8 +414,8 @@ const buildStoredEventValue = (event) => ({
     }) ||
     event?.name ||
     null,
-  start: normalizeDateTimeValue(event?.start || null),
-  end: normalizeDateTimeValue(event?.end || null),
+  start: normalizeDateValue(event?.start || null),
+  end: normalizeDateValue(event?.end || null),
   url: event?.url || null,
   venueName: event?.venueName || null,
   venueCity: event?.venueCity || null,

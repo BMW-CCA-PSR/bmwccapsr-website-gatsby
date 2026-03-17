@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "gatsby";
 import { Box, Card, Flex, Heading, Text } from "@theme-ui/components";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import {
   FaCalendarAlt,
   FaFlagCheckered,
@@ -17,6 +17,10 @@ import {
   nonDraggableImageProps,
   nonDraggableImageSx,
 } from "../lib/nonDraggableImage";
+import {
+  getEventStartDate,
+  getEventStartTimestamp,
+} from "../lib/event-dates";
 
 const CATEGORY_ICON_RULES = [
   {
@@ -104,7 +108,8 @@ const EventCard = ({
     : null;
   const url =
     href || (event?.slug?.current ? getEventsUrl(event.slug.current) : null);
-  const startTimestamp = event?.startTime ? Date.parse(event.startTime) : NaN;
+  const startDate = getEventStartDate(event);
+  const startTimestamp = getEventStartTimestamp(event);
   const nowTimestamp = Date.now();
   const upcomingCutoffTimestamp = nowTimestamp + 7 * 24 * 60 * 60 * 1000;
   const isUpcoming =
@@ -196,7 +201,7 @@ const EventCard = ({
                 ...nonDraggableImageSx,
               }}
             />
-            {event?.startTime && !isHorizontal && (
+            {startDate && !isHorizontal && (
               <Box
                 sx={{
                   position: "absolute",
@@ -223,10 +228,10 @@ const EventCard = ({
                       display: "block",
                     }}
                   >
-                    {format(parseISO(event.startTime), "MMM")}
+                    {format(startDate, "MMM")}
                   </Text>
                   <Text sx={{ variant: "styles.h3", lineHeight: 1 }}>
-                    {format(parseISO(event.startTime), "d")}
+                    {format(startDate, "d")}
                   </Text>
                 </Box>
               </Box>
@@ -385,7 +390,7 @@ const EventCard = ({
                   </Text>
                 )}
               </Box>
-              {event?.startTime && (
+              {startDate && (
                 <Box
                   sx={{
                     flex: "0 0 auto",
@@ -406,7 +411,7 @@ const EventCard = ({
                         display: "block",
                       }}
                     >
-                      {format(parseISO(event.startTime), "MMM")}
+                      {format(startDate, "MMM")}
                     </Text>
                     <Text
                       sx={{
@@ -414,7 +419,7 @@ const EventCard = ({
                         lineHeight: 1,
                       }}
                     >
-                      {format(parseISO(event.startTime), "d")}
+                      {format(startDate, "d")}
                     </Text>
                   </Box>
                 </Box>
