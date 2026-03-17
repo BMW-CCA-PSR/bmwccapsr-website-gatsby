@@ -13,6 +13,7 @@ import {
   FaCalendarPlus,
   FaClock,
   FaDollarSign,
+  FaGlobe,
   FaIdBadge,
   FaRoute,
   FaTag,
