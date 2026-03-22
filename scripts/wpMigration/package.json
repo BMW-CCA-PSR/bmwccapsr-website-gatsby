@@ -1,0 +1,23 @@
+{
+  "name": "wp-migration-tooling",
+  "private": true,
+  "version": "1.0.0",
+  "description": "WordPress to Sanity migration tooling",
+  "scripts": {
+    "migrate:wp:posts": "node bin/wordpressToSanityPostsMigration.js",
+    "migrate:wp:posts:review": "node bin/wordpressToSanityPostsMigration.js --per-page 50 --preview-limit 5 --timeout-ms 120000 --output-file ../wp-posts-review.json",
+    "migrate:wp:approval-ui": "node bin/startWpMigrationApprovalTool.js",
+    "migrate:wp:write:approved": "node bin/writeApprovedWpMigrationLedger.js --ledger-file ../wp-sanity-migration-ledger.json --output-file ../wp-sanity-migration-ledger.result.json",
+    "migrate:wp:write:approved:secure": "node bin/secureWriteApprovedWpMigrationLedger.js --profile bmw-club --secret-id SANITY_API_TOKEN --ledger-file ../wp-sanity-migration-ledger.json --output-file ../wp-sanity-migration-ledger.result.json"
+  },
+  "dependencies": {
+    "@portabletext/to-html": "^3.0.0",
+    "@sanity/block-tools": "^3.70.0",
+    "@sanity/client": "^6.29.1",
+    "@sanity/schema": "^3.29.1",
+    "@wordpress/block-serialization-default-parser": "^5.41.0",
+    "html-entities": "^2.6.0",
+    "jsdom": "^22.1.0",
+    "p-limit": "^3.1.0"
+  }
+}

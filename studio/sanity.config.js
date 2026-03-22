@@ -9,6 +9,8 @@ import schemas from "./schemas/schema";
 import deskStructure from "./deskStructure";
 import { SyncWithMsrAction } from "./src/documentActions/msrSyncAction";
 import { ApplyMsrSourceSettingsAction } from "./src/documentActions/msrSourceSettingsAction";
+import { AuthorPublishWithDefaultAvatarAction } from "./src/documentActions/authorPublishWithDefaultAvatarAction";
+import { PostPublishFeaturedSingletonAction } from "./src/documentActions/postPublishFeaturedSingletonAction";
 
 const vars = {
   apiId:
@@ -99,6 +101,14 @@ export default defineConfig({
           return true;
         });
         return [ApplyMsrSourceSettingsAction, ...withoutApply];
+      }
+      if (schemaTypeName === "author") {
+        const withoutPublish = previousActions.filter((action) => !isPublishAction(action));
+        return [AuthorPublishWithDefaultAvatarAction, ...withoutPublish];
+      }
+      if (schemaTypeName === "post") {
+        const withoutPublish = previousActions.filter((action) => !isPublishAction(action));
+        return [PostPublishFeaturedSingletonAction, ...withoutPublish];
       }
       if (schemaTypeName !== "event") return previousActions;
       return orderEventActions(previousActions);

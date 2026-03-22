@@ -1,3 +1,5 @@
+import { buildUniqueFieldValidator } from '../utils/uniqueFieldValidation';
+
 export default {
     name: 'category',
     type: 'document',
@@ -6,7 +8,13 @@ export default {
       {
         name: 'title',
         type: 'string',
-        title: 'Title'
+        title: 'Title',
+        validation: (Rule) =>
+          Rule.custom(buildUniqueFieldValidator({
+            typeName: 'category',
+            fieldPath: 'title',
+            label: 'Category title',
+          })),
       },
       {
         name: 'description',

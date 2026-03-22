@@ -1,10 +1,7 @@
-// scripts/generateZundfolgeManifest.js
-
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const path = require("path");
 
-// Configure AWS SDK
 const s3 = new AWS.S3({
   region: "us-west-2",
   credentials: new AWS.SharedIniFileCredentials({ profile: "bmw-club" }),
@@ -12,17 +9,17 @@ const s3 = new AWS.S3({
 
 const BUCKET = "bmw-club-psr";
 const PREFIX = "zundfolge/";
-const OUTPUT_PATH = path.join(__dirname, "../web/static/zundfolge/manifest.json");
+const OUTPUT_PATH = path.join(__dirname, "../../web/static/zundfolge/manifest.json");
 
 async function generateManifest() {
   const manifest = {};
-  let ContinuationToken;
+  let continuationToken;
 
   do {
     const response = await s3.listObjectsV2({
       Bucket: BUCKET,
       Prefix: PREFIX,
-      ContinuationToken,
+      ContinuationToken: continuationToken,
     }).promise();
 
     for (const { Key } of response.Contents) {
@@ -38,14 +35,15 @@ async function generateManifest() {
       manifest[year].push(filename);
     }
 
-    ContinuationToken = response.IsTruncated ? response.NextContinuationToken : null;
-  } while (ContinuationToken);
+    continuationToken = response.IsTruncated ? response.NextContinuationToken : null;
+  } while (continuationToken);
 
   fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(manifest, null, 2));
-  console.log(`✅ Manifest written to ${OUTPUT_PATH}`);
+  console.log(`Manifest written to ${OUTPUT_PATH}`);
 }
 
-generateManifest().catch((err) => {
-  console.error("❌ Failed to generate manifest:", err);
+generateManifest().catch((error) => {
+  console.error("Failed to generate manifest:", error);
+  process.exitCode = 1;
 });

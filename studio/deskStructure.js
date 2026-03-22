@@ -81,6 +81,23 @@ export default (S) =>
                         ),
                     ),
                 ),
+              S.listItem()
+                .title("Articles by author")
+                .child(
+                  S.documentTypeList("author")
+                    .title("Articles by author")
+                    .child((authorId) =>
+                      S.documentTypeList("post")
+                        .title("Articles")
+                        .filter('_type == "post" && $authorId in authors[].author._ref')
+                        .params({ authorId })
+                        .child((documentId) =>
+                          S.document()
+                            .documentId(documentId)
+                            .schemaType("post"),
+                        ),
+                    ),
+                ),
               S.divider(),
               S.documentTypeListItem("author")
                 .title("Authors")

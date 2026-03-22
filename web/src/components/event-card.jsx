@@ -12,7 +12,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { buildImageObj, getEventsUrl } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import { buildResponsiveImageAttrs } from "../lib/image-url";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
@@ -98,13 +98,17 @@ const EventCard = ({
   const hasOnlineKeyword = /(zoom|online|remote)/i.test(locationText);
   const isOnline = Boolean(event?.onlineEvent) || hasOnlineKeyword;
   const imageSource = event?.mainImage ? buildImageObj(event.mainImage) : null;
-  const imageUrl = imageSource
-    ? imageUrlFor(imageSource)
-        .width(1200)
-        .height(720)
-        .fit("crop")
-        .auto("format")
-        .url()
+  const isHorizontal = variant === "horizontal";
+  const imageAttrs = imageSource
+    ? buildResponsiveImageAttrs(imageSource, {
+        widths: [320, 480, 640, 768, 960, 1200],
+        sizes: isHorizontal
+          ? "(min-width: 1024px) 42vw, 100vw"
+          : "(min-width: 1200px) 380px, (min-width: 768px) 50vw, 100vw",
+        aspectRatio: 16 / 9,
+        fit: "crop",
+        quality: 70,
+      })
     : null;
   const url =
     href || (event?.slug?.current ? getEventsUrl(event.slug.current) : null);
@@ -119,7 +123,6 @@ const EventCard = ({
   const showUpcomingPill = Boolean(event?.showUpcomingPill && isUpcoming);
   const excerptText = getExcerptText(event?._rawExcerpt);
   const categoryIcon = getCategoryIcon(event?.category?.title);
-  const isHorizontal = variant === "horizontal";
   const shouldCenterGridTitle = !isHorizontal && (!cityState || isOnline);
   const compactGridImageHeight = compactMobile
     ? ["180px", "190px", "220px", "220px"]
@@ -157,7 +160,7 @@ const EventCard = ({
           height: "100%",
         }}
       >
-        {imageUrl && (
+        {imageAttrs && imageAttrs.src && (
           <Box
             sx={{
               position: "relative",
@@ -188,7 +191,11 @@ const EventCard = ({
           >
             <Box
               as="img"
-              src={imageUrl}
+              src={imageAttrs.src}
+              srcSet={imageAttrs.srcSet}
+              sizes={imageAttrs.sizes}
+              loading="lazy"
+              decoding="async"
               alt={event?.mainImage?.alt || event?.title || "Event"}
               {...nonDraggableImageProps}
               sx={{

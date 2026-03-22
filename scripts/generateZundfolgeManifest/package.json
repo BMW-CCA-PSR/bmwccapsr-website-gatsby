@@ -1,0 +1,12 @@
+{
+  "name": "generate-zundfolge-manifest",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Generate the Zundfolge manifest from S3",
+  "scripts": {
+    "generate": "node generateZundfolgeManifest.js"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1692.0"
+  }
+}

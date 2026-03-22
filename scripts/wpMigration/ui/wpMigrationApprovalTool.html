@@ -1,0 +1,4969 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WP to Sanity Import/Approval Tool</title>
+    <style>
+      :root {
+        --bg: #f4f1ea;
+        --panel: #fffdf8;
+        --ink: #1b1a18;
+        --muted: #5b5347;
+        --accent: #003049;
+        --accent-2: #d62828;
+        --ok: #2a9d8f;
+        --warn: #e9c46a;
+        --bad: #c1121f;
+        --line: #d9d2c5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 10% 10%, #e9e1d0 0%, transparent 50%),
+          radial-gradient(circle at 90% 0%, #d8e6ef 0%, transparent 45%),
+          var(--bg);
+        background-repeat: no-repeat;
+        background-size: 140% 140%, 140% 140%, 100% 100%;
+        min-height: 100vh;
+      }
+
+      .wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .topbar {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .topbar-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .topbar-logo {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: white;
+      }
+
+      .title {
+        margin: 0;
+        font-size: 2rem;
+        letter-spacing: 0.02em;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .wp-fetch {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        align-items: flex-end;
+        width: 100%;
+      }
+
+      .wp-field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .wp-field-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .wp-fetch input {
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+
+      .wp-fetch select {
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+
+      .wp-host-wrap {
+        position: relative;
+      }
+
+      .wp-host-valid {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        color: #1b8f3a;
+        display: none;
+        font-weight: 700;
+      }
+
+      .wp-host-wrap.valid .wp-host-valid {
+        display: inline-block;
+      }
+
+      .wp-host-wrap.valid input {
+        border-color: #7acb90;
+        padding-right: 30px;
+      }
+
+      .wp-fetch .wide {
+        width: 100%;
+      }
+
+      .wp-field-host {
+        flex: 1 1 auto;
+        min-width: 460px;
+      }
+
+      .wp-field-page {
+        flex: 0 0 88px;
+      }
+
+      .wp-field-per-page {
+        flex: 0 0 130px;
+      }
+
+      .page-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        width: 100%;
+      }
+
+      .table-page-controls {
+        padding: 8px;
+        border-bottom: 1px solid var(--line);
+        background: #f8f4ec;
+      }
+
+      .page-controls button {
+        min-width: 34px;
+        padding: 6px 9px;
+        font-size: 0.8rem;
+      }
+
+      .page-controls button.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .page-controls .page-ellipsis {
+        padding: 0 2px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .status-bar {
+        background: #e1e1e1;
+        border: 1px solid #cfcfcf;
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-radius: 0 0 12px 12px;
+        margin: 0 -16px -16px;
+        padding: 10px 12px;
+      }
+
+      .status-primary {
+        font-size: 0.97rem;
+        font-weight: 700;
+        color: #343434;
+      }
+
+      .status-secondary {
+        margin-top: 2px;
+        font-size: 0.78rem;
+        color: #5b5b5b;
+      }
+
+      button,
+      input[type='file'],
+      select {
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: var(--accent);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+        border-color: var(--line);
+      }
+
+      input:disabled,
+      select:disabled {
+        cursor: not-allowed;
+        background: #e7e7e7;
+        border-color: #c3c3c3;
+        color: #747474;
+        opacity: 1;
+      }
+
+      .wp-fetch input:disabled,
+      .wp-fetch select:disabled {
+        background: #e2e2e2;
+        border-color: #bcbcbc;
+        color: #6b6b6b;
+        box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.04);
+      }
+
+      button.btn-primary:disabled {
+        background: #b7c6de;
+        border-color: #b7c6de;
+        color: #f4f7fb;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .stats {
+        margin-top: 14px;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .stat {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      .stat h3 {
+        margin: 0;
+        font-size: 0.82rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .stat p {
+        margin: 6px 0 0;
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 700;
+      }
+
+      .progress-strip {
+        margin-top: 10px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+
+      .progress-strip-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .progress-strip-label {
+        font-size: 0.82rem;
+        color: var(--muted);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+
+      .progress-strip-value {
+        font-size: 0.92rem;
+        color: #343434;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 12px;
+        border-radius: 999px;
+        background: #d6d6d6;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #2a9d8f 0%, #67c7a7 100%);
+        transition: width 0.35s ease;
+      }
+
+      .toast-stack {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        z-index: 1200;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+      }
+
+      .toast {
+        min-width: 260px;
+        max-width: 360px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(24, 31, 38, 0.92);
+        color: white;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+        transform: translateY(-10px);
+        opacity: 0;
+        transition: opacity 0.22s ease, transform 0.22s ease;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast.success {
+        background: rgba(24, 104, 58, 0.94);
+      }
+
+      .toast.error {
+        background: rgba(150, 33, 45, 0.96);
+      }
+
+      .toast-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .toast-body {
+        margin-top: 2px;
+        font-size: 0.8rem;
+        opacity: 0.92;
+      }
+
+      .confetti-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1100;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+      }
+
+      .confetti-canvas.active {
+        opacity: 1;
+      }
+
+      .table-wrap {
+        margin-top: 14px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: auto;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 100%;
+      }
+
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 27%;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 14%;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 8%;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 11%;
+      }
+
+      th:nth-child(5),
+      td:nth-child(5) {
+        width: 12%;
+      }
+
+      th:nth-child(6),
+      td:nth-child(6) {
+        width: 10%;
+      }
+
+      th:nth-child(7),
+      td:nth-child(7) {
+        width: 10%;
+      }
+
+      th:nth-child(8),
+      td:nth-child(8) {
+        width: 8%;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 0.84rem;
+      }
+
+      tr.row-importing {
+        background: rgba(0, 48, 73, 0.08);
+        opacity: 0.68;
+      }
+
+      tr.row-importing td {
+        position: relative;
+      }
+
+      tr.row-collapsing {
+        animation: rowCollapseOut 320ms ease forwards;
+        transform-origin: top;
+      }
+
+      @keyframes rowCollapseOut {
+        0% {
+          opacity: 1;
+          transform: scaleY(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scaleY(0.7);
+        }
+      }
+
+      tr.row-importing button,
+      tr.row-importing input,
+      tr.row-importing select,
+      tr.row-importing textarea {
+        pointer-events: none;
+      }
+
+      th {
+        background: #f8f4ec;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 3px 7px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        word-break: normal;
+      }
+
+      .migration-not-started { background: #ececec; color: #535353; border-color: #c8c8c8; }
+      .migration-importing { background: #e1effa; color: #12496f; border-color: #9fc8e6; }
+      .migration-migrated { background: #d8f3dc; color: #205d27; border-color: #95d5b2; }
+      .migration-failed { background: #ffd6d6; color: #8f1d2b; border-color: #f0a6a6; }
+
+      .issues {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+      }
+
+      .issues li {
+        margin: 4px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .issue-icon {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        line-height: 1;
+        flex: 0 0 auto;
+        margin-top: 1px;
+      }
+
+      .issue-icon.blocker {
+        background: #ffe4e6;
+        color: #9f1239;
+        border: 1px solid #fda4af;
+      }
+
+      .issue-icon.info {
+        background: #e0f2fe;
+        color: #075985;
+        border: 1px solid #7dd3fc;
+      }
+
+      .author-select {
+        width: 100%;
+        max-width: 260px;
+        font-size: 0.78rem;
+        padding: 6px 8px;
+      }
+
+      .row-input {
+        width: 100%;
+        max-width: 320px;
+        font-size: 0.78rem;
+        padding: 6px 8px;
+        margin-top: 6px;
+      }
+
+      .row-input-inline {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 6px;
+        margin-bottom: 4px;
+        max-width: 430px;
+      }
+
+      .row-input-inline .row-input {
+        margin: 0;
+      }
+
+      .row-input-stack {
+        margin-top: 6px;
+        max-width: 430px;
+      }
+
+      .row-input-stack .row-input {
+        margin: 0 0 6px;
+      }
+
+      .title-excerpt-cell .row-input {
+        max-width: 280px;
+      }
+
+      .title-excerpt-cell .row-input-stack {
+        max-width: 360px;
+      }
+
+      .title-excerpt-cell .author-select {
+        max-width: 250px;
+      }
+
+      .published-cell .row-input {
+        max-width: 190px;
+      }
+
+      .row-apply-btn {
+        white-space: nowrap;
+        padding: 6px 10px;
+      }
+
+      .inline-edit-view,
+      .inline-edit-actions {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .inline-edit-actions .row-input {
+        margin: 0;
+      }
+
+      .inline-edit-btn,
+      .inline-save-btn,
+      .inline-cancel-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 24px;
+        width: 24px;
+        height: 24px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--ink);
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .inline-edit-btn:hover,
+      .inline-save-btn:hover,
+      .inline-cancel-btn:hover {
+        background: #f6eee0;
+      }
+
+      .inline-edit-text {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .inline-edit-text .row-textarea {
+        margin-top: 4px;
+        max-width: 100%;
+      }
+
+      .excerpt-edit-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .excerpt-edit-wrap .row-textarea {
+        width: 100%;
+        max-width: 100%;
+        margin-top: 4px;
+        padding-bottom: 22px;
+      }
+
+      .excerpt-edit-helper {
+        position: absolute;
+        right: 7px;
+        bottom: 6px;
+        font-size: 0.62rem;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 1px 6px;
+        line-height: 1.2;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .title-edit-wrap {
+        position: relative;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .title-edit-wrap .row-input {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding-right: 40px;
+      }
+
+      .title-edit-remaining {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.62rem;
+        color: var(--muted);
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .title-edit-wrap.is-over-limit .row-input {
+        border-color: var(--bad);
+        box-shadow: 0 0 0 1px rgba(193, 18, 31, 0.35);
+      }
+
+      .title-edit-wrap.is-over-limit .title-edit-remaining {
+        color: var(--bad);
+        font-weight: 700;
+      }
+
+      .row-textarea {
+        min-height: 82px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.35;
+      }
+
+      .effective {
+        margin-top: 4px;
+        font-size: 0.75rem;
+        color: var(--accent);
+      }
+
+      .actions {
+        display: grid;
+        gap: 4px;
+      }
+
+      .page-success-wrap {
+        padding: 18px 12px;
+      }
+
+      .page-success-card {
+        border: 1px solid #b8d8bf;
+        background: #f4fff3;
+        border-radius: 12px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .page-success-emoji {
+        font-size: 1.6rem;
+        line-height: 1;
+      }
+
+      .page-success-title {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #1f5131;
+      }
+
+      .page-success-body {
+        font-size: 0.82rem;
+        color: #365c44;
+      }
+
+      .page-success-card button {
+        justify-self: start;
+      }
+
+      .row-thumb-wrap {
+        width: 88px;
+      }
+
+      .image-cell-controls {
+        margin-top: 6px;
+        display: grid;
+        gap: 6px;
+        width: 82px;
+        max-width: 82px;
+      }
+
+      .image-file-input {
+        display: none;
+      }
+
+      .image-file-btn,
+      .image-reset-btn {
+        font-size: 0.74rem;
+        padding: 5px 8px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .image-selected-name {
+        display: block;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .row-thumb {
+        width: 82px;
+        height: 58px;
+        object-fit: cover;
+        display: block;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #efe9dd;
+        cursor: zoom-in;
+      }
+
+      .image-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 8, 16, 0.82);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 30;
+        padding: 20px;
+      }
+
+      .image-modal.open {
+        display: flex;
+      }
+
+      body.image-modal-open {
+        overflow: hidden;
+      }
+
+      .image-modal-card {
+        width: min(1080px, 100%);
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+        background: #0f1721;
+        border: 1px solid rgba(196, 212, 228, 0.26);
+        border-radius: 14px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+
+      .image-modal-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(196, 212, 228, 0.26);
+        color: #e6edf5;
+      }
+
+      .image-modal-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .image-modal-close {
+        border: 1px solid rgba(196, 212, 228, 0.4);
+        background: rgba(255, 255, 255, 0.02);
+        color: #edf2f7;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .image-modal-close:hover {
+        background: rgba(255, 255, 255, 0.09);
+      }
+
+      .image-modal-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 0.9fr;
+        gap: 14px;
+        padding: 14px;
+        min-height: 0;
+        overflow: auto;
+      }
+
+      .image-modal-grid.setup-only {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .image-modal-set-image-title {
+        margin: 0;
+        font-size: 1rem;
+        color: #dce6f1;
+        font-weight: 700;
+      }
+
+      .image-modal-media {
+        min-height: 0;
+      }
+
+      .image-modal-media img {
+        width: 100%;
+        max-height: 72vh;
+        object-fit: contain;
+        display: block;
+        border-radius: 10px;
+        background: #0a0f16;
+        border: 1px solid rgba(196, 212, 228, 0.2);
+      }
+
+      .image-modal-meta {
+        border: 1px solid rgba(196, 212, 228, 0.2);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        color: #dce6f1;
+        padding: 12px;
+        min-width: 0;
+      }
+
+      .image-modal-meta h4 {
+        margin: 0 0 10px;
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #b8c8da;
+      }
+
+      .image-meta-list {
+        display: grid;
+        grid-template-columns: minmax(88px, auto) minmax(0, 1fr);
+        gap: 6px 10px;
+        margin: 0;
+        font-size: 0.82rem;
+      }
+
+      .image-meta-list dt {
+        margin: 0;
+        font-weight: 700;
+        color: #c6d5e6;
+      }
+
+      .image-meta-list dd {
+        margin: 0;
+        color: #e6edf5;
+        overflow-wrap: anywhere;
+      }
+
+      .image-meta-value-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+      }
+
+      .image-meta-input-wrap {
+        position: relative;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .image-meta-value-wrap span {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .image-meta-edit-btn,
+      .image-meta-save-btn,
+      .image-meta-cancel-btn,
+      .image-meta-optimize-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        height: 24px;
+        border: 1px solid rgba(196, 212, 228, 0.45);
+        background: rgba(255, 255, 255, 0.04);
+        color: #e6edf5;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .image-meta-edit-btn,
+      .image-meta-save-btn,
+      .image-meta-cancel-btn {
+        width: 24px;
+        flex: 0 0 24px;
+      }
+
+      .image-meta-optimize-btn {
+        width: 24px;
+        flex: 0 0 24px;
+        padding: 0;
+        font-size: 0.78rem;
+      }
+
+      .image-meta-edit-btn:hover,
+      .image-meta-save-btn:hover,
+      .image-meta-cancel-btn:hover,
+      .image-meta-optimize-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .image-meta-optimize-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .image-meta-edit-input {
+        width: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0.8rem;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(196, 212, 228, 0.4);
+        background: rgba(10, 16, 24, 0.7);
+        color: #e6edf5;
+      }
+
+      .image-meta-edit-input:disabled {
+        opacity: 0.75;
+        cursor: not-allowed;
+      }
+
+      .image-meta-edit-input.is-saving {
+        padding-right: 30px;
+      }
+
+      .image-meta-inline-spinner {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .image-meta-saving-spinner {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        border: 2px solid rgba(198, 213, 230, 0.4);
+        border-top-color: #e6edf5;
+        animation: spin 0.8s linear infinite;
+      }
+
+      .image-modal-controls {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(196, 212, 228, 0.2);
+        display: grid;
+        gap: 8px;
+      }
+
+      .image-modal-file-input {
+        display: none;
+      }
+
+      .image-modal-file-btn,
+      .image-modal-reset-btn {
+        width: 100%;
+        border: 1px solid rgba(196, 212, 228, 0.4);
+        background: rgba(255, 255, 255, 0.04);
+        color: #e6edf5;
+        border-radius: 8px;
+        padding: 7px 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .image-modal-file-btn:hover,
+      .image-modal-reset-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .image-modal-reset-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .image-modal-chooser {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .image-modal-choice-btn {
+        width: 100%;
+        min-height: 176px;
+        border: 1px solid rgba(196, 212, 228, 0.4);
+        background: rgba(255, 255, 255, 0.04);
+        color: #e6edf5;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        gap: 4px;
+        text-align: center;
+      }
+
+      .image-modal-choice-btn:not(:disabled):hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .image-modal-choice-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .image-modal-choice-btn:disabled:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .image-modal-choice-btn.is-selected {
+        border-color: rgba(144, 198, 255, 0.9);
+        box-shadow: 0 0 0 2px rgba(86, 165, 255, 0.2) inset;
+        background: rgba(70, 136, 215, 0.16);
+      }
+
+      .image-modal-choice-icon {
+        font-size: 2.4rem;
+        line-height: 1;
+      }
+
+      .image-modal-remote-wrap {
+        display: grid;
+        gap: 8px;
+      }
+
+      .image-modal-remote-input-wrap {
+        position: relative;
+      }
+
+      .image-modal-remote-input {
+        width: 100%;
+        border: 1px solid rgba(196, 212, 228, 0.4);
+        background: rgba(10, 16, 24, 0.7);
+        color: #e6edf5;
+        border-radius: 8px;
+        padding: 9px 10px;
+        font-size: 0.85rem;
+      }
+
+      .image-modal-remote-input.is-checking {
+        padding-right: 30px;
+      }
+
+      .image-modal-remote-spinner {
+        position: absolute;
+        right: 9px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        border: 2px solid rgba(198, 213, 230, 0.4);
+        border-top-color: #e6edf5;
+        animation: spin 0.8s linear infinite;
+        display: none;
+        pointer-events: none;
+      }
+
+      .image-modal-remote-spinner.active {
+        display: inline-block;
+      }
+
+      .image-modal-file-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .tiny {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .override-highlight {
+        display: inline-block;
+        border: 2px solid #f2c94c;
+        border-radius: 7px;
+        padding: 2px 6px;
+        background: rgba(242, 201, 76, 0.12);
+      }
+
+      .override-highlight.block {
+        display: block;
+      }
+
+      .row-thumb.override-highlight {
+        border-color: #f2c94c;
+        box-shadow: 0 0 0 2px rgba(242, 201, 76, 0.2);
+        background: rgba(242, 201, 76, 0.1);
+      }
+
+      .blocker-highlight {
+        display: inline-block;
+        border: 2px solid #c1121f;
+        border-radius: 7px;
+        padding: 2px 6px;
+        background: rgba(193, 18, 31, 0.08);
+      }
+
+      .blocker-highlight.block {
+        display: block;
+      }
+
+      .row-thumb.blocker-highlight {
+        border-color: #c1121f;
+        box-shadow: 0 0 0 2px rgba(193, 18, 31, 0.18);
+        background: rgba(193, 18, 31, 0.08);
+      }
+
+      .blocker-input {
+        border: 2px solid #c1121f;
+        background: #fff1f2;
+      }
+
+      .blocker-cell {
+        border-radius: 8px;
+        background: rgba(193, 18, 31, 0.05);
+        box-shadow: inset 0 0 0 2px rgba(193, 18, 31, 0.14);
+        padding: 8px;
+      }
+
+      .blocker-empty-state {
+        color: #8f1d2b;
+        font-weight: 700;
+      }
+
+      .loading-status {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.97rem;
+        font-weight: 700;
+        color: #343434;
+      }
+
+      .loading-status.active {
+        display: inline-flex;
+      }
+
+      .status-bar.loading .status-secondary {
+        display: none;
+      }
+
+      .loading-spinner {
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 2px solid #c4d7e7;
+        border-top-color: var(--accent);
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      .preview-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+        padding: 16px;
+      }
+
+      .preview-modal.open {
+        display: flex;
+      }
+
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      .preview-card {
+        width: min(1400px, 100%);
+        height: min(92vh, 100%);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        background: #ededed;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        padding: 14px;
+      }
+
+      #previewContent {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      .preview-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 14px;
+        height: 100%;
+        align-items: stretch;
+      }
+
+      .preview-panel {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 10px;
+        background: #fffdf8;
+      }
+
+      .preview-panel h3 {
+        margin: 0 0 8px;
+      }
+
+      .preview-image {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        margin: 6px 0;
+      }
+
+      .preview-article p {
+        margin: 8px 0;
+        line-height: 1.45;
+      }
+
+      .preview-meta {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .preview-zundfolge {
+        background: #ffffff;
+        border: 1px solid #dedede;
+        border-radius: 14px;
+        padding: 18px 20px;
+        overflow: auto;
+      }
+
+      .preview-zundfolge-head {
+        margin-bottom: 14px;
+      }
+
+      .preview-breadcrumb {
+        color: #4f4f53;
+        font-size: 0.88rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+
+      .preview-zundfolge-title {
+        margin: 6px 0 10px;
+        font-size: clamp(2rem, 4.9vw, 4rem);
+        line-height: 0.95;
+        color: #4b4c50;
+        font-weight: 700;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        max-width: 18ch;
+      }
+
+      .preview-zundfolge-meta {
+        font-size: 1rem;
+        color: #4f4f53;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .preview-zundfolge-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        background: #cfd4da;
+        color: #2f3133;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 700;
+        flex: 0 0 auto;
+      }
+
+      .preview-zundfolge-authorline {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      }
+
+      .preview-zundfolge-accent {
+        display: inline-block;
+        width: 0.62em;
+        height: 0.62em;
+        margin-left: 0.2em;
+        background:
+          linear-gradient(#2f87e5, #2f87e5) 0 0 / 50% 50% no-repeat,
+          linear-gradient(#2f87e5, #2f87e5) 100% 100% / 50% 50% no-repeat;
+        transform: translateY(0.07em);
+        vertical-align: middle;
+      }
+
+      .preview-zundfolge-hero {
+        margin: 14px 0 16px;
+        max-height: 500px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #d3d3d3;
+        background: #fff;
+      }
+
+      .preview-zundfolge-hero img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .preview-zundfolge-excerpt {
+        margin: 0 0 16px;
+        padding: 14px 14px;
+        background: #e6e6e7;
+        border-left: 4px solid #2f87e5;
+        color: #4f4f53;
+        font-style: italic;
+        border-radius: 8px;
+      }
+
+      .preview-zundfolge-body {
+        font-size: 1.03rem;
+        line-height: 1.65;
+        color: #3e3f42;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      }
+
+      .preview-zundfolge-body p {
+        margin: 0 0 1rem;
+        font-size: 1.03rem;
+      }
+
+      .preview-zundfolge-body h1,
+      .preview-zundfolge-body h2,
+      .preview-zundfolge-body h3,
+      .preview-zundfolge-body h4,
+      .preview-zundfolge-body h5,
+      .preview-zundfolge-body h6 {
+        margin: 1.2rem 0 0.7rem;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        line-height: 0.9;
+        letter-spacing: -0.025em;
+        font-weight: 700;
+        color: #4d4d4d;
+      }
+
+      .preview-zundfolge-body h1 {
+        font-size: 64px;
+      }
+
+      .preview-zundfolge-body h2 {
+        font-size: 40px;
+      }
+
+      .preview-zundfolge-body h3 {
+        font-size: 30px;
+      }
+
+      .preview-zundfolge-body h4 {
+        font-size: 24px;
+      }
+
+      .preview-zundfolge-body h5 {
+        font-size: 16px;
+      }
+
+      .preview-zundfolge-body h6 {
+        font-size: 12px;
+      }
+
+      .preview-zundfolge-body blockquote {
+        margin: 1rem 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 4px solid #2f87e5;
+        background: #f1f3f5;
+        border-radius: 8px;
+      }
+
+      .preview-zundfolge-body p:first-of-type::first-letter {
+        float: left;
+        font-size: 3.2em;
+        line-height: 0.84;
+        font-weight: 700;
+        margin-right: 0.08em;
+        color: #56575a;
+      }
+
+      .preview-source-wrap {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        height: 100%;
+      }
+
+      .preview-source-head {
+        margin-bottom: 8px;
+      }
+
+      .preview-source-frame {
+        width: 100%;
+        height: 100%;
+        flex: 1 1 auto;
+        min-height: 0;
+        border: 1px solid #d8ccbb;
+        border-radius: 10px;
+        background: #fff;
+        pointer-events: none;
+      }
+
+      .preview-source-fallback {
+        margin-top: 10px;
+        font-size: 0.8rem;
+      }
+
+      .preview-source-fallback a {
+        color: #003049;
+      }
+
+      @media (max-width: 900px) {
+        .wrap {
+          padding: 12px;
+        }
+
+        .topbar-head {
+          align-items: flex-start;
+        }
+
+        .topbar-logo {
+          width: 46px;
+          height: 46px;
+        }
+
+        .title {
+          font-size: 1.55rem;
+        }
+
+        .stat p {
+          font-size: 1.55rem;
+        }
+
+        .wp-fetch {
+          flex-wrap: wrap;
+          align-items: stretch;
+        }
+
+        .wp-field-host,
+        .wp-field-page,
+        .wp-field-per-page {
+          flex: 1 1 100%;
+          min-width: 100%;
+        }
+
+        .preview-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .preview-zundfolge-title {
+          font-size: 1.5rem;
+        }
+
+        .preview-zundfolge-body,
+        .preview-zundfolge-body p {
+          font-size: 1.15rem;
+        }
+
+        .preview-source-wrap,
+        .preview-source-frame {
+          min-height: 50vh;
+        }
+
+        .image-modal-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .image-modal-media img {
+          max-height: 55vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="topbar">
+        <div class="topbar-head">
+          <img class="topbar-logo" src="__WP_MIGRATION_API_BASE__/assets/logo" alt="BMW CCA Puget Sound logo" />
+          <h1 class="title">WP to Sanity Import/Approval Tool</h1>
+        </div>
+        <p class="subtitle">
+          Review each row, adjust title/date/author/category as needed, then import directly.
+          Each successful import is removed from the current list so you can work in small batches.
+        </p>
+
+        <div class="wp-fetch">
+          <div class="wp-field wp-field-host">
+            <label class="wp-field-label" for="wpBaseUrl">WordPress Host</label>
+            <div id="wpHostWrap" class="wp-host-wrap">
+              <input id="wpBaseUrl" class="wide" type="text" value="http://ec2-16-148-107-247.us-west-2.compute.amazonaws.com/wp-json/wp/v2" />
+              <span id="wpHostValidIndicator" class="wp-host-valid" aria-hidden="true">✓</span>
+            </div>
+          </div>
+          <div class="wp-field wp-field-page">
+            <label class="wp-field-label" for="wpPage">Page #</label>
+            <select id="wpPage">
+              <option value="1">1</option>
+            </select>
+          </div>
+          <div class="wp-field wp-field-per-page">
+            <label class="wp-field-label" for="wpPerPage">Rows Per Page</label>
+            <select id="wpPerPage">
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <button id="fetchWpBtn" class="btn-primary">Fetch from WordPress</button>
+        </div>
+
+        <div class="controls">
+          <button id="saveStateBtn">Save Local State</button>
+          <button id="clearStateBtn">Clear Local State</button>
+          <button id="toggleShowAllBtn">Show All</button>
+        </div>
+
+        <div class="status-bar">
+          <div id="sourceMetaPrimary" class="status-primary">No data loaded.</div>
+          <div id="sourceMetaSecondary" class="status-secondary"></div>
+          <div id="loadingStatus" class="loading-status" aria-live="polite" aria-hidden="true">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <span id="loadingStatusText">Loading data...</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats" id="stats"></section>
+      <section class="progress-strip" id="progressStrip"></section>
+
+      <section class="table-wrap">
+        <div class="table-page-controls">
+          <div id="pageControls" class="page-controls" aria-label="Pagination controls"></div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Title / Excerpt</th>
+              <th>Published</th>
+              <th>Image</th>
+              <th>Author</th>
+              <th>Category</th>
+              <th>Issues</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="previewModal" class="preview-modal" aria-hidden="true">
+      <div class="preview-card">
+        <div class="preview-top">
+          <strong>Article Preview</strong>
+          <button id="closePreviewBtn">Close</button>
+        </div>
+        <div id="previewContent"></div>
+      </div>
+    </div>
+
+    <div id="imageModal" class="image-modal" aria-hidden="true">
+      <dialog class="image-modal-card" aria-modal="true" aria-labelledby="imageModalTitle">
+        <div class="image-modal-top">
+          <h3 id="imageModalTitle" class="image-modal-title">Image Preview</h3>
+          <button id="closeImageModalBtn" class="image-modal-close" type="button" aria-label="Close image preview">X</button>
+        </div>
+        <div id="imageModalGrid" class="image-modal-grid">
+          <div class="image-modal-media">
+            <img id="imageModalPreview" src="" alt="" loading="lazy" />
+          </div>
+          <aside class="image-modal-meta">
+            <h4>Image Metadata</h4>
+            <dl id="imageMetaList" class="image-meta-list"></dl>
+            <div id="imageModalControls" class="image-modal-controls"></div>
+          </aside>
+        </div>
+      </dialog>
+    </div>
+
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+    <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+      const STORAGE_KEY = 'wpSanityImportApprovalState.v1';
+      const STORAGE_UI_KEY = `${STORAGE_KEY}.ui`;
+      const LOCAL_REVIEW_API_BASE = '__WP_MIGRATION_API_BASE__';
+      const AUTHOR_SELECTION_INFERRED = '__INFERRED__';
+      const AUTHOR_SELECTION_CUSTOM = '__CUSTOM__';
+      const CATEGORY_SELECTION_MAPPED = '__MAPPED__';
+      const CATEGORY_SELECTION_CUSTOM = '__CUSTOM__';
+      const AUTHOR_SELECTION_EMPTY = '';
+      const CATEGORY_SELECTION_EMPTY = '';
+      const EMPTY_AUTHOR_LABEL = '(No author / empty)';
+      const EMPTY_CATEGORY_LABEL = '(No category / empty)';
+      const EXCERPT_MODE_MAPPED = 'mapped';
+      const EXCERPT_MODE_FIRST_TWO = 'first-two-sentences';
+      const EXCERPT_MODE_CUSTOM = 'custom';
+      const TITLE_MAX_LENGTH = 32;
+      const EXCERPT_MAX_LENGTH = null;
+      let previewSyncCleanup = null;
+      let toastTimeoutId = null;
+      let confettiAnimationFrame = null;
+      let confettiCleanupTimeout = null;
+      let imageModalReturnFocusEl = null;
+      const activeImportKeys = new Set();
+      const app = {
+        payload: null,
+        state: {},
+        wpPageSummaryCache: null,
+        previewKey: null,
+        sanityAuthors: [],
+        sanityAuthorsError: '',
+        sanityCategories: [],
+        sanityCategoriesError: '',
+        showAllRows: false,
+        loadingTokens: new Set(),
+        loadingMessage: '',
+        wpHostValid: false,
+        imageModalKey: null,
+        imageModalEditingField: '',
+        imageModalEditValue: '',
+        imageModalSavingField: '',
+        imageModalSetupMode: '',
+        imageModalRemoteUrl: '',
+        imageModalRemoteValid: false,
+        imageModalRemoteChecking: false,
+        imageModalRemoteValidationToken: 0,
+        imageModalRemoteValidationTimeoutId: null,
+        imageModalOptimizing: false,
+      };
+
+      const confettiPalette = [
+        '#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5',
+        '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50',
+        '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800',
+        '#FF5722'
+      ];
+
+      function showToast({ title, body, variant = 'success', duration = 2200 }) {
+        const stack = document.getElementById('toastStack');
+        if (!stack) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${variant}`;
+        toast.innerHTML = `
+          <div class="toast-title">${esc(title || '')}</div>
+          ${body ? `<div class="toast-body">${esc(body)}</div>` : ''}
+        `;
+
+        stack.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+
+        window.clearTimeout(toastTimeoutId);
+        toastTimeoutId = window.setTimeout(() => {
+          toast.classList.remove('show');
+          window.setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+          }, 220);
+        }, duration);
+      }
+
+      function stopConfetti() {
+        const canvas = document.getElementById('confettiCanvas');
+        if (confettiAnimationFrame) {
+          cancelAnimationFrame(confettiAnimationFrame);
+          confettiAnimationFrame = null;
+        }
+        if (confettiCleanupTimeout) {
+          clearTimeout(confettiCleanupTimeout);
+          confettiCleanupTimeout = null;
+        }
+        if (canvas) {
+          canvas.classList.remove('active');
+        }
+      }
+
+      function playSuccessConfetti(duration = 2200) {
+        const canvas = document.getElementById('confettiCanvas');
+        if (!(canvas instanceof HTMLCanvasElement)) return;
+
+        stopConfetti();
+
+        const context = canvas.getContext('2d');
+        if (!context) return;
+
+        const resize = () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        };
+
+        resize();
+        canvas.classList.add('active');
+
+        const particleCount = 240;
+        const particles = Array.from({ length: particleCount }, () => ({
+          x: Math.random() * canvas.width,
+          y: -20 - Math.random() * canvas.height * 0.35,
+          vx: -3 + Math.random() * 6,
+          vy: 1 + Math.random() * 7,
+          size: 5 + Math.random() * 10,
+          color: confettiPalette[Math.floor(Math.random() * confettiPalette.length)],
+          rotation: Math.random() * Math.PI * 2,
+          rotationSpeed: -0.18 + Math.random() * 0.36,
+          shape: Math.random() > 0.5 ? 'rect' : 'circle',
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.04 + Math.random() * 0.06,
+        }));
+
+        const start = performance.now();
+
+        const render = (now) => {
+          const elapsed = now - start;
+          context.clearRect(0, 0, canvas.width, canvas.height);
+
+          particles.forEach((particle) => {
+            particle.vy += 0.045;
+            particle.x += particle.vx + Math.cos(particle.wobble) * 0.8;
+            particle.y += particle.vy;
+            particle.rotation += particle.rotationSpeed;
+            particle.wobble += particle.wobbleSpeed;
+
+            if (particle.y > canvas.height + 20 || particle.x < -40 || particle.x > canvas.width + 40) {
+              particle.x = Math.random() * canvas.width;
+              particle.y = -20 - Math.random() * 120;
+              particle.vx = -3 + Math.random() * 6;
+              particle.vy = 1 + Math.random() * 5;
+            }
+
+            context.save();
+            context.translate(particle.x, particle.y);
+            context.rotate(particle.rotation);
+            context.fillStyle = particle.color;
+            if (particle.shape === 'rect') {
+              context.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size);
+            } else {
+              context.beginPath();
+              context.arc(0, 0, particle.size / 2, 0, Math.PI * 2);
+              context.fill();
+            }
+            context.restore();
+          });
+
+          if (elapsed < duration) {
+            confettiAnimationFrame = requestAnimationFrame(render);
+          } else {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            stopConfetti();
+          }
+        };
+
+        confettiAnimationFrame = requestAnimationFrame(render);
+        confettiCleanupTimeout = window.setTimeout(stopConfetti, duration + 120);
+      }
+
+      function setControlsDisabled(disabled) {
+        const ids = ['wpBaseUrl', 'wpPage', 'wpPerPage', 'fetchWpBtn', 'saveStateBtn', 'toggleShowAllBtn'];
+        ids.forEach((id) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.disabled = Boolean(disabled);
+        });
+
+        const pageButtons = document.querySelectorAll('#pageControls button');
+        pageButtons.forEach((button) => {
+          button.disabled = Boolean(disabled);
+        });
+      }
+
+      function renderHostValidation() {
+        const wrap = document.getElementById('wpHostWrap');
+        if (!wrap) return;
+        if (app.wpHostValid) {
+          wrap.classList.add('valid');
+        } else {
+          wrap.classList.remove('valid');
+        }
+      }
+
+      function syncPageOptions(totalPages, selectedPage) {
+        const pageSelect = document.getElementById('wpPage');
+        if (!pageSelect) return;
+        const current = Number(selectedPage || pageSelect.value || 1);
+        const count = Math.max(1, Number(totalPages) || 0, current || 1);
+
+        pageSelect.innerHTML = Array.from({ length: count }, (_, index) => {
+          const value = index + 1;
+          return `<option value="${value}">${value}</option>`;
+        }).join('');
+
+        pageSelect.value = String(Math.min(Math.max(1, current), count));
+        renderPageControls(count, Number(pageSelect.value || 1));
+      }
+
+      function buildPageItems(totalPages, currentPage) {
+        const total = Math.max(1, Number(totalPages) || 1);
+        const current = Math.min(total, Math.max(1, Number(currentPage) || 1));
+        if (total <= 18) {
+          return Array.from({ length: total }, (_, idx) => idx + 1);
+        }
+
+        const pages = new Set([1, total, current]);
+        if (current <= 3) {
+          pages.add(2);
+          pages.add(3);
+        } else if (current >= total - 2) {
+          pages.add(total - 1);
+          pages.add(total - 2);
+        }
+
+        if (current > 3 && current < total - 2) {
+          pages.add(current - 1);
+          pages.add(current + 1);
+        }
+
+        const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+        const items = [];
+        for (let i = 0; i < sorted.length; i += 1) {
+          const page = sorted[i];
+          const prev = sorted[i - 1];
+          if (typeof prev === 'number' && page - prev > 1) {
+            if (page - prev === 2) {
+              items.push(prev + 1);
+            } else {
+              items.push('...');
+            }
+          }
+          items.push(page);
+        }
+        return items;
+      }
+
+      function renderPageControls(totalPagesArg, currentPageArg) {
+        const controlsEl = document.getElementById('pageControls');
+        const pageSelect = document.getElementById('wpPage');
+        if (!controlsEl || !pageSelect) return;
+
+        const totalPages = Math.max(1, Number(totalPagesArg) || Number(app.payload?.source?.totalPages) || Number(pageSelect.options.length) || 1);
+        const currentPage = Math.min(totalPages, Math.max(1, Number(currentPageArg) || Number(pageSelect.value || 1)));
+        const pageItems = buildPageItems(totalPages, currentPage);
+
+        const prevDisabled = currentPage <= 1 ? 'disabled' : '';
+        const nextDisabled = currentPage >= totalPages ? 'disabled' : '';
+
+        controlsEl.innerHTML = `
+          <button data-action="goPrevPage" ${prevDisabled}>Prev</button>
+          ${pageItems
+            .map((item) => {
+              if (item === '...') {
+                return '<span class="page-ellipsis">...</span>';
+              }
+              const active = item === currentPage ? 'active' : '';
+              return `<button data-action="goPage" data-page="${item}" class="${active}">${item}</button>`;
+            })
+            .join('')}
+          <button data-action="goNextPage" ${nextDisabled}>Next</button>
+        `;
+
+        setControlsDisabled(app.loadingTokens.size > 0);
+      }
+
+      async function validateWpBaseUrl() {
+        const baseUrlInput = document.getElementById('wpBaseUrl');
+        if (!baseUrlInput) return false;
+        const baseUrl = normalizeWpBaseUrl(baseUrlInput.value);
+        if (!baseUrl) {
+          app.wpHostValid = false;
+          renderHostValidation();
+          return false;
+        }
+
+        try {
+          const response = await fetch(`${LOCAL_REVIEW_API_BASE}/api/validate-wp-base?baseUrl=${encodeURIComponent(baseUrl)}`, {
+            headers: { Accept: 'application/json' },
+          });
+          const result = await response.json();
+          app.wpHostValid = Boolean(response.ok && result && result.ok && result.valid);
+        } catch (error) {
+          app.wpHostValid = false;
+        }
+        renderHostValidation();
+        return app.wpHostValid;
+      }
+
+      async function fetchWordPressPageSummary(baseUrlArg) {
+        const baseUrlInput = document.getElementById('wpBaseUrl');
+        const pageSelect = document.getElementById('wpPage');
+        const perPageSelect = document.getElementById('wpPerPage');
+        if (!baseUrlInput || !pageSelect || !perPageSelect) return null;
+
+        const baseUrl = normalizeWpBaseUrl(baseUrlArg || baseUrlInput.value);
+        const perPage = Math.max(1, Number(perPageSelect.value || 10));
+        if (!baseUrl) return null;
+
+        const cached = app.wpPageSummaryCache;
+        if (cached && cached.baseUrl === baseUrl && cached.perPage === perPage) {
+          const desiredPage = Math.max(1, Number(pageSelect.value || readUiState().lastPage || 1));
+          const totalPages = Math.max(1, Number(cached.totalPages) || desiredPage);
+          syncPageOptions(totalPages, desiredPage);
+          app.wpHostValid = true;
+          renderHostValidation();
+          return cached;
+        }
+
+        try {
+          const response = await fetch(`${LOCAL_REVIEW_API_BASE}/api/wp-posts-summary?baseUrl=${encodeURIComponent(baseUrl)}&perPage=${perPage}`, {
+            headers: { Accept: 'application/json' },
+          });
+          const result = await response.json();
+          if (!response.ok || !result || !result.ok) {
+            throw new Error(result && result.error ? result.error : `WP posts summary request failed (${response.status})`);
+          }
+
+          const desiredPage = Math.max(1, Number(pageSelect.value || readUiState().lastPage || 1));
+          const totalPages = Math.max(1, Number(result.totalPages) || desiredPage);
+          app.wpPageSummaryCache = {
+            baseUrl,
+            perPage,
+            totalPosts: Number(result.totalPosts) || 0,
+            totalPages,
+          };
+          app.wpHostValid = true;
+          renderHostValidation();
+          syncPageOptions(totalPages, desiredPage);
+          return app.wpPageSummaryCache;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function renderLoadingStatus() {
+        const el = document.getElementById('loadingStatus');
+        const textEl = document.getElementById('loadingStatusText');
+        const statusBarEl = document.querySelector('.status-bar');
+        const primaryEl = document.getElementById('sourceMetaPrimary');
+        if (!el || !textEl) return;
+
+        const isLoading = app.loadingTokens.size > 0;
+        setControlsDisabled(isLoading);
+        if (isLoading) {
+          if (statusBarEl) statusBarEl.classList.add('loading');
+          if (primaryEl) primaryEl.style.display = 'none';
+          el.classList.add('active');
+          el.setAttribute('aria-hidden', 'false');
+          textEl.textContent = app.loadingMessage || 'Loading data...';
+        } else {
+          if (statusBarEl) statusBarEl.classList.remove('loading');
+          if (primaryEl) primaryEl.style.display = '';
+          el.classList.remove('active');
+          el.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      function beginLoading(message) {
+        const token = Symbol('loading');
+        app.loadingTokens.add(token);
+        if (message) {
+          app.loadingMessage = String(message);
+        }
+        renderLoadingStatus();
+        return token;
+      }
+
+      function updateLoading(message) {
+        if (message) {
+          app.loadingMessage = String(message);
+        }
+        renderLoadingStatus();
+      }
+
+      function endLoading(token) {
+        if (token) {
+          app.loadingTokens.delete(token);
+        } else {
+          app.loadingTokens.clear();
+        }
+        if (app.loadingTokens.size === 0) {
+          app.loadingMessage = '';
+        }
+        renderLoadingStatus();
+      }
+
+      function esc(text) {
+        return String(text == null ? '' : text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function downloadJson(fileName, value) {
+        const blob = new Blob([JSON.stringify(value, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function readLocalState() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        } catch (err) {
+          return {};
+        }
+      }
+
+      function readUiState() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORAGE_UI_KEY) || '{}');
+          return {
+            lastPage: Math.max(1, Number(parsed && parsed.lastPage) || 1),
+          };
+        } catch (err) {
+          return { lastPage: 1 };
+        }
+      }
+
+      function writeLocalState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(app.state));
+      }
+
+      function writeUiState(uiState) {
+        const next = {
+          lastPage: Math.max(1, Number(uiState && uiState.lastPage) || 1),
+        };
+        localStorage.setItem(STORAGE_UI_KEY, JSON.stringify(next));
+      }
+
+      function setLastViewedPage(page) {
+        const safePage = Math.max(1, Number(page) || 1);
+        writeUiState({ lastPage: safePage });
+      }
+
+      function normalizeWpBaseUrl(value) {
+        return String(value || '').trim().replace(/\/+$/, '');
+      }
+
+      async function fetchSanityAuthors() {
+        const loadingToken = beginLoading('Loading Sanity authors...');
+        try {
+          const response = await fetch(`${LOCAL_REVIEW_API_BASE}/api/sanity-authors`, {
+            headers: { Accept: 'application/json' }
+          });
+          if (!response.ok) {
+            throw new Error(`Sanity authors API request failed: ${response.status}`);
+          }
+          const result = await response.json();
+          if (!result || !result.ok || !Array.isArray(result.authors)) {
+            throw new Error(result && result.error ? result.error : 'Invalid authors response payload.');
+          }
+          app.sanityAuthors = result.authors;
+          app.sanityAuthorsError = '';
+        } catch (error) {
+          app.sanityAuthors = [];
+          app.sanityAuthorsError = String(error && error.message ? error.message : error);
+        } finally {
+          endLoading(loadingToken);
+        }
+      }
+
+      async function fetchSanityCategories() {
+        const loadingToken = beginLoading('Loading Sanity categories...');
+        try {
+          const response = await fetch(`${LOCAL_REVIEW_API_BASE}/api/sanity-categories`, {
+            headers: { Accept: 'application/json' }
+          });
+          if (!response.ok) {
+            throw new Error(`Sanity categories API request failed: ${response.status}`);
+          }
+          const result = await response.json();
+          if (!result || !result.ok || !Array.isArray(result.categories)) {
+            throw new Error(result && result.error ? result.error : 'Invalid categories response payload.');
+          }
+          app.sanityCategories = result.categories;
+          app.sanityCategoriesError = '';
+        } catch (error) {
+          app.sanityCategories = [];
+          app.sanityCategoriesError = String(error && error.message ? error.message : error);
+        } finally {
+          endLoading(loadingToken);
+        }
+      }
+
+      function getInferredAuthorRef(row) {
+        const authorRefs = row && row.sanityDraft && Array.isArray(row.sanityDraft.authors)
+          ? row.sanityDraft.authors
+              .map((entry) => entry && entry.author && entry.author._ref)
+              .filter(Boolean)
+          : [];
+        return authorRefs[0] || AUTHOR_SELECTION_EMPTY;
+      }
+
+      function getMappedCategoryRef(row) {
+        return row && row.sanityDraft && row.sanityDraft.category && row.sanityDraft.category._ref
+          ? row.sanityDraft.category._ref
+          : CATEGORY_SELECTION_EMPTY;
+      }
+
+      function toDatetimeLocalValue(isoValue) {
+        if (!isoValue) return '';
+        const parsed = new Date(isoValue);
+        if (Number.isNaN(parsed.getTime())) return '';
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${parsed.getFullYear()}-${pad(parsed.getMonth() + 1)}-${pad(parsed.getDate())}T${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`;
+      }
+
+      function toIsoFromDatetimeLocal(localValue) {
+        if (!localValue) return '';
+        const parsed = new Date(localValue);
+        if (Number.isNaN(parsed.getTime())) return '';
+        return parsed.toISOString();
+      }
+
+      function getEffectiveTitle(row, state) {
+        const override = state && typeof state.titleOverride === 'string' ? state.titleOverride.trim() : '';
+        return override || (row && row.sanityDraft && row.sanityDraft.title) || '(Untitled)';
+      }
+
+      function getEffectivePublishedAt(row, state) {
+        const override = state && typeof state.publishedAtOverride === 'string' ? state.publishedAtOverride : '';
+        if (override) return override;
+        return (row && row.sanityDraft && row.sanityDraft.publishedAt) || '';
+      }
+
+      function getOriginalMainImage(row) {
+        return (row && row.sanityDraft && row.sanityDraft.mainImage) || null;
+      }
+
+      function getOriginalImageUrl(row) {
+        return (row && row.mappingSummary && row.mappingSummary.featuredImageUrl)
+          || (getOriginalMainImage(row) && getOriginalMainImage(row).sourceUrl)
+          || '';
+      }
+
+      function getEffectiveImageUrl(row, state) {
+        const overrideUrl = state && typeof state.imageOverrideDataUrl === 'string'
+          ? state.imageOverrideDataUrl
+          : '';
+        return overrideUrl || getOriginalImageUrl(row);
+      }
+
+      function getEffectiveImageAlt(row, state, fallbackTitle) {
+        const overrideAlt = state && typeof state.imageOverrideAlt === 'string'
+          ? state.imageOverrideAlt.trim()
+          : '';
+        if (overrideAlt) return overrideAlt;
+        return (getOriginalMainImage(row) && getOriginalMainImage(row).alt)
+          || (row && row.mappingSummary && row.mappingSummary.title)
+          || fallbackTitle
+          || 'Featured image';
+      }
+
+      function getEffectiveImageCaption(row, state, fallbackTitle) {
+        const overrideCaption = state && typeof state.imageOverrideCaption === 'string'
+          ? state.imageOverrideCaption.trim()
+          : '';
+        if (overrideCaption) return overrideCaption;
+        return (getOriginalMainImage(row) && getOriginalMainImage(row).caption)
+          || fallbackTitle
+          || '';
+      }
+
+      function excerptBlocksToText(blocks) {
+        if (!Array.isArray(blocks)) return '';
+        return blocks
+          .filter((block) => block && block._type === 'block')
+          .map((block) => (block.children || []).map((child) => child.text || '').join('').trim())
+          .filter(Boolean)
+          .join('\n\n');
+      }
+
+      function getDefaultExcerptText(row) {
+        const fromDraft = excerptBlocksToText(row && row.sanityDraft && row.sanityDraft.excerpt);
+        if (fromDraft) return fromDraft;
+        const fromSummary = row && row.mappingSummary ? row.mappingSummary.excerptPreview : '';
+        return String(fromSummary || '');
+      }
+
+      function bodyBlocksToPlainText(blocks) {
+        if (!Array.isArray(blocks)) return '';
+        return blocks
+          .filter((block) => block && block._type === 'block')
+          .map((block) => (block.children || []).map((child) => child.text || '').join('').trim())
+          .filter(Boolean)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function extractFirstTwoSentences(text) {
+        const source = String(text || '').replace(/\s+/g, ' ').trim();
+        if (!source) return '';
+        const matches = source.match(/[^.!?]+[.!?]+(?:["')\]]+)?|[^.!?]+$/g) || [];
+        const sentences = matches.map((part) => part.trim()).filter(Boolean);
+        if (!sentences.length) return '';
+        return sentences.slice(0, 2).join(' ').trim();
+      }
+
+      function getFirstTwoBodySentencesText(row) {
+        const bodyText = bodyBlocksToPlainText(row && row.sanityDraft && row.sanityDraft.body);
+        return extractFirstTwoSentences(bodyText);
+      }
+
+      function getExcerptMode(state) {
+        const value = state && state.excerptMode;
+        if (value === EXCERPT_MODE_FIRST_TWO || value === EXCERPT_MODE_CUSTOM) return value;
+        return EXCERPT_MODE_MAPPED;
+      }
+
+      function hasExcerptOverride(state) {
+        return !!(state && Object.prototype.hasOwnProperty.call(state, 'excerptOverride') && state.excerptOverride !== null);
+      }
+
+      function getEffectiveExcerptText(row, state) {
+        if (hasExcerptOverride(state)) {
+          return String(state.excerptOverride || '');
+        }
+        const mode = getExcerptMode(state);
+        if (mode === EXCERPT_MODE_FIRST_TWO) {
+          return getFirstTwoBodySentencesText(row) || getDefaultExcerptText(row);
+        }
+        return getDefaultExcerptText(row);
+      }
+
+      function buildExcerptBlocksFromText(text) {
+        const source = String(text || '').replace(/\r\n/g, '\n').trim();
+        if (!source) return [];
+        const paragraphs = source.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+        return paragraphs.map((paragraph, idx) => ({
+          _type: 'block',
+          _key: `excerpt-override-${idx}`,
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: `excerpt-override-span-${idx}`,
+              text: paragraph,
+              marks: [],
+            },
+          ],
+        }));
+      }
+
+      function studioSlugify(input) {
+        return String(input || '')
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w/\-]+/g, '')
+          .replace(/\-\-+/g, '-')
+          .replace(/(^[-/]+|[-/]+$)/g, '');
+      }
+
+      function buildStudioSlug(title, publishedAt) {
+        const date = publishedAt ? new Date(publishedAt) : new Date();
+        const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
+        const datePrefix = `${safeDate.getUTCFullYear()}/${String(safeDate.getUTCMonth() + 1).padStart(2, '0')}`;
+        const source = `${datePrefix}/${String(title || '').split(' ').join('-')}`;
+        const slug = studioSlugify(source);
+        return slug.length > 96 ? slug.slice(0, 96).replace(/[-/]+$/g, '') : slug;
+      }
+
+      function formatDisplayDate(isoValue) {
+        if (!isoValue) return '(empty)';
+        const date = new Date(isoValue);
+        if (Number.isNaN(date.getTime())) return String(isoValue);
+        const day = date.getUTCDate();
+        const suffix = day % 10 === 1 && day !== 11 ? 'st'
+          : day % 10 === 2 && day !== 12 ? 'nd'
+          : day % 10 === 3 && day !== 13 ? 'rd'
+          : 'th';
+        const month = date.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+        const year = date.getUTCFullYear();
+        return `${month} ${day}${suffix}, ${year}`;
+      }
+
+      function normalizeAuthorMatchValue(value) {
+        return String(value || '')
+          .trim()
+          .replace(/\s+/g, ' ')
+          .toLowerCase();
+      }
+
+      function findMatchingSanityAuthorByName(name) {
+        const normalized = normalizeAuthorMatchValue(name);
+        if (!normalized) return null;
+        return app.sanityAuthors.find((author) => normalizeAuthorMatchValue(author && author.name) === normalized) || null;
+      }
+
+      function getDefaultAuthorSelectionValue(row) {
+        const inferredName = row && row.mappingSummary && row.mappingSummary.inferredAuthor
+          ? row.mappingSummary.inferredAuthor.name || ''
+          : '';
+        const matchedAuthor = findMatchingSanityAuthorByName(inferredName);
+        return matchedAuthor && matchedAuthor._id ? matchedAuthor._id : AUTHOR_SELECTION_INFERRED;
+      }
+
+      function getAuthorSelectionValue(row, state) {
+        if (state && state.authorSelectionTouched && Object.prototype.hasOwnProperty.call(state, 'authorSelection')) {
+          return state.authorSelection;
+        }
+        return getDefaultAuthorSelectionValue(row);
+      }
+
+      function getCategorySelectionValue(row, state) {
+        if (state && Object.prototype.hasOwnProperty.call(state, 'categorySelection')) {
+          return state.categorySelection;
+        }
+        return CATEGORY_SELECTION_MAPPED;
+      }
+
+      function sanitizeDocumentIdSegment(value, fallback) {
+        const slug = studioSlugify(value).replace(/\//g, '-').replace(/[^a-z0-9_-]+/g, '').trim();
+        return slug || fallback;
+      }
+
+      function getAuthorCustomName(state) {
+        return String((state && state.authorCustomName) || '').trim();
+      }
+
+      function getCategoryCustomTitle(state) {
+        return String((state && state.categoryCustomTitle) || '').trim();
+      }
+
+      function buildCustomAuthorId(name) {
+        return `wp-author-${sanitizeDocumentIdSegment(name, 'custom-author')}`;
+      }
+
+      function buildCustomCategoryId(title) {
+        return `wp-category-${sanitizeDocumentIdSegment(title, 'custom-category')}`;
+      }
+
+      function buildAuthorSelectOptions(row, state) {
+        const inferred = row.mappingSummary && row.mappingSummary.inferredAuthor
+          ? row.mappingSummary.inferredAuthor.name || 'Unknown'
+          : 'Unknown';
+        const selected = getAuthorSelectionValue(row, state);
+        const knownAuthorIds = new Set(app.sanityAuthors.map((author) => author._id));
+        const options = [
+          {
+            value: AUTHOR_SELECTION_INFERRED,
+            label: `Use inferred (${inferred})`
+          },
+          {
+            value: AUTHOR_SELECTION_CUSTOM,
+            label: 'Custom author (type new)'
+          },
+          {
+            value: AUTHOR_SELECTION_EMPTY,
+            label: EMPTY_AUTHOR_LABEL
+          },
+          ...app.sanityAuthors.map((author) => ({
+            value: author._id,
+            label: author.name || author._id
+          }))
+        ];
+
+        if (
+          selected !== AUTHOR_SELECTION_INFERRED &&
+          selected !== AUTHOR_SELECTION_CUSTOM &&
+          selected !== AUTHOR_SELECTION_EMPTY &&
+          !knownAuthorIds.has(selected)
+        ) {
+          options.push({ value: selected, label: `${selected} (saved selection)` });
+        }
+
+        return options;
+      }
+
+      function buildCategorySelectOptions(row, state) {
+        const mappedCategoryTitle = row && row.mappingSummary && row.mappingSummary.category
+          ? row.mappingSummary.category.wpTitle || 'None'
+          : 'None';
+        const selected = getCategorySelectionValue(row, state);
+        const knownCategoryIds = new Set(app.sanityCategories.map((category) => category._id));
+        const options = [
+          {
+            value: CATEGORY_SELECTION_MAPPED,
+            label: `Use mapped (${mappedCategoryTitle})`
+          },
+          {
+            value: CATEGORY_SELECTION_CUSTOM,
+            label: 'Custom category (type new)'
+          },
+          {
+            value: CATEGORY_SELECTION_EMPTY,
+            label: EMPTY_CATEGORY_LABEL
+          },
+          ...app.sanityCategories.map((category) => ({
+            value: category._id,
+            label: category.title || category._id,
+          }))
+        ];
+
+        if (
+          selected !== CATEGORY_SELECTION_MAPPED &&
+          selected !== CATEGORY_SELECTION_CUSTOM &&
+          selected !== CATEGORY_SELECTION_EMPTY &&
+          !knownCategoryIds.has(selected)
+        ) {
+          options.push({ value: selected, label: `${selected} (saved selection)` });
+        }
+
+        return options;
+      }
+
+      function applyStateOverridesToDraft(row, state) {
+        const draft = JSON.parse(JSON.stringify(row.sanityDraft || null));
+        if (!draft) return null;
+
+        const effectiveTitle = getEffectiveTitle(row, state);
+        const effectivePublishedAt = getEffectivePublishedAt(row, state);
+
+        draft.title = effectiveTitle;
+        if (effectivePublishedAt) {
+          draft.publishedAt = effectivePublishedAt;
+        }
+        draft.slug = {
+          _type: 'slug',
+          current: buildStudioSlug(effectiveTitle, effectivePublishedAt || draft.publishedAt),
+        };
+
+        const effectiveExcerpt = getEffectiveExcerptText(row, state);
+        draft.excerpt = buildExcerptBlocksFromText(effectiveExcerpt);
+
+        const effectiveImageUrl = getEffectiveImageUrl(row, state);
+        if (effectiveImageUrl) {
+          draft.mainImage = {
+            _type: 'mainImage',
+            sourceUrl: effectiveImageUrl,
+            alt: getEffectiveImageAlt(row, state, effectiveTitle),
+            caption: getEffectiveImageCaption(row, state, effectiveTitle),
+          };
+        }
+
+        const selectedCategory = getCategorySelectionValue(row, state);
+        if (selectedCategory === CATEGORY_SELECTION_MAPPED) {
+          // Keep mapped category as-is.
+        } else if (selectedCategory === CATEGORY_SELECTION_CUSTOM) {
+          const customTitle = getCategoryCustomTitle(state);
+          if (!customTitle) {
+            draft.category = null;
+          } else {
+            draft.category = {
+              _type: 'reference',
+              _ref: buildCustomCategoryId(customTitle),
+            };
+            draft.categoryTitle = customTitle;
+          }
+        } else if (selectedCategory === CATEGORY_SELECTION_EMPTY) {
+          draft.category = null;
+        } else {
+          draft.category = {
+            _type: 'reference',
+            _ref: selectedCategory,
+          };
+        }
+
+        const selected = getAuthorSelectionValue(row, state);
+        if (selected === AUTHOR_SELECTION_INFERRED) {
+          return draft;
+        }
+
+        if (selected === AUTHOR_SELECTION_CUSTOM) {
+          const customAuthorName = getAuthorCustomName(state);
+          if (!customAuthorName) {
+            draft.authors = [];
+            return draft;
+          }
+
+          draft.authors = [
+            {
+              _type: 'authorReference',
+              _key: `author-override-${row.wordpress.id}`,
+              author: {
+                _type: 'reference',
+                _ref: buildCustomAuthorId(customAuthorName),
+              },
+            },
+          ];
+          return draft;
+        }
+
+        if (selected === AUTHOR_SELECTION_EMPTY) {
+          draft.authors = [];
+          return draft;
+        }
+
+        draft.authors = [
+          {
+            _type: 'authorReference',
+            _key: `author-override-${row.wordpress.id}`,
+            author: {
+              _type: 'reference',
+              _ref: selected,
+            },
+          },
+        ];
+
+        return draft;
+      }
+
+      function getSelectedAuthorLabel(row, state) {
+        const selected = getAuthorSelectionValue(row, state);
+        if (selected === AUTHOR_SELECTION_INFERRED) {
+          const inferred = row.mappingSummary && row.mappingSummary.inferredAuthor
+            ? row.mappingSummary.inferredAuthor.name || 'Unknown'
+            : 'Unknown';
+          return inferred;
+        }
+        if (selected === AUTHOR_SELECTION_EMPTY) {
+          return 'No author';
+        }
+        if (selected === AUTHOR_SELECTION_CUSTOM) {
+          const customName = getAuthorCustomName(state);
+          return customName || '(Custom author not set)';
+        }
+        const found = app.sanityAuthors.find((author) => author._id === selected);
+        return found ? (found.name || found._id) : selected;
+      }
+
+      function getSelectedCategoryLabel(row, state) {
+        const selected = getCategorySelectionValue(row, state);
+        if (selected === CATEGORY_SELECTION_MAPPED) {
+          const mapped = row && row.mappingSummary && row.mappingSummary.category
+            ? row.mappingSummary.category.wpTitle || 'None'
+            : 'None';
+          return mapped;
+        }
+        if (selected === CATEGORY_SELECTION_EMPTY) {
+          return 'No category';
+        }
+        if (selected === CATEGORY_SELECTION_CUSTOM) {
+          const customTitle = getCategoryCustomTitle(state);
+          return customTitle || '(Custom category not set)';
+        }
+        const found = app.sanityCategories.find((category) => category._id === selected);
+        return found ? (found.title || found._id) : selected;
+      }
+
+      function classifyIssueMessage(message) {
+        const text = String(message || '').toLowerCase();
+        if (
+          text.includes('title exceeds') ||
+          text.includes('missing featured image') ||
+          text.includes('missing category') ||
+          text.includes('must select') ||
+          text.includes('required')
+        ) {
+          return 'blocker';
+        }
+        return 'info';
+      }
+
+      function buildRowIssues(row, state, effectiveDraft) {
+        const issues = [];
+        const effectiveTitle = getEffectiveTitle(row, state);
+        if (!effectiveTitle || effectiveTitle.trim().length === 0) {
+          issues.push({ severity: 'blocker', message: 'Title is required.' });
+        } else if (effectiveTitle.length > TITLE_MAX_LENGTH) {
+          issues.push({ severity: 'blocker', message: `Title exceeds ${TITLE_MAX_LENGTH} characters.` });
+        }
+
+        if (!effectiveDraft || !Array.isArray(effectiveDraft.body) || effectiveDraft.body.length === 0) {
+          issues.push({ severity: 'blocker', message: 'Body is required.' });
+        }
+
+        const hasCategory = !!(effectiveDraft && effectiveDraft.category && effectiveDraft.category._ref);
+        if (!hasCategory) {
+          issues.push({ severity: 'blocker', message: 'Category is required.' });
+        }
+
+        const hasAuthors = !!(
+          effectiveDraft &&
+          Array.isArray(effectiveDraft.authors) &&
+          effectiveDraft.authors.length > 0 &&
+          effectiveDraft.authors.some((entry) => entry && entry.author && entry.author._ref)
+        );
+        if (!hasAuthors) {
+          issues.push({ severity: 'blocker', message: 'At least one author is required.' });
+        }
+
+        const hasMainImage = !!(
+          effectiveDraft &&
+          effectiveDraft.mainImage &&
+          (effectiveDraft.mainImage.sourceUrl || (effectiveDraft.mainImage.asset && effectiveDraft.mainImage.asset._ref))
+        );
+        if (!hasMainImage) {
+          issues.push({ severity: 'blocker', message: 'Main image is required.' });
+        }
+
+        const mappedNotes = Array.isArray(row && row.migrationNotes) ? row.migrationNotes : [];
+        mappedNotes.forEach((note) => {
+          const noteText = String(note || '').toLowerCase();
+          const severity = classifyIssueMessage(note);
+          if (
+            noteText.includes('title exceeds') ||
+            noteText.includes('missing featured image') ||
+            noteText.includes('missing category')
+          ) {
+            return;
+          }
+          if (severity === 'blocker') {
+            if (noteText.includes('title exceeds') && effectiveTitle.length <= TITLE_MAX_LENGTH) {
+              return;
+            }
+            if (noteText.includes('missing featured image') && hasMainImage) {
+              return;
+            }
+            if (noteText.includes('missing category') && hasCategory) {
+              return;
+            }
+          }
+          issues.push({ severity, message: String(note) });
+        });
+
+        if (!issues.some((issue) => issue.severity === 'info') && !getEffectiveExcerptText(row, state)) {
+          issues.push({ severity: 'info', message: 'Excerpt is empty.' });
+        }
+
+        return issues;
+      }
+
+      function buildIssueHighlights(issues) {
+        const highlights = {
+          title: false,
+          body: false,
+          image: false,
+          author: false,
+          category: false,
+        };
+
+        (Array.isArray(issues) ? issues : []).forEach((issue) => {
+          if (!issue || issue.severity !== 'blocker') return;
+
+          const text = String(issue.message || '').toLowerCase();
+          if (text.includes('title')) highlights.title = true;
+          if (text.includes('body')) highlights.body = true;
+          if (text.includes('main image') || text.includes('featured image')) highlights.image = true;
+          if (text.includes('author')) highlights.author = true;
+          if (text.includes('category')) highlights.category = true;
+        });
+
+        return highlights;
+      }
+
+      function toProxySourceUrl(sourceUrl) {
+        if (!sourceUrl) return '';
+        return `${LOCAL_REVIEW_API_BASE}/api/source-proxy?url=${encodeURIComponent(sourceUrl)}`;
+      }
+
+      function cleanupPreviewSync() {
+        if (typeof previewSyncCleanup === 'function') {
+          previewSyncCleanup();
+        }
+        previewSyncCleanup = null;
+      }
+
+      function setupPreviewScrollSync(originalSourceUrl) {
+        cleanupPreviewSync();
+
+        const leftPane = document.getElementById('previewLeftPane');
+        const iframe = document.getElementById('previewSourceFrame');
+        if (!leftPane || !iframe) return;
+
+        let lock = false;
+        let frameScroller = null;
+        let hasFallenBackToDirectSource = false;
+
+        const ratioOf = (el) => {
+          if (!el) return 0;
+          const max = Math.max(1, el.scrollHeight - el.clientHeight);
+          return Math.min(1, Math.max(0, el.scrollTop / max));
+        };
+
+        const applyRatio = (el, ratio) => {
+          if (!el) return;
+          const max = Math.max(0, el.scrollHeight - el.clientHeight);
+          el.scrollTop = ratio * max;
+        };
+
+        const onLeftScroll = () => {
+          if (lock || !frameScroller) return;
+          lock = true;
+          applyRatio(frameScroller, ratioOf(leftPane));
+          lock = false;
+        };
+
+        const onFrameLoad = () => {
+          try {
+            const doc = iframe.contentDocument;
+            if (
+              !hasFallenBackToDirectSource &&
+              originalSourceUrl &&
+              doc &&
+              doc.body &&
+              doc.body.dataset &&
+              doc.body.dataset.proxyError === '1'
+            ) {
+              hasFallenBackToDirectSource = true;
+              iframe.src = originalSourceUrl;
+              return;
+            }
+            frameScroller = doc && (doc.scrollingElement || doc.documentElement || doc.body);
+            if (!frameScroller) return;
+            applyRatio(frameScroller, ratioOf(leftPane));
+          } catch (error) {
+            frameScroller = null;
+          }
+        };
+
+        leftPane.addEventListener('scroll', onLeftScroll, { passive: true });
+        iframe.addEventListener('load', onFrameLoad);
+
+        previewSyncCleanup = () => {
+          leftPane.removeEventListener('scroll', onLeftScroll);
+          iframe.removeEventListener('load', onFrameLoad);
+        };
+      }
+
+      async function fetchFromWordPress(pageOverride) {
+        const baseUrl = normalizeWpBaseUrl(document.getElementById('wpBaseUrl').value);
+        const requestedPage = Math.max(1, Number(pageOverride || document.getElementById('wpPage').value || readUiState().lastPage || 1));
+        const perPage = Math.min(50, Math.max(1, Number(document.getElementById('wpPerPage').value || 10)));
+        const btn = document.getElementById('fetchWpBtn');
+
+        if (!baseUrl) {
+          alert('Please enter a valid WordPress API base URL.');
+          return;
+        }
+
+        btn.disabled = true;
+        const oldText = btn.textContent;
+        const loadingToken = beginLoading('Starting review fetch...');
+        setLastViewedPage(requestedPage);
+
+        try {
+          const apiUrl = `${LOCAL_REVIEW_API_BASE}/api/review-start?baseUrl=${encodeURIComponent(baseUrl)}&page=${requestedPage}&perPage=${perPage}`;
+          
+          const activeMetadataTasks = new Set();
+          const formatLoadingMessage = (baseMessage) => {
+            const base = String(baseMessage || '').trim();
+            if (!activeMetadataTasks.size) return base;
+            return `${base} Waiting on: ${Array.from(activeMetadataTasks).join(', ')}`;
+          };
+
+          const startRes = await fetch(apiUrl, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-store',
+            },
+          });
+          if (!startRes.ok) {
+            throw new Error(`Review start API returned HTTP ${startRes.status}`);
+          }
+
+          const startPayload = await startRes.json();
+          if (!startPayload || !startPayload.ok || !startPayload.jobId) {
+            throw new Error(startPayload && startPayload.error ? startPayload.error : 'Review start returned invalid payload.');
+          }
+
+          const stepMessages = {
+            'start': 'Starting review...',
+            'fetch-posts-start': (data) => data.message,
+            'fetch-posts': (data) => `Fetched posts: ${data.message}`,
+            'fetch-metadata-start': (data) => data.message,
+            'fetch-users-start': (data) => data.message,
+            'fetch-users-waiting': (data) => data.message,
+            'fetch-users-done': (data) => data.message,
+            'fetch-users-error': (data) => data.message,
+            'fetch-categories-start': (data) => data.message,
+            'fetch-categories-waiting': (data) => data.message,
+            'fetch-categories-done': (data) => data.message,
+            'fetch-categories-error': (data) => data.message,
+            'fetch-media-start': (data) => data.message,
+            'fetch-media-waiting': (data) => data.message,
+            'fetch-media-done': (data) => data.message,
+            'fetch-media-error': (data) => data.message,
+            'fetch-metadata': (data) => `Fetched metadata: ${data.message}`,
+            'map-posts-start': (data) => data.message,
+            'map-post-start': (data) => data.message,
+            'map-posts': (data) => `Mapping posts: ${data.message}`,
+            'complete': () => 'Loading review results...',
+          };
+
+          let result = null;
+          while (!result) {
+            const statusRes = await fetch(`${LOCAL_REVIEW_API_BASE}/api/review-status?jobId=${encodeURIComponent(startPayload.jobId)}&ts=${Date.now()}`, {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-store',
+              },
+            });
+            if (!statusRes.ok) {
+              throw new Error(`Review status API returned HTTP ${statusRes.status}`);
+            }
+
+            const statusPayload = await statusRes.json();
+            if (!statusPayload || !statusPayload.ok) {
+              throw new Error(statusPayload && statusPayload.error ? statusPayload.error : 'Review status returned invalid payload.');
+            }
+
+            const data = statusPayload.progress || {};
+            if (data.step !== 'map-post-done') {
+              const step = String(data.step || '');
+              const metadataMatch = step.match(/^fetch-(users|categories|media)-(start|done|error)$/);
+              if (metadataMatch) {
+                const taskName = metadataMatch[1];
+                const taskState = metadataMatch[2];
+                if (taskState === 'start') {
+                  activeMetadataTasks.add(taskName);
+                } else {
+                  activeMetadataTasks.delete(taskName);
+                }
+              }
+              if (step === 'fetch-metadata') {
+                activeMetadataTasks.clear();
+              }
+
+              const formatter = stepMessages[step];
+              const message = typeof formatter === 'function'
+                ? formatter(data)
+                : (formatter || data.message || 'Running review...');
+              updateLoading(formatLoadingMessage(message));
+            }
+
+            if (statusPayload.status === 'error') {
+              throw new Error(statusPayload.error || 'Review job failed.');
+            }
+
+            if (statusPayload.status === 'completed') {
+              result = statusPayload.result;
+              break;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 350));
+          }
+
+          if (!result || !result.ok || !result.payload) {
+            throw new Error(result && result.error ? result.error : 'Review result returned invalid payload.');
+          }
+
+          app.payload = result.payload;
+          syncPageOptions(result.payload && result.payload.source ? result.payload.source.totalPages : 1, requestedPage);
+          const selectedPage = Number(document.getElementById('wpPage').value || requestedPage);
+          setLastViewedPage(selectedPage);
+
+          app.state = { ...readLocalState() };
+          app.previewKey = null;
+          rerender();
+        } catch (error) {
+          alert(`Could not fetch mapped review payload from local Node mapper API. ${error.message}. Start the local server from scripts/wpMigration with: npm run migrate:wp:approval-ui`);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = oldText;
+          endLoading(loadingToken);
+        }
+      }
+
+      function ensureRowState(row) {
+        const key = row.tracking && row.tracking.trackingKey ? row.tracking.trackingKey : `post:${row.wordpress.id}`;
+
+        const makeInitialRowState = () => ({
+          migrationStatus: 'not-started',
+          updatedAt: new Date().toISOString(),
+          removed: false,
+          importedAt: null,
+          lastImportError: null,
+          wpId: row.wordpress.id,
+          sourceType: row.tracking && row.tracking.sourceType ? row.tracking.sourceType : 'post',
+          sourceUpdatedAt: row.tracking && row.tracking.sourceUpdatedAt ? row.tracking.sourceUpdatedAt : null,
+          sourceHash: row.tracking && row.tracking.sourceHash ? row.tracking.sourceHash : null,
+          sanityDraftId: row.sanityDraft ? row.sanityDraft._id : null,
+          authorSelection: AUTHOR_SELECTION_INFERRED,
+          authorSelectionTouched: false,
+          categorySelection: CATEGORY_SELECTION_MAPPED,
+          titleOverride: '',
+          publishedAtOverride: '',
+          excerptMode: EXCERPT_MODE_MAPPED,
+          excerptOverride: null,
+          imageOverrideDataUrl: '',
+          imageOverrideFileName: '',
+          imageOverrideFilePath: '',
+          imageOverrideAlt: '',
+          imageOverrideCaption: '',
+          authorCustomName: '',
+          categoryCustomTitle: '',
+          notes: []
+        });
+
+        if (!app.state[key]) {
+          app.state[key] = makeInitialRowState();
+        }
+
+        app.state[key].__makeInitialRowState = makeInitialRowState;
+
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'authorSelection')) {
+          app.state[key].authorSelection = AUTHOR_SELECTION_INFERRED;
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'authorSelectionTouched')) {
+          app.state[key].authorSelectionTouched = app.state[key].authorSelection !== AUTHOR_SELECTION_INFERRED;
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'categorySelection')) {
+          app.state[key].categorySelection = CATEGORY_SELECTION_MAPPED;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'titleOverride')) {
+          app.state[key].titleOverride = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'publishedAtOverride')) {
+          app.state[key].publishedAtOverride = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'excerptMode')) {
+          app.state[key].excerptMode = EXCERPT_MODE_MAPPED;
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'excerptOverride')) {
+          app.state[key].excerptOverride = null;
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'imageOverrideDataUrl')) {
+          app.state[key].imageOverrideDataUrl = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'imageOverrideFileName')) {
+          app.state[key].imageOverrideFileName = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'imageOverrideFilePath')) {
+          app.state[key].imageOverrideFilePath = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'imageOverrideAlt')) {
+          app.state[key].imageOverrideAlt = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'imageOverrideCaption')) {
+          app.state[key].imageOverrideCaption = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'authorCustomName')) {
+          app.state[key].authorCustomName = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'categoryCustomTitle')) {
+          app.state[key].categoryCustomTitle = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'removed')) {
+          app.state[key].removed = false;
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'importedAt')) {
+          app.state[key].importedAt = null;
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'lastImportError')) {
+          app.state[key].lastImportError = null;
+        }
+
+        if (app.state[key].migrationStatus === 'importing' && !activeImportKeys.has(key)) {
+          app.state[key].migrationStatus = 'not-started';
+          app.state[key].lastImportError = null;
+        }
+
+        return key;
+      }
+
+      function setRowState(key, patch) {
+        app.state[key] = {
+          ...app.state[key],
+          ...patch,
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      function setRowUiState(key, patch) {
+        app.state[key] = {
+          ...app.state[key],
+          ...patch,
+        };
+      }
+
+      function computeStats() {
+        if (!app.payload || !Array.isArray(app.payload.rows)) return [];
+
+        const rows = app.payload.rows;
+        const stateKeys = rows.map((row) => ensureRowState(row));
+        const source = app.payload.source || {};
+        const totalPosts = Math.max(0, Number(source.totalPosts) || 0);
+        const totalPages = Math.max(0, Number(source.totalPages) || 0);
+        const allStates = Object.values(app.state || {});
+
+        let remaining = 0;
+        let importedOnPage = 0;
+        let failed = 0;
+        let importedCumulative = 0;
+
+        stateKeys.forEach((key) => {
+          const s = app.state[key];
+          if (!s.removed) remaining += 1;
+
+          if (s.migrationStatus === 'migrated') importedOnPage += 1;
+          if (s.migrationStatus === 'failed') failed += 1;
+        });
+
+        allStates.forEach((state) => {
+          if (state && state.migrationStatus === 'migrated') {
+            importedCumulative += 1;
+          }
+        });
+
+        const remainingTotal = totalPosts > 0
+          ? Math.max(0, totalPosts - importedCumulative)
+          : remaining;
+
+        return [
+          { label: 'Total Posts', value: totalPosts || '—' },
+          { label: 'Remaining', value: remaining },
+          { label: 'Remaining Total', value: remainingTotal },
+          { label: 'Imported', value: importedOnPage },
+          { label: 'Imported Total', value: importedCumulative },
+          { label: 'Import Errors', value: failed }
+        ];
+      }
+
+      function renderStats() {
+        const statsEl = document.getElementById('stats');
+        const progressEl = document.getElementById('progressStrip');
+        const stats = computeStats();
+        statsEl.innerHTML = stats
+          .map((s) => `<article class="stat"><h3>${esc(s.label)}</h3><p>${esc(s.value)}</p></article>`)
+          .join('');
+
+        if (!progressEl) return;
+
+        const totalPostsStat = stats.find((item) => item.label === 'Total Posts');
+        const importedStat = stats.find((item) => item.label === 'Imported Total');
+        const totalPosts = Number(totalPostsStat && totalPostsStat.value) || 0;
+        const importedCount = Number(importedStat && importedStat.value) || 0;
+        const percent = totalPosts > 0
+          ? Math.max(0, Math.min(100, Math.round((importedCount / totalPosts) * 100)))
+          : 0;
+
+        progressEl.innerHTML = `
+          <div class="progress-strip-head">
+            <div class="progress-strip-label">Import Progress</div>
+            <div class="progress-strip-value">${percent}% complete</div>
+          </div>
+          <div class="progress-track" aria-label="Import progress">
+            <div class="progress-fill" style="width: ${percent}%;"></div>
+          </div>
+        `;
+      }
+
+      function renderRows() {
+        const tbody = document.getElementById('rows');
+        if (!app.payload || !Array.isArray(app.payload.rows)) {
+          tbody.innerHTML = '';
+          return;
+        }
+
+        const source = app.payload.source || {};
+        const totalPages = Math.max(1, Number(source.totalPages) || 1);
+        const currentPage = Math.min(totalPages, Math.max(1, Number(source.page) || Number(document.getElementById('wpPage')?.value || 1)));
+        const nextPage = currentPage + 1;
+
+        const visibleRows = app.payload.rows.filter((row) => {
+          const key = ensureRowState(row);
+          return app.showAllRows || !app.state[key].removed;
+        });
+
+        if (!visibleRows.length) {
+          const allRowsImported = app.payload.rows.length > 0 && app.payload.rows.every((row) => {
+            const key = ensureRowState(row);
+            const state = app.state[key] || {};
+            return state.removed && state.migrationStatus === 'migrated';
+          });
+
+          if (allRowsImported) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="8" class="page-success-wrap">
+                  <div class="page-success-card">
+                    <div class="page-success-emoji">🎉</div>
+                    ${currentPage < totalPages
+                      ? `<div class="page-success-title">Congrats, all rows for this page were successfully imported.</div>
+                         <div class="page-success-body">Load next page?</div>
+                         <button data-action="loadNextPage" data-next-page="${nextPage}">Load page ${nextPage}</button>`
+                      : `<div class="page-success-title">Congrats, all rows were successfully imported.</div>
+                         <div class="page-success-body">You finished the last available page for this run.</div>`}
+                  </div>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          tbody.innerHTML = '<tr><td colspan="8" class="tiny">No rows left in this batch. Fetch the next page to continue.</td></tr>';
+          return;
+        }
+
+        const html = visibleRows
+          .map((row) => {
+            const key = ensureRowState(row);
+            const state = app.state[key];
+            const effectiveDraft = applyStateOverridesToDraft(row, state);
+            const issues = buildRowIssues(row, state, effectiveDraft);
+            const issueHighlights = buildIssueHighlights(issues);
+            const hasBlockers = issues.some((issue) => issue.severity === 'blocker');
+            const rowClassName = [
+              state.migrationStatus === 'importing' ? 'row-importing' : '',
+              state.collapsing ? 'row-collapsing' : ''
+            ].filter(Boolean).join(' ');
+            const inferred = row.mappingSummary && row.mappingSummary.inferredAuthor ? row.mappingSummary.inferredAuthor : {};
+            const category = row.mappingSummary && row.mappingSummary.category ? row.mappingSummary.category : {};
+            const authorOptions = buildAuthorSelectOptions(row, state);
+            const selectedAuthor = getAuthorSelectionValue(row, state);
+            const categoryOptions = buildCategorySelectOptions(row, state);
+            const selectedCategory = getCategorySelectionValue(row, state);
+            const selectedAuthorLabel = getSelectedAuthorLabel(row, state);
+            const selectedCategoryLabel = getSelectedCategoryLabel(row, state);
+            const effectiveTitle = getEffectiveTitle(row, state);
+            const effectivePublishedAt = getEffectivePublishedAt(row, state);
+            const effectiveExcerptText = getEffectiveExcerptText(row, state);
+            const excerptMode = getExcerptMode(state);
+            const effectiveSlug = buildStudioSlug(effectiveTitle, effectivePublishedAt || row?.sanityDraft?.publishedAt);
+            const titleLength = effectiveTitle.length;
+            const effectivePublishedDisplay = formatDisplayDate(effectivePublishedAt) || '(empty)';
+            const excerptPreview = effectiveExcerptText || '(empty)';
+            const rowImageUrl = getEffectiveImageUrl(row, state);
+            const rowImageAlt = getEffectiveImageAlt(row, state, effectiveTitle);
+            const rowImageCaption = getEffectiveImageCaption(row, state, effectiveTitle);
+            const hasOriginalImage = !!getOriginalImageUrl(row);
+            const hasImageOverride = !!(state && state.imageOverrideDataUrl);
+            const titleOverridden = !!(state && String(state.titleOverride || '').trim());
+            const publishedOverridden = !!(state && String(state.publishedAtOverride || '').trim());
+            const excerptOverridden = excerptMode !== EXCERPT_MODE_MAPPED || hasExcerptOverride(state);
+            const authorOverridden = Boolean(state.authorSelectionTouched) && selectedAuthor !== getDefaultAuthorSelectionValue(row);
+            const categoryOverridden = selectedCategory !== CATEGORY_SELECTION_MAPPED;
+            const isTitleEditing = !!state.titleEditing;
+            const titleDraft = Object.prototype.hasOwnProperty.call(state, 'titleDraft')
+              ? String(state.titleDraft || '')
+              : String(state.titleOverride || '');
+            const titleDraftLength = titleDraft.length;
+            const titleDraftTooLong = titleDraftLength > TITLE_MAX_LENGTH;
+            const isExcerptEditing = !!state.excerptEditing;
+            const showCustomExcerptOption = isExcerptEditing || excerptMode === EXCERPT_MODE_CUSTOM;
+            const excerptDraft = Object.prototype.hasOwnProperty.call(state, 'excerptDraft')
+              ? String(state.excerptDraft || '')
+              : String(hasExcerptOverride(state) ? state.excerptOverride : effectiveExcerptText);
+            const excerptDraftLength = excerptDraft.length;
+            const excerptLengthHelper = EXCERPT_MAX_LENGTH && EXCERPT_MAX_LENGTH > 0
+              ? `${excerptDraftLength}/${EXCERPT_MAX_LENGTH}`
+              : `${excerptDraftLength} chars`; 
+
+            return `
+              <tr class="${rowClassName}">
+                <td class="title-excerpt-cell ${issueHighlights.body ? 'blocker-cell' : ''}">
+                  <div class="inline-edit-view">
+                    ${isTitleEditing
+                      ? `<div class="title-edit-wrap ${titleDraftTooLong ? 'is-over-limit' : ''}">
+                           <input
+                             class="row-input"
+                             type="text"
+                             maxlength="${TITLE_MAX_LENGTH}"
+                             value="${esc(titleDraft)}"
+                             placeholder="Edit title used for import"
+                             data-key="${esc(key)}"
+                             data-field="titleEditInput"
+                           />
+                           <span class="title-edit-remaining" data-role="title-count">${titleDraftLength}/${TITLE_MAX_LENGTH}</span>
+                         </div>`
+                      : `<strong class="inline-edit-text ${titleOverridden ? 'override-highlight' : ''} ${issueHighlights.title ? 'blocker-highlight' : ''}">${esc(effectiveTitle)}</strong>`}
+                    ${isTitleEditing
+                      ? `<button class="inline-save-btn" data-key="${esc(key)}" data-action="saveTitleEdit" title="Save">✓</button>
+                         <button class="inline-cancel-btn" data-key="${esc(key)}" data-action="cancelTitleEdit" title="Cancel">x</button>`
+                      : `<button class="inline-edit-btn" data-key="${esc(key)}" data-action="startTitleEdit" title="Edit title">✎</button>`}
+                  </div>
+
+                  <div class="tiny"><strong>WP ID:</strong> ${esc(row.wordpress.id)}</div>
+                  <div class="tiny"><strong>Slug:</strong> ${esc(effectiveSlug)}</div>
+
+                  <div class="inline-edit-view ${excerptOverridden ? 'override-highlight block' : ''} ${issueHighlights.body ? 'blocker-highlight block' : ''}">
+                    ${isExcerptEditing
+                      ? `<div class="inline-edit-text">
+                           <div class="tiny"><strong>Excerpt:</strong></div>
+                           <div class="excerpt-edit-wrap">
+                             <textarea
+                               class="row-input row-textarea ${issueHighlights.body ? 'blocker-input' : ''}"
+                               placeholder="Custom excerpt used for import"
+                               data-key="${esc(key)}"
+                               data-field="excerptEditInput"
+                             >${esc(excerptDraft)}</textarea>
+                             <span class="excerpt-edit-helper">${esc(excerptLengthHelper)}</span>
+                           </div>
+                         </div>`
+                      : `<div class="inline-edit-text">
+                           <div class="tiny"><strong>Excerpt:</strong></div>
+                           <div class="tiny">${esc(excerptPreview)}</div>
+                         </div>`}
+                    ${isExcerptEditing
+                      ? `<button class="inline-save-btn" data-key="${esc(key)}" data-action="saveExcerptEdit" title="Save">✓</button>
+                         <button class="inline-cancel-btn" data-key="${esc(key)}" data-action="cancelExcerptEdit" title="Cancel">x</button>`
+                      : `<button class="inline-edit-btn" data-key="${esc(key)}" data-action="startExcerptEdit" title="Edit excerpt">✎</button>`}
+                  </div>
+                  <div class="tiny"><strong>Excerpt source:</strong></div>
+                  <select class="author-select" data-key="${esc(key)}" data-action="setExcerptMode">
+                    <option value="${EXCERPT_MODE_MAPPED}" ${excerptMode === EXCERPT_MODE_MAPPED ? 'selected' : ''}>Original</option>
+                    <option value="${EXCERPT_MODE_FIRST_TWO}" ${excerptMode === EXCERPT_MODE_FIRST_TWO ? 'selected' : ''}>First 2 full sentences of article</option>
+                    ${showCustomExcerptOption
+                      ? `<option value="${EXCERPT_MODE_CUSTOM}" ${excerptMode === EXCERPT_MODE_CUSTOM ? 'selected' : ''}>Custom import</option>`
+                      : ''}
+                  </select>
+                </td>
+                <td class="published-cell">
+                  <div class="tiny ${publishedOverridden ? 'override-highlight block' : ''}"><strong>Current:</strong> ${esc(effectivePublishedDisplay)}</div>
+                  <input
+                    class="row-input"
+                    type="datetime-local"
+                    value="${esc(state.publishedAtOverride ? toDatetimeLocalValue(state.publishedAtOverride) : '')}"
+                    placeholder="Override published date"
+                    data-key="${esc(key)}"
+                    data-action="setPublishedAtOverride"
+                    data-field="publishedAtOverrideInput"
+                  />
+                  <button
+                    class="row-apply-btn"
+                    data-key="${esc(key)}"
+                    data-action="resetPublishedAtOverride"
+                    ${state.publishedAtOverride ? '' : 'disabled title="No published date override to clear"'}
+                  >
+                    Reset
+                  </button>
+                </td>
+                <td>
+                  <div class="row-thumb-wrap">
+                    ${rowImageUrl
+                      ? `<img
+                          class="row-thumb ${hasImageOverride ? 'override-highlight' : ''} ${issueHighlights.image ? 'blocker-highlight' : ''}"
+                          src="${esc(rowImageUrl)}"
+                          alt="${esc(rowImageAlt)}"
+                          loading="lazy"
+                          data-action="openImageModal"
+                          data-key="${esc(key)}"
+                          data-image-url="${esc(rowImageUrl)}"
+                          data-image-alt="${esc(rowImageAlt)}"
+                          data-image-caption="${esc(rowImageCaption)}"
+                          data-image-title="${esc(effectiveTitle)}"
+                        />`
+                      : `<div class="tiny ${issueHighlights.image ? 'blocker-highlight blocker-empty-state' : ''}">No image</div>`}
+                    <div class="image-cell-controls">
+                      ${!rowImageUrl
+                        ? `<button
+                            class="image-file-btn"
+                            data-key="${esc(key)}"
+                            data-action="openImageModal"
+                            type="button"
+                          >
+                            Set Image
+                          </button>`
+                        : ''}
+                      <button
+                        class="image-reset-btn"
+                        data-key="${esc(key)}"
+                        data-action="resetImageOverride"
+                        type="button"
+                        ${hasImageOverride ? '' : 'disabled title="No image override to reset"'}
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <strong class="${authorOverridden ? 'override-highlight' : ''} ${issueHighlights.author ? 'blocker-highlight' : ''}">${esc(selectedAuthorLabel)}</strong>
+                  <div class="tiny">${esc(inferred.source || '')} / ${esc(inferred.confidence || '')}</div>
+                  <select class="author-select ${issueHighlights.author ? 'blocker-input' : ''}" data-key="${esc(key)}" data-action="setAuthor">
+                    ${authorOptions
+                      .map((option) => `<option value="${esc(option.value)}" ${option.value === selectedAuthor ? 'selected' : ''}>${esc(option.label)}</option>`)
+                      .join('')}
+                  </select>
+                  ${selectedAuthor === AUTHOR_SELECTION_CUSTOM
+                    ? `<div class="row-input-stack">
+                        <input
+                          class="row-input ${issueHighlights.author ? 'blocker-input' : ''}"
+                          type="text"
+                          value="${esc(state.authorCustomName || '')}"
+                          placeholder="Type author name for import"
+                          data-key="${esc(key)}"
+                          data-field="authorCustomNameInput"
+                        />
+                        <button class="row-apply-btn" data-key="${esc(key)}" data-action="applyAuthorCustom">OK</button>
+                      </div>`
+                    : ''}
+                </td>
+                <td>
+                  <strong class="${categoryOverridden ? 'override-highlight' : ''} ${issueHighlights.category ? 'blocker-highlight' : ''}">${esc(selectedCategoryLabel)}</strong>
+                  <div class="tiny">wpId: ${esc(category.wpId || '')}</div>
+                  <select class="author-select ${issueHighlights.category ? 'blocker-input' : ''}" data-key="${esc(key)}" data-action="setCategory">
+                    ${categoryOptions
+                      .map((option) => `<option value="${esc(option.value)}" ${option.value === selectedCategory ? 'selected' : ''}>${esc(option.label)}</option>`)
+                      .join('')}
+                  </select>
+                  ${selectedCategory === CATEGORY_SELECTION_CUSTOM
+                    ? `<div class="row-input-stack">
+                        <input
+                          class="row-input ${issueHighlights.category ? 'blocker-input' : ''}"
+                          type="text"
+                          value="${esc(state.categoryCustomTitle || '')}"
+                          placeholder="Type category title for import"
+                          data-key="${esc(key)}"
+                          data-field="categoryCustomTitleInput"
+                        />
+                        <button class="row-apply-btn" data-key="${esc(key)}" data-action="applyCategoryCustom">OK</button>
+                      </div>`
+                    : ''}
+                </td>
+                <td>
+                  <ul class="issues">${issues
+                    .map((issue) => `<li><span class="issue-icon ${issue.severity}">${issue.severity === 'blocker' ? 'x' : 'i'}</span><span>${esc(issue.message)}</span></li>`)
+                    .join('')}</ul>
+                </td>
+                <td>
+                  <span class="pill migration-${esc(state.migrationStatus)}">${esc(state.migrationStatus)}</span>
+                  ${state.migrationStatus === 'migrated' && state.importedAt ? `<div class="tiny">imported: ${esc(state.importedAt)}</div>` : ''}
+                  ${state.migrationStatus === 'failed' && state.updatedAt ? `<div class="tiny">last attempt: ${esc(state.updatedAt)}</div>` : ''}
+                  ${state.lastImportError ? `<div class="tiny">error: ${esc(state.lastImportError)}</div>` : ''}
+                </td>
+                <td>
+                  <div class="actions">
+                    <button data-key="${esc(key)}" data-action="importRow" class="btn-primary" ${hasBlockers ? 'disabled title="Resolve blocker issues before importing"' : ''}>Import</button>
+                    <button data-key="${esc(key)}" data-action="preview">Preview</button>
+                    ${(app.showAllRows && state.removed)
+                      ? `<button data-key="${esc(key)}" data-action="resetRowState">Reset</button>`
+                      : ''}
+                    <button data-key="${esc(key)}" data-action="removeRow">Remove</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          })
+          .join('');
+
+        tbody.innerHTML = html;
+      }
+
+      function renderSourceMeta() {
+        const primaryEl = document.getElementById('sourceMetaPrimary');
+        const secondaryEl = document.getElementById('sourceMetaSecondary');
+        if (!primaryEl || !secondaryEl) return;
+
+        const authorsLoaded = app.sanityAuthors.length;
+        const categoriesLoaded = app.sanityCategories.length;
+        const authorStatus = app.sanityAuthorsError
+          ? ` | Sanity authors: unavailable (${app.sanityAuthorsError})`
+          : ` | Sanity authors: ${authorsLoaded}`;
+        const categoryStatus = app.sanityCategoriesError
+          ? ` | Sanity categories: unavailable (${app.sanityCategoriesError})`
+          : ` | Sanity categories: ${categoriesLoaded}`;
+
+        if (!app.payload || !app.payload.source) {
+          primaryEl.textContent = 'No data loaded.';
+          secondaryEl.textContent = '';
+          return;
+        }
+
+        const src = app.payload.source;
+        const totalPages = Math.max(1, Number(src.totalPages) || 1);
+        primaryEl.textContent = `Loaded ${src.pulledPosts} rows from ${src.wordpressApiBase} (page ${src.page} of ${totalPages}, perPage ${src.perPage}).`;
+        secondaryEl.textContent = `Generated ${app.payload.generatedAt}.${authorStatus}${categoryStatus}`;
+      }
+
+      function rerender() {
+        renderSourceMeta();
+        renderStats();
+        renderRows();
+        renderPreview();
+        renderImageModal();
+      }
+
+      function toDisplayText(value, fallback = '(empty)') {
+        const text = String(value || '').trim();
+        return text || fallback;
+      }
+
+      function fileNameFromUrl(urlValue) {
+        try {
+          const parsed = new URL(urlValue);
+          const tail = parsed.pathname.split('/').filter(Boolean).pop() || '';
+          return decodeURIComponent(tail);
+        } catch (error) {
+          const parts = String(urlValue || '').split('/').filter(Boolean);
+          return parts.length ? parts[parts.length - 1] : '';
+        }
+      }
+
+      function getRowByKey(key) {
+        if (!key || !app.payload || !Array.isArray(app.payload.rows)) return null;
+        return app.payload.rows.find((entry) => {
+          const rowKey = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+          return rowKey === key;
+        }) || null;
+      }
+
+      function renderEditableMetadataField(label, field, value) {
+        const isEditing = app.imageModalEditingField === field;
+        const isSaving = app.imageModalSavingField === field;
+        if (isEditing) {
+          const inputHtml = `
+            <div class="image-meta-input-wrap">
+              <input
+                class="image-meta-edit-input ${isSaving ? 'is-saving' : ''}"
+                id="imageMetaEditInput"
+                value="${esc(app.imageModalEditValue)}"
+                data-field="${esc(field)}"
+                ${isSaving ? 'disabled' : ''}
+              />
+              ${isSaving ? '<span class="image-meta-saving-spinner image-meta-inline-spinner"></span>' : ''}
+            </div>
+          `;
+
+          return `
+            <dt>${esc(label)}</dt>
+            <dd>
+              <div class="image-meta-value-wrap">
+                ${inputHtml}
+                <button class="image-meta-save-btn" data-action="saveImageMetaField" data-field="${esc(field)}" title="Save" ${isSaving ? 'disabled' : ''}>✓</button>
+                <button class="image-meta-cancel-btn" data-action="cancelImageMetaField" data-field="${esc(field)}" title="Cancel" ${isSaving ? 'disabled' : ''}>X</button>
+              </div>
+            </dd>
+          `;
+        }
+
+        return `
+          <dt>${esc(label)}</dt>
+          <dd>
+            <div class="image-meta-value-wrap">
+              <span>${esc(toDisplayText(value))}</span>
+              <button class="image-meta-edit-btn" data-action="editImageMetaField" data-field="${esc(field)}" title="Edit">✎</button>
+            </div>
+          </dd>
+        `;
+      }
+
+      function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        const image = document.getElementById('imageModalPreview');
+        const meta = document.getElementById('imageMetaList');
+        const controls = document.getElementById('imageModalControls');
+        const grid = document.getElementById('imageModalGrid');
+        if (!modal) return;
+
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && modal.contains(active)) {
+          active.blur();
+        }
+
+        app.imageModalKey = null;
+        app.imageModalEditingField = '';
+        app.imageModalEditValue = '';
+        app.imageModalSavingField = '';
+        app.imageModalSetupMode = '';
+        app.imageModalRemoteUrl = '';
+        app.imageModalRemoteValid = false;
+        app.imageModalRemoteChecking = false;
+        app.imageModalRemoteValidationToken = 0;
+        window.clearTimeout(app.imageModalRemoteValidationTimeoutId);
+        app.imageModalRemoteValidationTimeoutId = null;
+        app.imageModalOptimizing = false;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('image-modal-open');
+        if (image) {
+          image.removeAttribute('src');
+          image.removeAttribute('alt');
+        }
+        if (meta) meta.innerHTML = '';
+        if (controls) controls.innerHTML = '';
+        if (grid) grid.classList.remove('setup-only');
+
+        if (imageModalReturnFocusEl instanceof HTMLElement && imageModalReturnFocusEl.isConnected) {
+          window.setTimeout(() => {
+            try {
+              imageModalReturnFocusEl.focus({ preventScroll: true });
+            } catch (_) {
+              // Ignore focus failures.
+            }
+            imageModalReturnFocusEl = null;
+          }, 0);
+        } else {
+          imageModalReturnFocusEl = null;
+        }
+      }
+
+      function openImageModal(key) {
+        imageModalReturnFocusEl = document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+        app.imageModalKey = key;
+        app.imageModalEditingField = '';
+        app.imageModalEditValue = '';
+        app.imageModalSavingField = '';
+        app.imageModalSetupMode = '';
+        app.imageModalRemoteUrl = '';
+        app.imageModalRemoteValid = false;
+        app.imageModalRemoteChecking = false;
+        app.imageModalRemoteValidationToken = 0;
+        window.clearTimeout(app.imageModalRemoteValidationTimeoutId);
+        app.imageModalRemoteValidationTimeoutId = null;
+        app.imageModalOptimizing = false;
+        renderImageModal();
+      }
+
+      function renderImageModal() {
+        const modal = document.getElementById('imageModal');
+        const grid = document.getElementById('imageModalGrid');
+        const titleEl = document.getElementById('imageModalTitle');
+        if (!modal || !grid || !titleEl) return;
+
+        if (!app.imageModalKey) {
+          modal.classList.remove('open');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('image-modal-open');
+          return;
+        }
+
+        const row = getRowByKey(app.imageModalKey);
+        if (!row) {
+          closeImageModal();
+          return;
+        }
+
+        const key = app.imageModalKey;
+        const state = app.state[key] || {};
+        const title = getEffectiveTitle(row, state);
+        const alt = getEffectiveImageAlt(row, state, title);
+        const caption = getEffectiveImageCaption(row, state, title);
+        const imageUrl = getEffectiveImageUrl(row, state);
+        const hasOriginalImage = !!getOriginalImageUrl(row);
+
+        if (!imageUrl) {
+          const isRemoteSetup = app.imageModalSetupMode === 'remote';
+          const isUploadSetup = app.imageModalSetupMode === 'upload';
+          grid.classList.add('setup-only');
+          titleEl.textContent = `Set Image: ${title || 'Featured image'}`;
+          grid.innerHTML = `
+            <input class="image-modal-file-input" id="imageModalFileInput" type="file" accept="image/*" data-key="${esc(key)}" data-action="setImageFile" />
+            <div class="image-modal-chooser">
+              <button class="image-modal-choice-btn ${isUploadSetup ? 'is-selected' : ''}" data-action="chooseImageFileModal" data-key="${esc(key)}" type="button" aria-pressed="${isUploadSetup ? 'true' : 'false'}">
+                <span class="image-modal-choice-icon">⬆</span>
+                <span>Upload Image</span>
+              </button>
+              <button class="image-modal-choice-btn ${isRemoteSetup ? 'is-selected' : ''}" data-action="showRemoteImageSource" data-key="${esc(key)}" type="button" aria-pressed="${isRemoteSetup ? 'true' : 'false'}">
+                <span class="image-modal-choice-icon">🔗</span>
+                <span>Remote Image Source</span>
+              </button>
+            </div>
+            ${isRemoteSetup
+              ? `<div class="image-modal-remote-wrap">
+                   <div class="image-modal-remote-input-wrap">
+                     <input
+                       id="imageModalRemoteUrlInput"
+                       class="image-modal-remote-input ${app.imageModalRemoteChecking ? 'is-checking' : ''}"
+                       type="url"
+                       placeholder="https://example.com/image.jpg"
+                       value="${esc(app.imageModalRemoteUrl || '')}"
+                     />
+                     <span id="imageModalRemoteUrlSpinner" class="image-modal-remote-spinner ${app.imageModalRemoteChecking ? 'active' : ''}"></span>
+                   </div>
+                   <button class="image-modal-file-btn" data-action="applyRemoteImageSource" data-key="${esc(key)}" type="button" ${app.imageModalRemoteValid && !app.imageModalRemoteChecking ? '' : 'disabled'}>Set Image</button>
+                 </div>`
+              : ''}
+          `;
+          modal.classList.add('open');
+          modal.setAttribute('aria-hidden', 'false');
+          document.body.classList.add('image-modal-open');
+          return;
+        }
+
+        grid.classList.remove('setup-only');
+        grid.innerHTML = `
+          <div class="image-modal-media">
+            <img id="imageModalPreview" src="" alt="" loading="lazy" />
+          </div>
+          <aside class="image-modal-meta">
+            <h4>Image Metadata</h4>
+            <dl id="imageMetaList" class="image-meta-list"></dl>
+            <div id="imageModalControls" class="image-modal-controls"></div>
+          </aside>
+        `;
+
+        const image = document.getElementById('imageModalPreview');
+        const meta = document.getElementById('imageMetaList');
+        const controls = document.getElementById('imageModalControls');
+        if (!image || !meta || !controls) return;
+
+        const filenameFromState = state.imageOverrideFileName ? String(state.imageOverrideFileName).trim() : '';
+        const filenameFromUrl = fileNameFromUrl(imageUrl);
+        const filename = filenameFromState || filenameFromUrl;
+        const extensionMatch = filename.match(/\.([a-z0-9]+)$/i)
+          || filenameFromUrl.match(/\.([a-z0-9]+)$/i);
+        const extension = extensionMatch ? extensionMatch[1].toUpperCase() : '';
+        const sourceUrlHiddenForUpload = isDataUrl(state.imageOverrideDataUrl);
+        const overrideByteSize = sourceUrlHiddenForUpload ? estimateDataUrlBytes(state.imageOverrideDataUrl) : 0;
+        const overrideSizeLabel = overrideByteSize > 0 ? formatByteSize(overrideByteSize) : '';
+
+        titleEl.textContent = `Image Preview: ${title || 'Featured image'}`;
+        image.src = imageUrl;
+        image.alt = alt || title || 'Featured image';
+        const setMetadataHtml = (resolutionLabel) => {
+          const resolutionText = toDisplayText(resolutionLabel || 'Loading...');
+          const resolutionWithSize = overrideSizeLabel ? `${resolutionText} | ${overrideSizeLabel}` : resolutionText;
+          const optimizeButtonHtml = sourceUrlHiddenForUpload
+            ? `<button class="image-meta-optimize-btn" data-action="optimizeImageOverride" data-key="${esc(key)}" type="button" title="Optimize image" aria-label="Optimize image" ${app.imageModalOptimizing ? 'disabled' : ''}>${app.imageModalOptimizing ? '✨...' : '✨'}</button>`
+            : '';
+
+          meta.innerHTML = [
+            renderEditableMetadataField('Title', 'title', title),
+            renderEditableMetadataField('Alt text', 'alt', alt),
+            renderEditableMetadataField('Caption', 'caption', caption),
+            `<dt>Filename</dt><dd>${esc(toDisplayText(filename))}</dd>`,
+            `<dt>Type</dt><dd>${esc(toDisplayText(extension || 'unknown'))}</dd>`,
+            `<dt>Resolution</dt><dd><div class="image-meta-value-wrap"><span>${esc(resolutionWithSize)}</span>${optimizeButtonHtml}</div></dd>`,
+            sourceUrlHiddenForUpload ? '' : renderEditableMetadataField('Source URL', 'sourceUrl', imageUrl),
+          ].join('');
+        };
+        setMetadataHtml('Loading...');
+
+        if (controls) {
+          controls.innerHTML = `
+            <h4>Image Upload</h4>
+            <input class="image-modal-file-input" id="imageModalFileInput" type="file" accept="image/*" data-key="${esc(key)}" data-action="setImageFile" />
+            <button class="image-modal-file-btn" data-action="chooseImageFileModal" data-key="${esc(key)}" type="button">Choose File</button>
+            <button class="image-modal-reset-btn" data-action="resetImageOverride" data-key="${esc(key)}" type="button" ${state.imageOverrideDataUrl ? '' : 'disabled title="No image override to reset"'}>Reset</button>
+          `;
+        }
+
+        image.onload = () => {
+          setMetadataHtml(`${image.naturalWidth} x ${image.naturalHeight}`);
+        };
+
+        image.onerror = () => {
+          setMetadataHtml('Unable to load');
+        };
+
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('image-modal-open');
+      }
+
+      async function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ''));
+          reader.onerror = () => reject(reader.error || new Error('Failed to read image file.'));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function estimateDataUrlBytes(dataUrlValue) {
+        const dataUrl = String(dataUrlValue || '').trim();
+        const base64Index = dataUrl.indexOf('base64,');
+        if (base64Index === -1) return 0;
+        const base64 = dataUrl.slice(base64Index + 7);
+        if (!base64) return 0;
+        const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+        return Math.max(0, Math.floor((base64.length * 3) / 4) - padding);
+      }
+
+      function formatByteSize(bytesValue) {
+        const bytes = Number(bytesValue) || 0;
+        if (bytes <= 0) return '0 B';
+        if (bytes < 1024) return `${bytes} B`;
+        const kb = bytes / 1024;
+        if (kb < 1024) return `${kb.toFixed(1)} KB`;
+        const mb = kb / 1024;
+        return `${mb.toFixed(2)} MB`;
+      }
+
+      function dataUrlMimeType(dataUrlValue) {
+        const match = String(dataUrlValue || '').match(/^data:([^;,]+)[;,]/i);
+        return match ? match[1].toLowerCase() : '';
+      }
+
+      function extensionFromMimeType(mimeType) {
+        if (mimeType === 'image/jpeg') return 'jpg';
+        if (mimeType === 'image/png') return 'png';
+        if (mimeType === 'image/webp') return 'webp';
+        if (mimeType === 'image/gif') return 'gif';
+        if (mimeType === 'image/avif') return 'avif';
+        return 'jpg';
+      }
+
+      function buildOptimizedFileName(fileName, mimeType) {
+        const original = String(fileName || '').trim() || 'image';
+        const base = original.replace(/\.[a-z0-9]+$/i, '') || 'image';
+        const ext = extensionFromMimeType(mimeType);
+        if (/-optimized$/i.test(base)) {
+          return `${base}.${ext}`;
+        }
+        return `${base}-optimized.${ext}`;
+      }
+
+      async function loadImageElement(src) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error('Unable to decode image for optimization.'));
+          img.src = src;
+        });
+      }
+
+      async function canvasToDataUrl(canvas, mimeType, quality) {
+        return new Promise((resolve, reject) => {
+          if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
+            reject(new Error('Canvas unavailable for optimization.'));
+            return;
+          }
+
+          if (typeof canvas.toBlob === 'function') {
+            canvas.toBlob((blob) => {
+              if (!blob) {
+                reject(new Error('Failed to encode optimized image.'));
+                return;
+              }
+              const reader = new FileReader();
+              reader.onload = () => resolve(String(reader.result || ''));
+              reader.onerror = () => reject(reader.error || new Error('Failed to read optimized image.'));
+              reader.readAsDataURL(blob);
+            }, mimeType, quality);
+            return;
+          }
+
+          try {
+            resolve(canvas.toDataURL(mimeType, quality));
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+
+      async function optimizeImageDataUrl(sourceDataUrl) {
+        const image = await loadImageElement(sourceDataUrl);
+        const sourceWidth = Number(image.naturalWidth || image.width || 0);
+        const sourceHeight = Number(image.naturalHeight || image.height || 0);
+        if (!sourceWidth || !sourceHeight) {
+          throw new Error('Image dimensions are not available.');
+        }
+
+        const maxDimension = 1600;
+        const scale = Math.min(1, maxDimension / Math.max(sourceWidth, sourceHeight));
+        const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+        const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const context = canvas.getContext('2d');
+        if (!context) {
+          throw new Error('Canvas context unavailable for optimization.');
+        }
+
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = 'high';
+        context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+        const sourceMime = dataUrlMimeType(sourceDataUrl);
+        const targetMime = sourceMime === 'image/png' ? 'image/webp' : 'image/jpeg';
+        const quality = targetMime === 'image/jpeg' ? 0.78 : 0.82;
+
+        let optimizedDataUrl = await canvasToDataUrl(canvas, targetMime, quality);
+        if (!isDataUrl(optimizedDataUrl)) {
+          optimizedDataUrl = await canvasToDataUrl(canvas, 'image/jpeg', 0.78);
+        }
+
+        return {
+          dataUrl: optimizedDataUrl,
+          width: targetWidth,
+          height: targetHeight,
+          mimeType: dataUrlMimeType(optimizedDataUrl) || targetMime,
+        };
+      }
+
+      async function optimizeImageOverrideForKey(key) {
+        if (!key) return;
+        const state = app.state[key] || {};
+        const sourceDataUrl = String(state.imageOverrideDataUrl || '').trim();
+        if (!isDataUrl(sourceDataUrl)) {
+          showToast({
+            title: 'Optimize unavailable',
+            body: 'Optimization currently supports uploaded images only.',
+            variant: 'error',
+            duration: 3200,
+          });
+          return;
+        }
+
+        const beforeBytes = estimateDataUrlBytes(sourceDataUrl);
+        if (!beforeBytes) {
+          showToast({
+            title: 'Optimize skipped',
+            body: 'Could not determine source image size.',
+            variant: 'error',
+            duration: 3200,
+          });
+          return;
+        }
+
+        app.imageModalOptimizing = true;
+        renderImageModal();
+
+        try {
+          const optimized = await optimizeImageDataUrl(sourceDataUrl);
+          const optimizedDataUrl = String(optimized.dataUrl || '').trim();
+          const afterBytes = estimateDataUrlBytes(optimizedDataUrl);
+          if (!optimizedDataUrl || !afterBytes || afterBytes >= beforeBytes) {
+            showToast({
+              title: 'Optimize skipped',
+              body: 'This image could not be reduced further with current settings.',
+              variant: 'error',
+              duration: 3200,
+            });
+            return;
+          }
+
+          const reducedPercent = Math.round(((beforeBytes - afterBytes) / beforeBytes) * 100);
+          const nextFileName = buildOptimizedFileName(state.imageOverrideFileName || 'uploaded-image', optimized.mimeType);
+
+          setRowState(key, {
+            imageOverrideDataUrl: optimizedDataUrl,
+            imageOverrideFileName: nextFileName,
+            imageOverrideFilePath: nextFileName,
+          });
+          writeLocalState();
+          rerender();
+
+          showToast({
+            title: 'Image optimized',
+            body: `${formatByteSize(beforeBytes)} -> ${formatByteSize(afterBytes)} (${reducedPercent}% smaller)`,
+            variant: 'success',
+            duration: 3200,
+          });
+        } catch (error) {
+          showToast({
+            title: 'Image optimization failed',
+            body: String(error && error.message ? error.message : error),
+            variant: 'error',
+            duration: 3400,
+          });
+        } finally {
+          app.imageModalOptimizing = false;
+          if (app.imageModalKey) {
+            renderImageModal();
+          }
+        }
+      }
+
+      function isDataUrl(value) {
+        return /^data:/i.test(String(value || '').trim());
+      }
+
+      async function canLoadImageFromUrl(url, timeoutMs = 9000) {
+        return new Promise((resolve) => {
+          const probe = new Image();
+          let finished = false;
+          const finish = (result) => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(timeoutId);
+            resolve(result);
+          };
+
+          probe.onload = () => finish(true);
+          probe.onerror = () => finish(false);
+          const timeoutId = setTimeout(() => finish(false), timeoutMs);
+          probe.src = url;
+        });
+      }
+
+      function updateRemoteImageSetupUi() {
+        const remoteInput = document.getElementById('imageModalRemoteUrlInput');
+        const remoteSpinner = document.getElementById('imageModalRemoteUrlSpinner');
+        const setButton = document.querySelector('button[data-action="applyRemoteImageSource"]');
+        if (remoteInput instanceof HTMLInputElement) {
+          remoteInput.classList.toggle('is-checking', !!app.imageModalRemoteChecking);
+        }
+        if (remoteSpinner instanceof HTMLElement) {
+          remoteSpinner.classList.toggle('active', !!app.imageModalRemoteChecking);
+        }
+        if (setButton instanceof HTMLButtonElement) {
+          setButton.disabled = !app.imageModalRemoteValid || !!app.imageModalRemoteChecking;
+        }
+      }
+
+      async function validateRemoteImageSourceCandidate(value) {
+        const source = String(value || '').trim();
+        if (!source) return false;
+
+        let parsed;
+        try {
+          parsed = new URL(source);
+        } catch (error) {
+          return false;
+        }
+        if (!/^https?:$/.test(parsed.protocol)) return false;
+
+        const path = parsed.pathname.toLowerCase();
+        const hasImageExtension = /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(path);
+        const loadable = await canLoadImageFromUrl(parsed.toString());
+        if (!hasImageExtension && !loadable) return false;
+        if (!loadable) return false;
+        return true;
+      }
+
+      function queueRemoteImageValidation(value) {
+        app.imageModalRemoteUrl = String(value || '').trim();
+        app.imageModalRemoteValid = false;
+        app.imageModalRemoteChecking = !!app.imageModalRemoteUrl;
+        updateRemoteImageSetupUi();
+
+        window.clearTimeout(app.imageModalRemoteValidationTimeoutId);
+        app.imageModalRemoteValidationTimeoutId = null;
+        const token = ++app.imageModalRemoteValidationToken;
+
+        if (!app.imageModalRemoteUrl) {
+          app.imageModalRemoteChecking = false;
+          updateRemoteImageSetupUi();
+          return;
+        }
+
+        app.imageModalRemoteValidationTimeoutId = window.setTimeout(async () => {
+          const valid = await validateRemoteImageSourceCandidate(app.imageModalRemoteUrl);
+          if (token !== app.imageModalRemoteValidationToken) return;
+          app.imageModalRemoteChecking = false;
+          app.imageModalRemoteValid = valid;
+          updateRemoteImageSetupUi();
+        }, 220);
+      }
+
+      async function applyImageSourceUrlOverride(key, rawValue, successTitle = 'Source URL updated') {
+        if (!key) return false;
+        const value = String(rawValue || '').trim();
+
+        if (!value) {
+          showToast({
+            title: 'Source URL update failed',
+            body: 'Source URL is required.',
+            variant: 'error',
+            duration: 3200,
+          });
+          return false;
+        }
+
+        let parsed;
+        try {
+          parsed = new URL(value);
+        } catch (error) {
+          showToast({
+            title: 'Source URL update failed',
+            body: 'Please enter a valid absolute URL (http/https).',
+            variant: 'error',
+            duration: 3200,
+          });
+          return false;
+        }
+
+        if (!/^https?:$/.test(parsed.protocol)) {
+          showToast({
+            title: 'Source URL update failed',
+            body: 'Source URL must use http or https.',
+            variant: 'error',
+            duration: 3200,
+          });
+          return false;
+        }
+
+        const urlString = parsed.toString();
+        const path = parsed.pathname.toLowerCase();
+        const hasImageExtension = /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(path);
+        const loadable = await canLoadImageFromUrl(urlString);
+        if (!hasImageExtension && !loadable) {
+          showToast({
+            title: 'Source URL update failed',
+            body: 'URL does not appear to be a valid image resource.',
+            variant: 'error',
+            duration: 3400,
+          });
+          return false;
+        }
+        if (!loadable) {
+          showToast({
+            title: 'Source URL update failed',
+            body: 'Unable to load image from URL. Check the URL and try again.',
+            variant: 'error',
+            duration: 3400,
+          });
+          return false;
+        }
+
+        setRowState(key, {
+          imageOverrideDataUrl: urlString,
+          imageOverrideFileName: fileNameFromUrl(urlString) || 'URL image',
+          imageOverrideFilePath: '',
+        });
+        app.imageModalEditingField = '';
+        app.imageModalEditValue = '';
+        app.imageModalSetupMode = '';
+        app.imageModalRemoteUrl = '';
+        app.imageModalRemoteValid = false;
+        app.imageModalRemoteChecking = false;
+        window.clearTimeout(app.imageModalRemoteValidationTimeoutId);
+        app.imageModalRemoteValidationTimeoutId = null;
+        writeLocalState();
+        rerender();
+        showToast({
+          title: successTitle,
+          body: urlString,
+          variant: 'success',
+        });
+        return true;
+      }
+
+      async function handleRowImageFileInput(input) {
+        if (!(input instanceof HTMLInputElement)) return;
+        const key = input.getAttribute('data-key');
+        if (!key) return;
+        const filePathText = String(input.value || '').trim();
+
+        const file = input.files && input.files[0];
+        if (!file) return;
+        if (!String(file.type || '').startsWith('image/')) {
+          showToast({
+            title: 'Image upload failed',
+            body: 'Please choose a valid image file.',
+            variant: 'error',
+            duration: 3200,
+          });
+          input.value = '';
+          return;
+        }
+
+        try {
+          const dataUrl = await fileToDataUrl(file);
+          const existing = app.state[key] || {};
+
+          let fallbackTitle = '';
+          if (app.payload && Array.isArray(app.payload.rows)) {
+            const row = app.payload.rows.find((entry) => {
+              const rowKey = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+              return rowKey === key;
+            });
+            fallbackTitle = row ? getEffectiveTitle(row, existing) : '';
+          }
+
+          setRowState(key, {
+            imageOverrideDataUrl: dataUrl,
+            imageOverrideFileName: file.name || '',
+            imageOverrideFilePath: filePathText || file.name || '',
+            imageOverrideAlt: existing.imageOverrideAlt || fallbackTitle,
+            imageOverrideCaption: existing.imageOverrideCaption || fallbackTitle,
+          });
+          writeLocalState();
+          rerender();
+          showToast({
+            title: 'Image uploaded',
+            body: file.name || 'Selected image applied.',
+            variant: 'success',
+          });
+        } catch (error) {
+          showToast({
+            title: 'Image upload failed',
+            body: String(error && error.message ? error.message : error),
+            variant: 'error',
+            duration: 3400,
+          });
+        } finally {
+          input.value = '';
+        }
+      }
+
+      function renderPreview() {
+        const modal = document.getElementById('previewModal');
+        const content = document.getElementById('previewContent');
+        if (!app.previewKey || !app.payload || !Array.isArray(app.payload.rows)) {
+          modal.classList.remove('open');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('modal-open');
+          content.innerHTML = '';
+          return;
+        }
+
+        const row = app.payload.rows.find((entry) => {
+          const key = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+          return key === app.previewKey;
+        });
+
+        if (!row) {
+          modal.classList.remove('open');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('modal-open');
+          content.innerHTML = '';
+          return;
+        }
+
+        const key = row.tracking && row.tracking.trackingKey ? row.tracking.trackingKey : `post:${row.wordpress.id}`;
+        const state = app.state[key] || {};
+        const effectiveDraft = applyStateOverridesToDraft(row, state) || row.sanityDraft || {};
+
+        const bodyHtml = (row && typeof row.previewBodyHtml === 'string') ? row.previewBodyHtml : '';
+
+        const wpSourceUrl = (row.tracking && row.tracking.sourceUrl) || row.wordpress?.link || '';
+        const proxySourceUrl = toProxySourceUrl(wpSourceUrl);
+        const displayDate = formatDisplayDate(getEffectivePublishedAt(row, state));
+        const authorLabel = getSelectedAuthorLabel(row, state);
+        const authorInitial = (authorLabel || '?').trim().charAt(0).toUpperCase() || '?';
+        const previewImageUrl = getEffectiveImageUrl(row, state);
+        const previewImageAlt = getEffectiveImageAlt(row, state, getEffectiveTitle(row, state));
+
+        content.innerHTML = `
+          <div class="preview-grid">
+            <article class="preview-zundfolge" id="previewLeftPane">
+              <div class="preview-zundfolge-head">
+                <div class="preview-breadcrumb">Zundfolge / ${esc(getSelectedCategoryLabel(row, state))}</div>
+                <h3 class="preview-zundfolge-title">${esc(getEffectiveTitle(row, state))}<span class="preview-zundfolge-accent"></span></h3>
+                <div class="preview-zundfolge-meta">
+                  <span class="preview-zundfolge-avatar">${esc(authorInitial)}</span>
+                  <span class="preview-zundfolge-authorline">By <strong>${esc(authorLabel)}</strong> | ${esc(displayDate)}</span>
+                </div>
+              </div>
+
+              ${previewImageUrl ? `
+                <div class="preview-zundfolge-hero">
+                  <img src="${esc(previewImageUrl)}" alt="${esc(previewImageAlt)}" />
+                </div>
+              ` : '<p class="tiny">No image mapped.</p>'}
+
+              <div class="preview-zundfolge-body">
+                ${bodyHtml || '<p class="tiny">No body blocks mapped.</p>'}
+              </div>
+            </article>
+
+            <section class="preview-panel preview-source-wrap">
+              <div class="preview-source-head">
+                <h3>WordPress Source Page</h3>
+                <div class="preview-meta">Embedded source article for side-by-side comparison.</div>
+              </div>
+
+              ${wpSourceUrl
+                ? `<iframe class="preview-source-frame" id="previewSourceFrame" src="${esc(proxySourceUrl)}" title="WordPress source article" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe>
+                   <div class="preview-source-fallback">If embedding is blocked by WordPress headers, open source in a new tab: <a href="${esc(wpSourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(wpSourceUrl)}</a></div>`
+                : '<div class="tiny">No source URL available for this row.</div>'}
+            </section>
+          </div>
+        `;
+
+        setupPreviewScrollSync(wpSourceUrl);
+
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+      }
+
+      async function importRowByKey(key) {
+        if (!app.payload || !Array.isArray(app.payload.rows)) return;
+        const row = app.payload.rows.find((entry) => {
+          const rowKey = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+          return rowKey === key;
+        });
+        if (!row) return;
+
+        const state = app.state[key] || {};
+        if (state.migrationStatus === 'importing' || activeImportKeys.has(key)) {
+          showToast({
+            title: 'Import in progress',
+            body: `${getEffectiveTitle(row, state)} is already importing.`,
+            variant: 'info',
+            duration: 2200,
+          });
+          return;
+        }
+        const effectiveDraft = applyStateOverridesToDraft(row, state);
+        if (!effectiveDraft) {
+          setRowState(key, { migrationStatus: 'failed', lastImportError: 'Missing effective draft payload.' });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        const blockers = buildRowIssues(row, state, effectiveDraft).filter((issue) => issue.severity === 'blocker');
+        if (blockers.length) {
+          alert(`Cannot import yet. Resolve blockers first:\n- ${blockers.map((issue) => issue.message).join('\n- ')}`);
+          return;
+        }
+
+        try {
+          activeImportKeys.add(key);
+          setRowState(key, { migrationStatus: 'importing', lastImportError: null });
+          rerender();
+          const response = await fetch(`${LOCAL_REVIEW_API_BASE}/api/import-row`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({
+              trackingKey: key,
+              sanityDraft: effectiveDraft,
+            }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result || !result.ok) {
+            throw new Error(result && result.error ? result.error : `Import request failed (${response.status})`);
+          }
+
+          const collapseMs = 320;
+          setRowState(key, {
+            migrationStatus: 'migrated',
+            sanityDraftId: result.importedId || effectiveDraft._id,
+            importedAt: new Date().toISOString(),
+            removed: false,
+            collapsing: true,
+            lastImportError: null,
+          });
+          writeLocalState();
+          rerender();
+
+          window.setTimeout(() => {
+            if (!app.state[key]) return;
+            setRowState(key, {
+              removed: true,
+              collapsing: false,
+            });
+            writeLocalState();
+            rerender();
+          }, collapseMs);
+
+          showToast({
+            title: 'Import successful',
+            body: getEffectiveTitle(row, state),
+            variant: 'success',
+          });
+          playSuccessConfetti(2200);
+          return;
+        } catch (error) {
+          const errorMessage = String(error && error.message ? error.message : error);
+          setRowState(key, {
+            migrationStatus: 'failed',
+            lastImportError: errorMessage,
+          });
+          showToast({
+            title: 'Import failed',
+            body: `${getEffectiveTitle(row, state)}: ${errorMessage}`,
+            variant: 'error',
+            duration: 3600,
+          });
+          alert(`Import failed for ${key}: ${errorMessage}`);
+        } finally {
+          activeImportKeys.delete(key);
+          writeLocalState();
+          rerender();
+        }
+      }
+
+      function handleAction(key, action) {
+        const existing = app.state[key];
+        if (!existing) return;
+        const row = app.payload && Array.isArray(app.payload.rows)
+          ? app.payload.rows.find((entry) => {
+              const rowKey = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+              return rowKey === key;
+            })
+          : null;
+
+        const escapedKey = String(key).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        const getInputByField = (field) => document.querySelector(`[data-key="${escapedKey}"][data-field="${field}"]`);
+
+        if (action === 'preview') {
+          app.previewKey = key;
+          renderPreview();
+          return;
+        }
+
+        if (action === 'openImageModal') {
+          openImageModal(key);
+          return;
+        }
+
+        if (action === 'startTitleEdit') {
+          setRowUiState(key, {
+            titleEditing: true,
+            titleDraft: getEffectiveTitle(row, existing),
+          });
+          rerender();
+          return;
+        }
+
+        if (action === 'cancelTitleEdit') {
+          setRowUiState(key, {
+            titleEditing: false,
+            titleDraft: undefined,
+          });
+          rerender();
+          return;
+        }
+
+        if (action === 'saveTitleEdit') {
+          const input = getInputByField('titleEditInput');
+          if (!(input instanceof HTMLInputElement)) return;
+          const value = String(input.value || '').slice(0, TITLE_MAX_LENGTH);
+          const originalTitle = String((row && row.sanityDraft && row.sanityDraft.title) || '').trim();
+          const nextOverride = value.trim() === originalTitle ? '' : value;
+          setRowState(key, {
+            titleOverride: nextOverride,
+            titleEditing: false,
+            titleDraft: undefined,
+          });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'resetPublishedAtOverride') {
+          setRowState(key, { publishedAtOverride: '' });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'startExcerptEdit') {
+          setRowUiState(key, {
+            excerptEditing: true,
+            excerptModeBeforeEdit: getExcerptMode(existing),
+            excerptMode: EXCERPT_MODE_CUSTOM,
+            excerptDraft: getEffectiveExcerptText(row, existing),
+          });
+          rerender();
+          return;
+        }
+
+        if (action === 'cancelExcerptEdit') {
+          setRowUiState(key, {
+            excerptEditing: false,
+            excerptMode: existing.excerptModeBeforeEdit || getExcerptMode(existing),
+            excerptModeBeforeEdit: undefined,
+            excerptDraft: undefined,
+          });
+          rerender();
+          return;
+        }
+
+        if (action === 'saveExcerptEdit') {
+          const input = getInputByField('excerptEditInput');
+          if (!(input instanceof HTMLTextAreaElement)) return;
+          setRowState(key, {
+            excerptMode: EXCERPT_MODE_CUSTOM,
+            excerptOverride: String(input.value || ''),
+            excerptEditing: false,
+            excerptModeBeforeEdit: undefined,
+            excerptDraft: undefined,
+          });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'applyAuthorCustom') {
+          const input = getInputByField('authorCustomNameInput');
+          if (!(input instanceof HTMLInputElement)) return;
+          setRowState(key, { authorSelection: AUTHOR_SELECTION_CUSTOM, authorSelectionTouched: true, authorCustomName: String(input.value || '') });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'applyCategoryCustom') {
+          const input = getInputByField('categoryCustomTitleInput');
+          if (!(input instanceof HTMLInputElement)) return;
+          setRowState(key, { categorySelection: CATEGORY_SELECTION_CUSTOM, categoryCustomTitle: String(input.value || '') });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'chooseImageFile') {
+          const fileInput = getInputByField('imageFileInput');
+          if (fileInput instanceof HTMLInputElement) {
+            fileInput.click();
+          }
+          return;
+        }
+
+        if (action === 'removeRow') {
+          setRowState(key, { removed: true });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'resetImageOverride') {
+          setRowState(key, {
+            imageOverrideDataUrl: '',
+            imageOverrideFileName: '',
+            imageOverrideFilePath: '',
+            imageOverrideAlt: '',
+            imageOverrideCaption: '',
+          });
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'resetRowState') {
+          if (!app.payload || !Array.isArray(app.payload.rows)) return;
+          const row = app.payload.rows.find((entry) => {
+            const rowKey = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+            return rowKey === key;
+          });
+          if (!row) return;
+
+          ensureRowState(row);
+          const factory = app.state[key] && app.state[key].__makeInitialRowState;
+          app.state[key] = typeof factory === 'function' ? factory() : {
+            migrationStatus: 'not-started',
+            updatedAt: new Date().toISOString(),
+            removed: false,
+            importedAt: null,
+            lastImportError: null,
+            wpId: row.wordpress.id,
+            sourceType: row.tracking && row.tracking.sourceType ? row.tracking.sourceType : 'post',
+            sourceUpdatedAt: row.tracking && row.tracking.sourceUpdatedAt ? row.tracking.sourceUpdatedAt : null,
+            sourceHash: row.tracking && row.tracking.sourceHash ? row.tracking.sourceHash : null,
+            sanityDraftId: row.sanityDraft ? row.sanityDraft._id : null,
+            authorSelection: AUTHOR_SELECTION_INFERRED,
+            authorSelectionTouched: false,
+            categorySelection: CATEGORY_SELECTION_MAPPED,
+            titleOverride: '',
+            publishedAtOverride: '',
+            excerptMode: EXCERPT_MODE_MAPPED,
+            excerptOverride: null,
+            imageOverrideDataUrl: '',
+            imageOverrideFileName: '',
+            imageOverrideFilePath: '',
+            imageOverrideAlt: '',
+            imageOverrideCaption: '',
+            authorCustomName: '',
+            categoryCustomTitle: '',
+            notes: []
+          };
+
+          writeLocalState();
+          rerender();
+          return;
+        }
+
+        if (action === 'importRow') {
+          importRowByKey(key);
+          return;
+        }
+
+        writeLocalState();
+        rerender();
+      }
+
+      document.getElementById('rows').addEventListener('click', (event) => {
+        const imageTarget = event.target instanceof Element
+          ? event.target.closest('img[data-action="openImageModal"]')
+          : null;
+        if (imageTarget instanceof HTMLImageElement) {
+          const imageKey = String(imageTarget.getAttribute('data-key') || '');
+          if (imageKey) openImageModal(imageKey);
+          return;
+        }
+
+        const target = event.target;
+        if (!(target instanceof HTMLButtonElement)) return;
+
+        const action = target.getAttribute('data-action');
+        if (action === 'loadNextPage') {
+          const nextPage = Math.max(1, Number(target.getAttribute('data-next-page') || 1));
+          const pageSelect = document.getElementById('wpPage');
+          if (pageSelect) {
+            pageSelect.value = String(nextPage);
+            fetchFromWordPress();
+          }
+          return;
+        }
+
+        const key = target.getAttribute('data-key');
+        if (!key || !action) return;
+
+        handleAction(key, action);
+      });
+
+      function applyRowFieldUpdate(target) {
+        if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+          return false;
+        }
+
+        const action = target.getAttribute('data-action');
+        const key = target.getAttribute('data-key');
+        if (!key || !action) return false;
+
+        if (action === 'setAuthor') {
+          setRowState(key, { authorSelection: target.value, authorSelectionTouched: true });
+        } else if (action === 'setCategory') {
+          setRowState(key, { categorySelection: target.value });
+        } else if (action === 'setPublishedAtOverride') {
+          const isoValue = toIsoFromDatetimeLocal(String(target.value || ''));
+          setRowState(key, { publishedAtOverride: isoValue });
+        } else if (action === 'setExcerptMode') {
+          if (target.value === EXCERPT_MODE_CUSTOM) {
+            setRowState(key, { excerptMode: EXCERPT_MODE_CUSTOM });
+          } else {
+            setRowState(key, {
+              excerptMode: target.value,
+              excerptOverride: null,
+              excerptEditing: false,
+              excerptModeBeforeEdit: undefined,
+              excerptDraft: undefined,
+            });
+          }
+        } else {
+          return false;
+        }
+
+        writeLocalState();
+        rerender();
+        return true;
+      }
+
+      document.getElementById('rows').addEventListener('change', (event) => {
+        applyRowFieldUpdate(event.target);
+      });
+
+      document.getElementById('rows').addEventListener('change', async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.getAttribute('data-action') !== 'setImageFile') return;
+        await handleRowImageFileInput(target);
+      });
+
+      document.getElementById('rows').addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.getAttribute('data-field') !== 'titleEditInput') return;
+
+        const wrap = target.closest('.title-edit-wrap');
+        if (!(wrap instanceof HTMLElement)) return;
+        const countEl = wrap.querySelector('[data-role="title-count"]');
+        const currentLength = String(target.value || '').length;
+
+        if (countEl instanceof HTMLElement) {
+          countEl.textContent = `${currentLength}/${TITLE_MAX_LENGTH}`;
+        }
+
+        wrap.classList.toggle('is-over-limit', currentLength > TITLE_MAX_LENGTH);
+      });
+
+      document.getElementById('saveStateBtn').addEventListener('click', () => {
+        writeLocalState();
+        alert('Saved local import state.');
+      });
+
+      document.getElementById('clearStateBtn').addEventListener('click', () => {
+        if (!confirm('Clear all locally saved import state?')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        app.state = {};
+        rerender();
+      });
+
+      document.getElementById('toggleShowAllBtn').addEventListener('click', () => {
+        app.showAllRows = !app.showAllRows;
+        const button = document.getElementById('toggleShowAllBtn');
+        button.textContent = app.showAllRows ? 'Hide Imported' : 'Show All';
+        rerender();
+      });
+
+      document.getElementById('fetchWpBtn').addEventListener('click', () => {
+        fetchFromWordPress();
+      });
+
+      document.getElementById('wpPage').addEventListener('change', () => {
+        if (app.loadingTokens.size > 0) return;
+        fetchFromWordPress();
+      });
+
+      document.getElementById('pageControls').addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLButtonElement)) return;
+        const action = target.getAttribute('data-action');
+        const pageSelect = document.getElementById('wpPage');
+        if (!action || !pageSelect) return;
+
+        const current = Number(pageSelect.value || 1);
+        const total = Math.max(1, Number(pageSelect.options.length) || 1);
+
+        if (action === 'goPrevPage') {
+          if (current <= 1) return;
+          pageSelect.value = String(current - 1);
+          fetchFromWordPress();
+          return;
+        }
+
+        if (action === 'goNextPage') {
+          if (current >= total) return;
+          pageSelect.value = String(current + 1);
+          fetchFromWordPress();
+          return;
+        }
+
+        if (action === 'goPage') {
+          const page = Math.max(1, Number(target.getAttribute('data-page') || 1));
+          if (page === current) return;
+          pageSelect.value = String(Math.min(total, page));
+          fetchFromWordPress();
+        }
+      });
+
+      document.getElementById('wpBaseUrl').addEventListener('blur', () => {
+        validateWpBaseUrl();
+      });
+
+      document.getElementById('wpBaseUrl').addEventListener('change', () => {
+        app.wpPageSummaryCache = null;
+        app.wpHostValid = false;
+        renderHostValidation();
+        validateWpBaseUrl();
+      });
+
+      document.getElementById('wpPerPage').addEventListener('change', async () => {
+        app.wpPageSummaryCache = null;
+        await fetchWordPressPageSummary();
+        if (app.loadingTokens.size > 0) return;
+        fetchFromWordPress();
+      });
+
+      document.getElementById('closePreviewBtn').addEventListener('click', () => {
+        app.previewKey = null;
+        cleanupPreviewSync();
+        renderPreview();
+      });
+
+      document.getElementById('previewModal').addEventListener('click', (event) => {
+        if (event.target.id !== 'previewModal') return;
+        app.previewKey = null;
+        cleanupPreviewSync();
+        renderPreview();
+      });
+
+      document.getElementById('closeImageModalBtn').addEventListener('click', () => {
+        closeImageModal();
+      });
+
+      document.getElementById('imageModal').addEventListener('click', async (event) => {
+        const target = event.target;
+        if (target instanceof HTMLButtonElement) {
+          const action = target.getAttribute('data-action');
+          const key = target.getAttribute('data-key') || app.imageModalKey || '';
+
+          if (action === 'chooseImageFileModal') {
+            app.imageModalSetupMode = 'upload';
+            renderImageModal();
+            const modalFileInput = document.getElementById('imageModalFileInput');
+            if (modalFileInput instanceof HTMLInputElement) {
+              modalFileInput.click();
+            }
+            return;
+          }
+
+          if (action === 'showRemoteImageSource') {
+            const input = document.getElementById('imageModalRemoteUrlInput');
+            if (input instanceof HTMLInputElement) {
+              app.imageModalRemoteUrl = String(input.value || '').trim();
+            }
+            app.imageModalSetupMode = 'remote';
+            app.imageModalRemoteValid = false;
+            app.imageModalRemoteChecking = false;
+            renderImageModal();
+            if (app.imageModalRemoteUrl) {
+              queueRemoteImageValidation(app.imageModalRemoteUrl);
+            }
+            return;
+          }
+
+          if (action === 'applyRemoteImageSource' && key) {
+            const input = document.getElementById('imageModalRemoteUrlInput');
+            const value = input instanceof HTMLInputElement
+              ? String(input.value || '').trim()
+              : String(app.imageModalRemoteUrl || '').trim();
+            app.imageModalRemoteUrl = value;
+            if (!app.imageModalRemoteValid || app.imageModalRemoteChecking) {
+              queueRemoteImageValidation(value);
+              return;
+            }
+            await applyImageSourceUrlOverride(key, value, 'Image source set');
+            return;
+          }
+
+          if (action === 'resetImageOverride' && key) {
+            handleAction(key, 'resetImageOverride');
+            return;
+          }
+
+          if (action === 'optimizeImageOverride' && key) {
+            await optimizeImageOverrideForKey(key);
+            return;
+          }
+
+          if (action === 'editImageMetaField') {
+            const field = String(target.getAttribute('data-field') || '');
+            const row = getRowByKey(app.imageModalKey);
+            if (!row || !field) return;
+            const state = app.state[app.imageModalKey] || {};
+            if (field === 'title') {
+              app.imageModalEditValue = getEffectiveTitle(row, state);
+            } else if (field === 'alt') {
+              app.imageModalEditValue = getEffectiveImageAlt(row, state, getEffectiveTitle(row, state));
+            } else if (field === 'caption') {
+              app.imageModalEditValue = getEffectiveImageCaption(row, state, getEffectiveTitle(row, state));
+            } else if (field === 'sourceUrl') {
+              app.imageModalEditValue = getEffectiveImageUrl(row, state);
+            } else {
+              app.imageModalEditValue = '';
+            }
+            app.imageModalEditingField = field;
+            renderImageModal();
+            return;
+          }
+
+          if (action === 'cancelImageMetaField') {
+            app.imageModalEditingField = '';
+            app.imageModalEditValue = '';
+            renderImageModal();
+            return;
+          }
+
+          if (action === 'saveImageMetaField') {
+            const field = String(target.getAttribute('data-field') || '');
+            if (!field || !app.imageModalKey) return;
+            const input = document.getElementById('imageMetaEditInput');
+            const value = input instanceof HTMLInputElement ? String(input.value || '').trim() : String(app.imageModalEditValue || '').trim();
+            if (field === 'title') {
+              setRowState(app.imageModalKey, { titleOverride: value.slice(0, TITLE_MAX_LENGTH) });
+            } else if (field === 'alt') {
+              setRowState(app.imageModalKey, { imageOverrideAlt: value });
+            } else if (field === 'caption') {
+              setRowState(app.imageModalKey, { imageOverrideCaption: value });
+            } else if (field === 'sourceUrl') {
+              app.imageModalSavingField = 'sourceUrl';
+              renderImageModal();
+
+              try {
+                const updated = await applyImageSourceUrlOverride(app.imageModalKey, value, 'Source URL updated');
+                if (updated) {
+                  return;
+                }
+              } finally {
+                app.imageModalSavingField = '';
+                if (app.imageModalKey) {
+                  renderImageModal();
+                }
+              }
+            }
+            app.imageModalEditingField = '';
+            app.imageModalEditValue = '';
+            writeLocalState();
+            rerender();
+            return;
+          }
+        }
+
+        if (event.target.id === 'imageModal') {
+          closeImageModal();
+        }
+      });
+
+      document.getElementById('imageModal').addEventListener('change', async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.getAttribute('data-action') !== 'setImageFile') return;
+        await handleRowImageFileInput(target);
+      });
+
+      document.getElementById('imageModal').addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+        if (target.id !== 'imageModalRemoteUrlInput') return;
+        queueRemoteImageValidation(target.value);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const imageModal = document.getElementById('imageModal');
+        if (imageModal && imageModal.classList.contains('open')) {
+          closeImageModal();
+        }
+      });
+
+      app.state = readLocalState();
+      const savedUiState = readUiState();
+      renderLoadingStatus();
+      syncPageOptions(savedUiState.lastPage, savedUiState.lastPage);
+      renderHostValidation();
+      rerender();
+
+      // Optional one-step bootstrap for local workflow.
+      Promise.all([
+        fetchSanityAuthors(),
+        fetchSanityCategories(),
+        fetchWordPressPageSummary(),
+        fetchFromWordPress(savedUiState.lastPage)
+      ]).then(() => {
+        rerender();
+      });
+    </script>
+  </body>
+</html>

@@ -94,7 +94,8 @@ const ImageBlock = ({ node }) => {
         <SanityImage
           {...node}
           {...nonDraggableImageProps}
-          width={900}
+          width={760}
+          sizes="(min-width: 1024px) 760px, (min-width: 768px) calc(100vw - 80px), calc(100vw - 32px)"
           alt={node?.alt || ""}
           sx={{
             width: "100%",
@@ -172,6 +173,7 @@ const ImageBlock = ({ node }) => {
               {...node}
               {...nonDraggableImageProps}
               width={1600}
+              sizes="(min-width: 1200px) 1200px, calc(100vw - 32px)"
               alt={node?.alt || ""}
               sx={{
                 width: "100%",
@@ -221,24 +223,25 @@ const serializers = {
     mainImage: ImageBlock,
     image: ImageBlock,
     videoEmbed: ({ node }) => (
-      <div
-        sx={{
-          mx: "auto",
-          my: 4,
-          display: "flex",
-          position: "relative",
-          paddingTop: "56.25%",
-          width: ["92vw", "92vw", "50vw", "50vw"],
-        }}
-      >
-        <ReactPlayer
-          sx={{ position: "absolute", top: 0 }}
-          url={node.url}
-          width="100%"
-          height="100%"
-          controls
-        />
-      </div>
+      <Box sx={{ width: "100%", maxWidth: "100%", my: 4 }}>
+        <Box
+          sx={{
+            position: "relative",
+            width: "100%",
+            pt: "56.25%",
+            overflow: "hidden",
+            borderRadius: "12px",
+          }}
+        >
+          <ReactPlayer
+            style={{ position: "absolute", inset: 0 }}
+            url={node.url}
+            width="100%"
+            height="100%"
+            controls
+          />
+        </Box>
+      </Box>
     ),
     instagram: ({ node }) => {
       if (!node.url) return null;

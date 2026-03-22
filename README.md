@@ -14,8 +14,26 @@ This repo tracks the project source for the club website including AWS CDK infra
 * Sanity CMS
 
 ## Setup
-* `yarn install`
-* `yarn run dev` # dev build
+### Gatsby local dev
+Run these from `web/`.
+
+* `nvm install 20.19.1`
+* `nvm use 20.19.1`
+* `cd web && npm install`
+* `cd web && npm run develop` # dev build
 
 ### production build
-* `yarn run build`
+Run these from `web/`.
+
+* `cd web && npm run build`
+* `cd web && npm run start`
+
+### Sanity Studio commands
+* `npx sanity dev` # runs local dev server (ran in /studio)
+* `npx sanity graphql deploy --dataset production --tag default` # deploys latest graphQl schemas to remote studio
+* `npx sanity schema deploy`  # deploys latest schema documents to remote studio
+* `npx sanity deploy` # deploys latest changes from studio to remote, hosted studio 
+
+### Utility scripts
+* WordPress migration tooling lives in `scripts/wpMigration/`; install and run commands from that directory.
+* Zundfolge manifest tooling lives in `scripts/generateZundfolgeManifest/`; install and run commands from that directory.

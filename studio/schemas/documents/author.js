@@ -1,3 +1,5 @@
+import { buildUniqueFieldValidator } from '../utils/uniqueFieldValidation';
+
 export default {
   name: 'author',
   type: 'document',
@@ -7,7 +9,14 @@ export default {
       name: 'name',
       type: 'string',
       title: 'Name',
-      validation: Rule => Rule.error('You must select an author name.').required(),
+      validation: Rule => Rule
+        .error('You must select an author name.')
+        .required()
+        .custom(buildUniqueFieldValidator({
+          typeName: 'author',
+          fieldPath: 'name',
+          label: 'Author name',
+        })),
 
     },
     // {
@@ -24,7 +33,8 @@ export default {
       name: 'image',
       type: 'mainImage',
       title: 'Image',
-      validation: Rule => Rule.error('You must select an author image.').required(),
+      description: 'Author avatar image. If left empty, a default grey silhouette will be used.',
+      validation: Rule => Rule.warning('Author image is recommended for a better look.'),
     },
     {
       name: 'bio',
