@@ -10,16 +10,16 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
-    target-branch: "dev"
+    target-branch: "master"
   - package-ecosystem: "npm"
     directory: "/infra" 
     schedule:
       interval: "weekly"
       day: "sunday"
-    target-branch: "dev"
+    target-branch: "master"
   - package-ecosystem: "npm"
     directory: "/studio" 
     schedule:
       interval: "weekly"
       day: "sunday"
-    target-branch: "dev"
+    target-branch: "master"
