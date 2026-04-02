@@ -3,6 +3,7 @@ const http = require('http');
 const https = require('https');
 const {getSanityConfig} = require('../utils/constants');
 const {generateDefaultAvatarBuffer} = require('../utils/defaultAvatar');
+const {generateArchiveCoverBuffer, DEFAULT_SUBHEADING, DEFAULT_TITLE} = require('../utils/archiveCoverImage');
 
 function createSanityReadClient() {
   const config = getSanityConfig();
@@ -31,15 +32,61 @@ function createSanityWriteClient() {
 }
 
 async function createOrReplaceDocument(client, doc) {
+  const normalizedDoc = normalizeMigrationDocumentIds(doc);
+
   // Ensure referenced category exists when custom category data is provided
-  const docWithCategory = await ensureCategoryReferenceExists(client, doc);
+  const docWithCategory = await ensureCategoryReferenceExists(client, normalizedDoc);
 
   // Ensure all referenced authors exist (create with default avatar if needed)
   const docWithAuthors = await ensureAuthorReferencesExist(client, docWithCategory);
+  const docForWrite = stripImporterOnlyFields(docWithAuthors);
   
-  const preparedWithMainImage = await hydrateMainImageAsset(client, docWithAuthors);
+  const preparedWithMainImage = await hydrateMainImageAsset(client, docForWrite);
   const prepared = await hydrateInlineBodyImageAssets(client, preparedWithMainImage);
   return client.createOrReplace(prepared);
+}
+
+function stripImporterOnlyFields(doc) {
+  const next = JSON.parse(JSON.stringify(doc || {}));
+  if (!next || typeof next !== 'object') return next;
+
+  // Used by migration logic to resolve category refs, but not part of the post schema.
+  delete next.categoryTitle;
+
+  return next;
+}
+
+function migrateLegacyPrefixedId(value, legacyPrefix, currentPrefix) {
+  const raw = String(value || '').trim();
+  if (!raw || !raw.startsWith(legacyPrefix)) return raw;
+  return `${currentPrefix}${raw.slice(legacyPrefix.length)}`;
+}
+
+function normalizeMigrationDocumentIds(doc) {
+  const next = JSON.parse(JSON.stringify(doc || {}));
+  if (!next || typeof next !== 'object') return next;
+
+  next._id = migrateLegacyPrefixedId(next._id, 'wp-post-', 'migration-post-') || next._id;
+
+  if (next.category && next.category._ref) {
+    next.category._ref = migrateLegacyPrefixedId(next.category._ref, 'wp-category-', 'migration-category-') || next.category._ref;
+  }
+
+  if (Array.isArray(next.authors)) {
+    next.authors = next.authors.map((entry) => {
+      if (!entry || !entry.author || !entry.author._ref) return entry;
+      const authorRef = migrateLegacyPrefixedId(entry.author._ref, 'wp-author-', 'migration-author-') || entry.author._ref;
+      return {
+        ...entry,
+        author: {
+          ...entry.author,
+          _ref: authorRef,
+        },
+      };
+    });
+  }
+
+  return next;
 }
 
 function filenameFromUrl(url) {
@@ -85,6 +132,44 @@ function buildPortableTextImageBlock(item, fallbackTitle, assetRef) {
       _type: 'reference',
       _ref: assetRef,
     },
+  };
+}
+
+function formatArchiveDateLabel(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return 'Unknown date';
+  return date.toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+}
+
+function isArchiveCategory(doc) {
+  const categoryTitle = String(doc && doc.categoryTitle || '').trim().toLowerCase();
+  const categoryRef = String(doc && doc.category && doc.category._ref || '').trim().toLowerCase();
+
+  if (categoryTitle === 'archive') return true;
+  if (categoryRef === 'migration-category-archive') return true;
+  return /(^|[-_\s])archive($|[-_\s])/.test(categoryRef);
+}
+
+async function generateArchiveMainImageIfEligible(doc) {
+  if (!isArchiveCategory(doc)) return null;
+
+  const dateLabel = formatArchiveDateLabel(doc && doc.publishedAt);
+  const buffer = await generateArchiveCoverBuffer({
+    subheading: DEFAULT_SUBHEADING,
+    title: DEFAULT_TITLE,
+    dateLabel,
+  });
+
+  return {
+    buffer,
+    filename: `archive-cover-${dateLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`,
+    contentType: 'image/png',
+    alt: `${DEFAULT_TITLE} ${dateLabel}`,
+    caption: `${DEFAULT_SUBHEADING} ${dateLabel}`,
   };
 }
 
@@ -167,15 +252,48 @@ async function downloadImageBuffer(sourceUrl, label) {
 
 async function hydrateMainImageAsset(client, doc) {
   const next = JSON.parse(JSON.stringify(doc || {}));
-  const image = next.mainImage;
-  if (!image || typeof image !== 'object') return next;
+  let image = next.mainImage;
+
+  if (!image || typeof image !== 'object') {
+    const generated = await generateArchiveMainImageIfEligible(next);
+    if (!generated) return next;
+
+    const asset = await client.assets.upload('image', generated.buffer, {
+      filename: generated.filename,
+      contentType: generated.contentType,
+    });
+
+    next.mainImage = buildPortableTextImageBlock(
+      { alt: generated.alt, caption: generated.caption },
+      next.title || '',
+      asset._id
+    );
+    return next;
+  }
+
   if (image.asset && image.asset._ref) {
     next.mainImage = buildPortableTextImageBlock(image, next.title || '', image.asset._ref) || next.mainImage;
     return next;
   }
+
   const sourceUrl = String(image.sourceUrl || '').trim();
   if (!sourceUrl) {
-    throw new Error('Featured image is missing both asset reference and source URL.');
+    const generated = await generateArchiveMainImageIfEligible(next);
+    if (!generated) {
+      throw new Error('Featured image is missing both asset reference and source URL.');
+    }
+
+    const asset = await client.assets.upload('image', generated.buffer, {
+      filename: generated.filename,
+      contentType: generated.contentType,
+    });
+
+    next.mainImage = buildPortableTextImageBlock(
+      { alt: generated.alt, caption: generated.caption },
+      next.title || '',
+      asset._id
+    );
+    return next;
   }
 
   const downloaded = await downloadImageBuffer(sourceUrl, 'featured image');
@@ -324,7 +442,9 @@ function toTitleCase(value) {
 function deriveAuthorNameFromId(authorId) {
   const raw = String(authorId || '').trim();
   if (!raw) return '';
-  const withoutPrefix = raw.replace(/^wp-author-/, '');
+  const withoutPrefix = raw
+    .replace(/^wp-author-/, '')
+    .replace(/^migration-author-/, '');
   const words = withoutPrefix
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ')
@@ -348,6 +468,38 @@ function buildExistingAuthorNameMap(authors) {
     map.set(normalized, author);
   });
   return map;
+}
+
+function normalizeCategoryTitleForMatch(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
+function findMatchingSanityCategoryByTitle(categories, title) {
+  const normalizedTitle = normalizeCategoryTitleForMatch(title);
+  if (!normalizedTitle) return null;
+
+  return (Array.isArray(categories) ? categories : []).find(
+    (category) => normalizeCategoryTitleForMatch(category && category.title) === normalizedTitle
+  ) || null;
+}
+
+function deriveCategoryTitleFromRef(categoryRef) {
+  const raw = String(categoryRef || '').trim();
+  if (!raw) return '';
+
+  const withoutPrefix = raw
+    .replace(/^migration-category-/, '')
+    .replace(/^wp-category-/, '');
+  const words = withoutPrefix
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!words) return '';
+
+  return toTitleCase(words);
 }
 
 /**
@@ -421,8 +573,15 @@ async function ensureCategoryReferenceExists(client, doc) {
   const exists = await authorExists(client, categoryRef);
   if (exists) return next;
 
-  const customTitle = String(next.categoryTitle || '').trim();
+  const customTitle = String(next.categoryTitle || '').trim() || deriveCategoryTitleFromRef(categoryRef);
   if (!customTitle) {
+    return next;
+  }
+
+  const existingCategories = await fetchSanityCategories(client);
+  const matchedCategory = findMatchingSanityCategoryByTitle(existingCategories, customTitle);
+  if (matchedCategory && matchedCategory._id) {
+    next.category._ref = matchedCategory._id;
     return next;
   }
 
@@ -521,17 +680,68 @@ async function ensureAuthorHasImage(client, authorId) {
   }
 }
 
+// ─── Event document pipeline ────────────────────────────────────────────────
+
+async function fetchSanityEventCategories(client) {
+  return client.fetch('*[_type == "eventCategory"]{ _id, title }');
+}
+
+async function ensureEventCategoryReferenceExists(client, doc) {
+  const next = JSON.parse(JSON.stringify(doc || {}));
+  const categoryRef = next && next.category && next.category._ref
+    ? String(next.category._ref).trim()
+    : '';
+
+  if (!categoryRef) return next;
+
+  const exists = await authorExists(client, categoryRef);
+  if (exists) return next;
+
+  const customTitle = String(next.categoryTitle || '').trim();
+  if (!customTitle) return next;
+
+  const existingCategories = await fetchSanityEventCategories(client);
+  const match = existingCategories.find(
+    (c) => String(c.title || '').trim().toLowerCase() === customTitle.toLowerCase()
+  );
+  if (match && match._id) {
+    next.category._ref = match._id;
+    return next;
+  }
+
+  await client.createIfNotExists({
+    _id: categoryRef,
+    _type: 'eventCategory',
+    title: customTitle,
+  });
+  return next;
+}
+
+/**
+ * Write pipeline for events (skips author hydration; uses eventCategory upsert).
+ */
+async function createOrReplaceEventDocument(client, doc) {
+  const docWithCategory = await ensureEventCategoryReferenceExists(client, doc);
+  const docForWrite = stripImporterOnlyFields(docWithCategory);
+  const preparedWithMainImage = await hydrateMainImageAsset(client, docForWrite);
+  const prepared = await hydrateInlineBodyImageAssets(client, preparedWithMainImage);
+  return client.createOrReplace(prepared);
+}
+
 module.exports = {
   createSanityReadClient,
   createSanityWriteClient,
   createOrReplaceDocument,
+  createOrReplaceEventDocument,
   fetchSanityAuthors,
   fetchSanityCategories,
+  fetchSanityEventCategories,
   getOrUploadDefaultAvatar,
   authorExists,
   createAuthorIfNeeded,
   createCategoryIfNeeded,
   ensureAuthorReferencesExist,
   ensureCategoryReferenceExists,
+  ensureEventCategoryReferenceExists,
   ensureAuthorHasImage,
 };

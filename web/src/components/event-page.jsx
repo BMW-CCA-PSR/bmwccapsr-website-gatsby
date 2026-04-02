@@ -329,7 +329,12 @@ function EventPage(props) {
                 top: 0,
                 left: 0,
                 right: 0,
-                transform: "translateY(calc(-100% - 1.7rem))",
+                transform: [
+                  "translateY(calc(-100% - 0.45rem))",
+                  "translateY(calc(-100% - 0.38rem))",
+                  "translateY(calc(-100% - 1.7rem))",
+                  "translateY(calc(-100% - 1.7rem))",
+                ],
                 zIndex: 3,
                 display: "flex",
                 alignItems: "center",
@@ -338,13 +343,13 @@ function EventPage(props) {
                 bg: "#f5d76e",
                 color: "black",
                 borderRadius: "10px",
-                px: "0.8rem",
-                py: "0.42rem",
-                fontSize: "xs",
+                px: ["0.7rem", "0.75rem", "0.8rem", "0.8rem"],
+                py: ["0.24rem", "0.26rem", "0.42rem", "0.42rem"],
+                fontSize: ["10px", "10px", "xs", "xs"],
                 letterSpacing: "0.05em",
                 textTransform: "uppercase",
                 fontWeight: "heading",
-                gap: "0.45rem",
+                gap: ["0.3rem", "0.35rem", "0.45rem", "0.45rem"],
               }}
             >
               <FiClock size={14} aria-hidden="true" />
@@ -358,7 +363,7 @@ function EventPage(props) {
               width: "100%",
               flexDirection: "column",
               position: "relative",
-              mt: isPast ? ["3rem", "3rem", 0, 0] : 0,
+              mt: isPast ? ["0.9rem", "1rem", 0, 0] : 0,
             }}
           >
             <Box

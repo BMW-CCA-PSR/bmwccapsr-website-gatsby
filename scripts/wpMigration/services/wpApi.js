@@ -131,6 +131,32 @@ async function fetchMediaForPost(baseUrl, postId, options) {
   }
 }
 
+/**
+ * Fetch a page of events from the tribe/events/v1 REST API (The Events Calendar plugin).
+ * Note: this namespace uses a different base URL than /wp/v2.
+ * @param {string} tribeBaseUrl  e.g. http://example.com/wp-json/tribe/events/v1
+ * @param {{ page: number, perPage: number, startDate: string, endDate: string }} args
+ * @param {object} options
+ * @returns {{ events: object[], total: number, total_pages: number }}
+ */
+async function fetchTribeEventsPage(tribeBaseUrl, args, options) {
+  const base = normalizeBaseUrl(tribeBaseUrl);
+  const url = new URL(`${base}/events`);
+  url.searchParams.set('page', String(args.page || 1));
+  url.searchParams.set('per_page', String(args.perPage || 50));
+  url.searchParams.set('start_date', args.startDate || '2010-01-01');
+  url.searchParams.set('end_date', args.endDate || '2030-12-31');
+  url.searchParams.set('status', 'publish');
+
+  const response = await requestJson(url, options);
+  const data = response.data || {};
+  return {
+    events: Array.isArray(data.events) ? data.events : [],
+    total: Number(data.total) || 0,
+    total_pages: Number(data.total_pages) || 0,
+  };
+}
+
 module.exports = {
   normalizeBaseUrl,
   buildUrl,
@@ -141,4 +167,5 @@ module.exports = {
   fetchUsersByIds,
   fetchCategoriesByIds,
   fetchMediaForPost,
+  fetchTribeEventsPage,
 };

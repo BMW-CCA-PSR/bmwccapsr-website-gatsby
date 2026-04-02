@@ -5,6 +5,7 @@ import { useClient, useDocumentOperation } from "sanity";
 import {
   buildScheduleExpressionFromDocument,
   deriveScheduleControlsFromExpression,
+  calculateNextInvocation,
 } from "../lib/sourceSettingsSchedule";
 
 const webhookUrl = process.env.SANITY_STUDIO_MSR_SYNC_WEBHOOK_URL || "";
@@ -152,11 +153,19 @@ export function ApplyMsrSourceSettingsAction(props) {
         recentRuns,
       });
 
-      const nextInvocationAt = toIsoOrNull(payload?.nextInvocationAt);
+      // Calculate next invocation from current form state (documentValue contains latest sync controls from draft)
+      // Prefer webhook response if provided, but calculate from current settings as fallback
+      const webhookNextInvocation = toIsoOrNull(payload?.nextInvocationAt);
+      const calculatedNextInvocation = calculateNextInvocation({
+        syncFrequency: documentValue?.syncFrequency,
+        syncHourUtc: documentValue?.syncHourUtc, 
+        syncMinuteUtc: documentValue?.syncMinuteUtc,
+        syncWeekdayUtc: documentValue?.syncWeekdayUtc,
+      });
+      const nextInvocationAt = webhookNextInvocation || calculatedNextInvocation;
+      
       if (nextInvocationAt) {
         patch.set({ nextInvocationAt });
-      } else {
-        patch.unset(["nextInvocationAt"]);
       }
 
       await patch.commit();

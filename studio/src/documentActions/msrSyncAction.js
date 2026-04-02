@@ -1,6 +1,7 @@
 import React from "react";
 import { SyncIcon } from "@sanity/icons";
 import { Spinner, useToast } from "@sanity/ui";
+import { useDocumentOperation } from "sanity";
 
 const webhookUrl = process.env.SANITY_STUDIO_MSR_SYNC_WEBHOOK_URL || "";
 
@@ -45,6 +46,10 @@ export function SyncWithMsrAction(props) {
   if (schemaTypeName !== "event") return null;
 
   const documentValue = draft || published;
+  const resolvedOperationId = normalizeDocumentId(
+    documentValue?._id || id || documentId
+  );
+  const ops = useDocumentOperation(resolvedOperationId, "event");
   const normalizedId = normalizeDocumentId(
     documentValue?._id || id || documentId
   ).toLowerCase();
@@ -112,8 +117,23 @@ export function SyncWithMsrAction(props) {
       toast.push({
         status: "success",
         title: "MSR sync triggered",
-        description: "Requested an on-demand sync for this event.",
+        description: "Requested an on-demand sync for this event. Background publish queued.",
       });
+
+      // Publish in the background once the synced draft is available.
+      let attempts = 0;
+      const maxAttempts = 30;
+      const attemptPublish = () => {
+        attempts += 1;
+        if (ops?.publish && !ops.publish.disabled) {
+          ops.publish.execute();
+          return;
+        }
+        if (attempts < maxAttempts) {
+          setTimeout(attemptPublish, 1000);
+        }
+      };
+      setTimeout(attemptPublish, 0);
     } catch (error) {
       const networkHint =
         error instanceof TypeError || (error instanceof Error && error.name === "AbortError")

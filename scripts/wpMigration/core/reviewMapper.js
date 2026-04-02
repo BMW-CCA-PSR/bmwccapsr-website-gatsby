@@ -65,6 +65,23 @@ function getFeaturedImageUrl(post, context) {
   return post.jetpack_featured_media_url || (media && media.source_url) || null;
 }
 
+function toDocumentIdSegment(value, fallback) {
+  const slug = studioSlugify(value).replace(/\//g, '-').replace(/[^a-z0-9_-]+/g, '').trim();
+  return slug || fallback;
+}
+
+function toImportedPostId(postId) {
+  return `migration-post-${postId}`;
+}
+
+function toImportedAuthorId(authorName) {
+  return `migration-author-${toDocumentIdSegment(authorName, 'unknown-author')}`;
+}
+
+function toImportedCategoryId(categoryId) {
+  return `migration-category-${categoryId}`;
+}
+
 function mapPostToSanityDraft(post, context) {
   const title = decode(post?.title?.rendered || '').trim() || '(Untitled)';
   const publishedAt = toIsoOrNull(post?.date_gmt || post?.date) || new Date().toISOString();
@@ -119,12 +136,13 @@ function mapPostToSanityDraft(post, context) {
       bodyTail: bodyParagraphs.slice(-3),
     },
     sanityDraft: {
-      _id: `wp-post-${post.id}`,
+      _id: toImportedPostId(post.id),
       _type: 'post',
       title,
       publishedAt,
       slug: { _type: 'slug', current: slug },
       featured: Boolean(post.sticky),
+      categoryTitle: categoryTitle || null,
       excerpt: excerptBlocks.length
         ? excerptBlocks
         : htmlToPortableTextBlocks(`<p>${excerptText}</p>`, { field: 'excerpt' }),
@@ -134,11 +152,11 @@ function mapPostToSanityDraft(post, context) {
           _key: `a${post.id}`,
           author: {
             _type: 'reference',
-            _ref: `wp-author-${inferredAuthor.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`,
+            _ref: toImportedAuthorId(inferredAuthor.name),
           },
         },
       ],
-      category: primaryCategoryId ? { _type: 'reference', _ref: `wp-category-${primaryCategoryId}` } : null,
+      category: primaryCategoryId ? { _type: 'reference', _ref: toImportedCategoryId(primaryCategoryId) } : null,
       body: bodyBlocks.length
         ? bodyBlocks
         : htmlToPortableTextBlocks('<p>(Body missing from source post)</p>', { field: 'body' }),

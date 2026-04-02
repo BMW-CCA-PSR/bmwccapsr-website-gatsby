@@ -19,31 +19,26 @@ export class Client {
   fetchMostRecentEvent = () => {
     return this.client.fetch(
       `*[_type == "event" && (
-        (defined(endDate) && dateTime(endDate + "T23:59:59Z") >= dateTime(now())) ||
-        (!defined(endDate) && defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
-        (!defined(endDate) && !defined(endTime) && defined(startDate) && dateTime(startDate + "T23:59:59Z") >= dateTime(now())) ||
-        (!defined(endDate) && !defined(endTime) && !defined(startDate) && dateTime(startTime) >= dateTime(now()))
-      )]{title, slug} | order(coalesce(startDate, startTime) asc)[0]`
+        (defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
+        (!defined(endTime) && dateTime(startTime) >= dateTime(now()))
+      )]{title, slug} | order(startTime asc)[0]`
     );
   };
 
   fetchUpcomingEvents = (limit = 2) => {
     return this.client.fetch(
       `*[_type == "event" && defined(slug.current) && !(lower(title) match "*board meeting*") && (
-        (defined(endDate) && dateTime(endDate + "T23:59:59Z") >= dateTime(now())) ||
-        (!defined(endDate) && defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
-        (!defined(endDate) && !defined(endTime) && defined(startDate) && dateTime(startDate + "T23:59:59Z") >= dateTime(now())) ||
-        (!defined(endDate) && !defined(endTime) && !defined(startDate) && dateTime(startTime) >= dateTime(now()))
-      )] | order(coalesce(startDate, startTime) asc)[0...${limit}]{
+        (defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
+        (!defined(endTime) && dateTime(startTime) >= dateTime(now()))
+      )] | order(startTime asc)[0...${limit}]{
         _id,
         title,
         onlineEvent,
         onlineLink,
         venueName,
         slug { current },
-        startDate,
-        endDate,
         startTime,
+        endTime,
         mainImage{
           ...,
           asset->{_id, url}
@@ -167,19 +162,15 @@ export class Client {
   fetchEvents = () => {
     return this.client.fetch(
       `*[_type == "event" && defined(slug.current) && !(lower(title) match "*board meeting*") && (
-          (defined(endDate) && dateTime(endDate + "T23:59:59Z") >= dateTime(now())) ||
-          (!defined(endDate) && defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
-          (!defined(endDate) && !defined(endTime) && defined(startDate) && dateTime(startDate + "T23:59:59Z") >= dateTime(now())) ||
-          (!defined(endDate) && !defined(endTime) && !defined(startDate) && dateTime(startTime) >= dateTime(now()))
-        )] | order(coalesce(startDate, startTime) asc){
+          (defined(endTime) && dateTime(endTime) >= dateTime(now())) ||
+          (!defined(endTime) && dateTime(startTime) >= dateTime(now()))
+        )] | order(startTime asc){
         _id,
         title,
         onlineEvent,
         onlineLink,
         venueName,
         slug { current },
-        startDate,
-        endDate,
         startTime,
         endTime,
         mainImage{
@@ -194,15 +185,13 @@ export class Client {
 
   fetchAllEvents = () => {
     return this.client.fetch(
-      `*[_type == "event" && defined(slug.current)] | order(coalesce(startDate, startTime) asc){
+      `*[_type == "event" && defined(slug.current)] | order(startTime asc){
         _id,
         title,
         onlineEvent,
         onlineLink,
         venueName,
         slug { current },
-        startDate,
-        endDate,
         startTime,
         endTime,
         mainImage{

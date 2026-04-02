@@ -76,6 +76,7 @@ export default {
       options: { hotspot: true }
     },
     { type: 'videoEmbed' },
-    { type: 'file', title: 'File Reference'}
+    { type: 'file', title: 'File Reference'},
+    { type: 'table' }
   ]
 }

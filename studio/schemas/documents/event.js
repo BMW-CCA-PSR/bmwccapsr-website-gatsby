@@ -14,8 +14,6 @@ export default {
     initialValue: () => ({
         title: 'change me',
         source: 'manual',
-    startDate: new Date().toISOString().slice(0, 10),
-    endDate: new Date().toISOString().slice(0, 10),
         startTime: new Date().toISOString(),
         endTime: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString(),
         slug: {
@@ -31,7 +29,7 @@ export default {
           description: 'Source-level flags for imported MotorsportReg events.'
         },
         {
-          title: 'Event Dates',
+          title: 'Schedule',
           name: 'eventDates',
           description: 'Event timing and registration windows.'
         },
@@ -149,40 +147,17 @@ export default {
             hidden: ({ document }) => !isMsrSource(document),
         },
         {
-            name: 'startDate',
-            type: 'date',
-            title: 'Start Date',
-            description: 'Required event start date. MSR imports map directly to this field.',
-            fieldset: 'eventDates',
-            validation: Rule =>
-              Rule.custom((value, context) => {
-                if (value || context?.document?.startTime) return true
-                return 'You have to select a start date.'
-              }),
-        },
-        {
-            name: 'endDate',
-            type: 'date',
-            title: 'End Date',
-            description: 'Required event end date. Use the same date for single-day events.',
-            fieldset: 'eventDates',
-            validation: Rule =>
-              Rule.custom((value, context) => {
-                if (value || context?.document?.endTime) return true
-                return 'You have to select an end date.'
-              }),
-        },
-        {
             name: 'startTime',
             type: 'datetime',
-            title: 'Start Time',
-            description: 'Optional exact start date/time when this event needs a published time.',
+            title: 'Start',
+            description: 'Required event start date/time.',
             fieldset: 'eventDates',
+            validation: Rule => Rule.required().error('A start date/time is required.'),
         },
         {
             name: 'endTime',
             type: 'datetime',
-            title: 'End Time',
+            title: 'End',
             description: 'Optional exact end date/time when this event needs a published time.',
             fieldset: 'eventDates',
             validation: Rule =>
@@ -223,7 +198,7 @@ export default {
                 .replace(/\s+/g, '-')
                 .replace(/[^\w\/\-]+/g, '')
                 .replace(/\-\-+/g, '-'),
-                source: doc => `${String(doc.startDate || doc.startTime || '').substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
+                source: doc => `${String(doc.startTime || '').substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
             },
         },
         {
@@ -249,13 +224,6 @@ export default {
         {
             name: 'address',
             type: 'address',
-            validation: Rule =>
-              Rule.custom((value, context) => {
-                if (isMsrSource(context?.document)) return true;
-                if (context?.document?.onlineEvent) return true;
-                if (!value || !value.line1) return 'Must enter address line1.';
-                return true;
-              }),
             title: 'Address',
             fieldset: 'venue',
             description: 'The address of the venue.',
@@ -346,17 +314,16 @@ export default {
     preview: {
         select: {
             title: 'title',
-          startDate: 'startDate',
             startTime: 'startTime',
             slug: 'slug',
             media: 'mainImage',
         },
-        prepare({ title = 'No title', startDate, startTime, slug = {}, media }) {
+        prepare({ title = 'No title', startTime, slug = {}, media }) {
             const path = `/events/${slug.current}`
             return {
                 title,
                 media,
-            subtitle: (startDate || startTime) ? path : 'Missing event start date',
+                subtitle: startTime ? path : 'Missing event start date/time',
             }
         },
     },

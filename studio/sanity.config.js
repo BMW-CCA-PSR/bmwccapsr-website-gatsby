@@ -75,6 +75,45 @@ const isScheduledPublishAction = (action) => {
   );
 };
 
+const isDuplicateAction = (action) =>
+  action === "duplicate" ||
+  action?.name === "duplicate" ||
+  action?.action === "duplicate";
+
+const normalizeSource = (value) => String(value || "").trim().toLowerCase();
+
+const normalizeDocumentId = (value) =>
+  String(value || "")
+    .trim()
+    .replace(/^drafts\./, "")
+    .toLowerCase();
+
+const isMsrEventDocument = (props) => {
+  const source = normalizeSource(props?.draft?.source || props?.published?.source);
+  const documentId = normalizeDocumentId(
+    props?.draft?._id || props?.published?._id || props?.id || props?.documentId
+  );
+  return source === "msr" || documentId.startsWith("event-msr-");
+};
+
+const wrapEventActionForMsr = (action) => {
+  if (typeof action !== "function") return action;
+
+  const hideForMsr =
+    isScheduledPublishAction(action) ||
+    isDuplicateAction(action);
+
+  if (!hideForMsr) return action;
+
+  const WrappedAction = (props) => {
+    if (isMsrEventDocument(props)) return null;
+    return action(props);
+  };
+
+  WrappedAction.displayName = `MsrAware${action.displayName || action.name || "Action"}`;
+  return WrappedAction;
+};
+
 const orderEventActions = (previousActions = []) => {
   const withoutSync = previousActions.filter(
     (action) => !isSameAction(action, SyncWithMsrAction)
@@ -111,7 +150,7 @@ export default defineConfig({
         return [PostPublishFeaturedSingletonAction, ...withoutPublish];
       }
       if (schemaTypeName !== "event") return previousActions;
-      return orderEventActions(previousActions);
+      return orderEventActions(previousActions.map(wrapEventActionForMsr));
     },
   },
   plugins: [

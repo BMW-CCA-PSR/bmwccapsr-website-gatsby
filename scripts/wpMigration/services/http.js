@@ -7,27 +7,36 @@ function requestJson(url, options = {}) {
   const client = isHttps ? https : http;
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const done = (fn, val) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadline);
+      fn(val);
+    };
+
+    // Absolute wall-clock deadline — fires regardless of whether data is trickling in.
+    const deadline = setTimeout(() => {
+      req.destroy();
+      done(reject, new Error(`Request timed out after ${timeoutMs}ms for ${url.toString()}`));
+    }, timeoutMs);
+
     const req = client.request(
       url,
       {
         method: 'GET',
         headers: { Accept: 'application/json' },
-        timeout: timeoutMs,
         ...(isHttps ? { rejectUnauthorized: !insecure } : {}),
       },
       (res) => {
         let raw = '';
         res.setEncoding('utf8');
-        res.on('data', (chunk) => {
-          raw += chunk;
-        });
+        res.on('data', (chunk) => { raw += chunk; });
         res.on('end', () => {
           if (res.statusCode >= 400) {
-            reject(
-              new Error(
-                `Request failed (${res.statusCode}) ${url.toString()}\n${raw.slice(0, 500)}`
-              )
-            );
+            done(reject, new Error(
+              `Request failed (${res.statusCode}) ${url.toString()}\n${raw.slice(0, 500)}`
+            ));
             return;
           }
 
@@ -36,23 +45,17 @@ function requestJson(url, options = {}) {
             try {
               data = JSON.parse(raw);
             } catch (error) {
-              reject(
-                new Error(`Failed to parse JSON from ${url.toString()}: ${error.message}`)
-              );
+              done(reject, new Error(`Failed to parse JSON from ${url.toString()}: ${error.message}`));
               return;
             }
           }
 
-          resolve({ status: res.statusCode, headers: res.headers, data });
+          done(resolve, { status: res.statusCode, headers: res.headers, data });
         });
       }
     );
 
-    req.on('timeout', () => {
-      req.destroy(new Error(`Request timed out for ${url.toString()}`));
-    });
-
-    req.on('error', (error) => reject(error));
+    req.on('error', (error) => { if (!settled) done(reject, error); });
     req.end();
   });
 }

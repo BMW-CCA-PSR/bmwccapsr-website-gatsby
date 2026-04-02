@@ -7,15 +7,23 @@ const https = require('https');
 const { toHTML } = require('@portabletext/to-html');
 const { parseReviewArgs } = require('../utils/cli');
 const { generateReviewPayload } = require('../core/reviewRunner');
+const { generateEventsReviewPayload } = require('../core/eventReviewRunner');
 const {
   createSanityReadClient,
   fetchSanityAuthors,
   fetchSanityCategories,
+  fetchSanityEventCategories,
   createSanityWriteClient,
   createOrReplaceDocument,
+  createOrReplaceEventDocument,
   ensureAuthorHasImage,
 } = require('../services/sanity');
 const { discoverApiSurface, fetchPostsPageSummary } = require('../services/wpApi');
+
+const DEFAULT_TRIBE_BASE_URL =
+  process.env.TRIBE_EVENTS_API_BASE ||
+  'http://ec2-16-148-107-247.us-west-2.compute.amazonaws.com/wp-json/tribe/events/v1';
+const { generateArchiveCoverBuffer, DEFAULT_SUBHEADING, DEFAULT_TITLE } = require('../utils/archiveCoverImage');
 
 function readFlag(argv, name, defaultValue) {
   for (let i = 0; i < argv.length; i += 1) {
@@ -109,6 +117,16 @@ function sendBinaryFile(res, filePath, contentType) {
   } catch (error) {
     sendJson(res, 404, { ok: false, error: 'Asset not found.' });
   }
+}
+
+function formatArchiveDateLabel(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return 'Unknown date';
+  return date.toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 
 function readJsonBody(req) {
@@ -526,6 +544,38 @@ function createServer({ port }) {
       }
     }
 
+    if (requestUrl.pathname === '/api/generate-archive-cover' && req.method === 'POST') {
+      try {
+        const body = await readJsonBody(req);
+        const publishedAt = body && body.publishedAt ? String(body.publishedAt) : '';
+        const dateLabel = formatArchiveDateLabel(publishedAt);
+        const buffer = await generateArchiveCoverBuffer({
+          subheading: DEFAULT_SUBHEADING,
+          title: DEFAULT_TITLE,
+          dateLabel,
+        });
+
+        const fileName = `archive-cover-${dateLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`;
+        const dataUrl = `data:image/png;base64,${buffer.toString('base64')}`;
+
+        return sendJson(res, 200, {
+          ok: true,
+          image: {
+            fileName,
+            dataUrl,
+            alt: `${DEFAULT_TITLE} ${dateLabel}`,
+            caption: `${DEFAULT_SUBHEADING} ${dateLabel}`,
+            dateLabel,
+          },
+        });
+      } catch (error) {
+        return sendJson(res, 500, {
+          ok: false,
+          error: String(error && error.message ? error.message : error),
+        });
+      }
+    }
+
     if (requestUrl.pathname === '/api/ensure-author-image' && req.method === 'POST') {
       try {
         const body = await readJsonBody(req);
@@ -621,6 +671,90 @@ function createServer({ port }) {
       }
     }
 
+    // ── Events approval tool UI ─────────────────────────────────────────────
+
+    if (requestUrl.pathname === '/events' && req.method === 'GET') {
+      const htmlPath = path.join(__dirname, 'wpEventsApprovalTool.html');
+      try {
+        const html = fs.readFileSync(htmlPath, 'utf8');
+        return sendHtml(res, html);
+      } catch (err) {
+        return sendJson(res, 500, { ok: false, error: `Could not read events UI: ${err.message}` });
+      }
+    }
+
+    // Fetch all events from the tribe API and map them to Sanity drafts (streamed via SSE).
+    if (requestUrl.pathname === '/api/events-all' && req.method === 'GET') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      });
+      if (res.socket) res.socket.setNoDelay(true);
+      const sendSse = (eventName, data) => {
+        res.write(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`);
+      };
+      try {
+        const tribeBaseUrl = requestUrl.searchParams.get('tribeBaseUrl') || DEFAULT_TRIBE_BASE_URL;
+        const options = { insecure: true };
+        const { total } = await generateEventsReviewPayload(
+          tribeBaseUrl,
+          options,
+          (progress) => {
+            console.log(`[events-all] ${progress.step}: ${progress.message}`);
+            sendSse('progress', progress);
+          },
+          (pageRows) => {
+            sendSse('rows', { rows: pageRows });
+          }
+        );
+        sendSse('done', { total });
+      } catch (error) {
+        sendSse('error', { error: String(error && error.message ? error.message : error) });
+      }
+      res.end();
+      return;
+    }
+
+    // Fetch available event categories from Sanity (for the category selector in the UI).
+    if (requestUrl.pathname === '/api/event-categories' && req.method === 'GET') {
+      try {
+        const client = createSanityReadClient();
+        const categories = await fetchSanityEventCategories(client);
+        return sendJson(res, 200, { ok: true, categories });
+      } catch (error) {
+        return sendJson(res, 500, {
+          ok: false,
+          error: String(error && error.message ? error.message : error),
+          categories: [],
+        });
+      }
+    }
+
+    // Import a single event row to Sanity.
+    if (requestUrl.pathname === '/api/import-event-row' && req.method === 'POST') {
+      try {
+        const body = await readJsonBody(req);
+        const draft = body && body.sanityDraft ? body.sanityDraft : null;
+        if (!draft || typeof draft !== 'object') {
+          return sendJson(res, 400, { ok: false, error: 'Missing sanityDraft payload.' });
+        }
+        const client = createSanityWriteClient();
+        const result = await createOrReplaceEventDocument(client, draft);
+        return sendJson(res, 200, {
+          ok: true,
+          importedId: result && result._id ? result._id : draft._id,
+          trackingKey: body && body.trackingKey ? body.trackingKey : null,
+        });
+      } catch (error) {
+        return sendJson(res, 500, {
+          ok: false,
+          error: String(error && error.message ? error.message : error),
+        });
+      }
+    }
+
     return sendJson(res, 404, { ok: false, error: 'Not Found' });
   });
 }
@@ -635,14 +769,14 @@ function maybeOpenBrowser(url, shouldOpen) {
   child.unref();
 }
 
-function startServer(argv = process.argv.slice(2)) {
+function startServer(argv = process.argv.slice(2), openPath = '/') {
   const port = toInt(readFlag(argv, '--port', process.env.WP_MIGRATION_UI_PORT || '8787'), 8787);
   const shouldOpen = hasFlag(argv, '--open') || !hasFlag(argv, '--no-open');
   const server = createServer({ port });
 
   server.listen(port, '127.0.0.1', () => {
-    const url = `http://127.0.0.1:${port}/`;
-    console.log(`WP migration review server ready at ${url}`);
+    const url = `http://127.0.0.1:${port}${openPath}`;
+    console.log(`WP migration review server ready at http://127.0.0.1:${port}/`);
     console.log('All mapped rows are generated by the Node mapper for parity with CLI review output.');
     maybeOpenBrowser(url, shouldOpen);
   });
@@ -651,6 +785,8 @@ function startServer(argv = process.argv.slice(2)) {
     console.error('WP migration review server failed:', error.message || error);
     process.exitCode = 1;
   });
+
+  return server;
 }
 
 if (require.main === module) {

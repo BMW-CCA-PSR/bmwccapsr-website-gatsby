@@ -1756,7 +1756,6 @@
       const TITLE_MAX_LENGTH = 32;
       const EXCERPT_MAX_LENGTH = null;
       let previewSyncCleanup = null;
-      let toastTimeoutId = null;
       let confettiAnimationFrame = null;
       let confettiCleanupTimeout = null;
       let imageModalReturnFocusEl = null;
@@ -1808,8 +1807,7 @@
         stack.appendChild(toast);
         requestAnimationFrame(() => toast.classList.add('show'));
 
-        window.clearTimeout(toastTimeoutId);
-        toastTimeoutId = window.setTimeout(() => {
+        window.setTimeout(() => {
           toast.classList.remove('show');
           window.setTimeout(() => {
             if (toast.parentNode) {
@@ -2177,7 +2175,66 @@
       }
 
       function writeLocalState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(app.state));
+        const MAX_DATA_URL_LENGTH = 120000;
+
+        const buildPersistableState = (sourceState, options = {}) => {
+          const dropLargeDataUrls = Boolean(options.dropLargeDataUrls);
+          const persisted = {};
+
+          Object.entries(sourceState || {}).forEach(([key, value]) => {
+            const row = value && typeof value === 'object' ? { ...value } : value;
+            if (!row || typeof row !== 'object') {
+              persisted[key] = row;
+              return;
+            }
+
+            // Transient runtime fields should never be persisted.
+            delete row.__makeInitialRowState;
+            delete row.titleDraft;
+            delete row.titleEditing;
+            delete row.excerptDraft;
+            delete row.excerptEditing;
+            delete row.excerptModeBeforeEdit;
+            delete row.collapsing;
+            delete row.archiveCoverGenerating;
+
+            const dataUrl = String(row.imageOverrideDataUrl || '');
+            const isDataUrl = /^data:/i.test(dataUrl);
+            if (dropLargeDataUrls && isDataUrl && dataUrl.length > MAX_DATA_URL_LENGTH) {
+              row.imageOverrideDataUrl = '';
+              row.imageOverrideFilePath = row.imageOverrideFilePath || row.imageOverrideFileName || '';
+            }
+
+            persisted[key] = row;
+          });
+
+          return persisted;
+        };
+
+        try {
+          const payload = buildPersistableState(app.state, { dropLargeDataUrls: false });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+          try {
+            // Fallback path for QuotaExceededError: remove very large inline image payloads.
+            const reducedPayload = buildPersistableState(app.state, { dropLargeDataUrls: true });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(reducedPayload));
+            showToast({
+              title: 'Local state trimmed',
+              body: 'Large image previews were removed from browser storage to avoid quota errors.',
+              variant: 'info',
+              duration: 3200,
+            });
+          } catch (secondError) {
+            console.warn('Could not persist local migration state:', secondError && secondError.message ? secondError.message : secondError);
+            showToast({
+              title: 'Could not save local state',
+              body: 'Browser storage is full. You can continue this session, but reload may lose unsaved UI edits.',
+              variant: 'error',
+              duration: 4200,
+            });
+          }
+        }
       }
 
       function writeUiState(uiState) {
@@ -2485,11 +2542,11 @@
       }
 
       function buildCustomAuthorId(name) {
-        return `wp-author-${sanitizeDocumentIdSegment(name, 'custom-author')}`;
+        return `migration-author-${sanitizeDocumentIdSegment(name, 'custom-author')}`;
       }
 
       function buildCustomCategoryId(title) {
-        return `wp-category-${sanitizeDocumentIdSegment(title, 'custom-category')}`;
+        return `migration-category-${sanitizeDocumentIdSegment(title, 'custom-category')}`;
       }
 
       function buildAuthorSelectOptions(row, state) {
@@ -2597,11 +2654,15 @@
 
         const selectedCategory = getCategorySelectionValue(row, state);
         if (selectedCategory === CATEGORY_SELECTION_MAPPED) {
-          // Keep mapped category as-is.
+          const mappedTitle = row && row.mappingSummary && row.mappingSummary.category
+            ? String(row.mappingSummary.category.wpTitle || '').trim()
+            : '';
+          draft.categoryTitle = mappedTitle || null;
         } else if (selectedCategory === CATEGORY_SELECTION_CUSTOM) {
           const customTitle = getCategoryCustomTitle(state);
           if (!customTitle) {
             draft.category = null;
+            draft.categoryTitle = null;
           } else {
             draft.category = {
               _type: 'reference',
@@ -2611,11 +2672,13 @@
           }
         } else if (selectedCategory === CATEGORY_SELECTION_EMPTY) {
           draft.category = null;
+          draft.categoryTitle = null;
         } else {
           draft.category = {
             _type: 'reference',
             _ref: selectedCategory,
           };
+          draft.categoryTitle = null;
         }
 
         const selected = getAuthorSelectionValue(row, state);
@@ -2698,6 +2761,23 @@
         }
         const found = app.sanityCategories.find((category) => category._id === selected);
         return found ? (found.title || found._id) : selected;
+      }
+
+      function isArchiveCategorySelection(row, state, effectiveDraft) {
+        const selected = getCategorySelectionValue(row, state);
+        const selectedLabel = getSelectedCategoryLabel(row, state).toLowerCase();
+        const mappedTitle = row && row.mappingSummary && row.mappingSummary.category
+          ? String(row.mappingSummary.category.wpTitle || '').toLowerCase()
+          : '';
+        const categoryRef = String(effectiveDraft && effectiveDraft.category && effectiveDraft.category._ref || '').toLowerCase();
+
+        if (selectedLabel === 'archive' || mappedTitle === 'archive') return true;
+        if (selected === CATEGORY_SELECTION_CUSTOM) {
+          return String(getCategoryCustomTitle(state) || '').trim().toLowerCase() === 'archive';
+        }
+        if (categoryRef === 'migration-category-archive' || categoryRef === 'wp-category-archive') return true;
+
+        return /(^|[-_\s])archive($|[-_\s])/.test(categoryRef);
       }
 
       function classifyIssueMessage(message) {
@@ -3045,6 +3125,7 @@
           imageOverrideFilePath: '',
           imageOverrideAlt: '',
           imageOverrideCaption: '',
+          archiveCoverGenerating: false,
           authorCustomName: '',
           categoryCustomTitle: '',
           notes: []
@@ -3092,6 +3173,9 @@
         }
         if (!Object.prototype.hasOwnProperty.call(app.state[key], 'imageOverrideCaption')) {
           app.state[key].imageOverrideCaption = '';
+        }
+        if (!Object.prototype.hasOwnProperty.call(app.state[key], 'archiveCoverGenerating')) {
+          app.state[key].archiveCoverGenerating = false;
         }
         if (!Object.prototype.hasOwnProperty.call(app.state[key], 'authorCustomName')) {
           app.state[key].authorCustomName = '';
@@ -3284,6 +3368,9 @@
             const rowImageCaption = getEffectiveImageCaption(row, state, effectiveTitle);
             const hasOriginalImage = !!getOriginalImageUrl(row);
             const hasImageOverride = !!(state && state.imageOverrideDataUrl);
+            const isArchiveCategory = isArchiveCategorySelection(row, state, effectiveDraft);
+            const canGenerateArchiveCover = !rowImageUrl && isArchiveCategory;
+            const archiveCoverGenerating = !!(state && state.archiveCoverGenerating);
             const titleOverridden = !!(state && String(state.titleOverride || '').trim());
             const publishedOverridden = !!(state && String(state.publishedAtOverride || '').trim());
             const excerptOverridden = excerptMode !== EXCERPT_MODE_MAPPED || hasExcerptOverride(state);
@@ -3420,6 +3507,17 @@
                       >
                         Reset
                       </button>
+                      ${canGenerateArchiveCover
+                        ? `<button
+                            class="image-file-btn"
+                            data-key="${esc(key)}"
+                            data-action="generateArchiveCover"
+                            type="button"
+                            ${archiveCoverGenerating ? 'disabled' : ''}
+                          >
+                            ${archiveCoverGenerating ? 'Generating...' : 'Generate Archive Cover'}
+                          </button>`
+                        : ''}
                     </div>
                   </div>
                 </td>
@@ -4413,6 +4511,80 @@
         }
       }
 
+      async function generateArchiveCoverForRow(key) {
+        if (!app.payload || !Array.isArray(app.payload.rows)) return;
+
+        const row = app.payload.rows.find((entry) => {
+          const rowKey = entry.tracking && entry.tracking.trackingKey ? entry.tracking.trackingKey : `post:${entry.wordpress.id}`;
+          return rowKey === key;
+        });
+        if (!row) return;
+
+        const state = app.state[key] || {};
+        const effectiveDraft = applyStateOverridesToDraft(row, state);
+        const hasImage = !!getEffectiveImageUrl(row, state);
+        const isArchive = isArchiveCategorySelection(row, state, effectiveDraft);
+
+        if (!isArchive || hasImage) {
+          showToast({
+            title: 'Not eligible',
+            body: 'Archive cover test is only available for archive rows with no image.',
+            variant: 'info',
+            duration: 3000,
+          });
+          return;
+        }
+
+        try {
+          setRowState(key, { archiveCoverGenerating: true });
+          rerender();
+
+          const response = await fetch(`${LOCAL_REVIEW_API_BASE}/api/generate-archive-cover`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+            body: JSON.stringify({
+              publishedAt: effectiveDraft && effectiveDraft.publishedAt ? effectiveDraft.publishedAt : null,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || !result || !result.ok || !result.image || !result.image.dataUrl) {
+            throw new Error(result && result.error ? result.error : `Archive cover request failed (${response.status})`);
+          }
+
+          setRowState(key, {
+            archiveCoverGenerating: false,
+            imageOverrideDataUrl: String(result.image.dataUrl || ''),
+            imageOverrideFileName: String(result.image.fileName || 'archive-cover.png'),
+            imageOverrideFilePath: String(result.image.fileName || 'archive-cover.png'),
+            imageOverrideAlt: String(result.image.alt || ''),
+            imageOverrideCaption: String(result.image.caption || ''),
+          });
+          writeLocalState();
+          rerender();
+
+          showToast({
+            title: 'Archive cover generated',
+            body: `${getEffectiveTitle(row, state)} (${result.image.dateLabel || 'date unavailable'})`,
+            variant: 'success',
+            duration: 2800,
+          });
+        } catch (error) {
+          setRowState(key, { archiveCoverGenerating: false });
+          writeLocalState();
+          rerender();
+          showToast({
+            title: 'Archive cover failed',
+            body: String(error && error.message ? error.message : error),
+            variant: 'error',
+            duration: 3600,
+          });
+        }
+      }
+
       function handleAction(key, action) {
         const existing = app.state[key];
         if (!existing) return;
@@ -4594,6 +4766,7 @@
             imageOverrideFilePath: '',
             imageOverrideAlt: '',
             imageOverrideCaption: '',
+            archiveCoverGenerating: false,
             authorCustomName: '',
             categoryCustomTitle: '',
             notes: []
@@ -4606,6 +4779,11 @@
 
         if (action === 'importRow') {
           importRowByKey(key);
+          return;
+        }
+
+        if (action === 'generateArchiveCover') {
+          generateArchiveCoverForRow(key);
           return;
         }
 

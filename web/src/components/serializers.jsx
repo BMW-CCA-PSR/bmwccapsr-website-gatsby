@@ -269,6 +269,51 @@ const serializers = {
 
       return null;
     },
+    table: ({ node }) => {
+      if (!node.rows || node.rows.length === 0) return null;
+      const { rows, caption, hasHeaderRow } = node;
+      const headerRow = hasHeaderRow ? rows[0] : null;
+      const bodyRows = hasHeaderRow ? rows.slice(1) : rows;
+      return (
+        <Box sx={{ overflowX: "auto", my: 4 }}>
+          <Themed.table>
+            {caption && (
+              <Box
+                as="caption"
+                sx={{
+                  captionSide: "bottom",
+                  textAlign: "center",
+                  fontSize: "xs",
+                  color: "gray",
+                  fontStyle: "italic",
+                  mt: 2,
+                }}
+              >
+                {caption}
+              </Box>
+            )}
+            {headerRow && (
+              <Box as="thead">
+                <Box as="tr">
+                  {(headerRow.cells || []).map((cell, i) => (
+                    <Themed.th key={i}>{cell}</Themed.th>
+                  ))}
+                </Box>
+              </Box>
+            )}
+            <Box as="tbody">
+              {bodyRows.map((row, i) => (
+                <Box as="tr" key={i}>
+                  {(row.cells || []).map((cell, j) => (
+                    <Themed.td key={j}>{cell}</Themed.td>
+                  ))}
+                </Box>
+              ))}
+            </Box>
+          </Themed.table>
+        </Box>
+      );
+    },
     block(props) {
       const headingText = getPortableTextBlockText(props.node);
       const headingId = ["h2", "h3", "h4"].includes(props.node.style)
