@@ -4,7 +4,7 @@ import { Link } from "gatsby";
 import { Box, Card, Heading, Text } from "@theme-ui/components";
 import PortableText from "./portableText";
 import { getZundfolgeUrl } from "../lib/helpers";
-import { imageUrlFor } from "../lib/image-url";
+import { buildResponsiveImageAttrs } from "../lib/image-url";
 import { differenceInDays, parseISO } from "date-fns";
 import {
   nonDraggableImageProps,
@@ -27,13 +27,15 @@ const ZundfolgeFeatured = ({ post }) => {
   }
   const href = getZundfolgeUrl(post.slug.current);
   const excerpt = post._rawExcerpt;
-  const imageUrl = post?.mainImage?.asset
-    ? imageUrlFor(post.mainImage)
-        .width(1400)
-        .height(900)
-        .fit("crop")
-        .auto("format")
-        .url()
+  const imageAttrs = post?.mainImage?.asset
+    ? buildResponsiveImageAttrs(post.mainImage, {
+        widths: [360, 540, 720, 960, 1200],
+        sizes:
+          "(min-width: 1200px) 52vw, (min-width: 768px) 58vw, 100vw",
+        aspectRatio: 14 / 9,
+        fit: "crop",
+        quality: 70,
+      })
     : null;
 
   return (
@@ -64,10 +66,14 @@ const ZundfolgeFeatured = ({ post }) => {
               borderBottomLeftRadius: [0, 0, "18px"],
             }}
           >
-            {imageUrl && (
+            {imageAttrs && imageAttrs.src && (
               <Box
                 as="img"
-                src={imageUrl}
+                src={imageAttrs.src}
+                srcSet={imageAttrs.srcSet}
+                sizes={imageAttrs.sizes}
+                loading="lazy"
+                decoding="async"
                 alt={post?.mainImage?.alt || post?.title || "Featured article"}
                 {...nonDraggableImageProps}
                 sx={{

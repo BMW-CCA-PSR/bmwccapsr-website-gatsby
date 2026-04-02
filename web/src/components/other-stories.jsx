@@ -44,7 +44,8 @@ const StoryImg = (props) => {
     <SanityImage
       {...props}
       {...nonDraggableImageProps}
-      width={600}
+      width={520}
+      sizes="(min-width: 1200px) 320px, (min-width: 768px) 42vw, 100vw"
       sx={{
         width: "100%",
         height: "100%",

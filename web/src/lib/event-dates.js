@@ -22,12 +22,10 @@ export const parseEventDateValue = (value) => {
 };
 
 export const getEventStartValue = (event) =>
-  event?.startDate || toDateToken(event?.startTime) || null;
+  toDateToken(event?.startTime) || null;
 
 export const getEventEndValue = (event) =>
-  event?.endDate ||
   toDateToken(event?.endTime) ||
-  event?.startDate ||
   toDateToken(event?.startTime) ||
   null;
 

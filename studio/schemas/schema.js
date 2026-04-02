@@ -3,6 +3,7 @@ import navMenu from './documents/navMenu'
 import author from './documents/author'
 import category from './documents/category'
 import post from './documents/post'
+import zundfolgeIssue from './documents/zundfolgeIssue'
 import page from './documents/page'
 import siteSettings from './documents/siteSettings'
 import route from './documents/route'
@@ -52,6 +53,8 @@ import joinBenefitItem from './objects/joinBenefitItem'
 import joinHero from './objects/joinHero'
 import motorsportRegEvent from './objects/motorsportRegEvent'
 import recentSyncRun from './objects/recentSyncRun'
+import table from './objects/table'
+import tableRow from './objects/tableRow'
 
 export default [
     variation,
@@ -62,6 +65,7 @@ export default [
     cta,
     siteSettings,
     post,
+    zundfolgeIssue,
     navMenu,
     page,
     category,
@@ -104,5 +108,7 @@ export default [
     joinHero,
     pdfUpload,
     motorsportRegEvent,
-    recentSyncRun
+    recentSyncRun,
+    table,
+    tableRow,
 ]

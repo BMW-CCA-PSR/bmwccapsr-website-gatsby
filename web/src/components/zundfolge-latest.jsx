@@ -35,7 +35,8 @@ const StoryImg = (props) => {
     <SanityImage
       {...props}
       {...nonDraggableImageProps}
-      width={600}
+      width={540}
+      sizes="(min-width: 1200px) 420px, (min-width: 768px) 40vw, 100vw"
       sx={{
         position: "absolute",
         inset: 0,
@@ -375,6 +376,7 @@ function ZundfolgeLatest(props) {
           <Text
             as="span"
             sx={{
+              display: ["none", "block"],
               fontStyle: "italic",
               color: "black",
               fontSize: ["xxs", "xs"],

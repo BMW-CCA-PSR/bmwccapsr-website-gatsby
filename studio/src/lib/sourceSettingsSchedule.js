@@ -83,3 +83,74 @@ export const deriveScheduleControlsFromExpression = (scheduleExpression) => {
 };
 
 export const defaultSourceSettingsSchedule = { ...DEFAULT_SCHEDULE };
+
+/**
+ * Calculate the next invocation time based on the schedule configuration.
+ * Returns an ISO string in UTC.
+ */
+export const calculateNextInvocation = (documentValue = {}) => {
+  const frequency = String(documentValue?.syncFrequency || DEFAULT_SCHEDULE.syncFrequency)
+    .trim()
+    .toLowerCase();
+  const minute = clampMinute(documentValue?.syncMinuteUtc);
+  const hour = clampHour(documentValue?.syncHourUtc);
+  const weekday = String(documentValue?.syncWeekdayUtc || DEFAULT_SCHEDULE.syncWeekdayUtc)
+    .trim()
+    .toUpperCase();
+
+  const now = new Date();
+  const nextRun = new Date(now);
+  nextRun.setUTCMinutes(minute, 0, 0);
+  nextRun.setUTCHours(hour);
+
+  if (frequency === "daily") {
+    // If the scheduled time has already passed today, move to tomorrow
+    if (nextRun <= now) {
+      nextRun.setUTCDate(nextRun.getUTCDate() + 1);
+    }
+    return nextRun.toISOString();
+  }
+
+  if (frequency === "every12hours") {
+    // Find the next 12-hour interval
+    const rawHour = nextRun.getUTCHours();
+    const baseHour = rawHour < 12 ? 0 : 12;
+    nextRun.setUTCHours(baseHour);
+
+    if (nextRun <= now) {
+      // Move to next 12-hour interval
+      if (baseHour === 0) {
+        nextRun.setUTCHours(12);
+      } else {
+        nextRun.setUTCDate(nextRun.getUTCDate() + 1);
+        nextRun.setUTCHours(0);
+      }
+    }
+    return nextRun.toISOString();
+  }
+
+  if (frequency === "weekly") {
+    // Map weekday name to JavaScript day number (0=Sunday, 1=Monday, etc.)
+    const dayMap = { SUN: 0, MON: 1, TUE: 2, WED: 3, THU: 4, FRI: 5, SAT: 6 };
+    const targetDay = dayMap[weekday] ?? dayMap[DEFAULT_SCHEDULE.syncWeekdayUtc];
+    const currentDay = nextRun.getUTCDay();
+
+    let daysToAdd = (targetDay - currentDay + 7) % 7;
+    // If it's the target day but the time has passed, schedule for next week
+    if (daysToAdd === 0 && nextRun <= now) {
+      daysToAdd = 7;
+    }
+    // If daysToAdd is 0 and time hasn't passed, use today
+    if (daysToAdd > 0 || nextRun > now) {
+      if (daysToAdd > 0) {
+        nextRun.setUTCDate(nextRun.getUTCDate() + daysToAdd);
+      }
+    } else {
+      // Fallback: schedule for next week
+      nextRun.setUTCDate(nextRun.getUTCDate() + 7);
+    }
+    return nextRun.toISOString();
+  }
+
+  return nextRun.toISOString();
+};

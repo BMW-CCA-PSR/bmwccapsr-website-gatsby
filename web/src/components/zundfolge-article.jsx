@@ -45,7 +45,8 @@ const ArticleNavCard = ({ post, label }) => {
           <SanityImage
             {...post.mainImage}
             {...nonDraggableImageProps}
-            width={1200}
+            width={960}
+            sizes="(min-width: 1200px) 540px, (min-width: 768px) 46vw, 100vw"
             sx={{
               position: "absolute",
               inset: 0,
@@ -308,7 +309,8 @@ function ZundfolgeArticle(props) {
               >
                 <SanityImage
                   {...mainImage}
-                  width={1440}
+                  width={1200}
+                  sizes="(min-width: 1200px) 920px, (min-width: 768px) calc(100vw - 140px), calc(100vw - 32px)"
                   {...nonDraggableImageProps}
                   sx={{
                     width: "100%",

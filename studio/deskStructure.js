@@ -25,13 +25,78 @@ import { MdMenu, MdBuild } from "react-icons/md";
 import VolunteerApplicationsPane from "./src/components/VolunteerApplicationsPane";
 //import { workflowListItems } from './src/structure/workflow'
 
+const createZundfolgeIssueList = (S, title, filter = '_type == "zundfolgeIssue"', params = {}) =>
+  S.documentTypeList("zundfolgeIssue")
+    .title(title)
+    .menuItems(S.documentTypeList("zundfolgeIssue").getMenuItems())
+    .filter(filter)
+    .params(params)
+    .defaultOrdering([
+      { field: "publishYear", direction: "desc" },
+      { field: "publishMonthSort", direction: "desc" },
+    ])
+    .child((documentId) =>
+      S.document().documentId(documentId).schemaType("zundfolgeIssue"),
+    );
+
+const fetchZundfolgeIssueYears = async (client) => {
+  const rows = await client.fetch(
+    '*[_type == "zundfolgeIssue" && defined(publishYear)]{publishYear}',
+  );
+
+  return Array.from(
+    new Set(
+      (Array.isArray(rows) ? rows : [])
+        .map((row) => Number(row?.publishYear))
+        .filter((year) => Number.isInteger(year)),
+    ),
+  ).sort((a, b) => b - a);
+};
+
+const buildZundfolgeIssueYearItems = (S, years = []) =>
+  years.map((year) =>
+    S.listItem()
+      .title(String(year))
+      .id(`zundfolge-issue-year-${year}`)
+      .child(
+        createZundfolgeIssueList(
+          S,
+          `Issues from ${year}`,
+          '_type == "zundfolgeIssue" && publishYear == $year',
+          { year },
+        ),
+      ),
+  );
+
+const buildZundfolgeIssueDecadeItems = (S, years = []) =>
+  Array.from(new Set(years.map((year) => Math.floor(year / 10) * 10)))
+    .sort((a, b) => b - a)
+    .map((decade) =>
+      S.listItem()
+        .title(`${decade}s`)
+        .id(`zundfolge-issue-decade-${decade}`)
+        .child(
+          createZundfolgeIssueList(
+            S,
+            `Issues from the ${decade}s`,
+            '_type == "zundfolgeIssue" && publishYear >= $startYear && publishYear < $endYear',
+            {
+              startYear: decade,
+              endYear: decade + 10,
+            },
+          ),
+        ),
+    );
+
 // const hiddenDocTypes = (listItem) =>
 //   !['workflow.metadata', 'media.tag', 'route', 'navigationMenu', 'post', 'page', 'siteSettings', 'author', 'category', 'event', 'eventCategory', 'tier', 'advertiser', 'advertiserCategory'].includes(
 //     listItem.getId()
 //   )
 
-export default (S) =>
-  S.list()
+export default (S, context) => {
+  const client = context.getClient({ apiVersion: "2024-06-01" });
+
+  return S.list()
     .title("Content")
     .items([
       // zundfolge
@@ -81,11 +146,60 @@ export default (S) =>
                         ),
                     ),
                 ),
+              S.listItem()
+                .title("Articles by author")
+                .child(
+                  S.documentTypeList("author")
+                    .title("Articles by author")
+                    .child((authorId) =>
+                      S.documentTypeList("post")
+                        .title("Articles")
+                        .filter('_type == "post" && $authorId in authors[].author._ref')
+                        .params({ authorId })
+                        .child((documentId) =>
+                          S.document()
+                            .documentId(documentId)
+                            .schemaType("post"),
+                        ),
+                    ),
+                ),
               S.divider(),
               S.documentTypeListItem("author")
                 .title("Authors")
                 .icon(AuthorIcon),
               S.documentTypeListItem("category").title("Categories"),
+              S.divider(),
+              S.listItem()
+                .title("Archive")
+                .icon(AllIcon)
+                .child(
+                  S.list()
+                    .title("Archive")
+                    .items([
+                      S.listItem()
+                        .title("All Issues")
+                        .id("allIssues")
+                        .child(createZundfolgeIssueList(S, "All Issues")),
+                      S.listItem()
+                        .title("Issues by Year")
+                        .id("issuesByYear")
+                        .child(async () => {
+                          const years = await fetchZundfolgeIssueYears(client);
+                          return S.list()
+                            .title("Issues by Year")
+                            .items(buildZundfolgeIssueYearItems(S, years));
+                        }),
+                      S.listItem()
+                        .title("Issues by Decade")
+                        .id("issuesByDecade")
+                        .child(async () => {
+                          const years = await fetchZundfolgeIssueYears(client);
+                          return S.list()
+                            .title("Issues by Decade")
+                            .items(buildZundfolgeIssueDecadeItems(S, years));
+                        }),
+                    ]),
+                ),
             ]),
         ),
       // events
@@ -489,3 +603,4 @@ export default (S) =>
             ]),
         ),
     ]);
+  };

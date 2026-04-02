@@ -1,4 +1,5 @@
 import SourceSettingsAutoRefreshInput from "../../src/components/SourceSettingsAutoRefreshInput";
+import NextInvocationAtInput from "../../src/components/NextInvocationAtInput";
 import {
   buildScheduleExpressionFromDocument,
   defaultSourceSettingsSchedule,
@@ -177,10 +178,14 @@ export default {
     {
       name: "nextInvocationAt",
       type: "datetime",
-      title: "Next Scheduled Run",
+      title: "Next Scheduled Run (UTC)",
+      description: "The next time the sync will automatically run, in UTC timezone.",
       fieldset: "status",
       readOnly: true,
       hidden: ({ document }) => document?.syncEnabled === false,
+      components: {
+        input: NextInvocationAtInput,
+      },
     },
     {
       name: "lastAppliedAt",

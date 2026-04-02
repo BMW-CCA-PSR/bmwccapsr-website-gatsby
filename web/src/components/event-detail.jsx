@@ -861,6 +861,9 @@ function EventDetails(props) {
                   sx={{
                     ...registerButtonSx,
                     width: "100%",
+                    height: "42px",
+                    minHeight: "42px",
+                    py: 0,
                     cursor: hasCalendarData ? "pointer" : "not-allowed",
                     opacity: hasCalendarData ? 1 : 0.6,
                   }}
@@ -1001,14 +1004,13 @@ function EventDetails(props) {
                 </Box>
               )}
 
-              {hasValidAddress && resolvedMapCoords && (
+              {!isOnline && resolvedMapCoords && (
                 <Box
                   sx={{
                     mt: "0.35rem",
                     alignSelf: "stretch",
                     flex: ["0 0 auto", "0 0 auto", "1 1 auto"],
-                    minHeight: ["200px", "210px", "260px"],
-                    display: "flex",
+                    height: ["200px", "210px", "260px"],
                   }}
                 >
                   <MapCard
@@ -1017,7 +1019,7 @@ function EventDetails(props) {
                     title={props.title}
                     token={mapboxToken}
                     showZoomControls={false}
-                    height="100%"
+                    height={["200px", "210px", "260px"]}
                   />
                 </Box>
               )}

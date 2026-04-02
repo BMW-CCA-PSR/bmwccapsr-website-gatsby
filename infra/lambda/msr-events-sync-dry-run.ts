@@ -71,8 +71,6 @@ type SanityEventSnapshot = {
   sourceHash?: string;
   title?: string;
   cost?: number | null;
-  startDate?: string;
-  endDate?: string;
   startTime?: string;
   endTime?: string;
   onlineEvent?: boolean;
@@ -113,8 +111,6 @@ type ComparableEventShape = {
   title: string;
   categoryRef: string;
   cost: number | null;
-  startDate: string;
-  endDate: string;
   startTime: string;
   endTime: string;
   onlineEvent: boolean;
@@ -1144,8 +1140,6 @@ const buildComparableEventShape = (
     `https://www.motorsportreg.com${String(event.uri || "").trim()}`;
   const { cost, sourceCostText } = parseCostInfo(event.description);
   const location = normalizeLocation(event);
-  const startDate = normalizeMsrDate(event.start);
-  const endDate = normalizeMsrDate(event.end) || startDate;
   const { startTime, endTime } = deriveStartAndEndTime(event.start, event.end);
 
   const body = convertHtmlToPortableText(String(event.description || "").trim());
@@ -1184,8 +1178,6 @@ const buildComparableEventShape = (
       title: cleanMsrEventTitle(event.name),
       categoryRef: String(categoryRef || "").trim(),
       cost,
-      startDate,
-      endDate,
       startTime,
       endTime,
       onlineEvent: false,
@@ -1250,8 +1242,6 @@ const buildComparableFromSanity = (
     snapshot.cost === null || snapshot.cost === undefined
       ? null
       : Number(snapshot.cost),
-  startDate: String(snapshot.startDate || "").trim(),
-  endDate: String(snapshot.endDate || "").trim(),
   startTime: String(snapshot.startTime || "").trim(),
   endTime: String(snapshot.endTime || "").trim(),
   onlineEvent: Boolean(snapshot.onlineEvent),
@@ -1313,8 +1303,6 @@ const getSanitySnapshots = async (
     sourceHash,
     title,
     cost,
-    startDate,
-    endDate,
     startTime,
     endTime,
     onlineEvent,
@@ -1356,9 +1344,7 @@ const slugifySegment = (value: string): string =>
     .replace(/--+/g, "-");
 
 const buildSlugCurrent = (candidate: CandidateEvent): string => {
-  const monthPrefix = candidate.startDate
-    ? candidate.startDate.slice(0, 7).split("-").join("/")
-    : candidate.startTime
+  const monthPrefix = candidate.startTime
     ? candidate.startTime.slice(0, 7).split("-").join("/")
     : "events";
   const titleSegment =
@@ -1375,8 +1361,6 @@ const buildSanitySetAndUnset = (
     _type: "event",
     title: candidate.title,
     source: candidate.source,
-    startDate: candidate.startDate,
-    endDate: candidate.endDate,
     startTime: candidate.startTime,
     endTime: candidate.endTime,
     onlineEvent: candidate.onlineEvent,
@@ -1387,7 +1371,7 @@ const buildSanitySetAndUnset = (
     sourceRegistrationCount: candidate.sourceRegistrationCount,
     sourceConfirmedCount: candidate.sourceConfirmedCount,
   };
-  const unset: string[] = [];
+  const unset: string[] = ["startDate", "endDate"];
 
   const setStringOrUnset = (field: string, value: string) => {
     if (value) {

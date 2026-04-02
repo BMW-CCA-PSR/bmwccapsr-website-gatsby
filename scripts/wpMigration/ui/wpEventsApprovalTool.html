@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WP Events Migration — Sanity Approval Tool</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      background: #f0f2f5;
+      color: #1a1a1a;
+    }
+
+    header {
+      background: #1e1e2e;
+      color: #fff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    header h1 { font-size: 16px; font-weight: 600; flex: 1; }
+    .header-stats { font-size: 12px; color: #a0a8c0; display: flex; gap: 16px; }
+    .header-stats span { white-space: nowrap; }
+    .stat-val { color: #fff; font-weight: 600; }
+
+    .toolbar {
+      background: #fff;
+      border-bottom: 1px solid #e0e4ea;
+      padding: 10px 24px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .toolbar input[type="text"] {
+      border: 1px solid #d0d4da;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      width: 220px;
+      outline: none;
+    }
+    .toolbar input[type="text"]:focus { border-color: #1e94ff; }
+    .toolbar select {
+      border: 1px solid #d0d4da;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+    .toolbar label { font-size: 13px; color: #555; display: flex; align-items: center; gap: 5px; }
+
+    .main { padding: 20px 24px; }
+
+    .events-table-wrap {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead th {
+      background: #f7f8fa;
+      color: #555;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e8eaee;
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid #f0f2f5; transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafbfc; }
+    td { padding: 10px 12px; vertical-align: top; }
+
+    .td-status { width: 90px; }
+    .td-title { min-width: 200px; max-width: 280px; }
+    .td-dates { width: 160px; white-space: nowrap; }
+    .td-category { width: 160px; min-width: 140px; }
+    .td-venue { width: 180px; }
+    .td-image { width: 80px; }
+    .td-notes { width: 140px; }
+    .td-actions { width: 140px; white-space: nowrap; }
+
+    .event-title { font-weight: 600; color: #1a1a1a; line-height: 1.3; }
+    .event-excerpt { color: #666; font-size: 12px; margin-top: 4px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .date-range { font-size: 12px; color: #444; }
+    .date-range .date { font-weight: 600; }
+    .date-same { color: #666; }
+
+    .thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; }
+    .no-image { width: 60px; height: 40px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999; text-align: center; }
+
+    .note-tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin: 2px 2px 2px 0;
+      background: #fff3cd;
+      color: #856404;
+    }
+    .note-tag.info { background: #d1ecf1; color: #0c5460; }
+
+    /* Status badge */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-pending   { background: #e9ecef; color: #555; }
+    .badge-approved  { background: #d4edda; color: #155724; }
+    .badge-skipped   { background: #f0f0f0; color: #888; }
+    .badge-importing { background: #cce5ff; color: #004085; }
+    .badge-imported  { background: #d4edda; color: #155724; font-weight: 700; }
+    .badge-failed    { background: #f8d7da; color: #721c24; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-approve  { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+    .btn-approve:hover:not(:disabled)  { background: #c3e6cb; }
+    .btn-skip     { background: #f0f0f0; color: #555; border-color: #ddd; }
+    .btn-skip:hover:not(:disabled)     { background: #e2e2e2; }
+    .btn-import   { background: #007bff; color: #fff; border-color: #007bff; }
+    .btn-import:hover:not(:disabled)   { background: #0056b3; }
+    .btn-unapprove { background: #fff3cd; color: #856404; border-color: #ffeeba; }
+    .btn-unapprove:hover:not(:disabled) { background: #ffe8a1; }
+    .btn-primary  { background: #1e94ff; color: #fff; border-color: #1e94ff; padding: 7px 14px; font-size: 13px; }
+    .btn-primary:hover:not(:disabled)  { background: #0653b6; }
+    .btn-danger   { background: #f8d7da; color: #721c24; border-color: #f5c6cb; padding: 7px 14px; font-size: 13px; }
+    .btn-danger:hover:not(:disabled)   { background: #f5c6cb; }
+    .btn-sm { padding: 3px 8px; font-size: 11px; }
+
+    .action-row { display: flex; flex-direction: column; gap: 4px; }
+
+    /* Toast */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: auto;
+      max-width: 380px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { background: #155724; }
+    .toast.error   { background: #721c24; }
+    .toast.warn    { background: #856404; }
+
+    /* Loading banner (non-blocking) */
+    #loading-banner {
+      display: none;
+      position: sticky;
+      top: 48px;
+      z-index: 200;
+      background: #1e3a5f;
+      color: #e8f0ff;
+      font-size: 12px;
+      padding: 6px 24px;
+      align-items: center;
+      gap: 10px;
+    }
+    #loading-banner.visible { display: flex; }
+    .spinner-sm {
+      width: 14px; height: 14px; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Preview drawer */
+    #preview-drawer {
+      display: none;
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: min(680px, 90vw);
+      background: #fff;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.18);
+      z-index: 800;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #preview-drawer.open { display: flex; }
+    #preview-header {
+      background: #1e1e2e;
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    #preview-header-info { flex: 1; min-width: 0; }
+    #preview-title { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+    #preview-meta { font-size: 11px; color: #a0a8c0; }
+    #preview-close {
+      font-size: 22px; line-height: 1; cursor: pointer; color: #a0a8c0; flex-shrink: 0; padding: 2px;
+    }
+    #preview-close:hover { color: #fff; }
+    #preview-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #222;
+    }
+    #preview-body img { max-width: 100%; border-radius: 4px; margin: 8px 0; }
+    #preview-body h1,#preview-body h2,#preview-body h3 { margin: 16px 0 6px; font-weight: 600; }
+    #preview-body p { margin: 0 0 10px; }
+    #preview-body ul,#preview-body ol { padding-left: 20px; margin-bottom: 10px; }
+    #preview-body a { color: #1e94ff; }
+    #preview-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 799;
+    }
+    #preview-backdrop.open { display: block; }
+
+    /* Image lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img { max-width: 90vw; max-height: 85vh; border-radius: 8px; }
+    #lightbox-close {
+      position: absolute;
+      top: 16px; right: 20px;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .page-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 16px;
+      border-top: 1px solid #e8eaee;
+      background: #f7f8fa;
+    }
+    .page-controls button {
+      min-width: 32px;
+      padding: 4px 8px;
+      border: 1px solid #d0d4da;
+      border-radius: 5px;
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      color: #333;
+    }
+    .page-controls button:hover:not(:disabled) { background: #e8f0ff; border-color: #1e94ff; }
+    .page-controls button.active { background: #1e94ff; color: #fff; border-color: #1e94ff; font-weight: 600; }
+    .page-controls button:disabled { opacity: 0.4; cursor: default; }
+    .page-controls .page-ellipsis { padding: 0 4px; color: #aaa; font-size: 12px; }
+    .page-controls .page-info { margin-left: auto; font-size: 12px; color: #777; }
+    .page-size-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; margin-right: 8px; }
+    .page-size-wrap select { border: 1px solid #d0d4da; border-radius: 4px; padding: 3px 6px; font-size: 12px; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+    .empty-state h2 { font-size: 18px; margin-bottom: 8px; color: #444; }
+  </style>
+</head>
+<body>
+
+<div id="loading-banner">
+  <div class="spinner-sm"></div>
+  <span id="loading-msg">Loading events from WordPress…</span>
+</div>
+
+<div id="preview-backdrop" onclick="closePreview()"></div>
+<div id="preview-drawer">
+  <div id="preview-header">
+    <div id="preview-header-info">
+      <div id="preview-title">Event Preview</div>
+      <div id="preview-meta"></div>
+    </div>
+    <span id="preview-close" onclick="closePreview()">✕</span>
+  </div>
+  <div id="preview-body"></div>
+</div>
+
+<div id="lightbox">
+  <span id="lightbox-close" onclick="closeLightbox()">✕</span>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<div id="toast-container"></div>
+
+<header>
+  <h1>⚡ WP Events Migration</h1>
+  <div class="header-stats">
+    <span>Total <span class="stat-val" id="stat-total">—</span></span>
+    <span>Approved <span class="stat-val" id="stat-approved">—</span></span>
+    <span>Imported <span class="stat-val" id="stat-imported">—</span></span>
+    <span>Skipped <span class="stat-val" id="stat-skipped">—</span></span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <input type="text" id="search-input" placeholder="Search title, category, venue…" oninput="currentPage=1;renderTable()" />
+  <select id="filter-status" onchange="currentPage=1;renderTable()">
+    <option value="">All statuses</option>
+    <option value="pending">Pending</option>
+    <option value="approved">Approved</option>
+    <option value="imported">Imported</option>
+    <option value="skipped">Skipped</option>
+    <option value="failed">Failed</option>
+  </select>
+  <select id="filter-category" onchange="currentPage=1;renderTable()">
+    <option value="">All categories</option>
+  </select>
+  <label><input type="checkbox" id="hide-imported" onchange="currentPage=1;renderTable()" /> Hide imported</label>
+  <div style="flex:1"></div>
+  <button class="btn btn-primary btn-sm" onclick="approveAll()">Approve All Visible</button>
+  <button class="btn btn-primary btn-sm" onclick="importApproved()">Import Approved →</button>
+  <button class="btn btn-danger btn-sm" onclick="confirmReset()">Reset State</button>
+  <button class="btn btn-sm" style="background:#fff; border-color:#ccc;" onclick="reloadFromWP()">↺ Reload from WP</button>
+</div>
+
+<div class="main">
+  <div class="events-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="td-status">Status</th>
+          <th class="td-title">Event</th>
+          <th class="td-dates">Dates</th>
+          <th class="td-category">Category</th>
+          <th class="td-venue">Venue</th>
+          <th class="td-image">Image</th>
+          <th class="td-notes">Notes</th>
+          <th class="td-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="events-tbody">
+        <tr><td colspan="8"><div class="empty-state"><h2>Loading events…</h2></div></td></tr>
+      </tbody>
+    </table>
+    <div id="page-controls" class="page-controls"></div>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'wpEventsApprovalState.v1';
+
+const CAT_MAPPED  = '__MAPPED__';   // use WP-mapped category
+const CAT_CUSTOM  = '__CUSTOM__';   // user types a new category title
+const CAT_EMPTY   = '';             // no category / clear it
+
+let allRows = [];   // { key, wpId, wpTitle, wpStartDate, wpEndDate, wpCategoryName, wpVenueName, wpImageUrl, migrationNotes, sanityDraft }
+let rowState = {};  // key → { status, error, importedId, categorySelection?, categoryCustomTitle? }
+let sanityEventCategories = [];  // [{ _id, title }]
+let currentPage = 1;
+let rowsPerPage = 25;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.rowState) rowState = parsed.rowState;
+  } catch (_) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ rowState, savedAt: new Date().toISOString() }));
+  } catch (_) {}
+}
+
+function getRowState(key) {
+  return rowState[key] || { status: 'pending' };
+}
+
+function setRowState(key, partial) {
+  rowState[key] = { ...getRowState(key), ...partial };
+  saveState();
+  updateStats();
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+
+loadState();
+
+function init() {
+  showLoading('Connecting to WordPress…');
+  allRows = [];
+  renderTable();
+  updateStats();
+
+  // Load Sanity event categories in parallel (non-blocking)
+  fetch('/api/event-categories')
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.ok && Array.isArray(data.categories)) {
+        sanityEventCategories = data.categories;
+        renderTable(); // refresh selects with loaded options
+      }
+    })
+    .catch(() => {});
+
+  let doneReceived = false;
+  const es = new EventSource('/api/events-all');
+
+  es.addEventListener('progress', (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      showLoading(data.message || 'Loading…');
+    } catch (_) {}
+  });
+
+  es.addEventListener('rows', (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      if (Array.isArray(data.rows)) {
+        allRows.push(...data.rows);
+        populateCategoryFilter();
+        renderTable();
+        updateStats();
+        showLoading(`Fetching from WordPress… ${allRows.length} loaded so far`);
+      }
+    } catch (_) {}
+  });
+
+  es.addEventListener('done', () => {
+    doneReceived = true;
+    es.close();
+    populateCategoryFilter();
+    renderTable();
+    updateStats();
+    hideLoading();
+    showToast(`Loaded ${allRows.length} events`, 'success');
+  });
+
+  es.addEventListener('error', (e) => {
+    if (doneReceived) return;
+    es.close();
+    let msg = 'Unknown error';
+    try { msg = JSON.parse(e.data).error; } catch (_) {}
+    hideLoading();
+    showToast(`Failed to load events: ${msg}`, 'error');
+    if (!allRows.length) {
+      document.getElementById('events-tbody').innerHTML =
+        `<tr><td colspan="8"><div class="empty-state"><h2>Error loading events</h2><p>${escHtml(msg)}</p></div></td></tr>`;
+    }
+  });
+
+  es.onerror = () => {
+    if (doneReceived) return;
+    es.close();
+    hideLoading();
+    if (!allRows.length) showToast('Connection error loading events', 'error');
+  };
+}
+
+function reloadFromWP() {
+  if (!confirm('Reload all events from WordPress? This will not clear your approval state.')) return;
+  init();
+}
+
+function confirmReset() {
+  if (!confirm('Reset ALL approval state? This cannot be undone.')) return;
+  rowState = {};
+  saveState();
+  renderTable();
+  updateStats();
+  showToast('State reset', 'warn');
+}
+
+// ─── Filtering & Rendering ───────────────────────────────────────────────────
+
+function getFilteredRows() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const filterStatus = document.getElementById('filter-status').value;
+  const filterCat = document.getElementById('filter-category').value;
+  const hideImported = document.getElementById('hide-imported').checked;
+
+  return allRows.filter((row) => {
+    const state = getRowState(row.key);
+    if (filterStatus && state.status !== filterStatus) return false;
+    if (hideImported && state.status === 'imported') return false;
+    if (filterCat && row.wpCategoryName !== filterCat) return false;
+    if (q) {
+      const hay = [row.wpTitle, row.wpCategoryName, row.wpVenueName].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function populateCategoryFilter() {
+  const cats = [...new Set(allRows.map((r) => r.wpCategoryName).filter(Boolean))].sort();
+  const sel = document.getElementById('filter-category');
+  while (sel.options.length > 1) sel.remove(1);
+  cats.forEach((cat) => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+}
+
+function updateStats() {
+  const total = allRows.length;
+  const approved = allRows.filter((r) => getRowState(r.key).status === 'approved').length;
+  const imported = allRows.filter((r) => getRowState(r.key).status === 'imported').length;
+  const skipped = allRows.filter((r) => getRowState(r.key).status === 'skipped').length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-approved').textContent = approved;
+  document.getElementById('stat-imported').textContent = imported;
+  document.getElementById('stat-skipped').textContent = skipped;
+}
+
+function formatDateRange(startDate, endDate) {
+  if (!startDate) return '—';
+  const fmt = (d) => {
+    if (!d) return '';
+    const dt = new Date(d + 'T00:00:00Z');
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  };
+  const s = fmt(startDate);
+  const e = fmt(endDate);
+  if (!e || e === s) return `<span class="date">${escHtml(s)}</span>`;
+  return `<span class="date">${escHtml(s)}</span><br><span class="date-same">→ ${escHtml(e)}</span>`;
+}
+
+function goPage(n) {
+  currentPage = n;
+  renderTable();
+  document.querySelector('.events-table-wrap').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderPageControls(totalPages, totalFiltered) {
+  const el = document.getElementById('page-controls');
+  if (!el) return;
+  if (totalFiltered === 0) { el.innerHTML = ''; return; }
+
+  const start = (currentPage - 1) * rowsPerPage + 1;
+  const end = Math.min(currentPage * rowsPerPage, totalFiltered);
+
+  // Page size selector
+  const sizes = [10, 25, 50, 100];
+  const sizeOpts = sizes.map((s) =>
+    `<option value="${s}" ${s === rowsPerPage ? 'selected' : ''}>${s}</option>`
+  ).join('');
+  let html = `<span class="page-size-wrap">Rows per page: <select onchange="rowsPerPage=+this.value;currentPage=1;renderTable();">${sizeOpts}</select></span>`;
+
+  // Prev button
+  html += `<button onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>&lsaquo; Prev</button>`;
+
+  // Page number buttons with ellipsis
+  const WING = 2;
+  const pages = new Set([1, totalPages]);
+  for (let i = Math.max(1, currentPage - WING); i <= Math.min(totalPages, currentPage + WING); i++) pages.add(i);
+  const sorted = [...pages].sort((a, b) => a - b);
+  let prev = 0;
+  for (const p of sorted) {
+    if (p - prev > 1) html += `<span class="page-ellipsis">…</span>`;
+    html += `<button class="${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+    prev = p;
+  }
+
+  // Next button
+  html += `<button onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next &rsaquo;</button>`;
+
+  html += `<span class="page-info">${start}–${end} of ${totalFiltered}</span>`;
+  el.innerHTML = html;
+}
+
+function renderTable() {
+  const allFiltered = getFilteredRows();
+  const totalPages = Math.max(1, Math.ceil(allFiltered.length / rowsPerPage));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * rowsPerPage;
+  const rows = allFiltered.slice(start, start + rowsPerPage);
+  const tbody = document.getElementById('events-tbody');
+
+  if (!allFiltered.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><h2>No events match</h2></div></td></tr>`;
+    renderPageControls(0, allFiltered.length);
+    return;
+  }
+
+  tbody.innerHTML = rows.map((row) => {
+    const state = getRowState(row.key);
+    const imageHtml = row.wpImageUrl
+      ? `<img src="${escHtml(row.wpImageUrl)}" style="max-width:60px;border-radius:4px;cursor:pointer;" alt="" onclick="openLightbox('${escHtml(row.wpImageUrl)}')">`
+      : '<span style="color:#bbb">—</span>';
+    const notesHtml = (row.migrationNotes || []).map((n) => `<span class="note-tag">${escHtml(n)}</span>`).join(' ');
+    const badgeClass = {
+      pending: 'badge-pending',
+      approved: 'badge-approved',
+      skipped: 'badge-skipped',
+      importing: 'badge-importing',
+      imported: 'badge-imported',
+      failed: 'badge-failed',
+    }[state.status] || 'badge-pending';
+
+    const errorNote = state.error
+      ? `<br><span class="note-tag" style="background:#f8d7da;color:#721c24;" title="${escHtml(state.error)}">Error</span>`
+      : '';
+
+    const actionsHtml = buildActionsHtml(row.key, state.status);
+
+    const venue = row.wpVenueName ? escHtml(row.wpVenueName) : '<span style="color:#bbb">—</span>';
+    const catCellHtml = buildCategoryCell(row.key, state);
+
+    return `<tr id="row-${escHtml(row.key)}" data-key="${escHtml(row.key)}">
+      <td class="td-status">
+        <span class="badge ${badgeClass}">${escHtml(state.status)}</span>
+        ${errorNote}
+      </td>
+      <td class="td-title">
+        <div class="event-title">${escHtml(row.wpTitle || '(Untitled)')}</div>
+        <div class="event-excerpt" style="font-size:11px; color:#888; margin-top:3px;">
+          ID: ${escHtml(String(row.wpId))}
+          ${state.importedId ? `• <span style="color:#155724">→ ${escHtml(state.importedId)}</span>` : ''}
+        </div>
+      </td>
+      <td class="td-dates">${formatDateRange(row.wpStartDate, row.wpEndDate)}</td>
+      <td class="td-category">${catCellHtml}</td>
+      <td class="td-venue">${venue}</td>
+      <td class="td-image">${imageHtml}</td>
+      <td class="td-notes">${notesHtml || '<span style="color:#bbb">—</span>'}</td>
+      <td class="td-actions"><div class="action-row">${actionsHtml}</div></td>
+    </tr>`;
+  }).join('');
+  renderPageControls(totalPages, allFiltered.length);
+}
+
+function buildActionsHtml(key, status) {
+  const previewBtn = `<button class="btn btn-sm" style="background:#f0f2f5;border-color:#ccc;" onclick="openPreview('${key}')">Preview</button>`;
+  if (status === 'importing') {
+    return `<span class="badge badge-importing">Importing…</span>`;
+  }
+  if (status === 'imported') {
+    return `${previewBtn}<button class="btn btn-skip btn-sm" onclick="skipRow('${key}')">Skip</button>`;
+  }
+  if (status === 'skipped') {
+    return `${previewBtn}<button class="btn btn-approve btn-sm" onclick="approveRow('${key}')">Approve</button>`;
+  }
+  if (status === 'approved') {
+    return `
+      ${previewBtn}
+      <button class="btn btn-import btn-sm" onclick="importRow('${key}')">Import →</button>
+      <button class="btn btn-unapprove btn-sm" onclick="pendingRow('${key}')">Unapprove</button>
+    `;
+  }
+  if (status === 'failed') {
+    return `
+      ${previewBtn}
+      <button class="btn btn-approve btn-sm" onclick="approveRow('${key}')">Retry</button>
+      <button class="btn btn-skip btn-sm" onclick="skipRow('${key}')">Skip</button>
+    `;
+  }
+  // pending
+  return `
+    ${previewBtn}
+    <button class="btn btn-approve btn-sm" onclick="approveRow('${key}')">Approve</button>
+    <button class="btn btn-skip btn-sm" onclick="skipRow('${key}')">Skip</button>
+  `;
+}
+// ─── Category cell helpers ─────────────────────────────────────────────────────
+
+function studioSlugifySimple(input) {
+  return String(input || '').toLowerCase().trim()
+    .replace(/\s+/g, '-').replace(/[^\w/-]+/g, '')
+    .replace(/--+/g, '-').replace(/(^[-/]+|[-/]+$)/g, '');
+}
+
+function buildCustomEventCategoryId(title) {
+  const slug = studioSlugifySimple(title).replace(/\//g, '-').replace(/[^a-z0-9_-]+/g, '') || 'custom-event-category';
+  return `migration-event-category-${slug}`;
+}
+
+function getCatSelection(state) {
+  return Object.prototype.hasOwnProperty.call(state, 'categorySelection')
+    ? state.categorySelection
+    : CAT_MAPPED;
+}
+
+function buildCategoryCell(key, state) {
+  const sel = getCatSelection(state);
+  const customTitle = String(state.categoryCustomTitle || '').trim();
+
+  // Build options: mapped + existing Sanity categories + custom + empty
+  const row = allRows.find((r) => r.key === key);
+  const mappedLabel = (row && row.wpCategoryName) ? `WP: ${row.wpCategoryName}` : 'WP mapped';
+  let opts = `<option value="${CAT_MAPPED}" ${sel === CAT_MAPPED ? 'selected' : ''}>${escHtml(mappedLabel)}</option>`;
+  sanityEventCategories.forEach((cat) => {
+    const selected = sel === cat._id ? 'selected' : '';
+    opts += `<option value="${escHtml(cat._id)}" ${selected}>${escHtml(cat.title || cat._id)}</option>`;
+  });
+  opts += `<option value="${CAT_CUSTOM}" ${sel === CAT_CUSTOM ? 'selected' : ''}>+ New category…</option>`;
+  opts += `<option value="${CAT_EMPTY}" ${sel === CAT_EMPTY ? 'selected' : ''}>(none)</option>`;
+
+  const customInput = sel === CAT_CUSTOM
+    ? `<input type="text" style="margin-top:4px;width:100%;padding:3px 6px;border:1px solid #ccc;border-radius:4px;font-size:12px;" placeholder="Category title…" value="${escHtml(customTitle)}" oninput="onCatCustomInput('${key}', this.value)" />`
+    : '';
+
+  return `<select style="width:100%;font-size:12px;padding:3px 6px;border:1px solid #d0d4da;border-radius:4px;" onchange="onCatSelectChange('${key}', this.value)">${opts}</select>${customInput}`;
+}
+
+function onCatSelectChange(key, value) {
+  setRowState(key, { categorySelection: value, categoryCustomTitle: value === CAT_CUSTOM ? (getRowState(key).categoryCustomTitle || '') : undefined });
+  // only re-render that one cell
+  const tr = document.getElementById(`row-${key}`);
+  if (tr) {
+    tr.querySelector('.td-category').innerHTML = buildCategoryCell(key, getRowState(key));
+  }
+}
+
+function onCatCustomInput(key, value) {
+  setRowState(key, { categoryCustomTitle: value });
+}
+
+function buildEffectiveDraft(row, state) {
+  const draft = JSON.parse(JSON.stringify(row.sanityDraft));
+  const sel = getCatSelection(state);
+  if (sel === CAT_MAPPED) {
+    // keep draft.category as-is (WP mapped)
+  } else if (sel === CAT_EMPTY) {
+    draft.category = null;
+    draft.categoryTitle = null;
+  } else if (sel === CAT_CUSTOM) {
+    const title = String(state.categoryCustomTitle || '').trim();
+    if (title) {
+      draft.category = { _type: 'reference', _ref: buildCustomEventCategoryId(title) };
+      draft.categoryTitle = title;
+    } else {
+      draft.category = null;
+      draft.categoryTitle = null;
+    }
+  } else {
+    // existing Sanity category _id selected
+    const cat = sanityEventCategories.find((c) => c._id === sel);
+    draft.category = { _type: 'reference', _ref: sel };
+    draft.categoryTitle = cat ? cat.title : sel;
+  }
+  return draft;
+}
+// ─── Approval actions ────────────────────────────────────────────────────────
+
+function approveRow(key) {
+  setRowState(key, { status: 'approved', error: null });
+  refreshRow(key);
+}
+function skipRow(key) {
+  setRowState(key, { status: 'skipped', error: null });
+  refreshRow(key);
+}
+function pendingRow(key) {
+  setRowState(key, { status: 'pending', error: null });
+  refreshRow(key);
+}
+
+function approveAll() {
+  const rows = getFilteredRows();
+  rows.forEach((row) => {
+    const s = getRowState(row.key).status;
+    if (s === 'pending' || s === 'failed') {
+      setRowState(row.key, { status: 'approved', error: null });
+    }
+  });
+  renderTable();
+  showToast('All visible pending rows approved');
+}
+
+// ─── Import ──────────────────────────────────────────────────────────────────
+
+async function importRow(key) {
+  const row = allRows.find((r) => r.key === key);
+  if (!row) return;
+
+  setRowState(key, { status: 'importing', error: null });
+  refreshRow(key);
+
+  try {
+    const state = getRowState(key);
+    const effectiveDraft = buildEffectiveDraft(row, state);
+    const res = await fetch('/api/import-event-row', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sanityDraft: effectiveDraft, trackingKey: row.trackingKey }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Import failed');
+    setRowState(key, { status: 'imported', importedId: data.importedId, error: null });
+    showToast(`Imported: ${row.wpTitle}`, 'success');
+  } catch (err) {
+    setRowState(key, { status: 'failed', error: err.message });
+    showToast(`Import failed: ${err.message}`, 'error');
+  }
+  refreshRow(key);
+}
+
+async function importApproved() {
+  const approved = allRows.filter((r) => getRowState(r.key).status === 'approved');
+  if (!approved.length) {
+    showToast('No approved events to import', 'warn');
+    return;
+  }
+  showToast(`Importing ${approved.length} events…`);
+  let succeeded = 0;
+  let failed = 0;
+  for (const row of approved) {
+    await importRow(row.key);
+    const s = getRowState(row.key).status;
+    if (s === 'imported') succeeded++;
+    else failed++;
+  }
+  renderTable();
+  showToast(`Done: ${succeeded} imported, ${failed} failed`, failed > 0 ? 'warn' : 'success');
+}
+
+// ─── Row re-render helpers ───────────────────────────────────────────────────
+
+function refreshRow(key) {
+  const row = allRows.find((r) => r.key === key);
+  if (!row) return;
+  const tr = document.getElementById(`row-${key}`);
+  if (!tr) { renderTable(); return; }
+
+  const state = getRowState(key);
+  const badgeClass = {
+    pending: 'badge-pending',
+    approved: 'badge-approved',
+    skipped: 'badge-skipped',
+    importing: 'badge-importing',
+    imported: 'badge-imported',
+    failed: 'badge-failed',
+  }[state.status] || 'badge-pending';
+
+  const errorNote = state.error
+    ? `<br><span class="note-tag" style="background:#f8d7da;color:#721c24;" title="${escHtml(state.error)}">Error</span>`
+    : '';
+
+  tr.querySelector('.td-status').innerHTML =
+    `<span class="badge ${badgeClass}">${escHtml(state.status)}</span>${errorNote}`;
+  tr.querySelector('.action-row').innerHTML = buildActionsHtml(key, state.status);
+
+  // Update imported ID display
+  const idEl = tr.querySelector('.event-excerpt');
+  if (idEl && state.importedId) {
+    idEl.innerHTML = `ID: ${escHtml(String(row.wpId))} • <span style="color:#155724">→ ${escHtml(state.importedId)}</span>`;
+  }
+}
+
+// ─── Lightbox ────────────────────────────────────────────────────────────────
+
+function openLightbox(url) {
+  document.getElementById('lightbox-img').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightbox-img').src = '';
+}
+// ─── Preview drawer ──────────────────────────────────────────────────────────
+
+function openPreview(key) {
+  const row = allRows.find((r) => r.key === key);
+  if (!row) return;
+
+  document.getElementById('preview-title').textContent = row.wpTitle || '(Untitled)';
+  const catPart = row.wpCategoryName ? ` · ${row.wpCategoryName}` : '';
+  const datePart = row.wpStartDate ? ` · ${row.wpStartDate}` : '';
+  document.getElementById('preview-meta').textContent = `WP ID: ${row.wpId}${catPart}${datePart}`;
+
+  const draft = row.sanityDraft || {};
+  let html = '';
+
+  // Featured image
+  if (row.wpImageUrl) {
+    html += `<div style="margin-bottom:16px;"><img src="${escHtml(row.wpImageUrl)}" alt="" style="max-width:100%;border-radius:6px;"/></div>`;
+  }
+
+  // Meta strip
+  const metaParts = [];
+  if (draft.venueName) metaParts.push(`<b>Venue:</b> ${escHtml(draft.venueName)}`);
+  if (draft.address) {
+    const a = draft.address;
+    const addr = [a.line1, a.city, a.state, a.postalCode].filter(Boolean).join(', ');
+    if (addr) metaParts.push(`<b>Address:</b> ${escHtml(addr)}`);
+  }
+  if (draft.cost) metaParts.push(`<b>Cost:</b> $${draft.cost}`);
+  if (draft.poc && draft.poc.name) metaParts.push(`<b>POC:</b> ${escHtml(draft.poc.name)}`);
+  if (draft.website) metaParts.push(`<b>Website:</b> <a href="${escHtml(draft.website)}" target="_blank" rel="noopener">${escHtml(draft.website)}</a>`);
+  if (metaParts.length) {
+    html += `<div style="background:#f7f8fa;border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:13px;line-height:1.8;">${metaParts.join('<br>')}</div>`;
+  }
+
+  // Body portable text → render block text
+  if (Array.isArray(draft.body) && draft.body.length > 0) {
+    html += ptBlocksToHtml(draft.body);
+  } else if (Array.isArray(draft.excerpt) && draft.excerpt.length > 0) {
+    html += `<p style="color:#888;font-style:italic;">(No body — showing excerpt)</p>` + ptBlocksToHtml(draft.excerpt);
+  } else {
+    html += `<p style="color:#bbb;font-style:italic;">No body content available.</p>`;
+  }
+
+  document.getElementById('preview-body').innerHTML = html;
+  document.getElementById('preview-drawer').classList.add('open');
+  document.getElementById('preview-backdrop').classList.add('open');
+}
+
+function closePreview() {
+  document.getElementById('preview-drawer').classList.remove('open');
+  document.getElementById('preview-backdrop').classList.remove('open');
+  document.getElementById('preview-body').innerHTML = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closePreview(); closeLightbox(); }
+});
+
+/**
+ * Very light portable text → HTML renderer (handles blocks with _type=block only).
+ * Images are shown as <img> if sourceUrl present.
+ */
+function ptBlocksToHtml(blocks) {
+  if (!Array.isArray(blocks)) return '';
+  return blocks.map((block) => {
+    if (!block) return '';
+    if (block._type === 'mainImage' || block._type === 'image') {
+      const url = block.sourceUrl || (block.asset && block.asset.url) || '';
+      return url ? `<img src="${escHtml(url)}" alt="${escHtml(block.alt || '')}" style="max-width:100%;margin:8px 0;"/>` : '';
+    }
+    if (block._type !== 'block') return '';
+    const style = block.style || 'normal';
+    const text = (block.children || []).map((span) => {
+      let t = escHtml(String(span.text || ''));
+      const marks = span.marks || [];
+      if (marks.includes('strong')) t = `<strong>${t}</strong>`;
+      if (marks.includes('em')) t = `<em>${t}</em>`;
+      if (marks.includes('underline')) t = `<u>${t}</u>`;
+      if (marks.includes('code')) t = `<code>${t}</code>`;
+      return t;
+    }).join('');
+    const tagMap = { h1:'h1', h2:'h2', h3:'h3', h4:'h4', blockquote:'blockquote', normal:'p' };
+    const tag = tagMap[style] || 'p';
+    return `<${tag}>${text}</${tag}>`;
+  }).join('');
+}
+
+// ─── Loading banner ───────────────────────────────────────────────────────────
+
+function showLoading(msg) {
+  document.getElementById('loading-msg').textContent = msg || 'Loading…';
+  document.getElementById('loading-banner').classList.add('visible');
+}
+function hideLoading() {
+  document.getElementById('loading-banner').classList.remove('visible');
+}
+
+// ─── Toast ───────────────────────────────────────────────────────────────────
+
+function showToast(message, type, duration) {
+  const d = duration || 3500;
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type || ''}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { toast.classList.add('show'); });
+  });
+  window.setTimeout(() => {
+    toast.classList.remove('show');
+    window.setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 220);
+  }, d);
+}
+
+// ─── Utils ───────────────────────────────────────────────────────────────────
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ─── Boot ────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
