@@ -6,7 +6,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:lambda": "node -e \"require('fs').mkdirSync('lambda-dist',{recursive:true})\" && npx esbuild lambda/msr-events-sync.ts --bundle --platform=node --format=cjs --target=node18 --external:crypto --external:buffer --external:path --external:fs --external:util --external:./xhr-sync-worker.js --outfile=lambda-dist/msr-events-sync.js && cp node_modules/jsdom/lib/jsdom/living/xhr/xhr-sync-worker.js lambda-dist/xhr-sync-worker.js",
+    "build:lambda": "node -e \"require('fs').mkdirSync('lambda-dist',{recursive:true})\" && npx esbuild lambda/msr-events-sync.ts --bundle --platform=node --format=cjs --target=node18 --external:crypto --external:buffer --external:path --external:fs --external:util --external:./xhr-sync-worker.js --outfile=lambda-dist/msr-events-sync.js && npx esbuild lambda/email-alias-sync.ts --bundle --platform=node --format=cjs --target=node18 --outfile=lambda-dist/email-alias-sync.js && cp node_modules/jsdom/lib/jsdom/living/xhr/xhr-sync-worker.js lambda-dist/xhr-sync-worker.js",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "npm run build:lambda && cdk"

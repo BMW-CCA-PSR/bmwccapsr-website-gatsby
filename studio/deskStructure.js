@@ -21,7 +21,7 @@ import {
   RiHeartFill as HeartFillIcon,
 } from "react-icons/ri";
 import { ImStatsBars2 as TierIcon } from "react-icons/im";
-import { MdMenu, MdBuild } from "react-icons/md";
+import { MdMenu, MdBuild, MdEmail, MdOutlineEmail } from "react-icons/md";
 import VolunteerApplicationsPane from "./src/components/VolunteerApplicationsPane";
 //import { workflowListItems } from './src/structure/workflow'
 
@@ -599,6 +599,107 @@ export default (S, context) => {
                     .title("Pages")
                     .menuItems(S.documentTypeList("page").getMenuItems())
                     .filter('_type == "page" && _id != "frontpage"'),
+                ),
+            ]),
+        ),
+      S.listItem()
+        .title("Email Settings")
+        .icon(MdEmail)
+        .child(
+          S.list()
+            .title("Email Settings")
+            .items([
+              S.listItem()
+                .title("Active Aliases")
+                .icon(MdEmail)
+                .schemaType("emailAlias")
+                .child(
+                  S.documentTypeList("emailAlias")
+                    .title("Active Aliases")
+                    .filter('_type == "emailAlias" && enabled != false')
+                    .child((documentId) =>
+                      S.document()
+                        .documentId(documentId)
+                        .schemaType("emailAlias"),
+                    ),
+                ),
+              S.listItem()
+                .title("All Aliases")
+                .icon(MdOutlineEmail)
+                .schemaType("emailAlias")
+                .child(
+                  S.documentTypeList("emailAlias")
+                    .title("All Aliases")
+                    .child((documentId) =>
+                      S.document()
+                        .documentId(documentId)
+                        .schemaType("emailAlias"),
+                    ),
+                ),
+              S.listItem()
+                .title("Aliases by Type")
+                .icon(MdOutlineEmail)
+                .child(
+                  S.list()
+                    .title("Aliases by Type")
+                    .items([
+                      S.listItem()
+                        .title("Officer")
+                        .icon(MdEmail)
+                        .schemaType("emailAlias")
+                        .child(
+                          S.documentTypeList("emailAlias")
+                            .title("Officer Aliases")
+                            .filter('_type == "emailAlias" && lower(type) == "officer"')
+                            .child((documentId) =>
+                              S.document()
+                                .documentId(documentId)
+                                .schemaType("emailAlias"),
+                            ),
+                        ),
+                      S.listItem()
+                        .title("Temp")
+                        .icon(MdEmail)
+                        .schemaType("emailAlias")
+                        .child(
+                          S.documentTypeList("emailAlias")
+                            .title("Temp Aliases")
+                            .filter('_type == "emailAlias" && lower(type) == "temp"')
+                            .child((documentId) =>
+                              S.document()
+                                .documentId(documentId)
+                                .schemaType("emailAlias"),
+                            ),
+                        ),
+                      S.listItem()
+                        .title("Event")
+                        .icon(MdEmail)
+                        .schemaType("emailAlias")
+                        .child(
+                          S.documentTypeList("emailAlias")
+                            .title("Event Aliases")
+                            .filter('_type == "emailAlias" && lower(type) == "event"')
+                            .child((documentId) =>
+                              S.document()
+                                .documentId(documentId)
+                                .schemaType("emailAlias"),
+                            ),
+                        ),
+                      S.listItem()
+                        .title("Testing")
+                        .icon(MdEmail)
+                        .schemaType("emailAlias")
+                        .child(
+                          S.documentTypeList("emailAlias")
+                            .title("Testing Aliases")
+                            .filter('_type == "emailAlias" && lower(type) == "testing"')
+                            .child((documentId) =>
+                              S.document()
+                                .documentId(documentId)
+                                .schemaType("emailAlias"),
+                            ),
+                        ),
+                    ]),
                 ),
             ]),
         ),

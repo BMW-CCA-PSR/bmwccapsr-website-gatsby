@@ -11,6 +11,8 @@ import { SyncWithMsrAction } from "./src/documentActions/msrSyncAction";
 import { ApplyMsrSourceSettingsAction } from "./src/documentActions/msrSourceSettingsAction";
 import { AuthorPublishWithDefaultAvatarAction } from "./src/documentActions/authorPublishWithDefaultAvatarAction";
 import { PostPublishFeaturedSingletonAction } from "./src/documentActions/postPublishFeaturedSingletonAction";
+import { UpdateEmailAliasAction } from "./src/documentActions/emailAliasUpdateAction";
+import { DeleteEmailAliasAction } from "./src/documentActions/emailAliasDeleteAction";
 
 const vars = {
   apiId:
@@ -144,6 +146,19 @@ export default defineConfig({
       if (schemaTypeName === "author") {
         const withoutPublish = previousActions.filter((action) => !isPublishAction(action));
         return [AuthorPublishWithDefaultAvatarAction, ...withoutPublish];
+      }
+      if (schemaTypeName === "emailAlias") {
+        const customActions = previousActions.filter((action) => {
+          if (action === UpdateEmailAliasAction) return false;
+          if (action === DeleteEmailAliasAction) return false;
+          if (isPublishAction(action)) return false;
+          if (isScheduledPublishAction(action)) return false;
+          if (action === "delete" || action?.name === "delete" || action?.action === "delete") {
+            return false;
+          }
+          return true;
+        });
+        return [UpdateEmailAliasAction, DeleteEmailAliasAction, ...customActions];
       }
       if (schemaTypeName === "post") {
         const withoutPublish = previousActions.filter((action) => !isPublishAction(action));
