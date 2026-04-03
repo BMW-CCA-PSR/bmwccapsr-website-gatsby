@@ -219,5 +219,6 @@ export function DeleteEmailAliasAction(props) {
     icon: isDeleting ? DeletingIcon : TrashIcon,
     label: isDeleting ? "Deleting..." : "Delete",
     onHandle,
+    tone: "critical",
   };
 }

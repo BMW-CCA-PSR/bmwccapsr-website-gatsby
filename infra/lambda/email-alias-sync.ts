@@ -169,7 +169,7 @@ const getSanityToken = async (): Promise<string> => {
 const fetchEmailAliasDocuments = async (): Promise<AliasDocument[]> => {
   const token = await getSanityToken();
   const query =
-    '*[_type == "emailAlias" && !(_id in path("drafts.**"))]|order(name asc){_id,name,recipients}';
+    '*[_type == "emailAlias" && !(_id in path("drafts.**"))]|order(name asc){_id,name,enabled,recipients}';
   const url = new URL(
     `https://${sanityProjectId}.api.sanity.io/v${sanityApiVersion}/data/query/${sanityDataset}`,
   );
@@ -432,9 +432,9 @@ export const handler = async (rawEvent: LambdaEvent = {}): Promise<Record<string
     let deleted = 0;
     let unchanged = 0;
 
-    for (const alias of publishedAliases) {
+    for (const alias of resolvedAliases) {
       const existingMapping = existingByAlias.get(alias.name) || [];
-      if (arraysEqual(existingMapping, alias.recipients)) {
+      if (arraysEqual(existingMapping, alias.resolvedRecipients)) {
         unchanged += 1;
         continue;
       }
@@ -444,7 +444,7 @@ export const handler = async (rawEvent: LambdaEvent = {}): Promise<Record<string
           TableName: aliasTableName,
           Item: marshall({
             alias: alias.name,
-            mapping: alias.recipients,
+            mapping: alias.resolvedRecipients,
             managedBy: MANAGED_BY,
             updatedAt: new Date().toISOString(),
             sourceDocumentId: alias._id,
