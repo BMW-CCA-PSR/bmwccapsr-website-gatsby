@@ -18,6 +18,8 @@ import volunteerCategory from './documents/volunteerCategory'
 import volunteerFixedRole from './documents/volunteerFixedRole'
 import volunteerApplication from './documents/volunteerApplication'
 import workflow from './documents/workflow'
+import emailAlias from './documents/emailAlias'
+import emailAliasType from './documents/emailAliasType'
 
 // Object types
 import pdfUpload from './objects/pdfUpload'
@@ -55,6 +57,8 @@ import motorsportRegEvent from './objects/motorsportRegEvent'
 import recentSyncRun from './objects/recentSyncRun'
 import table from './objects/table'
 import tableRow from './objects/tableRow'
+import emailAliasAddressRecipient from './objects/emailAliasAddressRecipient'
+import emailAliasReferenceRecipient from './objects/emailAliasReferenceRecipient'
 
 export default [
     variation,
@@ -88,6 +92,8 @@ export default [
     volunteerCategory,
     address,
     workflow,
+    emailAlias,
+    emailAliasType,
     poc,
     hero,
     advertisement,
@@ -111,4 +117,6 @@ export default [
     recentSyncRun,
     table,
     tableRow,
+    emailAliasAddressRecipient,
+    emailAliasReferenceRecipient,
 ]

@@ -2,7 +2,6 @@
 import React from "react";
 import { getZundfolgeUrl } from "../lib/helpers";
 import PortableText from "./portableText";
-import SanityImage from "gatsby-plugin-sanity-image";
 import {
   Card,
   Container,
@@ -14,7 +13,7 @@ import {
 } from "@theme-ui/components";
 import { Link } from "gatsby";
 import BoxHeader from "./BoxHeader";
-import { imageUrlFor } from "../lib/image-url";
+import { buildResponsiveImageAttrs, imageUrlFor } from "../lib/image-url";
 import {
   nonDraggableImageProps,
   nonDraggableImageSx,
@@ -40,12 +39,26 @@ var style = {
 };
 
 const StoryImg = (props) => {
+  const imageAttrs = props?.asset
+    ? buildResponsiveImageAttrs(props, {
+        widths: [256, 320, 420, 520, 640],
+        sizes: "(min-width: 1200px) 320px, (min-width: 768px) 42vw, 100vw",
+        quality: 68,
+      })
+    : null;
+
+  if (!imageAttrs?.src) return null;
+
   return (
-    <SanityImage
-      {...props}
+    <Box
+      as="img"
+      src={imageAttrs.src}
+      srcSet={imageAttrs.srcSet}
+      sizes={imageAttrs.sizes}
+      loading="lazy"
+      decoding="async"
+      alt={props?.alt || props?.caption || ""}
       {...nonDraggableImageProps}
-      width={520}
-      sizes="(min-width: 1200px) 320px, (min-width: 768px) 42vw, 100vw"
       sx={{
         width: "100%",
         height: "100%",

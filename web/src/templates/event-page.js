@@ -44,6 +44,9 @@ export const query = graphql`
       poc {
         contact
         name
+        alias {
+          name
+        }
       }
       mainImage {
         ...SanityImage

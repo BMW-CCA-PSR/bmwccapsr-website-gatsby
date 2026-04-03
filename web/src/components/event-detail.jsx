@@ -25,6 +25,7 @@ import {
   getEventStartDate,
   parseEventDateValue,
 } from "../lib/event-dates";
+import { buildEmailAliasAddress } from "../lib/email-alias";
 
 const toGoogleCalendarStamp = (value) =>
   value
@@ -139,6 +140,7 @@ function EventDetails(props) {
   const isOnline = Boolean(
     props.onlineEvent || props.onlineLink || hasOnlineKeyword,
   );
+  const contactAliasEmail = buildEmailAliasAddress(props.poc?.alias?.name);
   const startDateTime = parseEventDateTimeValue(startTime);
   const endDateTime = parseEventDateTimeValue(endTime);
   const durationMinutes =
@@ -793,7 +795,8 @@ function EventDetails(props) {
             </>
           )}
 
-          {props.poc && (props.poc.name || props.poc.contact) && (
+          {props.poc &&
+            (props.poc.name || props.poc.contact || contactAliasEmail) && (
             <>
               <Text sx={detailLabelSx}>Point of contact</Text>
               {props.poc.name && (
@@ -801,6 +804,19 @@ function EventDetails(props) {
               )}
               {props.poc.contact && (
                 <Text sx={detailValueSx}>{props.poc.contact}</Text>
+              )}
+              {contactAliasEmail && (
+                <Text sx={detailValueSx}>
+                  <a
+                    href={`mailto:${contactAliasEmail}`}
+                    sx={{
+                      color: "inherit",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    {contactAliasEmail}
+                  </a>
+                </Text>
               )}
             </>
           )}

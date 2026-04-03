@@ -7,6 +7,7 @@ import { PipelineInfraStack } from '../lib/pipeline-infra-stack';
 import { ClusterInfraStack } from '../lib/cluster-infra-stack';
 import { VolunteerAppsApiStack } from "../lib/volunteer-apps-api-stack";
 import { MsrSanityEventsSyncStack } from "../lib/msr-sanity-events-sync-stack";
+import { EmailAliasSyncStack } from "../lib/email-alias-sync-stack";
 
 const env = { 
   account: '992166107237', 
@@ -32,4 +33,5 @@ new GatsbyPreviewInfraStack(app, 'GatsbyPreviewInfraStack', { env });
 new AmplifyInfraStack(app, 'AmplifyInfraStack', { env });
 new VolunteerAppsApiStack(app, "VolunteerAppsApiStack", { env });
 new MsrSanityEventsSyncStack(app, "MsrSanityEventsSyncStack", { env });
+new EmailAliasSyncStack(app, "EmailAliasSyncStack", { env });
 app.synth();

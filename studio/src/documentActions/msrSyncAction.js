@@ -28,14 +28,18 @@ const extractMsrEventId = (documentId) => {
 };
 
 const SyncingIcon = () =>
-  React.createElement(Spinner, {
+  React.createElement("span", {
+    style: {
+      width: "1em",
+      height: "1em",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+  }, React.createElement(Spinner, {
     muted: true,
     size: 1,
-    style: {
-      display: "block",
-      margin: "0 auto",
-    },
-  });
+  }));
 
 export function SyncWithMsrAction(props) {
   const { type, schemaType, draft, published, id, documentId, onComplete } = props;
