@@ -5,7 +5,6 @@ import {
   getZundfolgeUrl,
 } from "../lib/helpers";
 import PortableText from "./portableText";
-import SanityImage from "gatsby-plugin-sanity-image";
 import {
   Box,
   Card,
@@ -16,7 +15,7 @@ import {
   Avatar,
 } from "@theme-ui/components";
 import { Link } from "gatsby";
-import { imageUrlFor } from "../lib/image-url";
+import { buildResponsiveImageAttrs, imageUrlFor } from "../lib/image-url";
 import { BoxIcon } from "./box-icons";
 import { outline } from "./event-slider";
 import { differenceInDays, parseISO } from "date-fns";
@@ -31,12 +30,26 @@ const slantLeftClip = "polygon(12% 0, 100% 0, 100% 100%, 0 100%)";
 const slantRightClip = "polygon(0 0, 100% 0, 88% 100%, 0 100%)";
 const zundfolgeRed = "#B5322E";
 const StoryImg = (props) => {
+  const imageAttrs = props?.asset
+    ? buildResponsiveImageAttrs(props, {
+        widths: [320, 420, 540, 680, 840],
+        sizes: "(min-width: 1200px) 420px, (min-width: 768px) 40vw, 100vw",
+        quality: 68,
+      })
+    : null;
+
+  if (!imageAttrs?.src) return null;
+
   return (
-    <SanityImage
-      {...props}
+    <Box
+      as="img"
+      src={imageAttrs.src}
+      srcSet={imageAttrs.srcSet}
+      sizes={imageAttrs.sizes}
+      loading="lazy"
+      decoding="async"
+      alt={props?.alt || props?.caption || ""}
       {...nonDraggableImageProps}
-      width={540}
-      sizes="(min-width: 1200px) 420px, (min-width: 768px) 40vw, 100vw"
       sx={{
         position: "absolute",
         inset: 0,

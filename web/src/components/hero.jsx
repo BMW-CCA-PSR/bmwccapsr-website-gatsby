@@ -1,10 +1,11 @@
 /** @jsxImportSource theme-ui */
 import React from "react";
 import CTALink from "./CTALink";
-import SanityImage from "gatsby-plugin-sanity-image";
 import { Heading, Text } from "theme-ui";
+import { Box } from "@theme-ui/components";
 import { BoxIcon } from "./box-icons";
 import ContentContainer from "./content-container";
+import { buildResponsiveImageAttrs } from "../lib/image-url";
 
 function Hero(props) {
   const image = props.image;
@@ -22,6 +23,13 @@ function Hero(props) {
     fontColor = props.image.asset.metadata.palette.dominant.foreground;
   }
   fontColor = colorOverride ? colorOverride : fontColor;
+  const imageAttrs = image?.asset
+    ? buildResponsiveImageAttrs(image, {
+        widths: [480, 768, 1024, 1280, 1440, 1680],
+        sizes: "100vw",
+        quality: 68,
+      })
+    : null;
   return (
     <div
       sx={{
@@ -31,15 +39,22 @@ function Hero(props) {
       }}
     >
       {/* background image component */}
-      {props.image && props.image.asset && (
-        <SanityImage
-          {...image}
-          width={1440}
+      {imageAttrs?.src && (
+        <Box
+          as="img"
+          src={imageAttrs.src}
+          srcSet={imageAttrs.srcSet}
+          sizes={imageAttrs.sizes}
+          loading={props.isHomepage ? "eager" : "lazy"}
+          fetchPriority={props.isHomepage ? "high" : undefined}
+          decoding="async"
+          alt={image?.alt || props.heading || ""}
           sx={{
             position: "absolute",
             width: "100%",
             height: "100%",
             objectFit: "cover",
+            display: "block",
             zIndex: "-1",
           }}
         />
