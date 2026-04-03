@@ -19,6 +19,7 @@ import volunteerFixedRole from './documents/volunteerFixedRole'
 import volunteerApplication from './documents/volunteerApplication'
 import workflow from './documents/workflow'
 import emailAlias from './documents/emailAlias'
+import emailAliasType from './documents/emailAliasType'
 
 // Object types
 import pdfUpload from './objects/pdfUpload'
@@ -92,6 +93,7 @@ export default [
     address,
     workflow,
     emailAlias,
+    emailAliasType,
     poc,
     hero,
     advertisement,

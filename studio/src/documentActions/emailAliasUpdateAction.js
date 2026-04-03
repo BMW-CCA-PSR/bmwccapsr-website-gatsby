@@ -25,6 +25,16 @@ const normalizeAlias = (value) =>
     .trim()
     .toLowerCase();
 
+const normalizeTypeReference = (value) => {
+  if (!value) return "";
+
+  if (typeof value === "string") {
+    return value.trim().toLowerCase();
+  }
+
+  return normalizeDocumentId(value?._ref).toLowerCase();
+};
+
 const normalizeRecipients = (value) =>
   (Array.isArray(value) ? value : [])
     .map((entry) => {
@@ -74,7 +84,7 @@ const sleep = (ms) =>
 const buildAliasSnapshot = (documentValue) => ({
   name: normalizeAlias(documentValue?.name),
   enabled: documentValue?.enabled !== false,
-  type: String(documentValue?.type || "").trim().toLowerCase(),
+  type: normalizeTypeReference(documentValue?.type),
   recipients: normalizeRecipients(documentValue?.recipients),
 });
 
@@ -95,7 +105,7 @@ const waitForPublishedAliasDocument = async ({
 }) => {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const publishedDoc = await client.fetch(
-      '*[_id == $id][0]{name, recipients}',
+      '*[_id == $id][0]{name, enabled, type, recipients}',
       { id: documentId },
     );
     if (snapshotsMatch(buildAliasSnapshot(publishedDoc), expectedSnapshot)) {

@@ -2,9 +2,6 @@ import { buildUniqueFieldValidator } from "../utils/uniqueFieldValidation";
 import { MdAlternateEmail } from "react-icons/md";
 
 const aliasPattern = /^[a-z0-9][a-z0-9._+-]*$/;
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const allowedAliasTypes = ["officer", "temp", "event", "testing"];
-
 const normalizeValue = (value) => String(value || "").trim().toLowerCase();
 
 export default {
@@ -106,47 +103,31 @@ export default {
     },
     {
       name: "type",
-      type: "string",
+      type: "reference",
       title: "Type",
       description: "Classifies this alias for filtered Studio views.",
+      to: [{ type: "emailAliasType" }],
+      weak: true,
       options: {
-        list: [
-          { title: "Officer", value: "officer" },
-          { title: "Temp", value: "temp" },
-          { title: "Event", value: "event" },
-          { title: "Testing", value: "testing" },
-        ],
-        layout: "dropdown",
+        disableNew: true,
       },
-      validation: (Rule) =>
-        Rule.custom((value) => {
-          const normalized = normalizeValue(value);
-          if (!normalized) return true;
-          if (!allowedAliasTypes.includes(normalized)) {
-            return "Type must be Officer, Temp, Event, or Testing.";
-          }
-          return true;
-        }),
     },
   ],
   preview: {
     select: {
       title: "name",
       recipients: "recipients",
-      type: "type",
+      typeTitle: "type.title",
       enabled: "enabled",
     },
-    prepare({ title, recipients, type, enabled }) {
+    prepare({ title, recipients, typeTitle, enabled }) {
       const count = Array.isArray(recipients) ? recipients.length : 0;
-      const normalizedType = normalizeValue(type);
-      const typeLabel = normalizedType
-        ? normalizedType.charAt(0).toUpperCase() + normalizedType.slice(1)
-        : "";
+      const normalizedType = String(typeTitle || "").trim();
       const enabledLabel = enabled === false ? "inactive" : "active";
 
       return {
         title: title || "Untitled alias",
-        subtitle: `${count} forwarding address${count === 1 ? "" : "es"} | ${enabledLabel}${typeLabel ? ` | ${typeLabel}` : ""}`,
+        subtitle: `${count} forwarding address${count === 1 ? "" : "es"} | ${enabledLabel}${normalizedType ? ` | ${normalizedType}` : ""}`,
       };
     },
   },
