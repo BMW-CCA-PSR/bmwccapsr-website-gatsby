@@ -39,6 +39,7 @@ export default {
     prepare({ title }) {
       return {
         title: normalizeValue(title) || "Untitled alias type",
+        media: MdLocalOffer,
       };
     },
   },

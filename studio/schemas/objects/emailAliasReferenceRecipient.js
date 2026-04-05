@@ -1,10 +1,10 @@
-import { MdForward } from "react-icons/md";
+import { MdAlternateEmail } from "react-icons/md";
 
 export default {
   name: "emailAliasReferenceRecipient",
   type: "object",
   title: "Alias",
-  icon: MdForward,
+  icon: MdAlternateEmail,
   fields: [
     {
       name: "alias",
@@ -21,10 +21,23 @@ export default {
   preview: {
     select: {
       title: "alias.name",
+      recipients: "alias.recipients",
+      enabled: "alias.enabled",
+      typeTitle: "alias.type.title",
     },
-    prepare({ title }) {
+    prepare({ title, recipients, enabled, typeTitle }) {
+      const normalizedType = String(typeTitle || "").trim();
+      const count = Array.isArray(recipients) ? recipients.length : 0;
       return {
         title: title || "Alias reference",
+        subtitle: [
+          `${count} forwarding address${count === 1 ? "" : "es"}`,
+          enabled === false ? "inactive" : "active",
+          normalizedType || null,
+        ]
+          .filter(Boolean)
+          .join(" | "),
+        media: MdAlternateEmail,
       };
     },
   },

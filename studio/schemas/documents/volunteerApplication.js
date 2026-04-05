@@ -168,7 +168,8 @@ export default {
 
       return {
         title: title || 'Unnamed applicant',
-        subtitle: subtitleParts.join(' | ')
+        subtitle: subtitleParts.join(' | '),
+        media: VolunteerApplicationIcon,
       }
     }
   }

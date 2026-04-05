@@ -51,6 +51,16 @@ export default {
       validation: (Rule) => Rule.required().error("Select a point value."),
     },
     {
+      name: "category",
+      type: "reference",
+      title: "Category",
+      description: "Assign one volunteer category to this role.",
+      to: [{ type: "volunteerCategory" }],
+      options: {
+        disableNew: true,
+      },
+    },
+    {
       name: "roleScope",
       type: "string",
       title: "Scope",
@@ -148,10 +158,11 @@ export default {
       title: "name",
       points: "pointValue",
       cardinality: "assignmentCardinality",
+      categoryTitle: "category.title",
       icon: "icon",
       legacyIcon: "presentationIcon",
     },
-    prepare({ title, points, cardinality, icon, legacyIcon }) {
+    prepare({ title, points, cardinality, categoryTitle, icon, legacyIcon }) {
       const pointLabel =
         points === undefined || points === null
           ? "No point value set"
@@ -168,7 +179,9 @@ export default {
         VolunteerRoleIcon;
       return {
         title: title || "Untitled role",
-        subtitle: [pointLabel, cardinalityLabel].filter(Boolean).join(" | "),
+        subtitle: [pointLabel, cardinalityLabel, categoryTitle]
+          .filter(Boolean)
+          .join(" | "),
         media: IconComponent,
       };
     },

@@ -1,3 +1,5 @@
+import { GoBrowser } from "react-icons/go";
+
 const isJoinPage = (document) =>
   document?._id === 'join' || document?._id === 'drafts.join'
 
@@ -5,6 +7,7 @@ export default {
   type: 'document',
   name: 'page',
   title: 'Page',
+  icon: GoBrowser,
   fields: [
     {
       name: 'title',
@@ -82,5 +85,16 @@ export default {
       hidden: ({ document }) => !isJoinPage(document)
     }
   ],
+  preview: {
+    select: {
+      title: 'title'
+    },
+    prepare({title}) {
+      return {
+        title: title || 'Untitled page',
+        media: GoBrowser
+      }
+    }
+  }
 }
   

@@ -120,6 +120,21 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
       skillLevel: String
       membershipRequired: Boolean
     }
+
+    extend type SanityVolunteerFixedRole {
+      category: SanityVolunteerCategory @link(from: "category___NODE")
+      categoryRef: String
+    }
+
+    extend type SanityVolunteerCategory {
+      title: String
+      description: String
+    }
+
+    extend type SanityVolunteerOverviewPageSettings {
+      overviewImage: SanityMainImage
+    }
+
   `);
   actions.createTypes([
     schema.buildObjectType({
@@ -360,6 +375,18 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
       },
     }),
   ]);
+};
+
+exports.createResolvers = ({ createResolvers }) => {
+  createResolvers({
+    SanityVolunteerFixedRole: {
+      categoryRef: {
+        type: "String",
+        resolve: (source) =>
+          normalizeRefId(source?._rawDataCategory?._ref || source?.category?._id || ""),
+      },
+    },
+  });
 };
 
 // HOME PAGE

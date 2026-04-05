@@ -33,7 +33,8 @@ export default {
 
         return {
           title: previewTitle,
-          subtitle
+          subtitle,
+          media: NavigationItemIcon
         }
       }
     }

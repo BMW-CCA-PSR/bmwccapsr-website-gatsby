@@ -3,6 +3,7 @@ import {
   GoFile,
   GoHome,
   GoGear as Settings,
+  GoSync as LifecycleIcon,
   GoPencil as EditIcon,
   GoMegaphone as BlogIcon,
   GoChecklist as ApprovedIcon,
@@ -26,6 +27,7 @@ import {
   MdBuild,
   MdEmail,
   MdOutlineEmail,
+  MdLocalOffer,
   MdOutlineLocalOffer,
 } from "react-icons/md";
 import VolunteerApplicationsPane from "./src/components/VolunteerApplicationsPane";
@@ -57,6 +59,14 @@ const fetchZundfolgeIssueYears = async (client) => {
         .filter((year) => Number.isInteger(year)),
     ),
   ).sort((a, b) => b - a);
+};
+
+const fetchVolunteerCategories = async (client) => {
+  const rows = await client.fetch(
+    '*[_type == "volunteerCategory"]|order(title asc){_id, title}',
+  );
+
+  return Array.isArray(rows) ? rows : [];
 };
 
 const buildZundfolgeIssueYearItems = (S, years = []) =>
@@ -525,6 +535,34 @@ export default (S, context) => {
                       ),
                     ),
                 ),
+              S.listItem()
+                .title("Roles by category")
+                .icon(MdLocalOffer)
+                .child(async () => {
+                  const categories = await fetchVolunteerCategories(client);
+                  return S.list()
+                    .title("Roles by category")
+                    .items(
+                      categories.map((category) =>
+                        S.listItem()
+                          .id(`volunteer-category-${category._id}`)
+                          .title(category.title || "Untitled category")
+                          .icon(MdLocalOffer)
+                          .child(
+                            S.documentTypeList("volunteerFixedRole")
+                              .title(category.title || "Untitled category")
+                              .filter(
+                                '_type == "volunteerFixedRole" && category._ref == $categoryId',
+                              )
+                              .params({ categoryId: category._id }),
+                          ),
+                      ),
+                    );
+                }),
+              S.divider(),
+              S.documentTypeListItem("volunteerCategory")
+                .title("Categories")
+                .icon(MdLocalOffer),
             ]),
         ),
       S.divider(),
@@ -564,6 +602,57 @@ export default (S, context) => {
                     .schemaType("page")
                     .documentId("join")
                     .title("Join Page Settings"),
+                ),
+              S.listItem()
+                .id("volunteerPageSettings")
+                .title("Volunteer Page Settings")
+                .icon(PageIcon)
+                .child(
+                  S.list()
+                    .title("Volunteer Page Settings")
+                    .items([
+                      S.listItem()
+                        .id("volunteerOverviewPageSettings")
+                        .title("Overview Page Settings")
+                        .icon(PageIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerOverviewPageSettings")
+                            .documentId("volunteerOverviewPageSettings")
+                            .title("Overview Page Settings"),
+                        ),
+                      S.listItem()
+                        .id("volunteerRewardsPageSettings")
+                        .title("Rewards Page Settings")
+                        .icon(PageIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerRewardsPageSettings")
+                            .documentId("volunteerRewardsPageSettings")
+                            .title("Rewards Page Settings"),
+                        ),
+                      S.listItem()
+                        .id("volunteerRolesPageSettings")
+                        .title("Roles Page Settings")
+                        .icon(PageIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerRolesPageSettings")
+                            .documentId("volunteerRolesPageSettings")
+                            .title("Roles Page Settings"),
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .id("volunteerApplicationLifecycleSettings")
+                        .title("Application Lifecycle Settings")
+                        .icon(LifecycleIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerApplicationLifecycleSettings")
+                            .documentId("volunteerApplicationLifecycleSettings")
+                            .title("Application Lifecycle Settings"),
+                        ),
+                    ]),
                 ),
               S.divider(),
               S.listItem()
@@ -633,9 +722,7 @@ export default (S, context) => {
                     .title("Active Aliases")
                     .filter('_type == "emailAlias" && enabled != false')
                     .child((documentId) =>
-                      S.document()
-                        .documentId(documentId)
-                        .schemaType("emailAlias"),
+                      S.document().documentId(documentId).schemaType("emailAlias"),
                     ),
                 ),
               S.listItem()
@@ -646,9 +733,7 @@ export default (S, context) => {
                   S.documentTypeList("emailAlias")
                     .title("All Aliases")
                     .child((documentId) =>
-                      S.document()
-                        .documentId(documentId)
-                        .schemaType("emailAlias"),
+                      S.document().documentId(documentId).schemaType("emailAlias"),
                     ),
                 ),
               S.listItem()
@@ -685,6 +770,17 @@ export default (S, context) => {
                         .documentId(documentId)
                         .schemaType("emailAliasType"),
                     ),
+                ),
+              S.divider(),
+              S.listItem()
+                .id("emailSendingSettings")
+                .title("Sending Settings")
+                .icon(Settings)
+                .child(
+                  S.document()
+                    .schemaType("emailSendingSettings")
+                    .documentId("emailSendingSettings")
+                    .title("Sending Settings"),
                 ),
             ]),
         ),

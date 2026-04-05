@@ -21,6 +21,7 @@ import StylizedLandingHeader from "../../components/stylized-landing-header";
 import CategoryFilterButtons from "../../components/category-filter-buttons";
 import { FilterSearchField } from "../../components/filter-ui";
 import { mapEdgesToNodes } from "../../lib/helpers";
+import PortableText from "../../components/portableText";
 import headerLogo from "../../images/new-logo.png";
 import {
   getVolunteerRoleIconComponent,
@@ -47,6 +48,20 @@ export const query = graphql`
           roleScope
           icon
           color
+          categoryRef
+        }
+      }
+    }
+    rolesSettings: sanityVolunteerRolesPageSettings(
+      _id: { regex: "/(drafts.|)volunteerRolesPageSettings/" }
+    ) {
+      _rawSubheader(resolveReferences: { maxDepth: 5 })
+    }
+    roleCategories: allSanityVolunteerCategory(sort: { fields: [title], order: ASC }) {
+      edges {
+        node {
+          _id
+          title
         }
       }
     }
@@ -113,45 +128,6 @@ const buildPaginationItems = (current, total, delta = 1) => {
   return items;
 };
 
-const ROLE_BROWSE_FILTERS = [
-  {
-    value: "track-driving",
-    label: "Track & Driving",
-    pattern:
-      /(car control|ccc|autocross|track|hpde|driving|instructor|coach|mentor)/i,
-  },
-  {
-    value: "ops-admin",
-    label: "Ops & Admin",
-    pattern:
-      /(registration|check[- ]?in|admin|desk|sign[- ]?in|coordinator|manager|lead|worker|crew)/i,
-  },
-  {
-    value: "safety-tech",
-    label: "Safety & Tech",
-    pattern: /(safety|medical|first aid|tech|mechanic|inspection|garage)/i,
-  },
-  {
-    value: "media-comms",
-    label: "Media & Comms",
-    pattern:
-      /(communications|announc|pa|social|newsletter|content|photo|media|video)/i,
-  },
-  {
-    value: "hospitality-support",
-    label: "Hospitality",
-    pattern: /(hospitality|welcome|host|greeter|support|assistant|helper)/i,
-  },
-];
-
-const getRoleBrowseTags = (name) => {
-  const label = String(name || "").trim();
-  if (!label) return [];
-  return ROLE_BROWSE_FILTERS.filter((item) => item.pattern.test(label)).map(
-    (item) => item.value,
-  );
-};
-
 const getTabKeyForPoints = (value) => {
   const pointValue = Number(value);
   if (pointValue === 1 || pointValue === 2) return "entry";
@@ -187,6 +163,9 @@ const getRoleScopeMeta = (value) => {
   }
   return null;
 };
+
+const normalizeSanityDocumentId = (value) =>
+  String(value || "").trim().replace(/^drafts\./, "");
 
 const escapeHtml = (value) =>
   String(value || "")
@@ -483,8 +462,14 @@ const buildRoleExportDocument = (roles) => {
   `;
 };
 
+const renderPortableText = (body, boxedSx) =>
+  Array.isArray(body) && body.length > 0 ? (
+    <PortableText body={body} boxedSx={boxedSx} />
+  ) : null;
+
 const VolunteerRolesPage = ({ data, errors }) => {
   const site = data?.site;
+  const rolesSettings = data?.rolesSettings;
   const menuItems = site?.navMenu?.items || [];
   const [activeTab, setActiveTab] = useState("entry");
   const [searchTerm, setSearchTerm] = useState("");
@@ -501,6 +486,22 @@ const VolunteerRolesPage = ({ data, errors }) => {
   const roles = useMemo(
     () => (data?.roles ? mapEdgesToNodes(data.roles) : []),
     [data?.roles],
+  );
+  const roleCategories = useMemo(
+    () => (data?.roleCategories ? mapEdgesToNodes(data.roleCategories) : []),
+    [data?.roleCategories],
+  );
+  const rolesSubheader = rolesSettings?._rawSubheader || [];
+  const roleFilterCategories = useMemo(
+    () =>
+      roleCategories
+        .filter((category) => String(category?.title || "").trim())
+        .slice(0, 5)
+        .map((category) => ({
+          value: normalizeSanityDocumentId(category._id),
+          label: category.title,
+        })),
+    [roleCategories],
   );
 
   const rolesBySkill = useMemo(() => {
@@ -538,8 +539,10 @@ const VolunteerRolesPage = ({ data, errors }) => {
           : true;
         if (!matchesSearch) return false;
         if (!selectedBrowseFilters.length) return true;
-        const roleTags = getRoleBrowseTags(roleName);
-        return selectedBrowseFilters.some((value) => roleTags.includes(value));
+        const roleCategoryId = normalizeSanityDocumentId(role?.categoryRef);
+        return roleCategoryId
+          ? selectedBrowseFilters.includes(roleCategoryId)
+          : false;
       });
     });
 
@@ -1036,11 +1039,19 @@ const VolunteerRolesPage = ({ data, errors }) => {
             </Button>
           </Box>
         </Box>
-        <Text sx={{ variant: "styles.p", fontSize: "16pt", mt: 0, mb: 0 }}>
-          Explore the official role lineup our Board has defined to power every
-          PSR event. Use this catalog to compare responsibilities, skill level,
-          and point value across roles.
-        </Text>
+        {renderPortableText(rolesSubheader, {
+          "& p": {
+            variant: "styles.p",
+            fontSize: "16pt",
+            mt: 0,
+            mb: 0,
+          },
+          "& a": {
+            color: "primary",
+            textDecoration: "none",
+            "&:hover": { color: "secondary" },
+          },
+        })}
 
         {roles.length === 0 ? (
           <Box
@@ -1179,10 +1190,7 @@ const VolunteerRolesPage = ({ data, errors }) => {
                     }}
                   >
                     <CategoryFilterButtons
-                      categories={ROLE_BROWSE_FILTERS.map((item) => ({
-                        value: item.value,
-                        label: item.label,
-                      }))}
+                      categories={roleFilterCategories}
                       selectedCategories={selectedBrowseFilters}
                       onChange={setSelectedBrowseFilters}
                       showAll={false}

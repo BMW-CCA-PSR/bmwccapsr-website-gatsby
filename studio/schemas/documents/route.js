@@ -96,6 +96,7 @@ export default {
       return {
         title: ['/', title].join(''),
         subtitle,
+        media: MdLink,
       }
     },
   },

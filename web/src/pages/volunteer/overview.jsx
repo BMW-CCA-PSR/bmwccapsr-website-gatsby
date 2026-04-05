@@ -2,6 +2,7 @@
 import React from "react";
 import { graphql, Link } from "gatsby";
 import { Box, Flex, Heading, Text } from "@theme-ui/components";
+import SanityImage from "gatsby-plugin-sanity-image";
 import {
   FaAward,
   FaBuilding,
@@ -16,6 +17,7 @@ import ContentContainer from "../../components/content-container";
 import { BoxIcon } from "../../components/box-icons";
 import StylizedLandingHeader from "../../components/stylized-landing-header";
 import PermalinkHeading from "../../components/permalink-heading";
+import PortableText from "../../components/portableText";
 
 export const query = graphql`
   query VolunteerOverviewPageQuery {
@@ -25,12 +27,62 @@ export const query = graphql`
         ...NavMenu
       }
     }
+    overviewSettings: sanityVolunteerOverviewPageSettings(
+      _id: { regex: "/(drafts.|)volunteerOverviewPageSettings/" }
+    ) {
+      overviewImage {
+        ...SanityImage
+      }
+      _rawSubheader(resolveReferences: { maxDepth: 5 })
+      gettingStartedCards {
+        title
+        _rawBody(resolveReferences: { maxDepth: 5 })
+      }
+      skillLevelCards {
+        title
+        _rawBody(resolveReferences: { maxDepth: 5 })
+      }
+      _rawRoleScopeBody(resolveReferences: { maxDepth: 5 })
+      roleScopeCards {
+        title
+        _rawBody(resolveReferences: { maxDepth: 5 })
+      }
+      _rawWhyVolunteerBody(resolveReferences: { maxDepth: 5 })
+    }
   }
 `;
 
+const renderPortableText = (body, boxedSx) =>
+  Array.isArray(body) && body.length > 0 ? (
+    <PortableText body={body} boxedSx={boxedSx} />
+  ) : null;
+
 const VolunteerOverviewPage = ({ data, errors }) => {
   const site = data?.site;
+  const overviewSettings = data?.overviewSettings;
   const menuItems = site?.navMenu?.items || [];
+  const overviewImage = overviewSettings?.overviewImage;
+  const overviewSubheader = overviewSettings?._rawSubheader;
+  const gettingStartedSteps = Array.isArray(overviewSettings?.gettingStartedCards)
+    ? overviewSettings.gettingStartedCards.map((card, index) => ({
+        title: card?.title || `Step ${index + 1}`,
+        body: card?._rawBody || [],
+      }))
+    : [];
+  const skillLevelCards = Array.isArray(overviewSettings?.skillLevelCards)
+    ? overviewSettings.skillLevelCards.map((card, index) => ({
+        title: card?.title || `Skill level ${index + 1}`,
+        body: card?._rawBody || [],
+      }))
+    : [];
+  const roleScopeBody = overviewSettings?._rawRoleScopeBody || [];
+  const roleScopeCards = Array.isArray(overviewSettings?.roleScopeCards)
+    ? overviewSettings.roleScopeCards.map((card, index) => ({
+        title: card?.title || `Role scope ${index + 1}`,
+        body: card?._rawBody || [],
+      }))
+    : [];
+  const whyVolunteerBody = overviewSettings?._rawWhyVolunteerBody || [];
 
   if (errors) {
     return (
@@ -155,34 +207,31 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                 }}
               />
             </Heading>
-            <Text
-              sx={{
+            {renderPortableText(overviewSubheader, {
+              "& p": {
                 variant: "styles.p",
                 color: "text",
                 mb: "1rem",
+                mt: 0,
                 fontSize: "16pt",
-              }}
-            >
-              Volunteering is how our Club delivers safe, memorable events and
-              builds a strong community. From first-time helpers to experienced
-              leaders, there are roles matched to your time, interests, and
-              skill level. Use this overview to understand how roles are
-              structured and how to get started.
-            </Text>
+              },
+            })}
           </Box>
-          <Box
-            as="img"
-            src="/images/volunteer3.png"
-            alt="Volunteers supporting BMW CCA events"
-            sx={{
-              width: ["100%", "100%", "320px", "360px"],
-              height: ["280px", "320px", "280px", "300px"],
-              objectFit: "cover",
-              objectPosition: "center 82%",
-              borderRadius: "18px",
-              flex: "0 0 auto",
-            }}
-          />
+          {overviewImage?.asset && (
+            <SanityImage
+              {...overviewImage}
+              width={720}
+              alt={overviewImage.alt || "Volunteer overview image"}
+              sx={{
+                width: ["100%", "100%", "320px", "360px"],
+                height: ["280px", "320px", "280px", "300px"],
+                objectFit: "cover",
+                objectPosition: "center 82%",
+                borderRadius: "18px",
+                flex: "0 0 auto",
+              }}
+            />
+          )}
         </Flex>
         <Box>
           <PermalinkHeading
@@ -202,56 +251,7 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               mb: "0.35rem",
             }}
           >
-            {[
-              {
-                title: "Review Roles",
-                body: (
-                  <>
-                    Explore{" "}
-                    <Link
-                      to="/volunteer"
-                      sx={{
-                        color: "primary",
-                        textDecoration: "none",
-                        "&:hover": { color: "secondary" },
-                      }}
-                    >
-                      available volunteer roles and current openings
-                    </Link>{" "}
-                    to understand where help is needed.
-                  </>
-                ),
-              },
-              {
-                title: "Choose a Fit",
-                body: "Select positions that match your interests, experience level, and availability.",
-              },
-              {
-                title: "Apply or Register",
-                body: (
-                  <>
-                    For event-based roles, volunteer registration is handled
-                    through MSR registration*. For club-based roles, apply
-                    through the{" "}
-                    <Link
-                      to="/volunteer"
-                      sx={{
-                        color: "primary",
-                        textDecoration: "none",
-                        "&:hover": { color: "secondary" },
-                      }}
-                    >
-                      position listing page
-                    </Link>{" "}
-                    with your name, email, and optional phone number.
-                  </>
-                ),
-              },
-              {
-                title: "Show Up Ready",
-                body: "Get confirmed, come prepared, and start earning points while supporting the Chapter.",
-              },
-            ].map((step, index) => {
+            {gettingStartedSteps.map((step, index) => {
               const stepNumber = index + 1;
               return (
                 <Box
@@ -373,17 +373,28 @@ const VolunteerOverviewPage = ({ data, errors }) => {
                       >
                         {step.title}
                       </Heading>
-                      <Text
-                        sx={{
+                      {renderPortableText(step.body, {
+                        "& p": {
                           variant: "styles.p",
                           mt: 0,
                           mb: 0,
-                          fontSize: ["1.02rem", "1.04rem", "1.1rem", "1.12rem"],
+                          fontSize: [
+                            "1.02rem",
+                            "1.04rem",
+                            "1.1rem",
+                            "1.12rem",
+                          ],
                           lineHeight: 1.45,
-                        }}
-                      >
-                        {step.body}
-                      </Text>
+                        },
+                        "& p + p": {
+                          mt: "0.35rem",
+                        },
+                        "& a": {
+                          color: "primary",
+                          textDecoration: "none",
+                          "&:hover": { color: "secondary" },
+                        },
+                      })}
                     </Box>
                   </Flex>
                 </Box>
@@ -429,365 +440,141 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               mb: "1.75rem",
             }}
           >
-            <Box
-              sx={{
+            {[
+              {
+                icon: FaUserPlus,
                 backgroundColor: "#e8f7ec",
-                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
-                minHeight: ["auto", "auto", "180px", "200px"],
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                transition: "background-color 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "#d4f1dd",
-                },
-              }}
-            >
-              <Flex
-                sx={{
-                  display: ["flex", "flex", "none", "none"],
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  gap: "1rem",
-                  width: "100%",
-                }}
-              >
-                <Box
-                  as="span"
-                  sx={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flex: "0 0 auto",
-                    p: "0.35rem",
-                  }}
-                >
-                  <FaUserPlus size={42} />
-                </Box>
-                <Box sx={{ minWidth: 0, textAlign: "left" }}>
-                  <Heading
-                    as="h3"
-                    sx={{
-                      variant: "styles.h3",
-                      fontSize: ["1.3rem", "1.35rem", null, null],
-                      mt: 0,
-                      mb: "0.35rem",
-                    }}
-                  >
-                    Entry
-                  </Heading>
-                  <Text
-                    sx={{
-                      variant: "styles.p",
-                      fontSize: ["0.95rem", "1rem", null, null],
-                      mt: 0,
-                      mb: 0,
-                      textAlign: "left",
-                    }}
-                  >
-                    Great for first-time volunteers
-                    <Box as="span" sx={{ display: "block" }}>
-                      and limited availability.
-                    </Box>
-                    <Box
-                      as="span"
-                      sx={{
-                        display: "block",
-                        mt: "0.35rem",
-                        fontWeight: "heading",
-                      }}
-                    >
-                      Points: 1-2
-                    </Box>
-                  </Text>
-                </Box>
-              </Flex>
-              <Flex
-                sx={{
-                  display: ["none", "none", "flex", "flex"],
-                  alignItems: "center",
-                  gap: "0.65rem",
-                }}
-              >
-                <FaUserPlus size={32} />
-                <Heading
-                  as="h3"
-                  sx={{
-                    variant: "styles.h3",
-                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0,
-                  }}
-                >
-                  Entry
-                </Heading>
-              </Flex>
-              <Text
-                sx={{
-                  variant: "styles.p",
-                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
-                  mt: "0.5rem",
-                  display: ["none", "none", "block", "block"],
-                }}
-              >
-                Great for first-time volunteers
-                <Box as="span" sx={{ display: "block" }}>
-                  and limited availability.
-                </Box>
-                <Box
-                  as="span"
-                  sx={{
-                    display: "block",
-                    mt: "0.35rem",
-                    fontWeight: "heading",
-                  }}
-                >
-                  Points: 1-2
-                </Box>
-              </Text>
-            </Box>
-            <Box
-              sx={{
-                borderLeft: ["none", "none", "2px solid", "2px solid"],
-                borderLeftColor: "black",
-                borderTop: ["2px solid", "2px solid", "none", "none"],
-                borderTopColor: "black",
+                hoverColor: "#d4f1dd",
+              },
+              {
+                icon: FaTools,
                 backgroundColor: "#fff6d5",
-                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
-                minHeight: ["auto", "auto", "180px", "200px"],
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                transition: "background-color 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "#ffe9a6",
-                },
-              }}
-            >
-              <Flex
-                sx={{
-                  display: ["flex", "flex", "none", "none"],
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  gap: "1rem",
-                  width: "100%",
-                }}
-              >
-                <Box
-                  as="span"
-                  sx={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flex: "0 0 auto",
-                    p: "0.35rem",
-                  }}
-                >
-                  <FaTools size={42} />
-                </Box>
-                <Box sx={{ minWidth: 0, textAlign: "left" }}>
-                  <Heading
-                    as="h3"
-                    sx={{
-                      variant: "styles.h3",
-                      fontSize: ["1.3rem", "1.35rem", null, null],
-                      mt: 0,
-                      mb: "0.35rem",
-                    }}
-                  >
-                    Intermediate
-                  </Heading>
-                  <Text
-                    sx={{
-                      variant: "styles.p",
-                      fontSize: ["0.95rem", "1rem", null, null],
-                      mt: 0,
-                      mb: 0,
-                      textAlign: "left",
-                    }}
-                  >
-                    Ideal for members ready
-                    <Box as="span" sx={{ display: "block" }}>
-                      to take on more responsibility.
-                    </Box>
-                    <Box
-                      as="span"
-                      sx={{
-                        display: "block",
-                        mt: "0.35rem",
-                        fontWeight: "heading",
-                      }}
-                    >
-                      Points: 3-4
-                    </Box>
-                  </Text>
-                </Box>
-              </Flex>
-              <Flex
-                sx={{
-                  display: ["none", "none", "flex", "flex"],
-                  alignItems: "center",
-                  gap: "0.65rem",
-                }}
-              >
-                <FaTools size={32} />
-                <Heading
-                  as="h3"
-                  sx={{
-                    variant: "styles.h3",
-                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0,
-                  }}
-                >
-                  Intermediate
-                </Heading>
-              </Flex>
-              <Text
-                sx={{
-                  variant: "styles.p",
-                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
-                  mt: "0.5rem",
-                  display: ["none", "none", "block", "block"],
-                }}
-              >
-                Ideal for members ready
-                <Box as="span" sx={{ display: "block" }}>
-                  to take on more responsibility.
-                </Box>
-                <Box
-                  as="span"
-                  sx={{
-                    display: "block",
-                    mt: "0.35rem",
-                    fontWeight: "heading",
-                  }}
-                >
-                  Points: 3-4
-                </Box>
-              </Text>
-            </Box>
-            <Box
-              sx={{
-                borderLeft: ["none", "none", "2px solid", "2px solid"],
-                borderLeftColor: "black",
-                borderTop: ["2px solid", "2px solid", "none", "none"],
-                borderTopColor: "black",
+                hoverColor: "#ffe9a6",
+              },
+              {
+                icon: FaAward,
                 backgroundColor: "#ffe6e6",
-                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
-                minHeight: ["auto", "auto", "180px", "200px"],
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                transition: "background-color 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "#ffd1d1",
-                },
-              }}
-            >
-              <Flex
-                sx={{
-                  display: ["flex", "flex", "none", "none"],
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  gap: "1rem",
-                  width: "100%",
-                }}
-              >
-                <Box
-                  as="span"
-                  sx={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flex: "0 0 auto",
-                    p: "0.35rem",
-                  }}
-                >
-                  <FaAward size={42} />
-                </Box>
-                <Box sx={{ minWidth: 0, textAlign: "left" }}>
-                  <Heading
-                    as="h3"
+                hoverColor: "#ffd1d1",
+              },
+            ]
+              .slice(0, skillLevelCards.length)
+              .map((cardStyle, index) => {
+                const card = skillLevelCards[index];
+                const Icon = cardStyle.icon;
+                return (
+                  <Box
+                    key={`skill-level-card-${index}`}
                     sx={{
-                      variant: "styles.h3",
-                      fontSize: ["1.3rem", "1.35rem", null, null],
-                      mt: 0,
-                      mb: "0.35rem",
+                      borderLeft: [
+                        "none",
+                        "none",
+                        index === 0 ? "none" : "2px solid",
+                        index === 0 ? "none" : "2px solid",
+                      ],
+                      borderLeftColor: "black",
+                      borderTop: [
+                        index === 0 ? "none" : "2px solid",
+                        index === 0 ? "none" : "2px solid",
+                        "none",
+                        "none",
+                      ],
+                      borderTopColor: "black",
+                      backgroundColor: cardStyle.backgroundColor,
+                      p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
+                      minHeight: ["auto", "auto", "180px", "200px"],
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "flex-start",
+                      transition: "background-color 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: cardStyle.hoverColor,
+                      },
                     }}
                   >
-                    Advanced
-                  </Heading>
-                  <Text
-                    sx={{
-                      variant: "styles.p",
-                      fontSize: ["0.95rem", "1rem", null, null],
-                      mt: 0,
-                      mb: 0,
-                      textAlign: "left",
-                    }}
-                  >
-                    Best for experienced volunteers
-                    <Box as="span" sx={{ display: "block" }}>
-                      with specialized skills.
-                    </Box>
-                    <Box
-                      as="span"
+                    <Flex
                       sx={{
-                        display: "block",
-                        mt: "0.35rem",
-                        fontWeight: "heading",
+                        display: ["flex", "flex", "none", "none"],
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                        gap: "1rem",
+                        width: "100%",
                       }}
                     >
-                      Points: 5 or 10
-                    </Box>
-                  </Text>
-                </Box>
-              </Flex>
-              <Flex
-                sx={{
-                  display: ["none", "none", "flex", "flex"],
-                  alignItems: "center",
-                  gap: "0.65rem",
-                }}
-              >
-                <FaAward size={32} />
-                <Heading
-                  as="h3"
-                  sx={{
-                    variant: "styles.h3",
-                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0,
-                  }}
-                >
-                  Advanced
-                </Heading>
-              </Flex>
-              <Text
-                sx={{
-                  variant: "styles.p",
-                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
-                  mt: "0.5rem",
-                  display: ["none", "none", "block", "block"],
-                }}
-              >
-                Best for experienced volunteers
-                <Box as="span" sx={{ display: "block" }}>
-                  with specialized skills.
-                </Box>
-                <Box
-                  as="span"
-                  sx={{
-                    display: "block",
-                    mt: "0.35rem",
-                    fontWeight: "heading",
-                  }}
-                >
-                  Points: 5 or 10
-                </Box>
-              </Text>
-            </Box>
+                      <Box
+                        as="span"
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flex: "0 0 auto",
+                          p: "0.35rem",
+                        }}
+                      >
+                        <Icon size={42} />
+                      </Box>
+                      <Box sx={{ minWidth: 0, textAlign: "left" }}>
+                        <Heading
+                          as="h3"
+                          sx={{
+                            variant: "styles.h3",
+                            fontSize: ["1.3rem", "1.35rem", null, null],
+                            mt: 0,
+                            mb: "0.35rem",
+                          }}
+                        >
+                          {card.title}
+                        </Heading>
+                        {renderPortableText(card.body, {
+                          "& p": {
+                            variant: "styles.p",
+                            fontSize: ["0.95rem", "1rem", null, null],
+                            mt: 0,
+                            mb: 0,
+                            textAlign: "left",
+                          },
+                          "& p + p": {
+                            mt: "0.35rem",
+                            fontWeight: "heading",
+                          },
+                        })}
+                      </Box>
+                    </Flex>
+                    <Flex
+                      sx={{
+                        display: ["none", "none", "flex", "flex"],
+                        alignItems: "center",
+                        gap: "0.65rem",
+                      }}
+                    >
+                      <Icon size={32} />
+                      <Heading
+                        as="h3"
+                        sx={{
+                          variant: "styles.h3",
+                          fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
+                          my: 0,
+                        }}
+                      >
+                        {card.title}
+                      </Heading>
+                    </Flex>
+                    {renderPortableText(card.body, {
+                      "& p": {
+                        variant: "styles.p",
+                        fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
+                        mt: 0,
+                        mb: 0,
+                        display: ["none", "none", "block", "block"],
+                      },
+                      "& p + p": {
+                        mt: "0.35rem",
+                        fontWeight: "heading",
+                      },
+                    })}
+                  </Box>
+                );
+              })}
           </Box>
           <Text sx={{ variant: "styles.p", mb: "0.75rem" }}>
             Points also tie directly into the Volunteer Rewards Program. Learn
@@ -811,17 +598,16 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           >
             Role Scope
           </PermalinkHeading>
-          <Text sx={{ variant: "styles.p", mb: "0.75rem" }}>
-            The Club is seeking volunteers for both event-based and club-based
-            roles. Some opportunities support a specific event date, while
-            others help the Club operate year-round across programs,
-            communications, planning, and member services.
-          </Text>
-          <Text sx={{ variant: "styles.p", mb: "1.5rem" }}>
-            Event-based roles are often a great entry point for new volunteers,
-            while club-based roles can offer more continuity, ownership, and
-            long-term impact across the Chapter.
-          </Text>
+          {renderPortableText(roleScopeBody, {
+            "& p": {
+              variant: "styles.p",
+              mt: 0,
+              mb: "0.75rem",
+            },
+            "& p:last-of-type": {
+              mb: "1.5rem",
+            },
+          })}
           <Box
             sx={{
               mt: "1.25rem",
@@ -834,116 +620,87 @@ const VolunteerOverviewPage = ({ data, errors }) => {
               mb: "1.75rem",
             }}
           >
-            <Box
-              sx={{
+            {[
+              {
+                icon: FaCalendarAlt,
                 backgroundColor: "#e6f0ff",
-                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
-                minHeight: ["auto", "auto", "180px", "200px"],
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                transition: "background-color 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "#dce9ff",
-                },
-              }}
-            >
-              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
-                <FaCalendarAlt size={32} />
-                <Heading
-                  as="h3"
-                  sx={{
-                    variant: "styles.h3",
-                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0,
-                  }}
-                >
-                  Event-Based Roles
-                </Heading>
-              </Flex>
-              <Text
-                sx={{
-                  variant: "styles.p",
-                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
-                  mt: "0.5rem",
-                }}
-              >
-                Roles tied to a specific event date or weekend.
-                <Box
-                  as="ul"
-                  sx={{
-                    mt: "0.45rem",
-                    mb: 0,
-                    pl: "1.15rem",
-                    listStyleType: "disc",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  <Box as="li">Parking attendant</Box>
-                  <Box as="li">Event assistant</Box>
-                  <Box as="li">Tour sweeper or tour leader</Box>
-                  <Box as="li">Event chairperson support</Box>
-                </Box>
-              </Text>
-            </Box>
-            <Box
-              sx={{
-                borderLeft: ["none", "none", "1px solid", "1px solid"],
-                borderLeftColor: "black",
-                borderTop: ["1px solid", "1px solid", "none", "none"],
-                borderTopColor: "black",
+                hoverColor: "#dce9ff",
+              },
+              {
+                icon: FaBuilding,
                 backgroundColor: "#eef3f5",
-                p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
-                minHeight: ["auto", "auto", "180px", "200px"],
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                transition: "background-color 0.2s ease",
-                "&:hover": {
-                  backgroundColor: "#e6edf0",
-                },
-              }}
-            >
-              <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
-                <FaBuilding size={32} />
-                <Heading
-                  as="h3"
-                  sx={{
-                    variant: "styles.h3",
-                    fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
-                    my: 0,
-                  }}
-                >
-                  Club-Based Roles
-                </Heading>
-              </Flex>
-              <Text
-                sx={{
-                  variant: "styles.p",
-                  fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
-                  mt: "0.5rem",
-                }}
-              >
-                Ongoing roles that support the Chapter beyond a single event.
-                <Box
-                  as="ul"
-                  sx={{
-                    mt: "0.45rem",
-                    mb: 0,
-                    pl: "1.15rem",
-                    listStyleType: "disc",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  <Box as="li">Program coordinator</Box>
-                  <Box as="li">Volunteer coordinator</Box>
-                  <Box as="li">Communications support</Box>
-                  <Box as="li">Webmaster or board support</Box>
-                </Box>
-              </Text>
-            </Box>
+                hoverColor: "#e6edf0",
+              },
+            ]
+              .slice(0, roleScopeCards.length)
+              .map((cardStyle, index) => {
+                const card = roleScopeCards[index];
+                const Icon = cardStyle.icon;
+                return (
+                  <Box
+                    key={`role-scope-card-${index}`}
+                    sx={{
+                      borderLeft: [
+                        "none",
+                        "none",
+                        index === 0 ? "none" : "1px solid",
+                        index === 0 ? "none" : "1px solid",
+                      ],
+                      borderLeftColor: "black",
+                      borderTop: [
+                        index === 0 ? "none" : "1px solid",
+                        index === 0 ? "none" : "1px solid",
+                        "none",
+                        "none",
+                      ],
+                      borderTopColor: "black",
+                      backgroundColor: cardStyle.backgroundColor,
+                      p: ["1.25rem", "1.25rem", "1.75rem", "2rem"],
+                      minHeight: ["auto", "auto", "180px", "200px"],
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "flex-start",
+                      transition: "background-color 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: cardStyle.hoverColor,
+                      },
+                    }}
+                  >
+                    <Flex sx={{ alignItems: "center", gap: "0.65rem" }}>
+                      <Icon size={32} />
+                      <Heading
+                        as="h3"
+                        sx={{
+                          variant: "styles.h3",
+                          fontSize: ["1.3rem", "1.35rem", "1.6rem", "1.75rem"],
+                          my: 0,
+                        }}
+                      >
+                        {card.title}
+                      </Heading>
+                    </Flex>
+                    {renderPortableText(card.body, {
+                      "& p": {
+                        variant: "styles.p",
+                        fontSize: ["0.95rem", "1rem", "1.05rem", "1.05rem"],
+                        mt: "0.5rem",
+                        mb: 0,
+                      },
+                      "& ul": {
+                        mt: "0.45rem",
+                        mb: 0,
+                        pl: "1.15rem",
+                        listStyleType: "disc",
+                        lineHeight: 1.6,
+                      },
+                      "& li": {
+                        mb: 0,
+                      },
+                    })}
+                  </Box>
+                );
+              })}
           </Box>
 
           <PermalinkHeading
@@ -955,28 +712,17 @@ const VolunteerOverviewPage = ({ data, errors }) => {
           >
             Why Volunteer?
           </PermalinkHeading>
-          <Box
-            as="ul"
-            sx={{
+          {renderPortableText(whyVolunteerBody, {
+            "& ul": {
               pl: "1.25rem",
               mb: "1rem",
               lineHeight: "body",
               listStyleType: "disc",
-            }}
-          >
-            <Box as="li" sx={{ mb: "0.5rem" }}>
-              Support the Club community you enjoy and have fun!
-            </Box>
-            <Box as="li" sx={{ mb: "0.5rem" }}>
-              Meet fellow enthusiasts and build lasting connections.
-            </Box>
-            <Box as="li" sx={{ mb: "0.5rem" }}>
-              Earn recognition and rewards.
-            </Box>
-            <Box as="li" sx={{ mb: "0.5rem" }}>
-              Help ensure the long-term success of the Club.
-            </Box>
-          </Box>
+            },
+            "& li": {
+              mb: "0.5rem",
+            },
+          })}
         </Box>
       </ContentContainer>
     </Layout>
