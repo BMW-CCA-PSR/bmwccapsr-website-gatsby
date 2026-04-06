@@ -1374,6 +1374,12 @@ const VolunteerRoleTemplate = (props) => {
   }, [applyFormData, hasManagedApplication, managedApplication]);
   const isApplySuccessState =
     applyNoticeTone === "success" && !isApplySubmitting;
+  const isApplyViewportOverlayVisible =
+    isApplySuccessState ||
+    showWithdrawConfirm ||
+    showResetApplicationConfirm ||
+    isWithdrawProcessing ||
+    (isApplySubmitting && !isWithdrawProcessing);
   const canWithdrawManagedApplication =
     hasManagedApplication && managedStatusKey === "submitted";
   const isApplyFormReadOnly =
@@ -1397,7 +1403,7 @@ const VolunteerRoleTemplate = (props) => {
   }, []);
 
   React.useEffect(() => {
-    if (!isApplyModalOpen || !isApplySuccessState) return undefined;
+    if (!isApplyModalOpen || !isApplyViewportOverlayVisible) return undefined;
 
     syncApplySuccessOverlayViewport();
 
@@ -1413,7 +1419,7 @@ const VolunteerRoleTemplate = (props) => {
     };
   }, [
     isApplyModalOpen,
-    isApplySuccessState,
+    isApplyViewportOverlayVisible,
     syncApplySuccessOverlayViewport,
   ]);
 
@@ -3453,7 +3459,7 @@ const VolunteerRoleTemplate = (props) => {
               onSubmit={handleApplySubmit}
               ref={applyFormScrollRef}
               onScroll={() => {
-                if (isApplySuccessState) {
+                if (isApplyViewportOverlayVisible) {
                   syncApplySuccessOverlayViewport();
                 }
               }}
@@ -4175,14 +4181,19 @@ const VolunteerRoleTemplate = (props) => {
               {showWithdrawConfirm && (
                 <Box
                   sx={{
-                    position: ["fixed", "fixed", "absolute"],
-                    inset: 0,
+                    position: "absolute",
+                    top: `${applySuccessOverlayViewport.top || 0}px`,
+                    left: 0,
+                    right: 0,
+                    minHeight: `${
+                      applySuccessOverlayViewport.height || 0
+                    }px`,
                     bg: "rgba(46, 52, 58, 0.42)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: [12020, 12020, 3],
+                    zIndex: 3,
                   }}
                 >
                   <Box
@@ -4264,14 +4275,19 @@ const VolunteerRoleTemplate = (props) => {
               {showResetApplicationConfirm && (
                 <Box
                   sx={{
-                    position: ["fixed", "fixed", "absolute"],
-                    inset: 0,
+                    position: "absolute",
+                    top: `${applySuccessOverlayViewport.top || 0}px`,
+                    left: 0,
+                    right: 0,
+                    minHeight: `${
+                      applySuccessOverlayViewport.height || 0
+                    }px`,
                     bg: "rgba(46, 52, 58, 0.42)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: [12020, 12020, 3],
+                    zIndex: 3,
                   }}
                 >
                   <Box
@@ -4363,14 +4379,19 @@ const VolunteerRoleTemplate = (props) => {
               {isWithdrawProcessing && (
                 <Box
                   sx={{
-                    position: ["fixed", "fixed", "absolute"],
-                    inset: 0,
+                    position: "absolute",
+                    top: `${applySuccessOverlayViewport.top || 0}px`,
+                    left: 0,
+                    right: 0,
+                    minHeight: `${
+                      applySuccessOverlayViewport.height || 0
+                    }px`,
                     bg: "rgba(46, 52, 58, 0.55)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: [12020, 12020, 4],
+                    zIndex: 4,
                   }}
                 >
                   <Box
@@ -4419,14 +4440,19 @@ const VolunteerRoleTemplate = (props) => {
               {isApplySubmitting && !isWithdrawProcessing && (
                 <Box
                   sx={{
-                    position: ["fixed", "fixed", "absolute"],
-                    inset: 0,
+                    position: "absolute",
+                    top: `${applySuccessOverlayViewport.top || 0}px`,
+                    left: 0,
+                    right: 0,
+                    minHeight: `${
+                      applySuccessOverlayViewport.height || 0
+                    }px`,
                     bg: "rgba(46, 52, 58, 0.45)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: [12020, 12020, 3],
+                    zIndex: 3,
                   }}
                 >
                   <Box
