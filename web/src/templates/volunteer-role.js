@@ -763,6 +763,12 @@ const VolunteerRoleTemplate = (props) => {
   });
   const calendarMenuRef = React.useRef(null);
   const toastTimeoutRef = React.useRef(null);
+  const applyFormScrollRef = React.useRef(null);
+  const [applySuccessOverlayViewport, setApplySuccessOverlayViewport] =
+    React.useState({
+      top: 0,
+      height: 0,
+    });
   const roleSlug = role?.slug?.current;
   const positionId = role?._id;
   const initialRoleActive = role?.active ?? null;
@@ -1380,6 +1386,36 @@ const VolunteerRoleTemplate = (props) => {
     !isApplySuccessState &&
     !isManagedApplicationImmutable &&
     (!hasManagedApplication || isManagedFormDirty);
+
+  const syncApplySuccessOverlayViewport = React.useCallback(() => {
+    const container = applyFormScrollRef.current;
+    if (!container) return;
+    setApplySuccessOverlayViewport({
+      top: container.scrollTop || 0,
+      height: container.clientHeight || 0,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (!isApplyModalOpen || !isApplySuccessState) return undefined;
+
+    syncApplySuccessOverlayViewport();
+
+    if (typeof window === "undefined") return undefined;
+
+    const handleResize = () => {
+      syncApplySuccessOverlayViewport();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [
+    isApplyModalOpen,
+    isApplySuccessState,
+    syncApplySuccessOverlayViewport,
+  ]);
 
   const showToast = React.useCallback((message) => {
     if (toastTimeoutRef.current && typeof window !== "undefined") {
@@ -3415,6 +3451,12 @@ const VolunteerRoleTemplate = (props) => {
             <Box
               as="form"
               onSubmit={handleApplySubmit}
+              ref={applyFormScrollRef}
+              onScroll={() => {
+                if (isApplySuccessState) {
+                  syncApplySuccessOverlayViewport();
+                }
+              }}
               sx={{
                 p: ["1rem", "1.25rem", "1.5rem"],
                 overflowY: "auto",
@@ -4042,14 +4084,19 @@ const VolunteerRoleTemplate = (props) => {
               {isApplySuccessState && (
                 <Box
                   sx={{
-                    position: ["fixed", "fixed", "absolute"],
-                    inset: 0,
+                    position: "absolute",
+                    top: `${applySuccessOverlayViewport.top || 0}px`,
+                    left: 0,
+                    right: 0,
+                    minHeight: `${
+                      applySuccessOverlayViewport.height || 0
+                    }px`,
                     bg: "rgba(46, 52, 58, 0.32)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: [12020, 12020, 2],
+                    zIndex: 2,
                   }}
                 >
                   <Box
