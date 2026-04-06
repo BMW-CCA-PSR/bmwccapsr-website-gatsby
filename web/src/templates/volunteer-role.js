@@ -335,16 +335,19 @@ const PositionEventMap = ({
       left: document.body.style.left,
       right: document.body.style.right,
       width: document.body.style.width,
+      paddingRight: document.body.style.paddingRight,
     };
     const previousHtmlOverflowY = document.documentElement.style.overflowY;
+    const lockedBodyWidth = document.body.getBoundingClientRect().width;
 
     document.documentElement.style.overflowY = "scroll";
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
+    document.body.style.left = `-${scrollX}px`;
+    document.body.style.right = "auto";
+    document.body.style.width = `${lockedBodyWidth}px`;
+    document.body.style.paddingRight = previousBodyStyles.paddingRight;
 
     const handleEscape = (event) => {
       if (event.key === "Escape") setIsExpanded(false);
@@ -969,7 +972,7 @@ const VolunteerRoleTemplate = (props) => {
     };
   }, [isCalendarMenuOpen]);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (
       !isApplyModalOpen ||
       typeof window === "undefined" ||
@@ -977,26 +980,6 @@ const VolunteerRoleTemplate = (props) => {
     ) {
       return undefined;
     }
-
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const previousBodyStyles = {
-      overflow: document.body.style.overflow,
-      position: document.body.style.position,
-      top: document.body.style.top,
-      left: document.body.style.left,
-      right: document.body.style.right,
-      width: document.body.style.width,
-    };
-    const previousHtmlOverflowY = document.documentElement.style.overflowY;
-
-    document.documentElement.style.overflowY = "scroll";
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
@@ -1007,14 +990,6 @@ const VolunteerRoleTemplate = (props) => {
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.documentElement.style.overflowY = previousHtmlOverflowY;
-      document.body.style.overflow = previousBodyStyles.overflow;
-      document.body.style.position = previousBodyStyles.position;
-      document.body.style.top = previousBodyStyles.top;
-      document.body.style.left = previousBodyStyles.left;
-      document.body.style.right = previousBodyStyles.right;
-      document.body.style.width = previousBodyStyles.width;
-      window.scrollTo(scrollX, scrollY);
     };
   }, [isApplyModalOpen]);
 
@@ -1402,7 +1377,7 @@ const VolunteerRoleTemplate = (props) => {
     });
   }, []);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (!isApplyModalOpen || !isApplyViewportOverlayVisible) return undefined;
 
     syncApplySuccessOverlayViewport();
@@ -1458,6 +1433,7 @@ const VolunteerRoleTemplate = (props) => {
       return;
     }
     setShowWithdrawConfirm(false);
+    syncApplySuccessOverlayViewport();
     setIsWithdrawProcessing(true);
     setApplyNotice("");
     setApplyNoticeTone("neutral");
@@ -1517,6 +1493,7 @@ const VolunteerRoleTemplate = (props) => {
     persistManagedApplication,
     positionId,
     showToast,
+    syncApplySuccessOverlayViewport,
   ]);
 
   const loadManagedApplication = React.useCallback(
@@ -1525,7 +1502,10 @@ const VolunteerRoleTemplate = (props) => {
       const shouldHydrateForm = options?.hydrateForm !== false;
       if (!VOLUNTEER_APPS_API_URL || !applicationIdToLoad || !positionId)
         return;
-      if (shouldShowBusy) setIsApplySubmitting(true);
+      if (shouldShowBusy) {
+        syncApplySuccessOverlayViewport();
+        setIsApplySubmitting(true);
+      }
       try {
         const response = await fetch(
           `${VOLUNTEER_APPS_API_URL.replace(/\/+$/, "")}/applications/actions`,
@@ -1584,7 +1564,7 @@ const VolunteerRoleTemplate = (props) => {
         if (shouldShowBusy) setIsApplySubmitting(false);
       }
     },
-    [persistManagedApplication, positionId],
+    [persistManagedApplication, positionId, syncApplySuccessOverlayViewport],
   );
 
   React.useEffect(() => {
@@ -1680,6 +1660,7 @@ const VolunteerRoleTemplate = (props) => {
       return;
     }
 
+    syncApplySuccessOverlayViewport();
     setIsResetProcessing(true);
     setIsWithdrawProcessing(true);
     setApplyNotice("");
@@ -1740,6 +1721,7 @@ const VolunteerRoleTemplate = (props) => {
     persistManagedApplication,
     positionId,
     showToast,
+    syncApplySuccessOverlayViewport,
   ]);
 
   const handleApplySubmit = React.useCallback(
@@ -1760,6 +1742,7 @@ const VolunteerRoleTemplate = (props) => {
         return;
       }
 
+      syncApplySuccessOverlayViewport();
       setIsApplySubmitting(true);
       setApplyNotice("");
       setApplyNoticeTone("neutral");
@@ -1859,6 +1842,7 @@ const VolunteerRoleTemplate = (props) => {
       persistManagedApplication,
       positionId,
       showToast,
+      syncApplySuccessOverlayViewport,
     ],
   );
 
@@ -3234,6 +3218,7 @@ const VolunteerRoleTemplate = (props) => {
             justifyContent: "center",
             p: [0, 0, "1.5rem"],
             overflowY: ["hidden", "hidden", "auto"],
+            overscrollBehavior: "contain",
           }}
         >
           <Card
@@ -3247,6 +3232,7 @@ const VolunteerRoleTemplate = (props) => {
               border: [0, 0, "1px solid"],
               borderColor: "black",
               overflow: "hidden",
+              overscrollBehavior: "contain",
               backgroundColor: "background",
               position: "relative",
               display: "flex",
@@ -3466,6 +3452,7 @@ const VolunteerRoleTemplate = (props) => {
               sx={{
                 p: ["1rem", "1.25rem", "1.5rem"],
                 overflowY: "auto",
+                overscrollBehavior: "contain",
                 position: "relative",
               }}
             >
@@ -3979,7 +3966,10 @@ const VolunteerRoleTemplate = (props) => {
                     <Button
                       as="button"
                       type="button"
-                      onClick={() => setShowResetApplicationConfirm(true)}
+                      onClick={() => {
+                        syncApplySuccessOverlayViewport();
+                        setShowResetApplicationConfirm(true);
+                      }}
                       disabled={isWithdrawProcessing}
                       sx={{
                         bg: "#f3d6d6",
@@ -4057,7 +4047,10 @@ const VolunteerRoleTemplate = (props) => {
                       as="button"
                       type="button"
                       disabled={isApplySubmitting || isApplySuccessState}
-                      onClick={() => setShowWithdrawConfirm(true)}
+                      onClick={() => {
+                        syncApplySuccessOverlayViewport();
+                        setShowWithdrawConfirm(true);
+                      }}
                       sx={{
                         bg: "#b42318",
                         color: "white",
