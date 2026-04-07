@@ -199,7 +199,6 @@ function ZundfolgeArticle(props) {
             sx={{
               flex: "1 1 0",
               minWidth: 0,
-              width: "100%",
               flexDirection: "column",
             }}
           >
@@ -330,7 +329,6 @@ function ZundfolgeArticle(props) {
                 ? {
                     display: ["none", "none", "flex", "flex"],
                     flex: "0 0 auto",
-                    mx: "auto",
                   }
                 : { display: "none" }
             }
@@ -338,7 +336,7 @@ function ZundfolgeArticle(props) {
             <VerticalLine height="600" />
             <div
               sx={{
-                mx: "auto",
+                width: "300px",
               }}
             >
               <BoxAd {...randomizedBox} />
