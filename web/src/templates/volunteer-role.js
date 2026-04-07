@@ -2946,29 +2946,8 @@ const VolunteerRoleTemplate = (props) => {
                               >
                                 <FaUsers size={14} aria-hidden="true" />
                               </Box>
-                              <Box
-                                as="span"
-                                sx={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "0.2rem",
-                                }}
-                              >
-                                <Box as="span" sx={{ fontWeight: "heading" }}>
-                                  No
-                                </Box>
-                                <Box
-                                  as="span"
-                                  sx={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    fontSize: "0.78em",
-                                    fontStyle: "italic",
-                                    lineHeight: 1.1,
-                                  }}
-                                >
-                                  - anyone can volunteer
-                                </Box>
+                              <Box as="span" sx={{ fontWeight: "heading" }}>
+                                No
                               </Box>
                             </Box>
                           )}
