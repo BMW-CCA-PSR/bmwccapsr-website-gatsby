@@ -793,15 +793,21 @@ function EventDetails(props) {
             </>
           )}
 
-          {props.poc && (props.poc.name || props.poc.contact) && (
+          {props.poc && (props.poc.name || (props.poc.contact && props.poc.contact.length > 0)) && (
             <>
               <Text sx={detailLabelSx}>Point of contact</Text>
               {props.poc.name && (
                 <Text sx={detailValueSx}>{props.poc.name}</Text>
               )}
-              {props.poc.contact && (
-                <Text sx={detailValueSx}>{props.poc.contact}</Text>
-              )}
+              {props.poc.contact && props.poc.contact.map((entry, i) => {
+                if (entry._type === 'emailAliasReferenceRecipient' && entry.alias?.name) {
+                  return <Text key={i} sx={detailValueSx}>{entry.alias.name}</Text>
+                }
+                if (entry._type === 'emailAliasAddressRecipient' && entry.email) {
+                  return <Text key={i} sx={detailValueSx}>{entry.email}</Text>
+                }
+                return null
+              })}
             </>
           )}
           {!isMsrEvent && props.website && (

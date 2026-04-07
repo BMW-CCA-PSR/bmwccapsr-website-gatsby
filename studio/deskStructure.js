@@ -22,6 +22,7 @@ import {
   RiHeartFill as HeartFillIcon,
 } from "react-icons/ri";
 import { ImStatsBars2 as TierIcon } from "react-icons/im";
+import { IoCarSport as MsrIcon } from "react-icons/io5";
 import {
   MdMenu,
   MdBuild,
@@ -281,6 +282,40 @@ export default (S, context) => {
                         ),
                     ),
                 ),
+              S.listItem()
+                .title("Events by source")
+                .child(
+                  S.list()
+                    .title("Events by source")
+                    .items([
+                      S.listItem()
+                        .title("MSR")
+                        .id("events-source-msr")
+                        .icon(MsrIcon)
+                        .child(
+                          S.documentTypeList("event")
+                            .title("MSR Events")
+                            .filter('_type == "event" && source == "msr"')
+                            .apiVersion("2023-01-01")
+                            .child((documentId) =>
+                              S.document().documentId(documentId).schemaType("event"),
+                            ),
+                        ),
+                      S.listItem()
+                        .title("Manual")
+                        .id("events-source-manual")
+                        .icon(EditIcon)
+                        .child(
+                          S.documentTypeList("event")
+                            .title("Manual Events")
+                            .filter('_type == "event" && (source == "manual" || !defined(source))')
+                            .apiVersion("2023-01-01")
+                            .child((documentId) =>
+                              S.document().documentId(documentId).schemaType("event"),
+                            ),
+                        ),
+                    ]),
+                ),
               S.divider(),
               S.documentTypeListItem("eventCategory")
                 .title("Categories")
@@ -294,6 +329,7 @@ export default (S, context) => {
                     .items([
                       S.listItem()
                         .title("MSR")
+                        .icon(MsrIcon)
                         .child(
                           S.document()
                             .schemaType("sourceSettings")

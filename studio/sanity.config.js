@@ -14,6 +14,7 @@ import { AuthorPublishWithDefaultAvatarAction } from "./src/documentActions/auth
 import { PostPublishFeaturedSingletonAction } from "./src/documentActions/postPublishFeaturedSingletonAction";
 import { UpdateEmailAliasAction } from "./src/documentActions/emailAliasUpdateAction";
 import { DeleteEmailAliasAction } from "./src/documentActions/emailAliasDeleteAction";
+import { EventSourceBadge } from "./src/documentBadges/eventSourceBadge";
 
 const vars = {
   apiId:
@@ -24,13 +25,21 @@ const vars = {
     process.env.VITE_NETLIFY_BUILD_HOOK_ID
 };
 
-const graphExcludedDocumentTypes = [
-  "workflow.metadata",
-  "sourceSettings",
+const graphIncludedDocumentTypes = [
+  "event",
+  "eventCategory",
+  "zundfolgeIssue",
+  "post",
+  "category",
+  "author",
+  "volunteerRole",
+  "volunteerFixedRole",
   "volunteerApplication",
+  "volunteerCategory",
   "emailAlias",
   "emailAliasType",
-  "emailSendingSettings",
+  "advertiser",
+  "advertiserCategory",
 ];
 
 const volunteerSingletonPageSettingsTypes = new Set([
@@ -47,10 +56,7 @@ const singletonPageDocumentIds = new Set([
 
 const graphViewQuery = `*[
   !(_id in path("drafts.**")) &&
-  !(_id in path("_.*")) &&
-  !(_type match "system.*") &&
-  !(_type match "sanity.*") &&
-  !(_type in ${JSON.stringify(graphExcludedDocumentTypes)})
+  _type in ${JSON.stringify(graphIncludedDocumentTypes)}
 ]{
   ...,
   "title": coalesce(title, name, applicantName, documentId, slug.current, _id)
@@ -279,6 +285,16 @@ export default defineConfig({
       if (schemaTypeName !== "event") return previousActions;
       return orderEventActions(previousActions.map(wrapEventActionForMsr));
     },
+    badges: (previousBadges, context) => {
+      const schemaTypeName =
+        typeof context?.schemaType === "string"
+          ? context.schemaType
+          : context?.schemaType?.name;
+      if (schemaTypeName === "event") {
+        return [...previousBadges, EventSourceBadge];
+      }
+      return previousBadges;
+    },
   },
   plugins: [
     deskTool({
@@ -286,6 +302,7 @@ export default defineConfig({
     }),
     contentGraphView({
       query: graphViewQuery,
+      apiVersion: "2023-01-01",
     }),
     unsplashImageAsset(),
     media(),
