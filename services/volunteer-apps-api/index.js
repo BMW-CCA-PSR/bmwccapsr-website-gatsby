@@ -408,12 +408,12 @@ const getAppSettings = async ({ forceRefresh = false } = {}) => {
   const pending = (async () => {
     try {
       const result = await sanityFetchQuery(`{
-        "siteDomain": *[_type == "siteSettings"][0].domain,
-        "emailSendingSettings": *[_type == "emailSendingSettings"][0]{
+        "siteDomain": *[_type == "siteSettings" && !(_id in path("drafts.**"))][0].domain,
+        "emailSendingSettings": *[_type == "emailSendingSettings" && !(_id in path("drafts.**"))][0]{
           fromName,
           fromEmail
         },
-        "volunteerApplicationLifecycleSettings": *[_type == "volunteerApplicationLifecycleSettings"][0]{
+        "volunteerApplicationLifecycleSettings": *[_type == "volunteerApplicationLifecycleSettings" && !(_id in path("drafts.**"))][0]{
           "replyTo": replyTo[0]{
             _type,
             email,
@@ -532,6 +532,16 @@ const getResolvedEmailRuntimeSettings = async () => {
     lifecycle.staffNotificationAliasName,
     siteDomain
   );
+  if (!staffNotificationAliasAddress && lifecycle.staffNotificationAliasName) {
+    console.warn(
+      `[email-settings] staffNotificationAlias name "${lifecycle.staffNotificationAliasName}" resolved but siteDomain "${siteDomain}" is missing; falling back to env var`
+    );
+  }
+  if (!staffNotificationAliasAddress && !lifecycle.staffNotificationAliasName) {
+    console.warn(
+      "[email-settings] No staffNotificationAlias configured in published volunteerApplicationLifecycleSettings; falling back to STAFF_NOTIFICATION_EMAILS env var"
+    );
+  }
   const staffNotificationAddresses = staffNotificationAliasAddress
     ? [staffNotificationAliasAddress]
     : parseEmailList(process.env.STAFF_NOTIFICATION_EMAILS || "");

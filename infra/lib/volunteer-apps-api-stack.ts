@@ -47,7 +47,7 @@ export class VolunteerAppsApiStack extends cdk.Stack {
       process.env.SES_TEMPLATE_APPLICANT_TRANSITION ||
       "volunteer-applicant-transition-v1";
     const volunteerEmailLogoUrl =
-      "https://bmw-club-psr.org/static/124e053cbf8e2820acd2365238eb071e/ced20/new-logo.webp";
+      `${siteBaseUrl}/logo.png`;
 
     const emailBaseHtmlStart = `
 <!doctype html>

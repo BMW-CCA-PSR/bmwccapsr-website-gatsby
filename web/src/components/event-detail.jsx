@@ -8,6 +8,7 @@ import {
   parseISO,
 } from "date-fns";
 import { Text, Flex, Box } from "@theme-ui/components";
+import { buildEmailAliasAddress } from "../lib/email-alias";
 import { FiClock, FiShare2, FiSlash } from "react-icons/fi";
 import {
   FaCalendarPlus,
@@ -801,10 +802,19 @@ function EventDetails(props) {
               )}
               {props.poc.contact && props.poc.contact.map((entry, i) => {
                 if (entry._type === 'emailAliasReferenceRecipient' && entry.alias?.name) {
-                  return <Text key={i} sx={detailValueSx}>{entry.alias.name}</Text>
+                  const aliasEmail = buildEmailAliasAddress(entry.alias.name);
+                  return (
+                    <Text key={i} sx={detailValueSx}>
+                      <a href={`mailto:${aliasEmail}`}>{aliasEmail}</a>
+                    </Text>
+                  )
                 }
                 if (entry._type === 'emailAliasAddressRecipient' && entry.email) {
-                  return <Text key={i} sx={detailValueSx}>{entry.email}</Text>
+                  return (
+                    <Text key={i} sx={detailValueSx}>
+                      <a href={`mailto:${entry.email}`}>{entry.email}</a>
+                    </Text>
+                  )
                 }
                 return null
               })}
