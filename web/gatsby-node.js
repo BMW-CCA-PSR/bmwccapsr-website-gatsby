@@ -135,6 +135,25 @@ exports.createSchemaCustomization = ({ actions, schema }) => {
       overviewImage: SanityMainImage
     }
 
+    type SanityEmailAliasReferenceRecipient {
+      _key: String
+      _type: String
+      alias: SanityEmailAlias
+    }
+
+    type SanityEmailAliasAddressRecipient {
+      _key: String
+      _type: String
+      email: String
+    }
+
+    union SanityPocContactItem = SanityEmailAliasReferenceRecipient | SanityEmailAliasAddressRecipient
+
+    type SanityPoc {
+      name: String
+      contact: [SanityPocContactItem]
+    }
+
   `);
   actions.createTypes([
     schema.buildObjectType({
