@@ -335,19 +335,16 @@ const PositionEventMap = ({
       left: document.body.style.left,
       right: document.body.style.right,
       width: document.body.style.width,
-      paddingRight: document.body.style.paddingRight,
     };
     const previousHtmlOverflowY = document.documentElement.style.overflowY;
-    const lockedBodyWidth = document.body.getBoundingClientRect().width;
 
     document.documentElement.style.overflowY = "scroll";
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = `-${scrollX}px`;
-    document.body.style.right = "auto";
-    document.body.style.width = `${lockedBodyWidth}px`;
-    document.body.style.paddingRight = previousBodyStyles.paddingRight;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
 
     const handleEscape = (event) => {
       if (event.key === "Escape") setIsExpanded(false);
@@ -766,12 +763,6 @@ const VolunteerRoleTemplate = (props) => {
   });
   const calendarMenuRef = React.useRef(null);
   const toastTimeoutRef = React.useRef(null);
-  const applyFormScrollRef = React.useRef(null);
-  const [applySuccessOverlayViewport, setApplySuccessOverlayViewport] =
-    React.useState({
-      top: 0,
-      height: 0,
-    });
   const roleSlug = role?.slug?.current;
   const positionId = role?._id;
   const initialRoleActive = role?.active ?? null;
@@ -972,7 +963,7 @@ const VolunteerRoleTemplate = (props) => {
     };
   }, [isCalendarMenuOpen]);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (
       !isApplyModalOpen ||
       typeof window === "undefined" ||
@@ -980,6 +971,26 @@ const VolunteerRoleTemplate = (props) => {
     ) {
       return undefined;
     }
+
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const previousBodyStyles = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+    };
+    const previousHtmlOverflowY = document.documentElement.style.overflowY;
+
+    document.documentElement.style.overflowY = "scroll";
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
@@ -990,6 +1001,14 @@ const VolunteerRoleTemplate = (props) => {
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
+      document.documentElement.style.overflowY = previousHtmlOverflowY;
+      document.body.style.overflow = previousBodyStyles.overflow;
+      document.body.style.position = previousBodyStyles.position;
+      document.body.style.top = previousBodyStyles.top;
+      document.body.style.left = previousBodyStyles.left;
+      document.body.style.right = previousBodyStyles.right;
+      document.body.style.width = previousBodyStyles.width;
+      window.scrollTo(scrollX, scrollY);
     };
   }, [isApplyModalOpen]);
 
@@ -1349,12 +1368,6 @@ const VolunteerRoleTemplate = (props) => {
   }, [applyFormData, hasManagedApplication, managedApplication]);
   const isApplySuccessState =
     applyNoticeTone === "success" && !isApplySubmitting;
-  const isApplyViewportOverlayVisible =
-    isApplySuccessState ||
-    showWithdrawConfirm ||
-    showResetApplicationConfirm ||
-    isWithdrawProcessing ||
-    (isApplySubmitting && !isWithdrawProcessing);
   const canWithdrawManagedApplication =
     hasManagedApplication && managedStatusKey === "submitted";
   const isApplyFormReadOnly =
@@ -1367,36 +1380,6 @@ const VolunteerRoleTemplate = (props) => {
     !isApplySuccessState &&
     !isManagedApplicationImmutable &&
     (!hasManagedApplication || isManagedFormDirty);
-
-  const syncApplySuccessOverlayViewport = React.useCallback(() => {
-    const container = applyFormScrollRef.current;
-    if (!container) return;
-    setApplySuccessOverlayViewport({
-      top: container.scrollTop || 0,
-      height: container.clientHeight || 0,
-    });
-  }, []);
-
-  React.useLayoutEffect(() => {
-    if (!isApplyModalOpen || !isApplyViewportOverlayVisible) return undefined;
-
-    syncApplySuccessOverlayViewport();
-
-    if (typeof window === "undefined") return undefined;
-
-    const handleResize = () => {
-      syncApplySuccessOverlayViewport();
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [
-    isApplyModalOpen,
-    isApplyViewportOverlayVisible,
-    syncApplySuccessOverlayViewport,
-  ]);
 
   const showToast = React.useCallback((message) => {
     if (toastTimeoutRef.current && typeof window !== "undefined") {
@@ -1433,7 +1416,6 @@ const VolunteerRoleTemplate = (props) => {
       return;
     }
     setShowWithdrawConfirm(false);
-    syncApplySuccessOverlayViewport();
     setIsWithdrawProcessing(true);
     setApplyNotice("");
     setApplyNoticeTone("neutral");
@@ -1493,7 +1475,6 @@ const VolunteerRoleTemplate = (props) => {
     persistManagedApplication,
     positionId,
     showToast,
-    syncApplySuccessOverlayViewport,
   ]);
 
   const loadManagedApplication = React.useCallback(
@@ -1502,10 +1483,7 @@ const VolunteerRoleTemplate = (props) => {
       const shouldHydrateForm = options?.hydrateForm !== false;
       if (!VOLUNTEER_APPS_API_URL || !applicationIdToLoad || !positionId)
         return;
-      if (shouldShowBusy) {
-        syncApplySuccessOverlayViewport();
-        setIsApplySubmitting(true);
-      }
+      if (shouldShowBusy) setIsApplySubmitting(true);
       try {
         const response = await fetch(
           `${VOLUNTEER_APPS_API_URL.replace(/\/+$/, "")}/applications/actions`,
@@ -1564,7 +1542,7 @@ const VolunteerRoleTemplate = (props) => {
         if (shouldShowBusy) setIsApplySubmitting(false);
       }
     },
-    [persistManagedApplication, positionId, syncApplySuccessOverlayViewport],
+    [persistManagedApplication, positionId],
   );
 
   React.useEffect(() => {
@@ -1660,7 +1638,6 @@ const VolunteerRoleTemplate = (props) => {
       return;
     }
 
-    syncApplySuccessOverlayViewport();
     setIsResetProcessing(true);
     setIsWithdrawProcessing(true);
     setApplyNotice("");
@@ -1721,7 +1698,6 @@ const VolunteerRoleTemplate = (props) => {
     persistManagedApplication,
     positionId,
     showToast,
-    syncApplySuccessOverlayViewport,
   ]);
 
   const handleApplySubmit = React.useCallback(
@@ -1742,7 +1718,6 @@ const VolunteerRoleTemplate = (props) => {
         return;
       }
 
-      syncApplySuccessOverlayViewport();
       setIsApplySubmitting(true);
       setApplyNotice("");
       setApplyNoticeTone("neutral");
@@ -1842,7 +1817,6 @@ const VolunteerRoleTemplate = (props) => {
       persistManagedApplication,
       positionId,
       showToast,
-      syncApplySuccessOverlayViewport,
     ],
   );
 
@@ -3218,7 +3192,6 @@ const VolunteerRoleTemplate = (props) => {
             justifyContent: "center",
             p: [0, 0, "1.5rem"],
             overflowY: ["hidden", "hidden", "auto"],
-            overscrollBehavior: "contain",
           }}
         >
           <Card
@@ -3232,7 +3205,6 @@ const VolunteerRoleTemplate = (props) => {
               border: [0, 0, "1px solid"],
               borderColor: "black",
               overflow: "hidden",
-              overscrollBehavior: "contain",
               backgroundColor: "background",
               position: "relative",
               display: "flex",
@@ -3443,16 +3415,9 @@ const VolunteerRoleTemplate = (props) => {
             <Box
               as="form"
               onSubmit={handleApplySubmit}
-              ref={applyFormScrollRef}
-              onScroll={() => {
-                if (isApplyViewportOverlayVisible) {
-                  syncApplySuccessOverlayViewport();
-                }
-              }}
               sx={{
                 p: ["1rem", "1.25rem", "1.5rem"],
                 overflowY: "auto",
-                overscrollBehavior: "contain",
                 position: "relative",
               }}
             >
@@ -3966,10 +3931,7 @@ const VolunteerRoleTemplate = (props) => {
                     <Button
                       as="button"
                       type="button"
-                      onClick={() => {
-                        syncApplySuccessOverlayViewport();
-                        setShowResetApplicationConfirm(true);
-                      }}
+                      onClick={() => setShowResetApplicationConfirm(true)}
                       disabled={isWithdrawProcessing}
                       sx={{
                         bg: "#f3d6d6",
@@ -4047,10 +4009,7 @@ const VolunteerRoleTemplate = (props) => {
                       as="button"
                       type="button"
                       disabled={isApplySubmitting || isApplySuccessState}
-                      onClick={() => {
-                        syncApplySuccessOverlayViewport();
-                        setShowWithdrawConfirm(true);
-                      }}
+                      onClick={() => setShowWithdrawConfirm(true)}
                       sx={{
                         bg: "#b42318",
                         color: "white",
@@ -4083,19 +4042,14 @@ const VolunteerRoleTemplate = (props) => {
               {isApplySuccessState && (
                 <Box
                   sx={{
-                    position: "absolute",
-                    top: `${applySuccessOverlayViewport.top || 0}px`,
-                    left: 0,
-                    right: 0,
-                    minHeight: `${
-                      applySuccessOverlayViewport.height || 0
-                    }px`,
+                    position: ["fixed", "fixed", "absolute"],
+                    inset: 0,
                     bg: "rgba(46, 52, 58, 0.32)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 2,
+                    zIndex: [12020, 12020, 2],
                   }}
                 >
                   <Box
@@ -4174,19 +4128,14 @@ const VolunteerRoleTemplate = (props) => {
               {showWithdrawConfirm && (
                 <Box
                   sx={{
-                    position: "absolute",
-                    top: `${applySuccessOverlayViewport.top || 0}px`,
-                    left: 0,
-                    right: 0,
-                    minHeight: `${
-                      applySuccessOverlayViewport.height || 0
-                    }px`,
+                    position: ["fixed", "fixed", "absolute"],
+                    inset: 0,
                     bg: "rgba(46, 52, 58, 0.42)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 3,
+                    zIndex: [12020, 12020, 3],
                   }}
                 >
                   <Box
@@ -4268,19 +4217,14 @@ const VolunteerRoleTemplate = (props) => {
               {showResetApplicationConfirm && (
                 <Box
                   sx={{
-                    position: "absolute",
-                    top: `${applySuccessOverlayViewport.top || 0}px`,
-                    left: 0,
-                    right: 0,
-                    minHeight: `${
-                      applySuccessOverlayViewport.height || 0
-                    }px`,
+                    position: ["fixed", "fixed", "absolute"],
+                    inset: 0,
                     bg: "rgba(46, 52, 58, 0.42)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 3,
+                    zIndex: [12020, 12020, 3],
                   }}
                 >
                   <Box
@@ -4372,19 +4316,14 @@ const VolunteerRoleTemplate = (props) => {
               {isWithdrawProcessing && (
                 <Box
                   sx={{
-                    position: "absolute",
-                    top: `${applySuccessOverlayViewport.top || 0}px`,
-                    left: 0,
-                    right: 0,
-                    minHeight: `${
-                      applySuccessOverlayViewport.height || 0
-                    }px`,
+                    position: ["fixed", "fixed", "absolute"],
+                    inset: 0,
                     bg: "rgba(46, 52, 58, 0.55)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 4,
+                    zIndex: [12020, 12020, 4],
                   }}
                 >
                   <Box
@@ -4433,19 +4372,14 @@ const VolunteerRoleTemplate = (props) => {
               {isApplySubmitting && !isWithdrawProcessing && (
                 <Box
                   sx={{
-                    position: "absolute",
-                    top: `${applySuccessOverlayViewport.top || 0}px`,
-                    left: 0,
-                    right: 0,
-                    minHeight: `${
-                      applySuccessOverlayViewport.height || 0
-                    }px`,
+                    position: ["fixed", "fixed", "absolute"],
+                    inset: 0,
                     bg: "rgba(46, 52, 58, 0.45)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     px: "1rem",
-                    zIndex: 3,
+                    zIndex: [12020, 12020, 3],
                   }}
                 >
                   <Box

@@ -5,6 +5,11 @@ import {
   ScanCommand,
 } from "@aws-sdk/client-dynamodb";
 import {
+  CloudWatchLogsClient,
+  GetQueryResultsCommand,
+  StartQueryCommand,
+} from "@aws-sdk/client-cloudwatch-logs";
+import {
   GetSecretValueCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
@@ -46,10 +51,16 @@ type LambdaEvent = Record<string, any>;
 const region = process.env.AWS_REGION || "us-west-2";
 const secretsClient = new SecretsManagerClient({ region });
 const dynamoClient = new DynamoDBClient({ region });
+const logsClient = new CloudWatchLogsClient({ region });
 
 const MANAGED_BY = "sanity-email-alias-sync";
 const aliasPattern = /^[a-z0-9][a-z0-9._+-]*$/;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const forwarderLogGroupName = String(
+  process.env.EMAIL_ALIAS_FORWARDER_LOG_GROUP_NAME ||
+    "/aws/lambda/SesProxyStack-SesProxyStack82528740-fpIfvg1MtmOe",
+).trim();
+const defaultMetricsDays = 7;
 
 const requiredEnv = (name: string): string => {
   const value = String(process.env[name] || "").trim();
@@ -117,6 +128,9 @@ const normalizeAlias = (value: unknown): string =>
   String(value || "")
     .trim()
     .toLowerCase();
+
+const normalizeAliasLocalPart = (value: unknown): string =>
+  normalizeAlias(value).replace(/@.*$/, "");
 
 const normalizeRecipient = (value: unknown): string =>
   String(value || "")
@@ -371,6 +385,160 @@ const scanExistingMappings = async (): Promise<AliasTableRow[]> => {
   return rows.filter((row) => row.alias);
 };
 
+const sleep = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
+const startOfUtcDay = (date: Date): Date =>
+  new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+
+const formatUtcDate = (date: Date): string =>
+  [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, "0"),
+    String(date.getUTCDate()).padStart(2, "0"),
+  ].join("-");
+
+const buildMetricsDays = (days: number): string[] => {
+  const today = startOfUtcDay(new Date());
+  return Array.from({ length: days }, (_value, index) => {
+    const date = new Date(today);
+    date.setUTCDate(today.getUTCDate() - (days - index - 1));
+    return formatUtcDate(date);
+  });
+};
+
+const parseQueryResults = (
+  results: Array<Array<{ field?: string; value?: string }>> = [],
+): Map<string, { received: number; delivered: number }> => {
+  const parsed = new Map<string, { received: number; delivered: number }>();
+
+  for (const row of results) {
+    const rowMap = new Map(
+      row.map((entry) => [String(entry?.field || ""), String(entry?.value || "")]),
+    );
+    const rawDay = rowMap.get("day") || "";
+    const day = rawDay.slice(0, 10);
+    if (!day) continue;
+
+    parsed.set(day, {
+      received: Number(rowMap.get("received_messages") || 0),
+      delivered: Number(rowMap.get("forwarded_deliveries") || 0),
+    });
+  }
+
+  return parsed;
+};
+
+const fetchAliasMetrics = async (aliasName: string, requestedDays?: unknown) => {
+  const normalizedAlias = normalizeAliasLocalPart(aliasName);
+  if (!normalizedAlias) {
+    throw new Error("aliasName is required.");
+  }
+  if (!aliasPattern.test(normalizedAlias)) {
+    throw new Error(`Invalid alias name "${normalizedAlias}".`);
+  }
+  if (!forwarderLogGroupName) {
+    throw new Error("EMAIL_ALIAS_FORWARDER_LOG_GROUP_NAME is not configured.");
+  }
+
+  const days = Math.max(
+    1,
+    Math.min(30, Number.parseInt(String(requestedDays || defaultMetricsDays), 10) || defaultMetricsDays),
+  );
+  const dayLabels = buildMetricsDays(days);
+  const startDate = new Date(`${dayLabels[0]}T00:00:00.000Z`);
+  const startTime = Math.floor(startDate.getTime() / 1000);
+  const endTime = Math.floor(Date.now() / 1000);
+
+  const queryString = [
+    "filter @message like /sendMessage: Sending email via SES/",
+    "| parse @message /Original recipients: (?<originalRecipient>.*)\\. Transformed recipients: (?<destinations>.*)\\./",
+    "| parse originalRecipient /(?<aliasLocalPart>[^@]+)@(?<aliasDomain>[^\\s,]+)/",
+    `| filter aliasLocalPart = "${normalizedAlias}"`,
+    '| fields 1 + strlen(destinations) - strlen(replace(destinations, ",", "")) as recipientCount',
+    "| stats count() as received_messages, sum(recipientCount) as forwarded_deliveries by bin(1d) as day",
+    "| sort day asc",
+  ].join(" ");
+
+  const startResponse = await logsClient.send(
+    new StartQueryCommand({
+      logGroupName: forwarderLogGroupName,
+      startTime,
+      endTime,
+      queryString,
+    }),
+  );
+  const queryId = String(startResponse.queryId || "").trim();
+  if (!queryId) {
+    throw new Error("CloudWatch Logs query did not return a query ID.");
+  }
+
+  let queryResults:
+    | Array<Array<{ field?: string; value?: string }>>
+    | undefined;
+  let finalStatus = "";
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    if (attempt > 0) {
+      await sleep(500);
+    }
+
+    const resultResponse = await logsClient.send(
+      new GetQueryResultsCommand({ queryId }),
+    );
+    finalStatus = String(resultResponse.status || "");
+
+    if (finalStatus === "Complete") {
+      queryResults = resultResponse.results as Array<
+        Array<{ field?: string; value?: string }>
+      >;
+      break;
+    }
+
+    if (
+      finalStatus === "Failed" ||
+      finalStatus === "Cancelled" ||
+      finalStatus === "Timeout" ||
+      finalStatus === "Unknown"
+    ) {
+      throw new Error(`CloudWatch Logs query failed with status "${finalStatus}".`);
+    }
+  }
+
+  if (!queryResults) {
+    throw new Error(
+      `CloudWatch Logs query did not complete in time. Last status: ${finalStatus || "unknown"}.`,
+    );
+  }
+
+  const resultsByDay = parseQueryResults(queryResults);
+  const series = dayLabels.map((day) => {
+    const metrics = resultsByDay.get(day) || { received: 0, delivered: 0 };
+    return {
+      day,
+      received: metrics.received,
+      delivered: metrics.delivered,
+    };
+  });
+
+  return {
+    aliasName: normalizedAlias,
+    timezone: "UTC",
+    series,
+    totals: series.reduce(
+      (accumulator, row) => ({
+        received: accumulator.received + row.received,
+        delivered: accumulator.delivered + row.delivered,
+      }),
+      { received: 0, delivered: 0 },
+    ),
+  };
+};
+
 const arraysEqual = (left: string[], right: string[]): boolean => {
   if (left.length !== right.length) return false;
   return left.every((value, index) => value === right[index]);
@@ -398,6 +566,21 @@ export const handler = async (rawEvent: LambdaEvent = {}): Promise<Record<string
   }
 
   try {
+    const operation = String(event?.operation || event?.body?.operation || "email_alias_sync")
+      .trim()
+      .toLowerCase();
+
+    if (operation === "email_alias_metrics") {
+      const metrics = await fetchAliasMetrics(
+        String(event?.aliasName || event?.body?.aliasName || ""),
+        event?.days || event?.body?.days,
+      );
+      return jsonResponse(200, {
+        ok: true,
+        metrics,
+      });
+    }
+
     const [publishedAliases, existingRows] = await Promise.all([
       fetchEmailAliasDocuments(),
       scanExistingMappings(),

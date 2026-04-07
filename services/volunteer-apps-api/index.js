@@ -411,16 +411,14 @@ const getAppSettings = async ({ forceRefresh = false } = {}) => {
         "siteDomain": *[_type == "siteSettings"][0].domain,
         "emailSendingSettings": *[_type == "emailSendingSettings"][0]{
           fromName,
-          fromEmail,
+          fromEmail
+        },
+        "volunteerApplicationLifecycleSettings": *[_type == "volunteerApplicationLifecycleSettings"][0]{
           "replyTo": replyTo[0]{
             _type,
             email,
             "aliasName": alias->name
           },
-          replyToEmailOverride,
-          "replyToAliasName": replyToAlias->name
-        },
-        "volunteerApplicationLifecycleSettings": *[_type == "volunteerApplicationLifecycleSettings"][0]{
           sendStaffNotificationOnNewApplication,
           sendApplicantSubmissionConfirmation,
           sendApplicantUpdateConfirmation,
@@ -439,20 +437,20 @@ const getAppSettings = async ({ forceRefresh = false } = {}) => {
           fromEmail: normalizeEmail(
             result?.emailSendingSettings?.fromEmail || ""
           ),
-          replyToEmailOverride: normalizeEmail(
-            (result?.emailSendingSettings?.replyTo?._type ===
-            "emailAliasAddressRecipient"
-              ? result?.emailSendingSettings?.replyTo?.email
-              : result?.emailSendingSettings?.replyToEmailOverride) || ""
-          ),
-          replyToAliasName: normalizeText(
-            (result?.emailSendingSettings?.replyTo?._type ===
-            "emailAliasReferenceRecipient"
-              ? result?.emailSendingSettings?.replyTo?.aliasName
-              : result?.emailSendingSettings?.replyToAliasName) || ""
-          ),
         },
         volunteerApplicationLifecycleSettings: {
+          replyToEmailOverride: normalizeEmail(
+            (result?.volunteerApplicationLifecycleSettings?.replyTo?._type ===
+            "emailAliasAddressRecipient"
+              ? result?.volunteerApplicationLifecycleSettings?.replyTo?.email
+              : result?.volunteerApplicationLifecycleSettings?.replyToEmailOverride) || ""
+          ),
+          replyToAliasName: normalizeText(
+            (result?.volunteerApplicationLifecycleSettings?.replyTo?._type ===
+            "emailAliasReferenceRecipient"
+              ? result?.volunteerApplicationLifecycleSettings?.replyTo?.aliasName
+              : result?.volunteerApplicationLifecycleSettings?.replyToAliasName) || ""
+          ),
           sendStaffNotificationOnNewApplication: resolveBooleanSetting(
             result?.volunteerApplicationLifecycleSettings
               ?.sendStaffNotificationOnNewApplication,
@@ -527,8 +525,8 @@ const getResolvedEmailRuntimeSettings = async () => {
     }) || fallbackFromEmail;
 
   const replyToAddress =
-    normalizeEmail(sending.replyToEmailOverride || "") ||
-    buildEmailAliasAddress(sending.replyToAliasName, siteDomain);
+    normalizeEmail(lifecycle.replyToEmailOverride || "") ||
+    buildEmailAliasAddress(lifecycle.replyToAliasName, siteDomain);
 
   const staffNotificationAliasAddress = buildEmailAliasAddress(
     lifecycle.staffNotificationAliasName,

@@ -35,25 +35,6 @@ export default {
       validation: (Rule) =>
         Rule.required().email().error("Enter a valid sender email address."),
     },
-    {
-      name: "replyTo",
-      type: "array",
-      title: "Reply-To Address",
-      description:
-        "Optional reply-to destination. Choose either an email alias or a direct email address.",
-      of: [
-        {
-          type: "emailAliasReferenceRecipient",
-          title: "Email Alias",
-        },
-        {
-          type: "emailAliasAddressRecipient",
-          title: "Email Address",
-        },
-      ],
-      validation: (Rule) =>
-        Rule.max(1).error("Choose only one reply-to destination."),
-    },
   ],
   preview: {
     select: {

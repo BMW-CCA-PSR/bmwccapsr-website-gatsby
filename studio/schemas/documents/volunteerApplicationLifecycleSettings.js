@@ -39,6 +39,25 @@ export default {
       },
     },
     {
+      name: "replyTo",
+      type: "array",
+      title: "Reply-To Address",
+      description:
+        "Optional reply-to destination used for volunteer application emails.",
+      of: [
+        {
+          type: "emailAliasReferenceRecipient",
+          title: "Email Alias",
+        },
+        {
+          type: "emailAliasAddressRecipient",
+          title: "Email Address",
+        },
+      ],
+      validation: (Rule) =>
+        Rule.max(1).error("Choose only one reply-to destination."),
+    },
+    {
       name: "sendStaffNotificationOnNewApplication",
       type: "boolean",
       title: "Send Email On New Application",

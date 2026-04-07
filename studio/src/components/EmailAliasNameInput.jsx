@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CopyIcon } from "@sanity/icons";
-import { Button, Card, Flex, Stack, Text, useToast } from "@sanity/ui";
+import { Box, Button, Card, Flex, Stack, Text, useToast } from "@sanity/ui";
 import { useClient } from "sanity";
 import {
   buildEmailAliasAddress,
@@ -64,25 +64,31 @@ const EmailAliasNameInput = (props) => {
   return (
     <Stack space={3}>
       {renderDefault(props)}
-      <Card border padding={3} radius={2} tone={hasAlias ? "primary" : "default"}>
-        <Stack space={2}>
-          <Flex align="center" justify="space-between" gap={3}>
-            <Text muted size={1}>
-              Email Alias
-            </Text>
-            <Button
-              aria-label="Copy alias"
-              disabled={!canCopy}
-              icon={CopyIcon}
-              mode="bleed"
-              onClick={handleCopy}
-              padding={2}
-            />
-          </Flex>
-          <Text size={2} weight="semibold">
-            {helperText}
-          </Text>
-        </Stack>
+      <Card border overflow="hidden" radius={2} tone={hasAlias ? "primary" : "default"}>
+        <Flex align="stretch">
+          <Box flex={1} padding={3}>
+            <Stack space={2}>
+              <Text muted size={1}>
+                Email Alias
+              </Text>
+              <Text size={2} weight="semibold">
+                {helperText}
+              </Text>
+            </Stack>
+          </Box>
+          <Button
+            aria-label="Copy alias"
+            disabled={!canCopy}
+            icon={CopyIcon}
+            mode="bleed"
+            onClick={handleCopy}
+            padding={4}
+            style={{
+              alignSelf: "stretch",
+              borderRadius: 0,
+            }}
+          />
+        </Flex>
       </Card>
     </Stack>
   );

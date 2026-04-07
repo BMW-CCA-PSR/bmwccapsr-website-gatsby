@@ -1,5 +1,5 @@
 import React from "react";
-import { SyncIcon } from "@sanity/icons";
+import { RefreshIcon } from "@sanity/icons";
 import { Spinner, useToast } from "@sanity/ui";
 import { useClient } from "sanity";
 
@@ -259,14 +259,19 @@ export function UpdateEmailAliasAction(props) {
   const toast = useToast();
   const client = useClient({ apiVersion: API_VERSION });
   const [isUpdating, setIsUpdating] = React.useState(false);
-
   const schemaTypeName = getSchemaTypeName(type) || getSchemaTypeName(schemaType);
+
   if (schemaTypeName !== "emailAlias") return null;
 
   const resolvedDocumentId = normalizeDocumentId(
     draft?._id || published?._id || id || documentId,
   );
   const currentDocument = draft || published || {};
+  const targetSnapshot = buildAliasSnapshot(currentDocument);
+  const publishedSnapshot = buildAliasSnapshot(published);
+  const hasChanges = Boolean(draft?._id) && !snapshotsMatch(publishedSnapshot, targetSnapshot);
+  const isIncomplete = !targetSnapshot.name || targetSnapshot.recipients.length === 0;
+  const isDisabled = isUpdating || isIncomplete || !webhookUrl || !hasChanges;
 
   const handleComplete = () => {
     if (typeof onComplete === "function") onComplete();
@@ -284,7 +289,6 @@ export function UpdateEmailAliasAction(props) {
       return;
     }
 
-    const targetSnapshot = buildAliasSnapshot(currentDocument);
     if (!targetSnapshot.name || targetSnapshot.recipients.length === 0) {
       toast.push({
         status: "error",
@@ -395,11 +399,15 @@ export function UpdateEmailAliasAction(props) {
 
   return {
     label: isUpdating ? "Updating..." : "Update",
-    title: webhookUrl
-      ? "Publish this alias if needed, then sync all published aliases to AWS."
-      : "Configure SANITY_STUDIO_EMAIL_ALIAS_SYNC_WEBHOOK_URL to enable this action.",
-    icon: isUpdating ? SyncingIcon : SyncIcon,
-    disabled: isUpdating,
+    title: !webhookUrl
+      ? "Configure SANITY_STUDIO_EMAIL_ALIAS_SYNC_WEBHOOK_URL to enable this action."
+      : isIncomplete
+        ? "Enter an alias name and at least one Forward To recipient to enable update."
+        : !hasChanges
+          ? "No unpublished changes to sync."
+          : "Publish this alias if needed, then sync all published aliases to AWS.",
+    icon: isUpdating ? SyncingIcon : RefreshIcon,
+    disabled: isDisabled,
     onHandle: updateAlias,
   };
 }

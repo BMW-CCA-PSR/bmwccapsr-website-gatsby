@@ -1,11 +1,11 @@
-import { RiFolder2Line } from "react-icons/ri";
+import { MdLocalOffer } from "react-icons/md";
 import { buildUniqueFieldValidator } from '../utils/uniqueFieldValidation';
 
 export default {
     name: 'eventCategory',
     type: 'document',
     title: 'Event Category',
-    icon: RiFolder2Line,
+    icon: MdLocalOffer,
     fields: [
       {
         name: 'title',
@@ -31,7 +31,7 @@ export default {
       prepare({title}) {
         return {
           title: title || 'Untitled event category',
-          media: RiFolder2Line
+          media: MdLocalOffer
         }
       }
     }

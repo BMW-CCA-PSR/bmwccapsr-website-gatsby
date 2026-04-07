@@ -1,10 +1,10 @@
-import { RiAdvertisementLine } from "react-icons/ri";
+import { MdLocalOffer } from "react-icons/md";
 
 export default {
     name: 'advertiserCategory',
     type: 'document',
     title: 'Advertiser Category',
-    icon: RiAdvertisementLine,
+    icon: MdLocalOffer,
     fields: [
       {
         name: 'title',

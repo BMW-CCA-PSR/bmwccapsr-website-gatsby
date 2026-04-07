@@ -38,6 +38,7 @@ const createZundfolgeIssueList = (S, title, filter = '_type == "zundfolgeIssue"'
     .title(title)
     .menuItems(S.documentTypeList("zundfolgeIssue").getMenuItems())
     .filter(filter)
+    .apiVersion("2023-01-01")
     .params(params)
     .defaultOrdering([
       { field: "publishYear", direction: "desc" },
@@ -108,6 +109,7 @@ const createEmailAliasList = (S, title, filter, params = {}) =>
   S.documentTypeList("emailAlias")
     .title(title)
     .filter(filter)
+    .apiVersion("2023-01-01")
     .params(params)
     .child((documentId) =>
       S.document().documentId(documentId).schemaType("emailAlias"),
@@ -144,6 +146,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "post" && publishedAt < now() && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document().documentId(documentId).schemaType("post"),
                     ),
@@ -163,6 +166,7 @@ export default (S, context) => {
                       S.documentTypeList("post")
                         .title("Articles")
                         .filter('_type == "post" && $catId == category._ref')
+                        .apiVersion("2023-01-01")
                         .params({ catId })
                         .child((documentId) =>
                           S.document()
@@ -180,6 +184,7 @@ export default (S, context) => {
                       S.documentTypeList("post")
                         .title("Articles")
                         .filter('_type == "post" && $authorId in authors[].author._ref')
+                        .apiVersion("2023-01-01")
                         .params({ authorId })
                         .child((documentId) =>
                           S.document()
@@ -247,6 +252,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "event" && startTime > now() && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document().documentId(documentId).schemaType("event"),
                     ),
@@ -266,6 +272,7 @@ export default (S, context) => {
                       S.documentTypeList("event")
                         .title("Events")
                         .filter('_type == "event" && $catId == category._ref')
+                        .apiVersion("2023-01-01")
                         .params({ catId })
                         .child((documentId) =>
                           S.document()
@@ -277,7 +284,7 @@ export default (S, context) => {
               S.divider(),
               S.documentTypeListItem("eventCategory")
                 .title("Categories")
-                .icon(CatIcon),
+                .icon(MdLocalOffer),
               S.listItem()
                 .title("Sources")
                 .icon(MdBuild)
@@ -316,6 +323,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "advertiser" && active && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)
@@ -333,6 +341,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "advertiser" && partner && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)
@@ -353,6 +362,7 @@ export default (S, context) => {
                         .filter(
                           '_type == "advertiser" && $catId == category._ref',
                         )
+                        .apiVersion("2023-01-01")
                         .params({ catId }),
                     ),
                 ),
@@ -365,6 +375,7 @@ export default (S, context) => {
                       S.documentTypeList("advertiser")
                         .title("Advertisers")
                         .filter('_type == "advertiser" && $tierId == tier._ref')
+                        .apiVersion("2023-01-01")
                         .params({ tierId }),
                     ),
                 ),
@@ -423,6 +434,7 @@ export default (S, context) => {
                           )
                         )`,
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)
@@ -444,6 +456,7 @@ export default (S, context) => {
                         .filter(
                           '_type == "volunteerRole" && $roleId == role._ref',
                         )
+                        .apiVersion("2023-01-01")
                         .params({ roleId })
                         .child((documentId) =>
                           S.document()
@@ -530,6 +543,7 @@ export default (S, context) => {
                               .filter(
                                 '_type == "volunteerFixedRole" && pointValue == $pointValue',
                               )
+                              .apiVersion("2023-01-01")
                               .params({ pointValue }),
                           ),
                       ),
@@ -554,6 +568,7 @@ export default (S, context) => {
                               .filter(
                                 '_type == "volunteerFixedRole" && category._ref == $categoryId',
                               )
+                              .apiVersion("2023-01-01")
                               .params({ categoryId: category._id }),
                           ),
                       ),
@@ -664,7 +679,8 @@ export default (S, context) => {
                     .menuItems(S.documentTypeList("page").getMenuItems())
                     .filter(
                       '_type == "page" && !(_id in ["frontpage","join","drafts.frontpage","drafts.join"])',
-                    ),
+                    )
+                    .apiVersion("2023-01-01"),
                 ),
             ]),
         ),
@@ -702,7 +718,8 @@ export default (S, context) => {
                   S.documentList("page")
                     .title("Pages")
                     .menuItems(S.documentTypeList("page").getMenuItems())
-                    .filter('_type == "page" && _id != "frontpage"'),
+                    .filter('_type == "page" && _id != "frontpage"')
+                    .apiVersion("2023-01-01"),
                 ),
             ]),
         ),
@@ -721,6 +738,7 @@ export default (S, context) => {
                   S.documentTypeList("emailAlias")
                     .title("Active Aliases")
                     .filter('_type == "emailAlias" && enabled != false')
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document().documentId(documentId).schemaType("emailAlias"),
                     ),

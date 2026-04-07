@@ -132,19 +132,22 @@ export function DeleteEmailAliasAction(props) {
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   const schemaTypeName = getSchemaTypeName(type) || getSchemaTypeName(schemaType);
-  if (schemaTypeName !== "emailAlias") return null;
-
   const resolvedDocumentId = normalizeDocumentId(
     draft?._id || published?._id || id || documentId,
   );
-  const ops = useDocumentOperation(resolvedDocumentId, "emailAlias");
+  const ops = useDocumentOperation(resolvedDocumentId || "placeholder", schemaTypeName || "emailAlias");
+
+  if (schemaTypeName !== "emailAlias") return null;
+  if (!published?._id) return null;
+
+  const isDisabled = ops?.delete?.disabled || isDeleting;
 
   const handleComplete = () => {
     if (typeof onComplete === "function") onComplete();
   };
 
   const onHandle = async () => {
-    if (ops?.delete?.disabled || isDeleting) {
+    if (isDisabled) {
       handleComplete();
       return;
     }
@@ -159,6 +162,7 @@ export function DeleteEmailAliasAction(props) {
 
     try {
       ops.delete.execute();
+
       await waitForDocumentDeletion({
         client,
         documentId: resolvedDocumentId,
@@ -215,10 +219,11 @@ export function DeleteEmailAliasAction(props) {
       onConfirm: onHandle,
       onCancel: () => setShowConfirmDialog(false),
     },
-    disabled: ops?.delete?.disabled || isDeleting,
+    disabled: isDisabled,
     icon: isDeleting ? DeletingIcon : TrashIcon,
     label: isDeleting ? "Deleting..." : "Delete",
     onHandle,
+    shortcut: "mod+shift+d",
     tone: "critical",
   };
 }

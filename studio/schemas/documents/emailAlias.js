@@ -1,6 +1,8 @@
 import { buildUniqueFieldValidator } from "../utils/uniqueFieldValidation";
 import { MdAlternateEmail, MdEmail } from "react-icons/md";
 import EmailAliasNameInput from "../../src/components/EmailAliasNameInput";
+import EmailAliasMetricsField from "../../src/components/EmailAliasMetricsField";
+import EmailAliasMetricsInput from "../../src/components/EmailAliasMetricsInput";
 import {
   isValidEmailAliasLocalPart,
   normalizeEmailAliasLocalPart,
@@ -130,6 +132,17 @@ export default {
         "Inactive preserves alias definition, but stops it from receiving mail.",
       initialValue: true,
       fieldset: "aliasSettings",
+    },
+    {
+      name: "activityMetrics",
+      type: "string",
+      title: "Activity",
+      description: "Forwarding activity for the last 7 days.",
+      readOnly: true,
+      components: {
+        field: EmailAliasMetricsField,
+        input: EmailAliasMetricsInput,
+      },
     },
   ],
   preview: {
