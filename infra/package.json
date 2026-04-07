@@ -42,7 +42,7 @@
     "@aws-sdk/client-cloudwatch-logs": "^3.917.0",
     "@aws-sdk/client-dynamodb": "3.917.0",
     "@aws-sdk/client-eventbridge": "3.1012.0",
-    "@aws-sdk/client-secrets-manager": "3.917.0",
+    "@aws-sdk/client-secrets-manager": "3.1025.0",
     "@aws-sdk/util-dynamodb": "3.917.0",
     "@portabletext/html": "^1.0.0",
     "docker": "^1.0.0",
