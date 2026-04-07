@@ -31,6 +31,7 @@ export default {
     prepare({ title }) {
       return {
         title: title || "Email address",
+        media: MdEmail,
       };
     },
   },

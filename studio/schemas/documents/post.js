@@ -106,6 +106,20 @@ export default {
         validation: Rule => Rule.error('Must enter article body.').required(),
         title: 'Body',
       },
+      {
+        name: 'archiveIssue',
+        type: 'reference',
+        title: 'Printed Issue (Archive)',
+        description: 'Optional link to the single Zundfolge archive issue this article belongs to.',
+        to: [
+          {
+            type: 'zundfolgeIssue',
+          },
+        ],
+        options: {
+          disableNew: true,
+        },
+      },
     ],
     orderings: [
       {

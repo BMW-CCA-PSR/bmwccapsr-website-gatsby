@@ -1,5 +1,6 @@
 import * as cdk from "@aws-cdk/core";
 import * as dynamodb from "@aws-cdk/aws-dynamodb";
+import * as iam from "@aws-cdk/aws-iam";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as path from "path";
 import * as secretsmanager from "@aws-cdk/aws-secretsmanager";
@@ -11,6 +12,7 @@ export interface EmailAliasSyncStackProps extends cdk.StackProps {
   readonly sanityApiVersion?: string;
   readonly emailAliasTableName?: string;
   readonly emailAliasSyncWebhookToken?: string;
+  readonly emailAliasForwarderLogGroupName?: string;
 }
 
 export class EmailAliasSyncStack extends cdk.Stack {
@@ -39,6 +41,10 @@ export class EmailAliasSyncStack extends cdk.Stack {
       props.emailAliasSyncWebhookToken ??
       process.env.EMAIL_ALIAS_SYNC_WEBHOOK_TOKEN ??
       "";
+    const emailAliasForwarderLogGroupName =
+      props.emailAliasForwarderLogGroupName ??
+      process.env.EMAIL_ALIAS_FORWARDER_LOG_GROUP_NAME ??
+      "/aws/lambda/SesProxyStack-SesProxyStack82528740-fpIfvg1MtmOe";
 
     const aliasTable = dynamodb.Table.fromTableName(
       this,
@@ -59,6 +65,7 @@ export class EmailAliasSyncStack extends cdk.Stack {
         SANITY_API_VERSION: sanityApiVersion,
         EMAIL_ALIAS_TABLE_NAME: emailAliasTableName,
         EMAIL_ALIAS_SYNC_WEBHOOK_TOKEN: emailAliasSyncWebhookToken,
+        EMAIL_ALIAS_FORWARDER_LOG_GROUP_NAME: emailAliasForwarderLogGroupName,
       },
     });
 
@@ -68,6 +75,12 @@ export class EmailAliasSyncStack extends cdk.Stack {
       sanityApiTokenSecretName,
     ).grantRead(syncFunction);
     aliasTable.grantReadWriteData(syncFunction);
+    syncFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["logs:StartQuery", "logs:GetQueryResults"],
+        resources: ["*"],
+      }),
+    );
 
     const syncFunctionUrl = new cdk.CfnResource(this, "EmailAliasSyncFunctionUrl", {
       type: "AWS::Lambda::Url",
@@ -120,6 +133,11 @@ export class EmailAliasSyncStack extends cdk.Stack {
     new cdk.CfnOutput(this, "EmailAliasTableNameOutput", {
       value: emailAliasTableName,
       description: "Existing SES proxy DynamoDB table used for alias forwarding.",
+    });
+
+    new cdk.CfnOutput(this, "EmailAliasForwarderLogGroupNameOutput", {
+      value: emailAliasForwarderLogGroupName,
+      description: "CloudWatch Logs group used to query alias forwarding metrics.",
     });
 
     new cdk.CfnOutput(this, "EmailAliasSanityApiTokenSecretName", {

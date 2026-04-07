@@ -1,14 +1,26 @@
 import { buildUniqueFieldValidator } from "../utils/uniqueFieldValidation";
-import { MdAlternateEmail } from "react-icons/md";
+import { MdAlternateEmail, MdEmail } from "react-icons/md";
+import EmailAliasNameInput from "../../src/components/EmailAliasNameInput";
+import EmailAliasMetricsField from "../../src/components/EmailAliasMetricsField";
+import EmailAliasMetricsInput from "../../src/components/EmailAliasMetricsInput";
+import {
+  isValidEmailAliasLocalPart,
+  normalizeEmailAliasLocalPart,
+} from "../../src/lib/emailAlias";
 
-const aliasPattern = /^[a-z0-9][a-z0-9._+-]*$/;
-const normalizeValue = (value) => String(value || "").trim().toLowerCase();
+const normalizeValue = (value) => normalizeEmailAliasLocalPart(value);
 
 export default {
   name: "emailAlias",
   type: "document",
   title: "Email Alias",
   icon: MdAlternateEmail,
+  fieldsets: [
+    {
+      name: "aliasSettings",
+      title: "Alias Settings",
+    },
+  ],
   fields: [
     {
       name: "name",
@@ -16,6 +28,9 @@ export default {
       title: "Alias Name",
       description:
         "Local-part only, without the @domain. Example: treasurer",
+      components: {
+        input: EmailAliasNameInput,
+      },
       validation: (Rule) =>
         Rule.required()
           .custom((value) => {
@@ -24,7 +39,7 @@ export default {
             if (normalized.includes("@")) {
               return "Enter the alias name only, without the @domain.";
             }
-            if (!aliasPattern.test(normalized)) {
+            if (!isValidEmailAliasLocalPart(normalized)) {
               return "Use lowercase letters, numbers, dots, dashes, underscores, or plus signs.";
             }
             return true;
@@ -38,14 +53,6 @@ export default {
           ),
     },
     {
-      name: "enabled",
-      type: "boolean",
-      title: "Active",
-      description:
-        "Inactive preserves alias definition, but stops it from receiving mail.",
-      initialValue: true,
-    },
-    {
       name: "recipients",
       type: "array",
       title: "Forward To",
@@ -54,9 +61,13 @@ export default {
       of: [
         {
           type: "emailAliasAddressRecipient",
+          title: "Email Address",
+          icon: MdEmail,
         },
         {
           type: "emailAliasReferenceRecipient",
+          title: "Email Alias",
+          icon: MdAlternateEmail,
         },
       ],
       validation: (Rule) =>
@@ -108,8 +119,29 @@ export default {
       description: "Classifies this alias for filtered Studio views.",
       to: [{ type: "emailAliasType" }],
       weak: true,
+      fieldset: "aliasSettings",
       options: {
         disableNew: true,
+      },
+    },
+    {
+      name: "enabled",
+      type: "boolean",
+      title: "Active",
+      description:
+        "Inactive preserves alias definition, but stops it from receiving mail.",
+      initialValue: true,
+      fieldset: "aliasSettings",
+    },
+    {
+      name: "activityMetrics",
+      type: "string",
+      title: "Activity",
+      description: "Forwarding activity for the last 7 days.",
+      readOnly: true,
+      components: {
+        field: EmailAliasMetricsField,
+        input: EmailAliasMetricsInput,
       },
     },
   ],
@@ -128,6 +160,7 @@ export default {
       return {
         title: title || "Untitled alias",
         subtitle: `${count} forwarding address${count === 1 ? "" : "es"} | ${enabledLabel}${normalizedType ? ` | ${normalizedType}` : ""}`,
+        media: MdAlternateEmail,
       };
     },
   },

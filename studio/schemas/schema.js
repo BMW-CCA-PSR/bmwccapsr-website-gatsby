@@ -20,6 +20,11 @@ import volunteerApplication from './documents/volunteerApplication'
 import workflow from './documents/workflow'
 import emailAlias from './documents/emailAlias'
 import emailAliasType from './documents/emailAliasType'
+import emailSendingSettings from './documents/emailSendingSettings'
+import volunteerOverviewPageSettings from './documents/volunteerOverviewPageSettings'
+import volunteerRewardsPageSettings from './documents/volunteerRewardsPageSettings'
+import volunteerRolesPageSettings from './documents/volunteerRolesPageSettings'
+import volunteerApplicationLifecycleSettings from './documents/volunteerApplicationLifecycleSettings'
 
 // Object types
 import pdfUpload from './objects/pdfUpload'
@@ -59,6 +64,9 @@ import table from './objects/table'
 import tableRow from './objects/tableRow'
 import emailAliasAddressRecipient from './objects/emailAliasAddressRecipient'
 import emailAliasReferenceRecipient from './objects/emailAliasReferenceRecipient'
+import volunteerOverviewCard from './objects/volunteerOverviewCard'
+import volunteerRewardLevel from './objects/volunteerRewardLevel'
+import volunteerRewardFaq from './objects/volunteerRewardFaq'
 
 export default [
     variation,
@@ -94,6 +102,11 @@ export default [
     workflow,
     emailAlias,
     emailAliasType,
+    emailSendingSettings,
+    volunteerOverviewPageSettings,
+    volunteerRewardsPageSettings,
+    volunteerRolesPageSettings,
+    volunteerApplicationLifecycleSettings,
     poc,
     hero,
     advertisement,
@@ -119,4 +132,7 @@ export default [
     tableRow,
     emailAliasAddressRecipient,
     emailAliasReferenceRecipient,
+    volunteerOverviewCard,
+    volunteerRewardLevel,
+    volunteerRewardFaq,
 ]

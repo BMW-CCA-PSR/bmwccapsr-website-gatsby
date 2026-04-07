@@ -63,8 +63,46 @@ const normalizeEmail = (value) =>
 const normalizeText = (value) => String(value || "").trim();
 const applicationEventsTableName = normalizeText(applicationEventsTableNameRaw);
 const pointsLedgerTableName = normalizeText(pointsLedgerTableNameRaw);
+const SETTINGS_CACHE_TTL_MS = 60 * 1000;
+const appSettingsCache = {
+  expiresAt: 0,
+  value: null,
+  pending: null,
+};
 
 const normalizeStatus = (value) => normalizeText(value).toLowerCase();
+const normalizeDomain = (value) => normalizeText(value).toLowerCase();
+
+const uniqueValues = (values) =>
+  Array.from(
+    new Set(
+      (Array.isArray(values) ? values : [])
+        .map((value) => normalizeText(value))
+        .filter(Boolean)
+    )
+  );
+
+const buildEmailAliasAddress = (aliasName, domain) => {
+  const localPart = normalizeText(aliasName).toLowerCase();
+  const normalizedDomain = normalizeDomain(domain);
+  if (!localPart || !normalizedDomain) return "";
+  if (localPart.includes("@") || normalizedDomain.includes("@")) return "";
+  return `${localPart}@${normalizedDomain}`;
+};
+
+const buildSesSourceAddress = ({ fromName, fromEmail }) => {
+  const normalizedEmail = normalizeEmail(fromEmail);
+  if (!isValidEmail(normalizedEmail)) return "";
+  const normalizedName = normalizeText(fromName).replace(/"/g, '\\"');
+  return normalizedName ? `"${normalizedName}" <${normalizedEmail}>` : normalizedEmail;
+};
+
+const parseEmailList = (value) =>
+  uniqueValues(String(value || "").split(",").map((entry) => normalizeEmail(entry)))
+    .filter((entry) => isValidEmail(entry));
+
+const resolveBooleanSetting = (value, fallback) =>
+  typeof value === "boolean" ? value : fallback;
 
 const ROLE_ICON_NAME_BY_KEY = {
   user: "user",
@@ -352,6 +390,158 @@ const sanityMutate = async (mutations) => {
   }
 
   return response.json();
+};
+
+const getAppSettings = async ({ forceRefresh = false } = {}) => {
+  const now = Date.now();
+  if (
+    !forceRefresh &&
+    appSettingsCache.value &&
+    appSettingsCache.expiresAt > now
+  ) {
+    return appSettingsCache.value;
+  }
+  if (!forceRefresh && appSettingsCache.pending) {
+    return appSettingsCache.pending;
+  }
+
+  const pending = (async () => {
+    try {
+      const result = await sanityFetchQuery(`{
+        "siteDomain": *[_type == "siteSettings"][0].domain,
+        "emailSendingSettings": *[_type == "emailSendingSettings"][0]{
+          fromName,
+          fromEmail
+        },
+        "volunteerApplicationLifecycleSettings": *[_type == "volunteerApplicationLifecycleSettings"][0]{
+          "replyTo": replyTo[0]{
+            _type,
+            email,
+            "aliasName": alias->name
+          },
+          sendStaffNotificationOnNewApplication,
+          sendApplicantSubmissionConfirmation,
+          sendApplicantUpdateConfirmation,
+          sendApplicantApprovalEmail,
+          sendApplicantDeclineEmail,
+          sendApplicantWithdrawalEmail,
+          requirePublicReasonOnDecline,
+          "staffNotificationAliasName": staffNotificationAlias->name
+        }
+      }`);
+
+      const value = {
+        siteDomain: normalizeDomain(result?.siteDomain || ""),
+        emailSendingSettings: {
+          fromName: normalizeText(result?.emailSendingSettings?.fromName || ""),
+          fromEmail: normalizeEmail(
+            result?.emailSendingSettings?.fromEmail || ""
+          ),
+        },
+        volunteerApplicationLifecycleSettings: {
+          replyToEmailOverride: normalizeEmail(
+            (result?.volunteerApplicationLifecycleSettings?.replyTo?._type ===
+            "emailAliasAddressRecipient"
+              ? result?.volunteerApplicationLifecycleSettings?.replyTo?.email
+              : result?.volunteerApplicationLifecycleSettings?.replyToEmailOverride) || ""
+          ),
+          replyToAliasName: normalizeText(
+            (result?.volunteerApplicationLifecycleSettings?.replyTo?._type ===
+            "emailAliasReferenceRecipient"
+              ? result?.volunteerApplicationLifecycleSettings?.replyTo?.aliasName
+              : result?.volunteerApplicationLifecycleSettings?.replyToAliasName) || ""
+          ),
+          sendStaffNotificationOnNewApplication: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.sendStaffNotificationOnNewApplication,
+            true
+          ),
+          sendApplicantSubmissionConfirmation: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.sendApplicantSubmissionConfirmation,
+            true
+          ),
+          sendApplicantUpdateConfirmation: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.sendApplicantUpdateConfirmation,
+            true
+          ),
+          sendApplicantApprovalEmail: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.sendApplicantApprovalEmail,
+            true
+          ),
+          sendApplicantDeclineEmail: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.sendApplicantDeclineEmail,
+            true
+          ),
+          sendApplicantWithdrawalEmail: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.sendApplicantWithdrawalEmail,
+            true
+          ),
+          requirePublicReasonOnDecline: resolveBooleanSetting(
+            result?.volunteerApplicationLifecycleSettings
+              ?.requirePublicReasonOnDecline,
+            true
+          ),
+          staffNotificationAliasName: normalizeText(
+            result?.volunteerApplicationLifecycleSettings
+              ?.staffNotificationAliasName || ""
+          ),
+        },
+      };
+
+      appSettingsCache.value = value;
+      appSettingsCache.expiresAt = Date.now() + SETTINGS_CACHE_TTL_MS;
+      return value;
+    } finally {
+      appSettingsCache.pending = null;
+    }
+  })();
+
+  appSettingsCache.pending = pending;
+  return pending;
+};
+
+const getResolvedEmailRuntimeSettings = async () => {
+  let settings = null;
+  try {
+    settings = await getAppSettings();
+  } catch (_error) {
+    settings = null;
+  }
+
+  const siteDomain = normalizeDomain(settings?.siteDomain || "");
+  const sending = settings?.emailSendingSettings || {};
+  const lifecycle = settings?.volunteerApplicationLifecycleSettings || {};
+
+  const fallbackFromEmail = normalizeEmail(process.env.SES_FROM_EMAIL || "");
+  const source =
+    buildSesSourceAddress({
+      fromName: sending.fromName || "",
+      fromEmail: sending.fromEmail || fallbackFromEmail,
+    }) || fallbackFromEmail;
+
+  const replyToAddress =
+    normalizeEmail(lifecycle.replyToEmailOverride || "") ||
+    buildEmailAliasAddress(lifecycle.replyToAliasName, siteDomain);
+
+  const staffNotificationAliasAddress = buildEmailAliasAddress(
+    lifecycle.staffNotificationAliasName,
+    siteDomain
+  );
+  const staffNotificationAddresses = staffNotificationAliasAddress
+    ? [staffNotificationAliasAddress]
+    : parseEmailList(process.env.STAFF_NOTIFICATION_EMAILS || "");
+
+  return {
+    source,
+    replyToAddresses: replyToAddress ? [replyToAddress] : [],
+    lifecycle,
+    staffNotificationAddresses,
+  };
 };
 
 const buildApplicationId = () => {
@@ -766,13 +956,13 @@ const updateVolunteerApplication = async ({
 };
 
 const sendEmail = async ({ to, subject, textBody }) => {
-  const fromEmail = process.env.SES_FROM_EMAIL || "";
-  if (!fromEmail || !to || !subject || !textBody) return;
+  const { source, replyToAddresses } = await getResolvedEmailRuntimeSettings();
+  if (!source || !to || !subject || !textBody) return;
   const region = process.env.SES_REGION || awsRegion;
   const ses = new SESClient({ region });
   await ses.send(
     new SendEmailCommand({
-      Source: fromEmail,
+      Source: source,
       Destination: { ToAddresses: [to] },
       Message: {
         Subject: { Data: subject, Charset: "UTF-8" },
@@ -780,6 +970,9 @@ const sendEmail = async ({ to, subject, textBody }) => {
           Text: { Data: textBody, Charset: "UTF-8" },
         },
       },
+      ...(replyToAddresses.length > 0
+        ? { ReplyToAddresses: replyToAddresses }
+        : {}),
     })
   );
 };
@@ -791,8 +984,8 @@ const sendTemplatedEmail = async ({
   fallbackSubject,
   fallbackTextBody,
 }) => {
-  const fromEmail = process.env.SES_FROM_EMAIL || "";
-  if (!fromEmail || !to) return;
+  const { source, replyToAddresses } = await getResolvedEmailRuntimeSettings();
+  if (!source || !to) return;
   const region = process.env.SES_REGION || awsRegion;
   const ses = new SESClient({ region });
   const resolvedTemplateName = normalizeText(templateName);
@@ -810,10 +1003,13 @@ const sendTemplatedEmail = async ({
   try {
     await ses.send(
       new SendTemplatedEmailCommand({
-        Source: fromEmail,
+        Source: source,
         Destination: { ToAddresses: [to] },
         Template: resolvedTemplateName,
         TemplateData: JSON.stringify(templateData || {}),
+        ...(replyToAddresses.length > 0
+          ? { ReplyToAddresses: replyToAddresses }
+          : {}),
       })
     );
   } catch (error) {
@@ -845,10 +1041,12 @@ const notifyApplicantAndStaff = async ({
   applicantNotes = "",
   applicantHasPerformedRoleBefore,
 }) => {
-  const staffEmails = String(process.env.STAFF_NOTIFICATION_EMAILS || "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const runtimeSettings = await getResolvedEmailRuntimeSettings();
+  const staffEmails = runtimeSettings.staffNotificationAddresses;
+  const shouldSendApplicantSubmissionConfirmation =
+    runtimeSettings.lifecycle.sendApplicantSubmissionConfirmation !== false;
+  const shouldSendStaffNotification =
+    runtimeSettings.lifecycle.sendStaffNotificationOnNewApplication !== false;
   const pendingApplicationsUrl = normalizeText(
     process.env.SANITY_PENDING_APPLICATIONS_URL ||
       "https://bmwccapsr.sanity.studio/structure/volunteers;pendingApplications"
@@ -948,26 +1146,31 @@ const notifyApplicantAndStaff = async ({
     applicantHasPerformedRoleBefore: applicantHasPerformedRoleBeforeLabel,
   };
 
-  const tasks = [
-    sendTemplatedEmail({
-      to: applicantEmail,
-      templateName: applicantTemplateName,
-      templateData: applicantTemplateData,
-      fallbackSubject: applicantSubject,
-      fallbackTextBody: applicantBody,
-    }),
-  ];
-  staffEmails.forEach((to) => {
+  const tasks = [];
+  if (shouldSendApplicantSubmissionConfirmation) {
     tasks.push(
       sendTemplatedEmail({
-        to,
-        templateName: staffTemplateName,
-        templateData: staffTemplateData,
-        fallbackSubject: staffSubject,
-        fallbackTextBody: staffBody,
+        to: applicantEmail,
+        templateName: applicantTemplateName,
+        templateData: applicantTemplateData,
+        fallbackSubject: applicantSubject,
+        fallbackTextBody: applicantBody,
       })
     );
-  });
+  }
+  if (shouldSendStaffNotification) {
+    staffEmails.forEach((to) => {
+      tasks.push(
+        sendTemplatedEmail({
+          to,
+          templateName: staffTemplateName,
+          templateData: staffTemplateData,
+          fallbackSubject: staffSubject,
+          fallbackTextBody: staffBody,
+        })
+      );
+    });
+  }
 
   const results = await Promise.allSettled(tasks);
   return {
@@ -987,6 +1190,10 @@ const notifyApplicantUpdateSuccess = async ({
   withdrawUrl,
 }) => {
   if (!applicantEmail) {
+    return { attempted: 0, failed: 0 };
+  }
+  const runtimeSettings = await getResolvedEmailRuntimeSettings();
+  if (runtimeSettings.lifecycle.sendApplicantUpdateConfirmation === false) {
     return { attempted: 0, failed: 0 };
   }
 
@@ -1044,6 +1251,7 @@ const notifyApplicantTransition = async ({
   if (!isValidEmail(applicantEmail)) {
     return { attempted: 0, failed: 0 };
   }
+  const runtimeSettings = await getResolvedEmailRuntimeSettings();
 
   const applicantName =
     normalizeText(application?.applicantName || "") || "there";
@@ -1085,12 +1293,18 @@ const notifyApplicantTransition = async ({
   let transitionHeading = "";
   const transitionLines = [];
   if (targetStatus === "assigned") {
+    if (runtimeSettings.lifecycle.sendApplicantApprovalEmail === false) {
+      return { attempted: 0, failed: 0 };
+    }
     subject = `Application approved: ${positionTitle}`;
     transitionHeading = "Application approved";
     transitionLines.push(
       `Your application for "${positionTitle}" has been approved and assigned.`
     );
   } else if (targetStatus === "denied") {
+    if (runtimeSettings.lifecycle.sendApplicantDeclineEmail === false) {
+      return { attempted: 0, failed: 0 };
+    }
     subject = `Application update: ${positionTitle}`;
     transitionHeading = "Application update";
     transitionLines.push(
@@ -1102,6 +1316,9 @@ const notifyApplicantTransition = async ({
       }`
     );
   } else if (targetStatus === "withdrawn") {
+    if (runtimeSettings.lifecycle.sendApplicantWithdrawalEmail === false) {
+      return { attempted: 0, failed: 0 };
+    }
     subject = `Application withdrawn: ${positionTitle}`;
     transitionHeading = "Application withdrawn";
     transitionLines.push(
@@ -1891,7 +2108,14 @@ const handleApplicationActions = async (event) => {
         error: "applicationIds must contain at least one applicationId.",
       });
     }
-    if (targetStatus === "denied" && !rejectedReasonPublic) {
+    const runtimeSettings = await getResolvedEmailRuntimeSettings();
+    const requirePublicReasonOnDecline =
+      runtimeSettings.lifecycle.requirePublicReasonOnDecline !== false;
+    if (
+      targetStatus === "denied" &&
+      requirePublicReasonOnDecline &&
+      !rejectedReasonPublic
+    ) {
       return json(400, {
         ok: false,
         error: "rejectedReasonPublic is required when denying applications.",

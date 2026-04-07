@@ -42,10 +42,18 @@ export const query = graphql`
         title
       }
       poc {
-        contact
         name
-        alias {
-          name
+        contact {
+          ... on SanityEmailAliasReferenceRecipient {
+            _type
+            alias {
+              name
+            }
+          }
+          ... on SanityEmailAliasAddressRecipient {
+            _type
+            email
+          }
         }
       }
       mainImage {

@@ -4,6 +4,7 @@ import "./variableOverrides.css";
 import { defineConfig } from "sanity";
 import { deskTool } from 'sanity/desk'
 import { unsplashImageAsset } from "sanity-plugin-asset-source-unsplash";
+import { contentGraphView } from "sanity-plugin-graph-view";
 import {media} from 'sanity-plugin-media'
 import schemas from "./schemas/schema";
 import deskStructure from "./deskStructure";
@@ -13,6 +14,7 @@ import { AuthorPublishWithDefaultAvatarAction } from "./src/documentActions/auth
 import { PostPublishFeaturedSingletonAction } from "./src/documentActions/postPublishFeaturedSingletonAction";
 import { UpdateEmailAliasAction } from "./src/documentActions/emailAliasUpdateAction";
 import { DeleteEmailAliasAction } from "./src/documentActions/emailAliasDeleteAction";
+import { EventSourceBadge } from "./src/documentBadges/eventSourceBadge";
 
 const vars = {
   apiId:
@@ -22,6 +24,43 @@ const vars = {
     process.env.SANITY_STUDIO_NETLIFY_BUILD_HOOK_ID ||
     process.env.VITE_NETLIFY_BUILD_HOOK_ID
 };
+
+const graphIncludedDocumentTypes = [
+  "event",
+  "eventCategory",
+  "zundfolgeIssue",
+  "post",
+  "category",
+  "author",
+  "volunteerRole",
+  "volunteerFixedRole",
+  "volunteerApplication",
+  "volunteerCategory",
+  "emailAlias",
+  "emailAliasType",
+  "advertiser",
+  "advertiserCategory",
+];
+
+const volunteerSingletonPageSettingsTypes = new Set([
+  "volunteerOverviewPageSettings",
+  "volunteerRewardsPageSettings",
+  "volunteerRolesPageSettings",
+  "volunteerApplicationLifecycleSettings",
+]);
+
+const singletonPageDocumentIds = new Set([
+  "frontpage",
+  "join",
+]);
+
+const graphViewQuery = `*[
+  !(_id in path("drafts.**")) &&
+  _type in ${JSON.stringify(graphIncludedDocumentTypes)}
+]{
+  ...,
+  "title": coalesce(title, name, applicantName, documentId, slug.current, _id)
+}`;
 
 const StudioIcon = () =>
   React.createElement(
@@ -63,13 +102,13 @@ const isPublishAction = (action) =>
 
 const isScheduledPublishAction = (action) => {
   const candidates = [
-    action,
     action?.name,
+    action?.displayName,
     action?.action,
     action?.title,
   ]
-    .map((value) => String(value || "").toLowerCase())
-    .filter(Boolean);
+    .filter((value) => typeof value === "string")
+    .map((value) => value.toLowerCase());
 
   return candidates.some(
     (value) =>
@@ -77,10 +116,28 @@ const isScheduledPublishAction = (action) => {
   );
 };
 
+const isScheduleRelatedAction = (action) => {
+  const candidates = [
+    action?.name,
+    action?.displayName,
+    action?.action,
+    action?.title,
+  ]
+    .filter((value) => typeof value === "string")
+    .map((value) => value.toLowerCase());
+
+  return candidates.some((value) => value.includes("schedule"));
+};
+
 const isDuplicateAction = (action) =>
   action === "duplicate" ||
   action?.name === "duplicate" ||
   action?.action === "duplicate";
+
+const isDeleteAction = (action) =>
+  action === "delete" ||
+  action?.name === "delete" ||
+  action?.action === "delete";
 
 const normalizeSource = (value) => String(value || "").trim().toLowerCase();
 
@@ -89,6 +146,14 @@ const normalizeDocumentId = (value) =>
     .trim()
     .replace(/^drafts\./, "")
     .toLowerCase();
+
+const isSingletonPageDocument = (props) => {
+  const documentId = normalizeDocumentId(
+    props?.draft?._id || props?.published?._id || props?.id || props?.documentId
+  );
+
+  return singletonPageDocumentIds.has(documentId);
+};
 
 const isMsrEventDocument = (props) => {
   const source = normalizeSource(props?.draft?.source || props?.published?.source);
@@ -108,8 +173,9 @@ const wrapEventActionForMsr = (action) => {
   if (!hideForMsr) return action;
 
   const WrappedAction = (props) => {
+    const result = action(props);
     if (isMsrEventDocument(props)) return null;
-    return action(props);
+    return result;
   };
 
   WrappedAction.displayName = `MsrAware${action.displayName || action.name || "Action"}`;
@@ -121,6 +187,42 @@ const orderEventActions = (previousActions = []) => {
     (action) => !isSameAction(action, SyncWithMsrAction)
   );
   return [SyncWithMsrAction, ...withoutSync];
+};
+
+const wrapDefaultDeleteActionForEmailAlias = (action) => {
+  if (typeof action !== "function") return action;
+  if (!isDeleteAction(action)) return action;
+
+  const WrappedAction = (props) => {
+    const result = action(props);
+    if (props?.published?._id) return null;
+    return result;
+  };
+
+  WrappedAction.displayName = `EmailAliasDefault${action.displayName || action.name || "DeleteAction"}`;
+  WrappedAction.action = action.action;
+  return WrappedAction;
+};
+
+const wrapSingletonPageAction = (action) => {
+  if (typeof action !== "function") return action;
+
+  const shouldHideAction =
+    isDuplicateAction(action) ||
+    isDeleteAction(action) ||
+    isScheduleRelatedAction(action);
+
+  if (!shouldHideAction) return action;
+
+  const WrappedAction = (props) => {
+    const result = action(props);
+    if (isSingletonPageDocument(props)) return null;
+    return result;
+  };
+
+  WrappedAction.displayName = `SingletonPage${action.displayName || action.name || "Action"}`;
+  WrappedAction.action = action.action;
+  return WrappedAction;
 };
 
 export default defineConfig({
@@ -139,9 +241,16 @@ export default defineConfig({
           if (action === ApplyMsrSourceSettingsAction) return false;
           if (isPublishAction(action)) return false;
           if (isScheduledPublishAction(action)) return false;
+          if (isDeleteAction(action)) return false;
+          if (isDuplicateAction(action)) return false;
           return true;
         });
         return [ApplyMsrSourceSettingsAction, ...withoutApply];
+      }
+      if (schemaTypeName === "siteSettings") {
+        return previousActions.filter(
+          (action) => !isDeleteAction(action) && !isDuplicateAction(action)
+        );
       }
       if (schemaTypeName === "author") {
         const withoutPublish = previousActions.filter((action) => !isPublishAction(action));
@@ -153,24 +262,47 @@ export default defineConfig({
           if (action === DeleteEmailAliasAction) return false;
           if (isPublishAction(action)) return false;
           if (isScheduledPublishAction(action)) return false;
-          if (action === "delete" || action?.name === "delete" || action?.action === "delete") {
-            return false;
-          }
           return true;
         });
-        return [UpdateEmailAliasAction, DeleteEmailAliasAction, ...customActions];
+        return [
+          UpdateEmailAliasAction,
+          ...customActions.map(wrapDefaultDeleteActionForEmailAlias),
+          DeleteEmailAliasAction,
+        ];
       }
       if (schemaTypeName === "post") {
         const withoutPublish = previousActions.filter((action) => !isPublishAction(action));
         return [PostPublishFeaturedSingletonAction, ...withoutPublish];
       }
+      if (schemaTypeName === "page") {
+        return previousActions.map(wrapSingletonPageAction);
+      }
+      if (volunteerSingletonPageSettingsTypes.has(schemaTypeName)) {
+        return previousActions.filter(
+          (action) => !isDuplicateAction(action) && !isDeleteAction(action)
+        );
+      }
       if (schemaTypeName !== "event") return previousActions;
       return orderEventActions(previousActions.map(wrapEventActionForMsr));
+    },
+    badges: (previousBadges, context) => {
+      const schemaTypeName =
+        typeof context?.schemaType === "string"
+          ? context.schemaType
+          : context?.schemaType?.name;
+      if (schemaTypeName === "event") {
+        return [...previousBadges, EventSourceBadge];
+      }
+      return previousBadges;
     },
   },
   plugins: [
     deskTool({
       structure: deskStructure,
+    }),
+    contentGraphView({
+      query: graphViewQuery,
+      apiVersion: "2023-01-01",
     }),
     unsplashImageAsset(),
     media(),

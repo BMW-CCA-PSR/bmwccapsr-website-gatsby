@@ -62,7 +62,8 @@ export default {
         }
         return {
           title,
-          subtitle
+          subtitle,
+          media: MdAnnouncement
         }
       }
     }

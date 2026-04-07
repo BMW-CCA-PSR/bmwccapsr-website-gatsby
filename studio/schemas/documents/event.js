@@ -24,9 +24,15 @@ export default {
       }),
     fieldsets: [
         {
-          title: 'Event Controls',
+          title: 'Source',
           name: 'sourceSettings',
-          description: 'Source-level flags for imported MotorsportReg events.'
+          description: 'Event data origin — manually created or imported from MSR.',
+          options: { collapsible: true, collapsed: false },
+        },
+        {
+          title: 'Event Details',
+          name: 'eventDetails',
+          description: 'Slug, category, cost, and online settings.'
         },
         {
           title: 'Schedule',
@@ -70,9 +76,9 @@ export default {
             name: 'source',
             type: 'string',
             title: 'Source',
-            description: 'Derived from how this event was created (manual in Studio or imported from MSR).',
             initialValue: 'manual',
             readOnly: true,
+            hidden: true,
             validation: Rule =>
               Rule.custom(value => {
                 const normalized = normalizeEventSource(value)
@@ -91,30 +97,6 @@ export default {
             hidden: ({ document }) => !isMsrSource(document),
         },
         {
-            name: 'sourceRegistrationOpenAt',
-            type: 'datetime',
-            title: 'Registration Opens',
-            description: 'Source registration open date/time (UTC).',
-            fieldset: 'eventDates',
-            hidden: ({ document }) => !isMsrSource(document),
-        },
-        {
-            name: 'sourceRegistrationCloseAt',
-            type: 'datetime',
-            title: 'Registration Closes',
-            description: 'Source registration close date/time (UTC).',
-            fieldset: 'eventDates',
-            hidden: ({ document }) => !isMsrSource(document),
-        },
-        {
-            name: 'sourceRegisterLink',
-            type: 'url',
-            title: 'Register Link',
-            description: 'Direct registration URL from MotorsportReg.',
-            fieldset: 'sourceRegistrations',
-            hidden: ({ document }) => !isMsrSource(document),
-        },
-        {
             name: 'sourceIsPublic',
             type: 'boolean',
             title: 'Public',
@@ -123,28 +105,60 @@ export default {
             hidden: ({ document }) => !isMsrSource(document),
         },
         {
-            name: 'sourceRegistrationCount',
-            type: 'number',
-          title: 'Signups',
-          description: 'Latest signup count from the source system.',
-            fieldset: 'sourceRegistrations',
-            hidden: ({ document }) => !isMsrSource(document),
+            name: 'slug',
+            type: 'slug',
+            title: 'Slug',
+            description: 'The unique address that the event will live at. (e.g. "/events/<year>/<month>/your-event")',
+            fieldset: 'eventDetails',
+            options: {
+                maxLength: 96,
+                slugify: input => input
+                .toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\/\-]+/g, '')
+                .replace(/\-\-+/g, '-'),
+                source: doc => `${String(doc.startTime || '').substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
+            },
         },
         {
-            name: 'sourceConfirmedCount',
-            type: 'number',
-            title: 'Confirmed Count',
-            description: 'Count of confirmed/checked-in attendees from the source system.',
-            fieldset: 'sourceRegistrations',
-            hidden: ({ document }) => !isMsrSource(document),
+            name: 'category',
+            type: 'reference',
+            to: {
+                type: 'eventCategory',
+            },
+            title: 'Category',
+            fieldset: 'eventDetails',
+            validation: Rule =>
+              Rule.custom((value, context) => {
+                if (isMsrSource(context?.document)) return true;
+                if (value?._ref) return true;
+                return 'Must select a category.';
+              }),
         },
         {
-            name: 'sourceLastRegistrantUpdateAt',
-            type: 'datetime',
-            title: 'Last Registrant Update',
-            description: 'Most recent attendee registration/update timestamp from MotorsportReg.',
-            fieldset: 'sourceRegistrations',
-            hidden: ({ document }) => !isMsrSource(document),
+            name: 'onlineEvent',
+            type: 'boolean',
+            title: 'Online meeting/event',
+            description: 'Check for Zoom, remote, or online-only events.',
+            fieldset: 'eventDetails',
+            initialValue: false,
+            hidden: ({ document }) => isMsrSource(document),
+        },
+        {
+            name: 'onlineLink',
+            type: 'url',
+            title: 'Online link',
+            description: 'Meeting link (Zoom, Teams, etc.).',
+            fieldset: 'eventDetails',
+            hidden: ({ document }) => isMsrSource(document) || !document?.onlineEvent,
+        },
+        {
+            name: 'cost',
+            type: 'number',
+            title: 'Cost',
+            description: 'The cost of the event. (leave empty or 0 for free event)',
+            fieldset: 'eventDetails',
         },
         {
             name: 'startTime',
@@ -171,41 +185,52 @@ export default {
               })
         },
         {
-            name: 'onlineEvent',
-            type: 'boolean',
-            title: 'Online meeting/event',
-            description: 'Check for Zoom, remote, or online-only events.',
-            initialValue: false,
-            hidden: ({ document }) => isMsrSource(document),
+            name: 'sourceRegistrationOpenAt',
+            type: 'datetime',
+            title: 'Registration Opens',
+            description: 'Source registration open date/time (UTC).',
+            fieldset: 'eventDates',
+            hidden: ({ document }) => !isMsrSource(document),
         },
         {
-            name: 'onlineLink',
+            name: 'sourceRegistrationCloseAt',
+            type: 'datetime',
+            title: 'Registration Closes',
+            description: 'Source registration close date/time (UTC).',
+            fieldset: 'eventDates',
+            hidden: ({ document }) => !isMsrSource(document),
+        },
+        {
+            name: 'sourceRegisterLink',
             type: 'url',
-            title: 'Online link',
-            description: 'Meeting link (Zoom, Teams, etc.).',
-            hidden: ({ document }) => isMsrSource(document) || !document?.onlineEvent,
+            title: 'Register Link',
+            description: 'Direct registration URL from MotorsportReg.',
+            fieldset: 'sourceRegistrations',
+            hidden: ({ document }) => !isMsrSource(document),
         },
         {
-            name: 'slug',
-            type: 'slug',
-            title: 'Slug',
-            description: 'The unique address that the event will live at. (e.g. "/events/<year>/<month>/your-event")',
-            options: {
-                maxLength: 96,
-                slugify: input => input
-                .toLowerCase()
-                .trim()
-                .replace(/\s+/g, '-')
-                .replace(/[^\w\/\-]+/g, '')
-                .replace(/\-\-+/g, '-'),
-                source: doc => `${String(doc.startTime || '').substring(0, 7).split('-').join('/')}/${doc.title.split(' ').join('-')}`
-            },
-        },
-        {
-            name: 'cost',
+            name: 'sourceRegistrationCount',
             type: 'number',
-            title: 'Cost',
-            description: 'The cost of the event. (leave empty or 0 for free event)',
+          title: 'Signups',
+          description: 'Latest signup count from the source system.',
+            fieldset: 'sourceRegistrations',
+            hidden: ({ document }) => !isMsrSource(document),
+        },
+        {
+            name: 'sourceConfirmedCount',
+            type: 'number',
+            title: 'Confirmed Count',
+            description: 'Count of confirmed/checked-in attendees from the source system.',
+            fieldset: 'sourceRegistrations',
+            hidden: ({ document }) => !isMsrSource(document),
+        },
+        {
+            name: 'sourceLastRegistrantUpdateAt',
+            type: 'datetime',
+            title: 'Last Registrant Update',
+            description: 'Most recent attendee registration/update timestamp from MotorsportReg.',
+            fieldset: 'sourceRegistrations',
+            hidden: ({ document }) => !isMsrSource(document),
         },
         {
             name: 'poc',
@@ -267,20 +292,7 @@ export default {
             description:
                 'This ends up on summary pages, on Google, when people share the event in social media.',
         },
-        {
-            name: 'category',
-            type: 'reference',
-            to: {
-                type: 'eventCategory',
-            },
-            title: 'Category',
-            validation: Rule =>
-              Rule.custom((value, context) => {
-                if (isMsrSource(context?.document)) return true;
-                if (value?._ref) return true;
-                return 'Must select a category.';
-              }),
-        },
+
         {
             name: 'body',
             type: 'bodyPortableText',

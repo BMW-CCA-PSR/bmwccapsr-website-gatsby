@@ -1,3 +1,5 @@
+import { isValidDomain, normalizeDomain } from "../../src/lib/emailAlias";
+
 export default {
   name: "siteSettings",
   type: "document",
@@ -8,6 +10,31 @@ export default {
       name: "title",
       type: "string",
       title: "Title",
+    },
+    {
+      name: "domain",
+      type: "string",
+      title: "Domain",
+      description:
+        "Domain only, without https://, paths, or email addresses. Example: example.com",
+      validation: (Rule) =>
+        Rule.required().custom((value) => {
+          const rawValue = String(value || "").trim();
+          const normalizedDomain = normalizeDomain(value);
+
+          if (!rawValue) return "Domain is required.";
+          if (rawValue.includes("@")) {
+            return "Enter the domain only, not an email address.";
+          }
+          if (/^https?:\/\//i.test(rawValue) || rawValue.includes("/")) {
+            return "Enter the domain only, without a protocol or path.";
+          }
+          if (!isValidDomain(normalizedDomain)) {
+            return "Enter a valid domain like example.com.";
+          }
+
+          return true;
+        }),
     },
     {
       name: "navMenu",

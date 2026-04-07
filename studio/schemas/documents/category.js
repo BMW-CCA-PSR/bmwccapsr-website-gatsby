@@ -1,9 +1,11 @@
+import { MdLocalOffer } from "react-icons/md";
 import { buildUniqueFieldValidator } from '../utils/uniqueFieldValidation';
 
 export default {
     name: 'category',
     type: 'document',
     title: 'Category',
+    icon: MdLocalOffer,
     fields: [
       {
         name: 'title',
@@ -21,5 +23,16 @@ export default {
         type: 'text',
         title: 'Description'
       }
-    ]
+    ],
+    preview: {
+      select: {
+        title: 'title'
+      },
+      prepare({title}) {
+        return {
+          title: title || 'Untitled category',
+          media: MdLocalOffer
+        }
+      }
+    }
   }

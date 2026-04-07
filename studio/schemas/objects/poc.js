@@ -1,3 +1,5 @@
+import SingleItemArrayInput from '../../src/components/SingleItemArrayInput'
+
 export default {
     name: 'poc',
     type: 'object',
@@ -10,20 +12,15 @@ export default {
         },
         {
             name: 'contact',
-            type: 'string',
+            type: 'array',
             title: 'Contact',
+            description: 'Select an email alias or enter an email address.',
+            of: [
+                { type: 'emailAliasReferenceRecipient' },
+                { type: 'emailAliasAddressRecipient' },
+            ],
+            validation: Rule => Rule.max(1),
+            components: { input: SingleItemArrayInput },
         },
-        {
-            name: 'alias',
-            type: 'reference',
-            title: 'Alias',
-            description: 'Optional email alias to show as a mailto link on the event page.',
-            to: [{ type: 'emailAlias' }],
-            weak: true,
-            options: {
-                disableNew: true,
-                filter: '_type == "emailAlias" && enabled != false',
-            },
-        }
     ]
 }

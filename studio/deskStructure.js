@@ -3,6 +3,7 @@ import {
   GoFile,
   GoHome,
   GoGear as Settings,
+  GoSync as LifecycleIcon,
   GoPencil as EditIcon,
   GoMegaphone as BlogIcon,
   GoChecklist as ApprovedIcon,
@@ -21,11 +22,13 @@ import {
   RiHeartFill as HeartFillIcon,
 } from "react-icons/ri";
 import { ImStatsBars2 as TierIcon } from "react-icons/im";
+import { IoCarSport as MsrIcon } from "react-icons/io5";
 import {
   MdMenu,
   MdBuild,
   MdEmail,
   MdOutlineEmail,
+  MdLocalOffer,
   MdOutlineLocalOffer,
 } from "react-icons/md";
 import VolunteerApplicationsPane from "./src/components/VolunteerApplicationsPane";
@@ -36,6 +39,7 @@ const createZundfolgeIssueList = (S, title, filter = '_type == "zundfolgeIssue"'
     .title(title)
     .menuItems(S.documentTypeList("zundfolgeIssue").getMenuItems())
     .filter(filter)
+    .apiVersion("2023-01-01")
     .params(params)
     .defaultOrdering([
       { field: "publishYear", direction: "desc" },
@@ -57,6 +61,14 @@ const fetchZundfolgeIssueYears = async (client) => {
         .filter((year) => Number.isInteger(year)),
     ),
   ).sort((a, b) => b - a);
+};
+
+const fetchVolunteerCategories = async (client) => {
+  const rows = await client.fetch(
+    '*[_type == "volunteerCategory"]|order(title asc){_id, title}',
+  );
+
+  return Array.isArray(rows) ? rows : [];
 };
 
 const buildZundfolgeIssueYearItems = (S, years = []) =>
@@ -98,6 +110,7 @@ const createEmailAliasList = (S, title, filter, params = {}) =>
   S.documentTypeList("emailAlias")
     .title(title)
     .filter(filter)
+    .apiVersion("2023-01-01")
     .params(params)
     .child((documentId) =>
       S.document().documentId(documentId).schemaType("emailAlias"),
@@ -134,6 +147,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "post" && publishedAt < now() && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document().documentId(documentId).schemaType("post"),
                     ),
@@ -153,6 +167,7 @@ export default (S, context) => {
                       S.documentTypeList("post")
                         .title("Articles")
                         .filter('_type == "post" && $catId == category._ref')
+                        .apiVersion("2023-01-01")
                         .params({ catId })
                         .child((documentId) =>
                           S.document()
@@ -170,6 +185,7 @@ export default (S, context) => {
                       S.documentTypeList("post")
                         .title("Articles")
                         .filter('_type == "post" && $authorId in authors[].author._ref')
+                        .apiVersion("2023-01-01")
                         .params({ authorId })
                         .child((documentId) =>
                           S.document()
@@ -237,6 +253,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "event" && startTime > now() && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document().documentId(documentId).schemaType("event"),
                     ),
@@ -256,6 +273,7 @@ export default (S, context) => {
                       S.documentTypeList("event")
                         .title("Events")
                         .filter('_type == "event" && $catId == category._ref')
+                        .apiVersion("2023-01-01")
                         .params({ catId })
                         .child((documentId) =>
                           S.document()
@@ -264,10 +282,44 @@ export default (S, context) => {
                         ),
                     ),
                 ),
+              S.listItem()
+                .title("Events by source")
+                .child(
+                  S.list()
+                    .title("Events by source")
+                    .items([
+                      S.listItem()
+                        .title("MSR")
+                        .id("events-source-msr")
+                        .icon(MsrIcon)
+                        .child(
+                          S.documentTypeList("event")
+                            .title("MSR Events")
+                            .filter('_type == "event" && source == "msr"')
+                            .apiVersion("2023-01-01")
+                            .child((documentId) =>
+                              S.document().documentId(documentId).schemaType("event"),
+                            ),
+                        ),
+                      S.listItem()
+                        .title("Manual")
+                        .id("events-source-manual")
+                        .icon(EditIcon)
+                        .child(
+                          S.documentTypeList("event")
+                            .title("Manual Events")
+                            .filter('_type == "event" && (source == "manual" || !defined(source))')
+                            .apiVersion("2023-01-01")
+                            .child((documentId) =>
+                              S.document().documentId(documentId).schemaType("event"),
+                            ),
+                        ),
+                    ]),
+                ),
               S.divider(),
               S.documentTypeListItem("eventCategory")
                 .title("Categories")
-                .icon(CatIcon),
+                .icon(MdLocalOffer),
               S.listItem()
                 .title("Sources")
                 .icon(MdBuild)
@@ -277,6 +329,7 @@ export default (S, context) => {
                     .items([
                       S.listItem()
                         .title("MSR")
+                        .icon(MsrIcon)
                         .child(
                           S.document()
                             .schemaType("sourceSettings")
@@ -306,6 +359,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "advertiser" && active && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)
@@ -323,6 +377,7 @@ export default (S, context) => {
                     .filter(
                       '_type == "advertiser" && partner && !(_id in path("drafts.**"))',
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)
@@ -343,6 +398,7 @@ export default (S, context) => {
                         .filter(
                           '_type == "advertiser" && $catId == category._ref',
                         )
+                        .apiVersion("2023-01-01")
                         .params({ catId }),
                     ),
                 ),
@@ -355,6 +411,7 @@ export default (S, context) => {
                       S.documentTypeList("advertiser")
                         .title("Advertisers")
                         .filter('_type == "advertiser" && $tierId == tier._ref')
+                        .apiVersion("2023-01-01")
                         .params({ tierId }),
                     ),
                 ),
@@ -413,6 +470,7 @@ export default (S, context) => {
                           )
                         )`,
                     )
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
                       S.document()
                         .documentId(documentId)
@@ -434,6 +492,7 @@ export default (S, context) => {
                         .filter(
                           '_type == "volunteerRole" && $roleId == role._ref',
                         )
+                        .apiVersion("2023-01-01")
                         .params({ roleId })
                         .child((documentId) =>
                           S.document()
@@ -520,11 +579,41 @@ export default (S, context) => {
                               .filter(
                                 '_type == "volunteerFixedRole" && pointValue == $pointValue',
                               )
+                              .apiVersion("2023-01-01")
                               .params({ pointValue }),
                           ),
                       ),
                     ),
                 ),
+              S.listItem()
+                .title("Roles by category")
+                .icon(MdLocalOffer)
+                .child(async () => {
+                  const categories = await fetchVolunteerCategories(client);
+                  return S.list()
+                    .title("Roles by category")
+                    .items(
+                      categories.map((category) =>
+                        S.listItem()
+                          .id(`volunteer-category-${category._id}`)
+                          .title(category.title || "Untitled category")
+                          .icon(MdLocalOffer)
+                          .child(
+                            S.documentTypeList("volunteerFixedRole")
+                              .title(category.title || "Untitled category")
+                              .filter(
+                                '_type == "volunteerFixedRole" && category._ref == $categoryId',
+                              )
+                              .apiVersion("2023-01-01")
+                              .params({ categoryId: category._id }),
+                          ),
+                      ),
+                    );
+                }),
+              S.divider(),
+              S.documentTypeListItem("volunteerCategory")
+                .title("Categories")
+                .icon(MdLocalOffer),
             ]),
         ),
       S.divider(),
@@ -565,6 +654,57 @@ export default (S, context) => {
                     .documentId("join")
                     .title("Join Page Settings"),
                 ),
+              S.listItem()
+                .id("volunteerPageSettings")
+                .title("Volunteer Page Settings")
+                .icon(PageIcon)
+                .child(
+                  S.list()
+                    .title("Volunteer Page Settings")
+                    .items([
+                      S.listItem()
+                        .id("volunteerOverviewPageSettings")
+                        .title("Overview Page Settings")
+                        .icon(PageIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerOverviewPageSettings")
+                            .documentId("volunteerOverviewPageSettings")
+                            .title("Overview Page Settings"),
+                        ),
+                      S.listItem()
+                        .id("volunteerRewardsPageSettings")
+                        .title("Rewards Page Settings")
+                        .icon(PageIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerRewardsPageSettings")
+                            .documentId("volunteerRewardsPageSettings")
+                            .title("Rewards Page Settings"),
+                        ),
+                      S.listItem()
+                        .id("volunteerRolesPageSettings")
+                        .title("Roles Page Settings")
+                        .icon(PageIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerRolesPageSettings")
+                            .documentId("volunteerRolesPageSettings")
+                            .title("Roles Page Settings"),
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .id("volunteerApplicationLifecycleSettings")
+                        .title("Application Lifecycle Settings")
+                        .icon(LifecycleIcon)
+                        .child(
+                          S.document()
+                            .schemaType("volunteerApplicationLifecycleSettings")
+                            .documentId("volunteerApplicationLifecycleSettings")
+                            .title("Application Lifecycle Settings"),
+                        ),
+                    ]),
+                ),
               S.divider(),
               S.listItem()
                 .title("All Pages")
@@ -575,7 +715,8 @@ export default (S, context) => {
                     .menuItems(S.documentTypeList("page").getMenuItems())
                     .filter(
                       '_type == "page" && !(_id in ["frontpage","join","drafts.frontpage","drafts.join"])',
-                    ),
+                    )
+                    .apiVersion("2023-01-01"),
                 ),
             ]),
         ),
@@ -613,7 +754,8 @@ export default (S, context) => {
                   S.documentList("page")
                     .title("Pages")
                     .menuItems(S.documentTypeList("page").getMenuItems())
-                    .filter('_type == "page" && _id != "frontpage"'),
+                    .filter('_type == "page" && _id != "frontpage"')
+                    .apiVersion("2023-01-01"),
                 ),
             ]),
         ),
@@ -632,10 +774,9 @@ export default (S, context) => {
                   S.documentTypeList("emailAlias")
                     .title("Active Aliases")
                     .filter('_type == "emailAlias" && enabled != false')
+                    .apiVersion("2023-01-01")
                     .child((documentId) =>
-                      S.document()
-                        .documentId(documentId)
-                        .schemaType("emailAlias"),
+                      S.document().documentId(documentId).schemaType("emailAlias"),
                     ),
                 ),
               S.listItem()
@@ -646,9 +787,7 @@ export default (S, context) => {
                   S.documentTypeList("emailAlias")
                     .title("All Aliases")
                     .child((documentId) =>
-                      S.document()
-                        .documentId(documentId)
-                        .schemaType("emailAlias"),
+                      S.document().documentId(documentId).schemaType("emailAlias"),
                     ),
                 ),
               S.listItem()
@@ -685,6 +824,17 @@ export default (S, context) => {
                         .documentId(documentId)
                         .schemaType("emailAliasType"),
                     ),
+                ),
+              S.divider(),
+              S.listItem()
+                .id("emailSendingSettings")
+                .title("Sending Settings")
+                .icon(Settings)
+                .child(
+                  S.document()
+                    .schemaType("emailSendingSettings")
+                    .documentId("emailSendingSettings")
+                    .title("Sending Settings"),
                 ),
             ]),
         ),

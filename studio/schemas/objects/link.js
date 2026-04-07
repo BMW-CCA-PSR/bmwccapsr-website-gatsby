@@ -106,7 +106,7 @@ export default {
         return {
           title: previewTitle,
           subtitle,
-          media: image
+          media: image || GoFileSymlinkFile
         }
       }
     }

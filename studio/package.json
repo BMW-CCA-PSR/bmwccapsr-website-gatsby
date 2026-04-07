@@ -28,6 +28,7 @@
     "react-player": "^2.12.0",
     "sanity": "latest",
     "sanity-plugin-asset-source-unsplash": "latest",
+    "sanity-plugin-graph-view": "^5.0.5",
     "sanity-plugin-leaflet-input": "latest",
     "sanity-plugin-media": "latest",
     "styled-components": "^6.1.15"
