@@ -1,4 +1,5 @@
 import { GoBrowser } from "react-icons/go";
+import PageBuilderInput from "../../src/components/PageBuilderInput";
 
 const isJoinPage = (document) =>
   document?._id === 'join' || document?._id === 'drafts.join'
@@ -19,6 +20,9 @@ export default {
       type: 'array',
       title: 'Page sections',
       description: 'Add, edit, and reorder sections',
+      components: {
+        input: PageBuilderInput,
+      },
       hidden: ({ document }) => isJoinPage(document),
       of: [
         { type: 'uiComponentRef' },
