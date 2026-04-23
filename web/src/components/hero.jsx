@@ -7,6 +7,11 @@ import { BoxIcon } from "./box-icons";
 import ContentContainer from "./content-container";
 import { buildResponsiveImageAttrs } from "../lib/image-url";
 
+const HERO_CENTER_WIDTH = "1200px";
+const HERO_SIDE_FALLOFF = "320px";
+const HERO_EFFECT_BREAKPOINT = "1050px";
+const HERO_CENTER_HALF = "600px";
+
 function Hero(props) {
   const image = props.image;
   const headingText = String(props.heading || "");
@@ -30,6 +35,9 @@ function Hero(props) {
         quality: 68,
       })
     : null;
+  const imageAlt = image?.alt || props.heading || "";
+  const imageLoading = props.isHomepage ? "eager" : "lazy";
+  const imageFetchPriority = props.isHomepage ? "high" : undefined;
   return (
     <div
       sx={{
@@ -40,24 +48,115 @@ function Hero(props) {
     >
       {/* background image component */}
       {imageAttrs?.src && (
-        <Box
-          as="img"
-          src={imageAttrs.src}
-          srcSet={imageAttrs.srcSet}
-          sizes={imageAttrs.sizes}
-          loading={props.isHomepage ? "eager" : "lazy"}
-          fetchPriority={props.isHomepage ? "high" : undefined}
-          decoding="async"
-          alt={image?.alt || props.heading || ""}
-          sx={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-            zIndex: "-1",
-          }}
-        />
+        <>
+          <Box
+            as="img"
+            src={imageAttrs.src}
+            srcSet={imageAttrs.srcSet}
+            sizes={imageAttrs.sizes}
+            loading={imageLoading}
+            fetchPriority={imageFetchPriority}
+            decoding="async"
+            alt={imageAlt}
+            sx={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+              zIndex: "-1",
+              [`@media screen and (min-width: ${HERO_EFFECT_BREAKPOINT})`]: {
+                display: "none",
+              },
+            }}
+          />
+          <Box
+            sx={{
+              display: "none",
+              position: "absolute",
+              inset: 0,
+              zIndex: "-1",
+              overflow: "hidden",
+              [`@media screen and (min-width: ${HERO_EFFECT_BREAKPOINT})`]: {
+                display: "block",
+              },
+            }}
+          >
+            <Box
+              as="img"
+              src={imageAttrs.src}
+              srcSet={imageAttrs.srcSet}
+              sizes={imageAttrs.sizes}
+              loading={imageLoading}
+              fetchPriority={imageFetchPriority}
+              decoding="async"
+              alt=""
+              aria-hidden="true"
+              sx={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+                filter: "blur(11px)",
+                transform: "scale(1.03)",
+              }}
+            />
+            <Box
+              as="img"
+              src={imageAttrs.src}
+              srcSet={imageAttrs.srcSet}
+              sizes={imageAttrs.sizes}
+              loading={imageLoading}
+              fetchPriority={imageFetchPriority}
+              decoding="async"
+              alt=""
+              aria-hidden="true"
+              sx={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+                filter: "none",
+                transform: "none",
+                WebkitMaskImage: `linear-gradient(
+                  90deg,
+                  transparent 0,
+                  transparent calc(50% - ${HERO_CENTER_HALF} - ${HERO_SIDE_FALLOFF}),
+                  rgba(0, 0, 0, 0.14) calc(50% - ${HERO_CENTER_HALF} - (${HERO_SIDE_FALLOFF} * 0.72)),
+                  rgba(0, 0, 0, 0.32) calc(50% - ${HERO_CENTER_HALF} - (${HERO_SIDE_FALLOFF} * 0.42)),
+                  rgba(0, 0, 0, 0.62) calc(50% - ${HERO_CENTER_HALF} - (${HERO_SIDE_FALLOFF} * 0.16)),
+                  black calc(50% - ${HERO_CENTER_HALF}),
+                  black calc(50% + ${HERO_CENTER_HALF}),
+                  rgba(0, 0, 0, 0.62) calc(50% + ${HERO_CENTER_HALF} + (${HERO_SIDE_FALLOFF} * 0.16)),
+                  rgba(0, 0, 0, 0.32) calc(50% + ${HERO_CENTER_HALF} + (${HERO_SIDE_FALLOFF} * 0.42)),
+                  rgba(0, 0, 0, 0.14) calc(50% + ${HERO_CENTER_HALF} + (${HERO_SIDE_FALLOFF} * 0.72)),
+                  transparent calc(50% + ${HERO_CENTER_HALF} + ${HERO_SIDE_FALLOFF}),
+                  transparent 100%
+                )`,
+                maskImage: `linear-gradient(
+                  90deg,
+                  transparent 0,
+                  transparent calc(50% - ${HERO_CENTER_HALF} - ${HERO_SIDE_FALLOFF}),
+                  rgba(0, 0, 0, 0.14) calc(50% - ${HERO_CENTER_HALF} - (${HERO_SIDE_FALLOFF} * 0.72)),
+                  rgba(0, 0, 0, 0.32) calc(50% - ${HERO_CENTER_HALF} - (${HERO_SIDE_FALLOFF} * 0.42)),
+                  rgba(0, 0, 0, 0.62) calc(50% - ${HERO_CENTER_HALF} - (${HERO_SIDE_FALLOFF} * 0.16)),
+                  black calc(50% - ${HERO_CENTER_HALF}),
+                  black calc(50% + ${HERO_CENTER_HALF}),
+                  rgba(0, 0, 0, 0.62) calc(50% + ${HERO_CENTER_HALF} + (${HERO_SIDE_FALLOFF} * 0.16)),
+                  rgba(0, 0, 0, 0.32) calc(50% + ${HERO_CENTER_HALF} + (${HERO_SIDE_FALLOFF} * 0.42)),
+                  rgba(0, 0, 0, 0.14) calc(50% + ${HERO_CENTER_HALF} + (${HERO_SIDE_FALLOFF} * 0.72)),
+                  transparent calc(50% + ${HERO_CENTER_HALF} + ${HERO_SIDE_FALLOFF}),
+                  transparent 100%
+                )`,
+              }}
+            />
+          </Box>
+        </>
       )}
       <div
         sx={{
