@@ -2668,9 +2668,9 @@
     zod "^3.25.76"
 
 "@sanity/color-input@latest":
-  version "6.0.3"
-  resolved "https://registry.npmjs.org/@sanity/color-input/-/color-input-6.0.3.tgz"
-  integrity sha512-BFZasSpq8BmIIATKtdICxUG2YukIP6LbCVgpLHYKsRHmfGWjpnBQ8fKljOhK9u013jraamd9coNsPWCg44nO6Q==
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@sanity/color-input/-/color-input-6.0.4.tgz#308d91c686035e2a82b8eaf014858191ec79f559"
+  integrity sha512-0msurLv4YftXusxZOxZIincUMTFzznyXL9LM/NiVtiSP8OjcUZPMjksyC8zxTiLOTpOe0lKP95lHI2xb88DKqg==
   dependencies:
     "@sanity/icons" "^3.7.4"
     "@sanity/ui" "^3.1.11"
@@ -3068,10 +3068,10 @@
     "@sanity/client" "^7.13.2"
     "@sanity/media-library-types" "^1.0.1"
 
-"@sanity/ui@^3.0.5", "@sanity/ui@^3.1.0", "@sanity/ui@^3.1.11", "@sanity/ui@latest":
-  version "3.1.11"
-  resolved "https://registry.npmjs.org/@sanity/ui/-/ui-3.1.11.tgz"
-  integrity sha512-UooG4hq0ytUivCe0d5O+QWnG+B6fpuu5npNZNpV9SJNwZNH4hDNbLjnDS8sqEkaYVNhgIS+C26nnkVK134Di4w==
+"@sanity/ui@^3.0.5", "@sanity/ui@^3.1.0", "@sanity/ui@^3.1.11", "@sanity/ui@^3.1.13":
+  version "3.1.14"
+  resolved "https://registry.npmjs.org/@sanity/ui/-/ui-3.1.14.tgz"
+  integrity sha512-wpmjQrxerWM0l5NAziazr7q/aUgJBkFHvkBhImlDCzL4teWYLsblFRujTdBHh9CpbcDDa27InQdOBV+RsFBiuw==
   dependencies:
     "@floating-ui/react-dom" "^2.1.6"
     "@juggle/resize-observer" "^3.4.0"
@@ -3083,10 +3083,10 @@
     react-refractor "^4.0.0"
     use-effect-event "^2.0.3"
 
-"@sanity/ui@^3.1.13":
-  version "3.1.14"
-  resolved "https://registry.npmjs.org/@sanity/ui/-/ui-3.1.14.tgz"
-  integrity sha512-wpmjQrxerWM0l5NAziazr7q/aUgJBkFHvkBhImlDCzL4teWYLsblFRujTdBHh9CpbcDDa27InQdOBV+RsFBiuw==
+"@sanity/ui@latest":
+  version "3.1.11"
+  resolved "https://registry.npmjs.org/@sanity/ui/-/ui-3.1.11.tgz"
+  integrity sha512-UooG4hq0ytUivCe0d5O+QWnG+B6fpuu5npNZNpV9SJNwZNH4hDNbLjnDS8sqEkaYVNhgIS+C26nnkVK134Di4w==
   dependencies:
     "@floating-ui/react-dom" "^2.1.6"
     "@juggle/resize-observer" "^3.4.0"
