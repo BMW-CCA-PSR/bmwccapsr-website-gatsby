@@ -35,7 +35,7 @@
     "@aws-cdk/aws-ecs-patterns": "1.119.0",
     "@aws-cdk/aws-elasticloadbalancingv2": "1.119.0",
     "@aws-cdk/aws-iam": "1.119.0",
-    "@aws-cdk/aws-lambda": "1.119.0",
+    "@aws-cdk/aws-lambda": "1.204.0",
     "@aws-cdk/aws-route53": "1.119.0",
     "@aws-cdk/aws-secretsmanager": "1.119.0",
     "@aws-cdk/core": "1.119.0",
