@@ -7502,10 +7502,10 @@ react-virtuoso@^4.12.5:
   resolved "https://registry.npmjs.org/react-virtuoso/-/react-virtuoso-4.18.1.tgz"
   integrity sha512-KF474cDwaSb9+SJ380xruBB4P+yGWcVkcu26HtMqYNMTYlYbrNy8vqMkE+GpAApPPufJqgOLMoWMFG/3pJMXUA==
 
-react@^19.2.2:
-  version "19.2.3"
-  resolved "https://registry.npmjs.org/react/-/react-19.2.3.tgz"
-  integrity sha512-Ku/hhYbVjOQnXDZFv2+RibmLFGwFdeeKHFcOTlrt7xplBnya5OGn/hIRDsqDiSUcfORsDC7MPxwork8jBwsIWA==
+react@^19.2.5:
+  version "19.2.5"
+  resolved "https://registry.yarnpkg.com/react/-/react-19.2.5.tgz#c888ab8b8ef33e2597fae8bdb2d77edbdb42858b"
+  integrity sha512-llUJLzz1zTUBrskt2pwZgLq59AemifIftw4aB7JxOqf1HY2FDaGDxgwpAPVzHU1kdWabH7FauP4i1oEeer2WCA==
 
 reactcss@^1.2.0:
   version "1.2.3"
