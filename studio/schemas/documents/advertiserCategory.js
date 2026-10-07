@@ -1,4 +1,5 @@
 import { MdLocalOffer } from "react-icons/md";
+import { RiAdvertisementLine } from "react-icons/ri";
 
 export default {
     name: 'advertiserCategory',
